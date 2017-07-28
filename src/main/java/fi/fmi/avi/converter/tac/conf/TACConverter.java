@@ -3,7 +3,6 @@ package fi.fmi.avi.converter.tac.conf;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.taf.TAF;
@@ -82,53 +81,22 @@ public class TACConverter {
      */
     public static final ConversionSpecification<TAF, String> TAF_POJO_TO_TAC = new ConversionSpecification<>(TAF.class, String.class, null, "ICAO Annex 3 TAC");
 
-
     @Bean
-    public AviMessageLexer aviMessageLexer() {
-        AviMessageLexerImpl l = new AviMessageLexerImpl();
-        l.setLexingFactory(lexingFactory());
-        l.addTokenLexer("METAR", metarTokenLexer());
-        l.addTokenLexer("TAF", tafTokenLexer());
-        return l;
-    }
-
-    @Bean
-    public AviMessageConverter aviMessageConverter() {
-        AviMessageConverter p = new AviMessageConverter();
-        p.setMessageSpecificConverter(TAC_TO_METAR_POJO, metarTACParser());
-        p.setMessageSpecificConverter(TAC_TO_TAF_POJO, tafTACParser());
-        p.setMessageSpecificConverter(METAR_POJO_TO_TAC, metarTACSerializer());
-        p.setMessageSpecificConverter(TAF_POJO_TO_TAC, tafTACSerializer());
-        return p;
-    }
-
-    @Bean
-    public AviMessageTACTokenizer tacTokenizer() {
-        AviMessageTACTokenizerImpl tokenizer = new AviMessageTACTokenizerImpl();
-        tokenizer.setMETARSerializer(metarTACSerializer());
-        tokenizer.setTAFSerializer(tafTACSerializer());
-        return tokenizer;
-    }
-    
-    @Bean
-    public LexingFactory lexingFactory() {
-        return new LexingFactoryImpl();
-    }
-    
-    
     AviMessageSpecificConverter<String, METAR> metarTACParser() {
         TACParser<METAR> p = new METARTACParser();
         p.setTACLexer(aviMessageLexer());
         return p;
     }
 
+    @Bean
     AviMessageSpecificConverter<String, TAF> tafTACParser() {
         TACParser<TAF> p = new TAFTACParser();
         p.setTACLexer(aviMessageLexer());
         return p;
     }
-
-    METARTACSerializer metarTACSerializer() {
+    
+    @Bean
+    AviMessageSpecificConverter<METAR, String> metarTACSerializer() {
         METARTACSerializer s = new METARTACSerializer();
         s.setLexingFactory(lexingFactory());
         s.addReconstructor(Lexeme.Identity.METAR_START, new MetarStart.Reconstructor());
@@ -157,7 +125,8 @@ public class TACConverter {
         return s;
     }
 
-    TAFTACSerializer tafTACSerializer() {
+    @Bean
+    AviMessageSpecificConverter<TAF, String> tafTACSerializer() {
         TAFTACSerializer s = new TAFTACSerializer();
         s.setLexingFactory(lexingFactory());
         s.addReconstructor(Lexeme.Identity.TAF_START, new TAFStart.Reconstructor());
@@ -182,7 +151,29 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.END_TOKEN,new EndToken.Reconstructor());
         return s;
     }
+    
+    @Bean
+    public AviMessageLexer aviMessageLexer() {
+        AviMessageLexerImpl l = new AviMessageLexerImpl();
+        l.setLexingFactory(lexingFactory());
+        l.addTokenLexer("METAR", metarTokenLexer());
+        l.addTokenLexer("TAF", tafTokenLexer());
+        return l;
+    }
 
+    @Bean
+    public AviMessageTACTokenizer tacTokenizer() {
+        AviMessageTACTokenizerImpl tokenizer = new AviMessageTACTokenizerImpl();
+        tokenizer.setMETARSerializer((METARTACSerializer)metarTACSerializer());
+        tokenizer.setTAFSerializer((TAFTACSerializer)tafTACSerializer());
+        return tokenizer;
+    }
+    
+    @Bean
+    public LexingFactory lexingFactory() {
+        return new LexingFactoryImpl();
+    }
+    
     RecognizingAviMessageTokenLexer metarTokenLexer() {
         RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
 

@@ -12,6 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 
 /**
@@ -19,7 +20,7 @@ import fi.fmi.avi.converter.tac.conf.TACConverter;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TACConverter.class, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
 public class LexemeSequenceTest {
 
     @Autowired

@@ -34,7 +34,6 @@ import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionSpecification;
-import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
@@ -44,7 +43,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.AviationWeatherMessage;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TACConverter.class, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
 public abstract class AbstractAviMessageTest<S, T> {
 
 	private static final double FLOAT_EQUIVALENCE_THRESHOLD = 0.0000000001d;
