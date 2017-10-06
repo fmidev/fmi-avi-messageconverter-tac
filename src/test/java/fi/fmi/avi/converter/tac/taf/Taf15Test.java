@@ -30,7 +30,7 @@ public class Taf15Test extends AbstractAviMessageTest<String, TAF> {
 	@Override
 	public String getMessage() {
 		return
-				"TAF EFRO 062331Z 0700/0724 20009KT CAVOK " +
+				"TAF EFRO 062331Z 0700/0724 20009KT CAVOK\n" +
 	    		"PROB30 0702/0706 1000 BCFG BKN001=";
 	}
 	
@@ -41,11 +41,11 @@ public class Taf15Test extends AbstractAviMessageTest<String, TAF> {
 
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return new Identity[] {
+		return spacify(new Identity[] {
 				TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME,
         		VALID_TIME, SURFACE_WIND, CAVOK, FORECAST_CHANGE_INDICATOR, CHANGE_FORECAST_TIME_GROUP, 
         		HORIZONTAL_VISIBILITY, WEATHER, CLOUD, END_TOKEN
-		};
+		});
 	}
 
 	@Override

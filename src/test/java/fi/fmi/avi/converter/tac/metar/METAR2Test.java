@@ -40,10 +40,10 @@ public class METAR2Test extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return new Identity[] {
+		return spacify(new Identity[] {
 				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, WEATHER, WEATHER, CLOUD,
                 AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, REMARKS_START, REMARK, REMARK, REMARK, REMARK, END_TOKEN
-		};
+		});
 	}
 
 	@Override

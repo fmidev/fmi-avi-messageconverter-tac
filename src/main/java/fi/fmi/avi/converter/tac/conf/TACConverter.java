@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
+import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.converter.ConversionSpecification;
@@ -121,6 +122,7 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.RUNWAY_STATE, new RunwayState.Reconstructor());
         s.addReconstructor(Lexeme.Identity.COLOR_CODE, new ColorCode.Reconstructor());
         s.addReconstructor(Lexeme.Identity.REMARKS_START, new RemarkStart.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.REMARK, new Remark.Reconstructor());
         s.addReconstructor(Lexeme.Identity.END_TOKEN, new EndToken.Reconstructor());
         return s;
     }
@@ -148,6 +150,7 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.FORECAST_CHANGE_INDICATOR, new ForecastChangeIndicator.Reconstructor());
         s.addReconstructor(Lexeme.Identity.CHANGE_FORECAST_TIME_GROUP, new ChangeForecastTimeGroup.Reconstructor());
         s.addReconstructor(Lexeme.Identity.REMARKS_START, new RemarkStart.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.REMARK, new Remark.Reconstructor());
         s.addReconstructor(Lexeme.Identity.END_TOKEN,new EndToken.Reconstructor());
         return s;
     }
@@ -203,6 +206,7 @@ public class TACConverter {
         l.teach(new WindShear(Priority.LOW));
         l.teach(new SeaState(Priority.LOW));
         l.teach(new EndToken(Priority.LOW));
+        l.teach(new Whitespace(Priority.HIGH));
         return l;
     }
 
@@ -230,6 +234,7 @@ public class TACConverter {
         l.teach(new RemarkStart(Priority.HIGH));
         l.teach(new Remark(Priority.HIGH));
         l.teach(new EndToken(Priority.LOW));
+        l.teach(new Whitespace(Priority.HIGH));
         return l;
     }
 

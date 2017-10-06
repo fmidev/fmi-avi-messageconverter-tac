@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -158,7 +159,19 @@ public abstract class AbstractAviMessageTest<S, T> {
 		String expectedMessage = getTokenizedMessagePrefix() + getCanonicalMessage();
 		assertEquals(expectedMessage, result.getConvertedMessage());
 	}
-	
+
+	protected Identity[] spacify(Identity[] input) {
+		List<Identity> retval = new ArrayList<>();
+		if (input != null) {
+			for (int i=0; i < input.length; i++) {
+				retval.add(input[i]);
+			    if ((i < input.length - 1) && (Identity.END_TOKEN != input[i + 1])) {
+                    retval.add(Identity.WHITE_SPACE);
+                }
+			}
+		}
+		return retval.toArray(new Identity[retval.size()]);
+	}
 
     protected void assertTokenSequenceIdentityMatch(LexemeSequence result, Lexeme.Identity... identities) {
 		List<Lexeme> lexemes = result.getLexemes();

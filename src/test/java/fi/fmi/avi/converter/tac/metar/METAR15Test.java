@@ -80,10 +80,10 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return new Identity[] {
+		return spacify(new Identity[] {
 				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, VARIABLE_WIND_DIRECTION,
                 HORIZONTAL_VISIBILITY, CLOUD, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, END_TOKEN
-		};
+		});
 	}
 
 	@Override

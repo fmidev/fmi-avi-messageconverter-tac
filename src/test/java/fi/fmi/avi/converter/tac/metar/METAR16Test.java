@@ -34,7 +34,7 @@ public class METAR16Test extends AbstractAviMessageTest<String, METAR> {
 	@Override
 	public String getCanonicalMessage() {
 		return
-				"METAR EFTU 011350Z AUTO VRB02KT 9999 22/12 Q1008=";
+				"METAR EFTU 011350Z AUTO VRB02KT 9999 ////// 22/12 Q1008=";
 	}
 	
 	@Override
@@ -44,10 +44,10 @@ public class METAR16Test extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return new Identity[] {
+		return spacify(new Identity[] {
 				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD, AIR_DEWPOINT_TEMPERATURE,
                 AIR_PRESSURE_QNH, END_TOKEN
-		};
+		});
 	}
 
 	@Override

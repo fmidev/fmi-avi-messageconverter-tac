@@ -114,10 +114,12 @@ public class ForecastChangeIndicator extends TimeHandlingRegex {
                             break;
                         case PROBABILITY_30_TEMPORARY_FLUCTUATIONS:
                             retval.add(this.createLexeme("PROB30", FORECAST_CHANGE_INDICATOR));
+                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
                             retval.add(this.createLexeme("TEMPO", FORECAST_CHANGE_INDICATOR));
                             break;
                         case PROBABILITY_40_TEMPORARY_FLUCTUATIONS:
                             retval.add(this.createLexeme("PROB40", FORECAST_CHANGE_INDICATOR));
+                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
                             retval.add(this.createLexeme("TEMPO", FORECAST_CHANGE_INDICATOR));
                             break;
                         case FROM:
@@ -135,6 +137,7 @@ public class ForecastChangeIndicator extends TimeHandlingRegex {
                             if (periodOfChange.isEmpty()) {
                                 throw new SerializingException("No period of time for the trend of type BECOMING");
                             }
+                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
                             retval.addAll(periodOfChange);
                             break;
                         }
@@ -142,6 +145,7 @@ public class ForecastChangeIndicator extends TimeHandlingRegex {
                             retval.add(this.createLexeme("TEMPO", FORECAST_CHANGE_INDICATOR));
                             List<Lexeme> periodOfChange = createTrendTimeChangePeriods(trend.getTimeGroups());
                             if (!periodOfChange.isEmpty()) {
+                                retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
                                 retval.addAll(periodOfChange);
                             }
                             break;
@@ -171,19 +175,29 @@ public class ForecastChangeIndicator extends TimeHandlingRegex {
         private List<Lexeme> createTrendTimeChangePeriods(final TrendTimeGroups timeGroups) {
             List<Lexeme> retval = new ArrayList<>();
             if (timeGroups != null) {
+
                 if (timeGroups.isSingleInstance()) {
                     if (timeGroups.getPartialStartTime() != null) {
+                        if (retval.size() > 0 && Lexeme.Identity.WHITE_SPACE != retval.get(retval.size() - 1).getIdentity()) {
+                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
+                        }
                         StringBuilder ret = new StringBuilder("AT");
                         ret.append(timeGroups.getPartialStartTime());
                         retval.add(this.createLexeme(ret.toString(), FORECAST_CHANGE_INDICATOR));
                     }
                 } else {
                     if (timeGroups.getPartialStartTime() != null) {
+                        if (retval.size() > 0 && Lexeme.Identity.WHITE_SPACE != retval.get(retval.size() - 1).getIdentity()) {
+                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
+                        }
                         StringBuilder ret = new StringBuilder("FM");
                         ret.append(timeGroups.getPartialStartTime());
                         retval.add(this.createLexeme(ret.toString(), FORECAST_CHANGE_INDICATOR));
                     }
                     if (timeGroups.getPartialEndTime() != null) {
+                        if (retval.size() > 0 && Lexeme.Identity.WHITE_SPACE != retval.get(retval.size() - 1).getIdentity()) {
+                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
+                        }
                         StringBuilder ret = new StringBuilder("TL");
                         ret.append(timeGroups.getPartialEndTime());
                         retval.add(this.createLexeme(ret.toString(), FORECAST_CHANGE_INDICATOR));

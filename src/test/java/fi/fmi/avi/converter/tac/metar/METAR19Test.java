@@ -46,7 +46,7 @@ public class METAR19Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return new Identity[] {
+		return spacify(new Identity[] {
 				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE,
                 RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH,
                 SEA_STATE, RUNWAY_STATE,
@@ -54,7 +54,7 @@ public class METAR19Test extends AbstractAviMessageTest<String, METAR> {
                 FORECAST_CHANGE_INDICATOR, FORECAST_CHANGE_INDICATOR, CLOUD,
                 FORECAST_CHANGE_INDICATOR, FORECAST_CHANGE_INDICATOR, CLOUD,
                 END_TOKEN
-		};
+		});
 	}
 
 	@Override

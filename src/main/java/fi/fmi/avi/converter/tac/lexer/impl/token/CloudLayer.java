@@ -124,6 +124,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
 
             NumericMeasure verVis = null;
             boolean nsc = false;
+            boolean cloudsUnobservable = false;
             
             if (TAF.class.isAssignableFrom(clz)) {
                 TAFBaseForecast baseFct = getAs(specifier, 1, TAFBaseForecast.class);
@@ -147,6 +148,9 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
             	if (obsClouds.isNoSignificantCloud()) {
             		nsc = true;
             	}
+            	if (obsClouds.isAmountAndHeightUnobservableByAutoSystem()) {
+            		cloudsUnobservable = true;
+				}
             	TrendForecast trend = getAs(specifier, TrendForecast.class);
             	if (trend != null) {
             		if ("VV".equals(specialValue)) {
@@ -160,7 +164,9 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
             		}
             	}
             }
-            if (nsc) {
+            if (cloudsUnobservable) {
+            	retval = this.createLexeme("//////", Identity.CLOUD);
+			} else if (nsc) {
             	retval = this.createLexeme("NSC", Identity.CLOUD);
             } else {
             	String str = getCloudLayerOrVerticalVisibilityToken(layer, verVis);

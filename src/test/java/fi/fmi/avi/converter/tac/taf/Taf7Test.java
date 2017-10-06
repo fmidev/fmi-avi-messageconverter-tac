@@ -33,9 +33,9 @@ public class Taf7Test extends AbstractAviMessageTest<String, TAF> {
 
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return new Identity[] {
+		return spacify(new Identity[] {
 				TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, NIL, END_TOKEN
-		};
+		});
 	}
 
 	@Override

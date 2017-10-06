@@ -41,11 +41,11 @@ public class METAR11Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return new Identity[] {
+		return spacify(new Identity[] {
 				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE,
                 RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH,
                 SEA_STATE, FORECAST_CHANGE_INDICATOR, FORECAST_CHANGE_INDICATOR, WEATHER, CLOUD, END_TOKEN
-		};
+		});
 	}
 
 	@Override

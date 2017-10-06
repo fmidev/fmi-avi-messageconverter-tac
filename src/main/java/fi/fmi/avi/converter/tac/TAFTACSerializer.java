@@ -49,31 +49,53 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
         TAF input = (TAF) msg;
         LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
         appendToken(retval, Identity.TAF_START, input, TAF.class, hints);
-        appendToken(retval, Identity.AMENDMENT, input, TAF.class, hints);
-        appendToken(retval, Identity.CORRECTION, input, TAF.class, hints);
-        appendToken(retval, Identity.AERODROME_DESIGNATOR, input, TAF.class, hints);
-        appendToken(retval, Identity.ISSUE_TIME, input, TAF.class, hints);
+        appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.AMENDMENT, input, TAF.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.CORRECTION, input, TAF.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.AERODROME_DESIGNATOR, input, TAF.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.ISSUE_TIME, input, TAF.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
 
         if (AviationCodeListUser.TAFStatus.MISSING != input.getStatus()) {
-            appendToken(retval, Identity.VALID_TIME, input, TAF.class, hints);
-            appendToken(retval, Identity.CANCELLATION, input, TAF.class, hints);
+            if (appendToken(retval, Identity.VALID_TIME, input, TAF.class, hints) > 0) {
+                appendWhitespace(retval, ' ', hints);
+            }
+
+            if (appendToken(retval, Identity.CANCELLATION, input, TAF.class, hints) > 0) {
+                appendWhitespace(retval, ' ', hints);
+            }
             if (AviationCodeListUser.TAFStatus.CANCELLATION != input.getStatus()) {
                 TAFBaseForecast baseFct = input.getBaseForecast();
                 if (baseFct == null) {
                     throw new SerializingException("Missing base forecast");
                 }
-                appendToken(retval, Identity.SURFACE_WIND, input, TAF.class, hints, baseFct);
-                appendToken(retval, Identity.CAVOK, input, TAF.class, hints, baseFct);
-                appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, TAF.class, hints, baseFct);
+                if (appendToken(retval, Identity.SURFACE_WIND, input, TAF.class, hints, baseFct) > 0) {
+                    appendWhitespace(retval, ' ', hints);
+                }
+                if (appendToken(retval, Identity.CAVOK, input, TAF.class, hints, baseFct) > 0) {
+                    appendWhitespace(retval, ' ', hints);
+                }
+                if (appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, TAF.class, hints, baseFct) > 0) {
+                    appendWhitespace(retval, ' ', hints);
+                }
                 if (baseFct.getForecastWeather() != null) {
                     for (Weather weather : baseFct.getForecastWeather()) {
                         appendToken(retval, Identity.WEATHER, input, TAF.class, hints, baseFct, weather);
+                        appendWhitespace(retval, ' ', hints);
                     }
                 }
                 CloudForecast clouds = baseFct.getCloud();
                 if (clouds != null) {
                     if (clouds.getVerticalVisibility() != null) {
                         this.appendToken(retval, Lexeme.Identity.CLOUD, input, TAF.class, hints, "VV", baseFct);
+                        appendWhitespace(retval, ' ', hints);
                     } else {
                         this.appendCloudLayers(retval, input, TAF.class, clouds.getLayers(), hints, baseFct);
                     }
@@ -81,27 +103,44 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                 if (baseFct.getTemperatures() != null) {
                     for (TAFAirTemperatureForecast tempFct : baseFct.getTemperatures()) {
                         appendToken(retval, Identity.MAX_TEMPERATURE, input, TAF.class, hints, baseFct, tempFct);
+                        appendWhitespace(retval, ' ', hints);
                         // No MIN_TEMPERATURE needed as they are produced together
                     }
                 }
 
                 if (input.getChangeForecasts() != null) {
                     for (TAFChangeForecast changeFct : input.getChangeForecasts()) {
-                        appendToken(retval, Identity.FORECAST_CHANGE_INDICATOR, input, TAF.class, hints, changeFct);
-                        appendToken(retval, Identity.CHANGE_FORECAST_TIME_GROUP, input, TAF.class, hints, changeFct);
-                        appendToken(retval, Identity.SURFACE_WIND, input, TAF.class, hints, changeFct);
-                        appendToken(retval, Identity.CAVOK, input, TAF.class, hints, changeFct);
-                        appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, TAF.class, hints, changeFct);
-                        appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, TAF.class, hints, changeFct);
+                        retval.removeLast(); //last whitespace
+                        appendWhitespace(retval, '\n', hints);
+                        if (appendToken(retval, Identity.FORECAST_CHANGE_INDICATOR, input, TAF.class, hints, changeFct) > 0) {
+                            appendWhitespace(retval, ' ', hints);
+                        }
+                        if (appendToken(retval, Identity.CHANGE_FORECAST_TIME_GROUP, input, TAF.class, hints, changeFct) > 0) {
+                            appendWhitespace(retval, ' ', hints);
+                        }
+                        if (appendToken(retval, Identity.SURFACE_WIND, input, TAF.class, hints, changeFct) > 0) {
+                            appendWhitespace(retval, ' ', hints);
+                        }
+                        if (appendToken(retval, Identity.CAVOK, input, TAF.class, hints, changeFct) > 0) {
+                            appendWhitespace(retval, ' ', hints);
+                        }
+                        if (appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, TAF.class, hints, changeFct) > 0) {
+                            appendWhitespace(retval, ' ', hints);
+                        }
+                        if (appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, TAF.class, hints, changeFct) > 0) {
+                            appendWhitespace(retval, ' ', hints);
+                        }
                         if (changeFct.getForecastWeather() != null) {
                             for (Weather weather : changeFct.getForecastWeather()) {
                                 appendToken(retval, Identity.WEATHER, input, TAF.class, hints, changeFct, weather);
+                                appendWhitespace(retval, ' ', hints);
                             }
                         }
                         clouds = changeFct.getCloud();
                         if (clouds != null) {
                             if (clouds.getVerticalVisibility() != null) {
                                 this.appendToken(retval, Lexeme.Identity.CLOUD, input, TAF.class, hints, "VV", changeFct);
+                                appendWhitespace(retval, ' ', hints);
                             } else {
                                 this.appendCloudLayers(retval, input, TAF.class, clouds.getLayers(), hints, changeFct);
                             }
@@ -110,14 +149,18 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                 }
                 if (input.getRemarks() != null && !input.getRemarks().isEmpty()) {
                     appendToken(retval, Identity.REMARKS_START, input, TAF.class, hints);
+                    appendWhitespace(retval, ' ', hints);
                     for (String remark : input.getRemarks()) {
                         this.appendToken(retval, Identity.REMARK, input, TAF.class, hints, remark);
+                        appendWhitespace(retval, ' ', hints);
                     }
                 }
             }
         } else {
             appendToken(retval, Identity.NIL, input, TAF.class, hints);
+            appendWhitespace(retval, ' ', hints);
         }
+        retval.removeLast();
         appendToken(retval, Identity.END_TOKEN, input, TAF.class, hints);
         return retval.build();
     }

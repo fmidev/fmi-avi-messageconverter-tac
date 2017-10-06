@@ -29,6 +29,13 @@ public interface LexemeSequenceBuilder {
     LexemeSequenceBuilder appendAll(List<Lexeme> lexemes);
 
     /**
+     * Removes the last Lexeme appended if one exists.
+     *
+     * @return the builder
+     */
+    LexemeSequenceBuilder removeLast();
+
+    /**
      * Returns the complete {@link LexemeSequence}.
      *
      * @return the sequence

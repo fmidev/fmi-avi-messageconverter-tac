@@ -37,9 +37,6 @@ public class RemarkStart extends PrioritizedLexemeVisitor {
     		if (msg.getRemarks() != null && !msg.getRemarks().isEmpty()) {
     			retval = new ArrayList<>();
     			retval.add(this.createLexeme("RMK", REMARKS_START));
-    			for (String remark : msg.getRemarks()) {
-    				retval.add(this.createLexeme(remark, REMARK));
-    			}
     		}
     		
     		return retval;

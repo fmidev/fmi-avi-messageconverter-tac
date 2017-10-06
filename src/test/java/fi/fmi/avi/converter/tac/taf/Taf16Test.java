@@ -47,11 +47,11 @@ public class Taf16Test extends AbstractAviMessageTest<String, TAF> {
 	
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return new Identity[] {
+		return spacify(new Identity[] {
 				TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, 
         		VALID_TIME, SURFACE_WIND, CAVOK, HORIZONTAL_VISIBILITY, REMARKS_START, REMARK, REMARK,
         		REMARK, REMARK, REMARK, END_TOKEN
-		};
+		});
 	}
 
 	@Override

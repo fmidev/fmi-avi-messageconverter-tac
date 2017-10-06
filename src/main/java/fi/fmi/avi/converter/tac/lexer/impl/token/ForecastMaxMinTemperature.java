@@ -128,7 +128,7 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
     								temp.getMinTemperature().getValue(), 
     								temp.getMinTemperatureDayOfMonth(),
     								temp.getMinTemperatureHour());
-
+                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
                             retval.add(this.createLexeme(s, MIN_TEMPERATURE));
                         }
     					

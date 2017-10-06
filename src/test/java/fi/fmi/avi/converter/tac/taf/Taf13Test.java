@@ -29,11 +29,11 @@ public class Taf13Test extends AbstractAviMessageTest<String, TAF> {
 	@Override
 	public String getMessage() {
 		return
-				"TAF EFHK 011733Z 0118/0218 VRB02KT 4000 -SN BKN003 " +
-	    		"TEMPO 0118/0120 1500 SN " + 
-				"BECMG 0120/0122 1500 BR " +
-	    		"PROB40 TEMPO 0122/0203 0700 FG " + 
-				"BECMG 0204/0206 21010KT 5000 BKN005 " +
+				"TAF EFHK 011733Z 0118/0218 VRB02KT 4000 -SN BKN003\n" +
+	    		"TEMPO 0118/0120 1500 SN\n" +
+				"BECMG 0120/0122 1500 BR\n" +
+	    		"PROB40 TEMPO 0122/0203 0700 FG\n" +
+				"BECMG 0204/0206 21010KT 5000 BKN005\n" +
 	    		"BECMG 0210/0212 9999 BKN010=";
 	}
 	
@@ -44,7 +44,7 @@ public class Taf13Test extends AbstractAviMessageTest<String, TAF> {
 	
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return new Identity[] {
+		return spacify(new Identity[] {
 				TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, VALID_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, 
         		FORECAST_CHANGE_INDICATOR, CHANGE_FORECAST_TIME_GROUP, HORIZONTAL_VISIBILITY, WEATHER,
         		FORECAST_CHANGE_INDICATOR, CHANGE_FORECAST_TIME_GROUP, HORIZONTAL_VISIBILITY, WEATHER,
@@ -52,7 +52,7 @@ public class Taf13Test extends AbstractAviMessageTest<String, TAF> {
         		FORECAST_CHANGE_INDICATOR, CHANGE_FORECAST_TIME_GROUP, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD,
         		FORECAST_CHANGE_INDICATOR, CHANGE_FORECAST_TIME_GROUP, HORIZONTAL_VISIBILITY, CLOUD,
         		END_TOKEN
-		};
+		});
 	}
 
 	@Override

@@ -30,8 +30,8 @@ public class Taf6Test extends AbstractAviMessageTest<String, TAF> {
 	@Override
 	public String getMessage() {
 		return
-				"TAF EFKU 190830Z 1909/2009 23010KT CAVOK " + 
-				"PROB30 TEMPO 1915/1919 7000 SHRA SCT030CB BKN045 " + 
+				"TAF EFKU 190830Z 1909/2009 23010KT CAVOK\n" +
+				"PROB30 TEMPO 1915/1919 7000 SHRA SCT030CB BKN045\n" +
 				"BECMG 1923/2001 30010KT=";
 	}
 	
@@ -42,11 +42,11 @@ public class Taf6Test extends AbstractAviMessageTest<String, TAF> {
 
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return new Identity[] {
+		return spacify(new Identity[] {
 				TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, VALID_TIME, SURFACE_WIND, CAVOK, FORECAST_CHANGE_INDICATOR,
                 CHANGE_FORECAST_TIME_GROUP, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, CLOUD, FORECAST_CHANGE_INDICATOR,
                 CHANGE_FORECAST_TIME_GROUP, SURFACE_WIND, END_TOKEN
-		};
+		});
 	}
 
 	@Override

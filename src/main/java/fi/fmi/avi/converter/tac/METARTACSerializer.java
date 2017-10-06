@@ -47,63 +47,112 @@ public class METARTACSerializer extends AbstractTACSerializer<METAR> {
         METAR input = (METAR) msg;
         LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
         appendToken(retval, Identity.METAR_START, input, METAR.class, hints);
-        appendToken(retval, Identity.CORRECTION, input, METAR.class, hints);
-        appendToken(retval, Identity.AERODROME_DESIGNATOR, input, METAR.class, hints);
-        appendToken(retval, Identity.ISSUE_TIME, input, METAR.class, hints);
-        appendToken(retval, Identity.AUTOMATED, input, METAR.class, hints);
-        appendToken(retval, Identity.SURFACE_WIND, input, METAR.class, hints);
-        appendToken(retval, Identity.VARIABLE_WIND_DIRECTION, input, METAR.class, hints);
-        appendToken(retval, Identity.CAVOK, input, METAR.class, hints);
-        appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, METAR.class, hints);
+        appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.CORRECTION, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.AERODROME_DESIGNATOR, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.ISSUE_TIME, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.AUTOMATED, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.SURFACE_WIND, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.VARIABLE_WIND_DIRECTION, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.CAVOK, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
         if (input.getRunwayVisualRanges() != null) {
             for (RunwayVisualRange range : input.getRunwayVisualRanges()) {
                 appendToken(retval, Identity.RUNWAY_VISUAL_RANGE, input, METAR.class, hints, range);
+                appendWhitespace(retval, ' ', hints);
             }
         }
         if (input.getPresentWeather() != null) {
             for (Weather weather : input.getPresentWeather()) {
                 appendToken(retval, Identity.WEATHER, input, METAR.class, hints, weather);
+                appendWhitespace(retval, ' ', hints);
             }
         }
         ObservedClouds obsClouds = input.getClouds();
         if (obsClouds != null) {
             if (obsClouds.getVerticalVisibility() != null) {
                 this.appendToken(retval, Lexeme.Identity.CLOUD, input, METAR.class, hints, "VV");
+                appendWhitespace(retval, ' ', hints);
             } else if (obsClouds.isAmountAndHeightUnobservableByAutoSystem()) {
                 this.appendToken(retval, Lexeme.Identity.CLOUD, input, METAR.class, hints, "//////");
+                appendWhitespace(retval, ' ', hints);
             } else if (obsClouds.isNoSignificantCloud()) {
             	this.appendToken(retval, Lexeme.Identity.CLOUD, input, METAR.class, hints, "NSC");
+                appendWhitespace(retval, ' ', hints);
             } else {
                 this.appendCloudLayers(retval, input, METAR.class, obsClouds.getLayers(), hints);
             }
         }
-        appendToken(retval, Identity.AIR_DEWPOINT_TEMPERATURE, input, METAR.class, hints);
-        appendToken(retval, Identity.AIR_PRESSURE_QNH, input, METAR.class, hints);
+        if (appendToken(retval, Identity.AIR_DEWPOINT_TEMPERATURE, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.AIR_PRESSURE_QNH, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
         if (input.getRecentWeather() != null) {
             for (Weather weather : input.getRecentWeather()) {
                 appendToken(retval, Identity.RECENT_WEATHER, input, METAR.class, hints, weather);
+                appendWhitespace(retval, ' ', hints);
             }
         }
-        appendToken(retval, Identity.WIND_SHEAR, input, METAR.class, hints);
-        appendToken(retval, Identity.SEA_STATE, input, METAR.class, hints);
+        if (appendToken(retval, Identity.WIND_SHEAR, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.SEA_STATE, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
         if (input.getRunwayStates() != null) {
             for (RunwayState state : input.getRunwayStates()) {
                 appendToken(retval, Identity.RUNWAY_STATE, input, METAR.class, hints, state);
+                appendWhitespace(retval, ' ', hints);
             }
         }
-        appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, METAR.class, hints);
-        appendToken(retval, Identity.COLOR_CODE, input, METAR.class, hints);
+        if (appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
+        if (appendToken(retval, Identity.COLOR_CODE, input, METAR.class, hints) > 0) {
+            appendWhitespace(retval, ' ', hints);
+        }
         if (input.getTrends() != null) {
             for (TrendForecast trend : input.getTrends()) {
-                appendToken(retval, Identity.FORECAST_CHANGE_INDICATOR, input, METAR.class, hints, trend);
-                appendToken(retval, Identity.CHANGE_FORECAST_TIME_GROUP, input, METAR.class, hints, trend);
-                appendToken(retval, Identity.SURFACE_WIND, input, METAR.class, hints, trend);
-                appendToken(retval, Identity.CAVOK, input, METAR.class, hints, trend);
-                appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, METAR.class, hints, trend);
-                appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, METAR.class, hints, trend);
+                if (appendToken(retval, Identity.FORECAST_CHANGE_INDICATOR, input, METAR.class, hints, trend) > 0) {
+                    appendWhitespace(retval, ' ', hints);
+                }
+                if (appendToken(retval, Identity.CHANGE_FORECAST_TIME_GROUP, input, METAR.class, hints, trend) > 0) {
+                    appendWhitespace(retval, ' ', hints);
+                }
+                if (appendToken(retval, Identity.SURFACE_WIND, input, METAR.class, hints, trend) > 0) {
+                    appendWhitespace(retval, ' ', hints);
+                }
+                if (appendToken(retval, Identity.CAVOK, input, METAR.class, hints, trend) > 0) {
+                    appendWhitespace(retval, ' ', hints);
+                }
+                if (appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, METAR.class, hints, trend) > 0) {
+                    appendWhitespace(retval, ' ', hints);
+                }
+                if (appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, METAR.class, hints, trend) > 0) {
+                    appendWhitespace(retval, ' ', hints);
+                }
                 if (trend.getForecastWeather() != null) {
                     for (Weather weather : trend.getForecastWeather()) {
                         appendToken(retval, Identity.WEATHER, input, METAR.class, hints, trend, weather);
+                        appendWhitespace(retval, ' ', hints);
                     }
                 }
                 
@@ -111,21 +160,28 @@ public class METARTACSerializer extends AbstractTACSerializer<METAR> {
                 if (clouds != null) {
                     if (clouds.getVerticalVisibility() != null) {
                         this.appendToken(retval, Lexeme.Identity.CLOUD, input, METAR.class, hints, "VV", trend);
+                        appendWhitespace(retval, ' ', hints);
                     } else if (clouds.isNoSignificantCloud()) {
                     	this.appendToken(retval, Lexeme.Identity.CLOUD, input, METAR.class, hints, trend);
+                        appendWhitespace(retval, ' ', hints);
                     } else {
                         this.appendCloudLayers(retval, input, METAR.class, clouds.getLayers(), hints, trend);
                     }
                 }
-                appendToken(retval, Identity.COLOR_CODE, input, METAR.class, hints, trend);
+                if (appendToken(retval, Identity.COLOR_CODE, input, METAR.class, hints, trend) > 0) {
+                    appendWhitespace(retval, ' ', hints);
+                }
             }
         }
         if (input.getRemarks() != null && !input.getRemarks().isEmpty()) {
             appendToken(retval, Identity.REMARKS_START, input, METAR.class, hints);
+            appendWhitespace(retval, ' ', hints);
             for (String remark : input.getRemarks()) {
                 this.appendToken(retval, Identity.REMARK, input, METAR.class, hints, remark);
+                appendWhitespace(retval, ' ', hints);
             }
         }
+        retval.removeLast();
         appendToken(retval, Identity.END_TOKEN, input, METAR.class, hints);
         return retval.build();
     }

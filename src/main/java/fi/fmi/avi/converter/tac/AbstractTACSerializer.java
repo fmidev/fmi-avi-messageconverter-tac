@@ -61,6 +61,7 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
                 }
 
                 retval += appendToken(builder, Lexeme.Identity.CLOUD, msg, clz, hints, params);
+                retval += appendWhitespace(builder, ' ', hints);
             }
         }
         return retval;
@@ -80,6 +81,15 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
             }
         }
         return retval;
+    }
+
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final char toAppend, final ConversionHints hints) {
+        if (Character.isWhitespace(toAppend)) {
+            builder.append(factory.createLexeme(String.valueOf(toAppend), Lexeme.Identity.WHITE_SPACE));
+        } else {
+            throw new IllegalArgumentException("Character '" + toAppend + "' is not whitespace");
+        }
+        return 1;
     }
 
 }

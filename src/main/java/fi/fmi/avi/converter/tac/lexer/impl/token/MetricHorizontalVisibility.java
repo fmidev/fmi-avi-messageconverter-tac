@@ -207,6 +207,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 				
 				if (minimumVisibilityDistance != null) {
 					String tmp = createMinimumVisibilityString(minimumVisibilityDistance, minimumVisibilityDirection);
+					retval.add(createLexeme(" ", Identity.WHITE_SPACE));
 					retval.add(this.createLexeme(tmp, Lexeme.Identity.HORIZONTAL_VISIBILITY));
 				}
 			}
