@@ -71,7 +71,7 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
 
         ConversionIssue issue = conversionIssues.get(0);
         assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
-        assertEquals("Input message lexing was not fully successful", issue.getMessage());
+        assertTrue("Unexpected error message", issue.getMessage().indexOf("Input message lexing was not fully successful") > -1);
 
         issue = conversionIssues.get(1);
         assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
