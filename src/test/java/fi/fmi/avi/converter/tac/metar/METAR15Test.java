@@ -12,6 +12,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.VARIABLE_WIND_DIRECTION;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -66,15 +67,19 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
 
     @Override
     public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
-        assertEquals(2, conversionIssues.size());
+        assertEquals(3, conversionIssues.size());
 
         ConversionIssue issue = conversionIssues.get(0);
-        assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
-        assertEquals("Missing air temperature and dewpoint temperature values in /////", issue.getMessage());
+        assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+        assertEquals("Input message lexing was not fully successful", issue.getMessage());
 
         issue = conversionIssues.get(1);
-        assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
-        assertEquals("Missing air pressure value: Q////", issue.getMessage());
+        assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+        assertTrue("Unexpected error message", issue.getMessage().indexOf("Values for air and/or dew point temperature missing") > -1);
+
+        issue = conversionIssues.get(2);
+        assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+        assertTrue("Unxexpected error message", issue.getMessage().indexOf("Missing value for air pressure") > -1);
 
     }
 

@@ -137,6 +137,19 @@ public class LexingFactoryImpl implements LexingFactory {
             return retval;
         }
 
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            if (this.lexemes != null) {
+                for (Lexeme l: this.lexemes.stream().filter(l -> Lexeme.Identity.WHITE_SPACE != l.getIdentity()).collect(Collectors.toList())) {
+                    sb.append('[');
+                    sb.append(l);
+                    sb.append(']');
+                }
+            }
+            return sb.toString();
+        }
+
         LexemeImpl replaceFirstWith(final LexemeImpl replacement) {
             if (replacement == null) {
                 throw new NullPointerException();
@@ -664,8 +677,10 @@ public class LexingFactoryImpl implements LexingFactory {
         
 
         public String toString() {
-            return new StringBuilder().append(this.tacToken)
-                    .append(' ')
+            return new StringBuilder()
+                    .append('\'')
+                    .append(this.tacToken)
+                    .append('\'')
                     .append('(')
                     .append(this.id)
                     .append(',')

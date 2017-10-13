@@ -52,7 +52,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
     }
 
     public enum CloudType {
-        TOWERING_CUMULUS("TCU"), CUMULONIMBUS("CB");
+        TOWERING_CUMULUS("TCU"), CUMULONIMBUS("CB"), MISSING("///");
 
         private final String code;
 
@@ -69,6 +69,10 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
             return null;
         }
 
+        public String getCode() {
+        	return this.code;
+		}
+
     }
     
     public enum SpecialValue {
@@ -76,7 +80,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
     }
 
     public CloudLayer(final Priority prio) {
-        super("^(([A-Z]{3}|VV)([0-9]{3}|/{3})(CB|TCU)?)|(/{6})|(SKC|NSC)$", prio);
+        super("^(([A-Z]{3}|VV)([0-9]{3}|/{3})(CB|TCU|/{3})?)|(/{6})|(SKC|NSC)$", prio);
     }
 
     @Override
@@ -108,6 +112,10 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
 	            }
 	        }
             if (match.group(4) != null) {
+	    		CloudType type = CloudType.forCode(match.group(4));
+	    		if (CloudType.MISSING == type && hints.containsValue(ConversionHints.VALUE_PARSING_MODE_STRICT)) {
+					token.identify(CLOUD, Lexeme.Status.SYNTAX_ERROR, "Cloud token may only be postfixed with 'TCU' or 'CB', not '" + CloudType.MISSING.getCode());
+				}
 	            token.setParsedValue(TYPE, CloudType.forCode(match.group(4)));
             }
         }

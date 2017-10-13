@@ -295,6 +295,15 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
         }
     }
 
+    protected static boolean lexingSuccessful(final LexemeSequence lexed, final ConversionHints hints) {
+        if (!hints.containsValue(ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS)) {
+            if (lexed.getLexemes().stream().anyMatch(l -> !Lexeme.Status.OK.equals(l.getStatus()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Lambda function interface to use with {@link #findNext(Identity, Lexeme, Identity[], LexemeParsingConsumer)}
      * or {@link #findNext(Identity, Lexeme, Identity[], LexemeParsingConsumer, LexemeParsingNotifyer)}.

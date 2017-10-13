@@ -5,6 +5,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
@@ -58,7 +59,17 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             throw new IllegalStateException("TAC lexer not set");
         }
         lexed = this.lexer.lexMessage(input, hints);
-        
+
+        if (!lexingSuccessful(lexed, hints)) {
+            retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Input message lexing was not fully successful: " + lexed));
+            List<Lexeme> errors = lexed.getLexemes().stream().filter(l -> !Lexeme.Status.OK.equals(l.getStatus())).collect(Collectors.toList());
+            for (Lexeme l:errors) {
+                retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Lexing problem with '" + l.getTACToken() + "': " + l.getLexerMessage
+                        ()));
+            }
+            return retval;
+        }
+
         if (Identity.TAF_START != lexed.getFirstLexeme().getIdentityIfAcceptable()) {
             retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "The input message is not recognized as TAF"));
             return retval;

@@ -139,13 +139,13 @@ public abstract class AbstractAviMessageTest<S, T> {
 		ConversionResult<? extends AviationWeatherMessage> result = (ConversionResult<? extends AviationWeatherMessage>) converter.convertMessage(getMessage(), spec, getParserConversionHints());
 		assertEquals("Parsing was not successful: " + result.getConversionIssues(), getExpectedParsingStatus(), result.getStatus());
 		assertParsingIssues(result.getConversionIssues());
-		
-		//These are auto-generated during the conversion, need to reset for comparison:
-		result.getConvertedMessage().setTranslatedTAC(null);
-		result.getConvertedMessage().setTranslationTime(null);
-		
-		assertAviationWeatherMessageEquals(readFromJSON(getJsonFilename()), result.getConvertedMessage());
 
+		if (result.getConvertedMessage() != null) {
+			//These are auto-generated during the conversion, need to reset for comparison:
+			result.getConvertedMessage().setTranslatedTAC(null);
+			result.getConvertedMessage().setTranslationTime(null);
+			assertAviationWeatherMessageEquals(readFromJSON(getJsonFilename()), result.getConvertedMessage());
+		}
 	}
 	
 	@Test

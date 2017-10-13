@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +91,17 @@ public class METARTACParser extends AbstractTACParser<METAR> {
         }
 
         lexed = this.lexer.lexMessage(input, hints);
+
+        if (!lexingSuccessful(lexed, hints)) {
+            result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Input message lexing was not fully successful: " + lexed));
+            List<Lexeme> errors = lexed.getLexemes().stream().filter(l -> !Lexeme.Status.OK.equals(l.getStatus())).collect(Collectors.toList());
+            for (Lexeme l:errors) {
+                result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Lexing problem with '" + l.getTACToken() + "': " + l.getLexerMessage()));
+            }
+            result.setStatus(ConversionResult.Status.WITH_ERRORS);
+            return result;
+        }
+
         if (Identity.METAR_START != lexed.getFirstLexeme().getIdentityIfAcceptable()) {
             result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Input message is not recognized as METAR"));
             return result;
