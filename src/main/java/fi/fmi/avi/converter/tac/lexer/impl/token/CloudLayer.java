@@ -113,7 +113,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
 	        }
             if (match.group(4) != null) {
 	    		CloudType type = CloudType.forCode(match.group(4));
-	    		if (CloudType.MISSING == type && hints.containsValue(ConversionHints.VALUE_PARSING_MODE_STRICT)) {
+	    		if (CloudType.MISSING == type && hints != null && hints.containsValue(ConversionHints.VALUE_PARSING_MODE_STRICT)) {
 					token.identify(CLOUD, Lexeme.Status.SYNTAX_ERROR, "Cloud token may only be postfixed with 'TCU' or 'CB', not '" + CloudType.MISSING.getCode());
 				}
 	            token.setParsedValue(TYPE, CloudType.forCode(match.group(4)));

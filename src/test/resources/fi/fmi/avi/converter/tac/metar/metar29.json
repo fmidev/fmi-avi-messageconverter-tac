@@ -1,0 +1,55 @@
+{
+  "status": "NORMAL",
+  "partialIssueTime": "230320Z",
+  "aerodrome": {
+    "designator": "EFTU"
+  },
+  "automatedStation": true,
+  "airTemperature": {
+    "value": 0.0,
+    "uom": "degC"
+  },
+  "dewpointTemperature": {
+    "value": 0.0,
+    "uom": "degC"
+  },
+  "altimeterSettingQNH": {
+    "value": 1023.0,
+    "uom": "hPa"
+  },
+  "surfaceWind": {
+    "meanWindDirection": {
+      "value": 50.0,
+      "uom": "deg"
+    },
+    "meanWindSpeed": {
+      "value": 4.0,
+      "uom": "kt"
+    }
+  },
+  "visibility": {
+    "prevailingVisibility": {
+      "value": 10000,
+      "uom": "m"
+    },
+    "prevailingVisibilityOperator": "ABOVE"
+  },
+  "clouds": {
+    "layers": [
+      {
+        "amount": "BKN",
+        "base": {
+          "value": 300.0,
+          "uom": "[ft_i]"
+        }
+      },
+      {
+        "amount": "OVC",
+        "base": {
+          "value": 5200.0,
+          "uom": "[ft_i]"
+        }
+      }
+    ]
+  }
+}
