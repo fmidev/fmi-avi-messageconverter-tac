@@ -128,7 +128,8 @@ public abstract class AbstractAviMessageTest<S, T> {
 	
 	// Override when necessary
 	public void assertSerializationIssues(List<ConversionIssue> conversionIssues) {
-		assertEquals("No serilaization issues expected", 0, conversionIssues.size());
+		assertEquals("No serialization issues expected", 0, conversionIssues
+				.size());
 	}
 	
 	@Test
