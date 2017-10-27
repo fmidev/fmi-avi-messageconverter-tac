@@ -71,7 +71,7 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
             }
         }
         unit = match.group(4);
-        if (direction >= 360 || mean < 0 || unit == null) {
+        if (direction > 360 || mean < 0 || unit == null) {
             formatOk = false;
         }
 
