@@ -32,7 +32,7 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
         int minDirection, maxDirection;
         minDirection = Integer.parseInt(match.group(1));
         maxDirection = Integer.parseInt(match.group(2));
-        if (minDirection < 0 || minDirection >= 360 || maxDirection < 0 || maxDirection >= 360) {
+        if (minDirection < 0 || minDirection > 360 || maxDirection < 0 || maxDirection > 360) {
             formatOk = false;
         }
         if (formatOk) {
@@ -87,11 +87,11 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
 				throw new SerializingException("Clockwise extreme wind direction is not in degress (but in '"+clockwise.getUom()+"'), unable to serialize");
 			}
 
-			if (counter.getValue() < 0.0 || counter.getValue() >= 360.0) {
+			if (counter.getValue() < 0.0 || counter.getValue() > 360.0) {
 				throw new SerializingException("Illegal counter-clockwise extreme wind direction "+counter.getValue()+" "+counter.getUom());
 			}
 
-			if (clockwise.getValue() < 0.0 || clockwise.getValue() >= 360.0) {
+			if (clockwise.getValue() < 0.0 || clockwise.getValue() > (360.0d + Double.MIN_VALUE)) {
 				throw new SerializingException("Illegal clockwise extreme wind direction "+clockwise.getValue()+" "+clockwise.getUom());
 			}
 

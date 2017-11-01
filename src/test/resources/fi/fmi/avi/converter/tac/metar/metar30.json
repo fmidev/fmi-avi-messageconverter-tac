@@ -30,6 +30,14 @@
     "meanWindSpeed": {
       "value": 3.0,
       "uom": "kt"
+    },
+    "extremeClockwiseWindDirection": {
+      "value": 360.0,
+      "uom": "deg"
+    },
+    "extremeCounterClockwiseWindDirection": {
+      "value": 300.0,
+      "uom": "deg"
     }
   },
   "visibility": {
