@@ -737,10 +737,14 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                             TrendTimeGroups timeGroups = new TrendTimeGroupsImpl();
                             switch (type) {
                                 case AT: {
+                                    Integer fromDay = token.getParsedValue(ParsedValueName.DAY1, Integer.class);
                                     Integer fromHour = token.getParsedValue(ParsedValueName.HOUR1, Integer.class);
                                     Integer fromMinute = token.getParsedValue(ParsedValueName.MINUTE1, Integer.class);
                                     if (fromHour != null && fromMinute != null) {
-                                        timeGroups.setPartialStartTime(fromHour, fromMinute);
+                                        if (fromDay == null) {
+                                            fromDay = Integer.valueOf(-1);
+                                        }
+                                        timeGroups.setPartialStartTime(fromDay, fromHour, fromMinute);
                                     } else {
                                         result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Missing hour and/or minute from trend AT group " + token.getTACToken()));
                                     }
@@ -749,10 +753,14 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                                     break;
                                 }
                                 case FROM: {
+                                    Integer fromDay = token.getParsedValue(ParsedValueName.DAY1, Integer.class);
                                     Integer fromHour = token.getParsedValue(ParsedValueName.HOUR1, Integer.class);
                                     Integer fromMinute = token.getParsedValue(ParsedValueName.MINUTE1, Integer.class);
                                     if (fromHour != null && fromMinute != null) {
-                                        timeGroups.setPartialStartTime(fromHour, fromMinute);
+                                        if (fromDay == null) {
+                                            fromDay = Integer.valueOf(-1);
+                                        }
+                                        timeGroups.setPartialStartTime(fromDay, fromHour, fromMinute);
                                     } else {
                                         result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Missing hour and/or minute from trend FM group " + token.getTACToken()));
                                     }
@@ -760,10 +768,14 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                                     break;
                                 }
                                 case UNTIL: {
+                                    Integer toDay = token.getParsedValue(ParsedValueName.DAY1, Integer.class);
                                     Integer toHour = token.getParsedValue(ParsedValueName.HOUR1, Integer.class);
                                     Integer toMinute = token.getParsedValue(ParsedValueName.MINUTE1, Integer.class);
                                     if (toHour != null && toMinute != null) {
-                                        timeGroups.setPartialEndTime(toHour, toMinute);
+                                        if (toDay == null) {
+                                            toDay = Integer.valueOf(-1);
+                                        }
+                                        timeGroups.setPartialEndTime(toDay, toHour, toMinute);
                                     } else {
                                         result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Missing hour and/or minute from trend TL group " + token.getTACToken()));
                                     }

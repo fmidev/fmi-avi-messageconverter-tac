@@ -111,10 +111,8 @@ public class CalculateNumberOfHoursTest {
 	@Test
 	public void testFullTimeReferencesMakesIllegalOk() {
 		TAF msg = new TAFImpl();
-		msg.setPartialIssueTime("270030Z");
 		msg.setPartialValidityTimePeriod("2708/0122");
-		
-		msg.amendTimeReferences(ZonedDateTime.of(2017, 2, 27, 0, 0, 0, 0, ZoneId.of("Z")));
+		msg.completeForecastTimeReferences(2017,2,27,6,ZoneId.of("Z"));
 		int hours = ValidTime.calculateNumberOfHours(msg);
 		assertEquals(62, hours);
 	}
