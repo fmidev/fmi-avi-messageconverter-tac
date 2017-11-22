@@ -241,7 +241,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                 airTemperatureForecast = new TAFAirTemperatureForecastImpl();
                 Integer day = minTempToken.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
                 Integer hour = minTempToken.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-                Integer value = minTempToken.getParsedValue(Lexeme.ParsedValueName.VALUE, Integer.class);
+                Double value = minTempToken.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class);
 
                 if (day != null && hour != null) {
                     airTemperatureForecast.setPartialMinTemperatureTime(day, hour);
@@ -258,7 +258,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
 
                 day = maxTempToken.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
                 hour = maxTempToken.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-                value = maxTempToken.getParsedValue(Lexeme.ParsedValueName.VALUE, Integer.class);
+                value = maxTempToken.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class);
 
                 if (day != null && hour != null) {
                     airTemperatureForecast.setPartialMaxTemperatureTime(day, hour);

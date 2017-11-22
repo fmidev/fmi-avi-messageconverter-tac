@@ -394,7 +394,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
         Identity[] before = { Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
         findNext(Identity.AIR_DEWPOINT_TEMPERATURE, lexed.getFirstLexeme(), before, (match) -> {
             String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
-            Integer[] values = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Integer[].class);
+            Double[] values = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Double[].class);
             if (values == null) {
                 result.addIssue(new ConversionIssue(Type.MISSING_DATA, "Missing air temperature and dewpoint temperature values in " + match.getTACToken()));
             } else {

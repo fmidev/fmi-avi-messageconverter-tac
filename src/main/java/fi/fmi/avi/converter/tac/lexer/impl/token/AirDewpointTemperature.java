@@ -27,19 +27,23 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        Integer airTemp = null;
-        Integer dewPointTemp = null;
+        Double airTemp = null;
+        Double dewPointTemp = null;
         if (!"//".equals(match.group(2))) {
-            airTemp = Integer.valueOf(match.group(2));
+            airTemp = Double.valueOf(match.group(2));
         }
         if (!"//".equals(match.group(4))) {
-            dewPointTemp = Integer.valueOf(match.group(4));
+            dewPointTemp = Double.valueOf(match.group(4));
         }
-        Integer[] values = new Integer[2];
+        Double[] values = new Double[2];
         boolean missingValues = false;
         if (airTemp != null) {
             if (match.group(1) != null) {
-                airTemp = Integer.valueOf(airTemp.intValue() * -1);
+                if (1.0d/airTemp.doubleValue() == Double.POSITIVE_INFINITY) {
+                    airTemp = -0.0d; //explicit value required, 0.0d != -0.0d
+                } else {
+                    airTemp = Double.valueOf(airTemp.intValue() * -1);
+                }
             }
             values[0] = airTemp;
         } else {
@@ -47,7 +51,11 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
         }
         if (dewPointTemp != null) {
             if (match.group(3) != null) {
-                dewPointTemp = Integer.valueOf(dewPointTemp.intValue() * -1);
+                if (1.0d/dewPointTemp.doubleValue() == Double.POSITIVE_INFINITY) {
+                    dewPointTemp = -0.0d;
+                } else {
+                    dewPointTemp = Double.valueOf(dewPointTemp.intValue() * -1);
+                }
             }
             values[1] = dewPointTemp;
         } else {
@@ -112,13 +120,10 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
         }
 
         private void appendValue(Double v, StringBuilder builder) {
-            if (v < 0.0) {
+            if (v < 0.0 || 1.0d/v == Double.NEGATIVE_INFINITY) {
                 builder.append("M");
-                v = Math.abs(v);
             }
-
-            int degC = v.intValue();
-            builder.append(String.format("%02d", degC));
+            builder.append(String.format("%02d",  Math.round(Math.abs(v))));
         }
     }
 }

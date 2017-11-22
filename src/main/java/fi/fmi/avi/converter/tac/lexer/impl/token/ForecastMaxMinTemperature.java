@@ -52,9 +52,13 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         TemperatureForecastType kind = TemperatureForecastType.forCode(match.group(1));
         boolean isNegative = match.group(2) != null;
-        int value = Integer.parseInt(match.group(3));
+        double value = Integer.parseInt(match.group(3));
         if (isNegative) {
-            value = value * -1;
+            if (1.0d/value == Double.POSITIVE_INFINITY) {
+                value = -0.0d;
+            } else {
+                value = value * -1;
+            }
         }
         int day = -1;
         if (match.group(3) != null) {
@@ -70,7 +74,7 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
         }
         
         if (timeOkDayHour(day, hour)) {
-            if (ConversionHints.VALUE_TIMEZONE_ID_POLICY_STRICT == hints.get(ConversionHints.KEY_TIMEZONE_ID_POLICY)) {
+            if (hints != null && ConversionHints.VALUE_TIMEZONE_ID_POLICY_STRICT == hints.get(ConversionHints.KEY_TIMEZONE_ID_POLICY)) {
                 if (match.group(6) == null) {
                 	token.identify(kindLexemeIdentity,Lexeme.Status.WARNING,"Missing time zone ID 'Z'");
                 } else {
@@ -140,13 +144,16 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
     	}
     	
     	public String formatTemp(String prefix, Double temp, int day, int hour) {
-    		String s = String.format("%s%02d/%02d%02dZ",
-					temp < 0.0 ? prefix + "M" : prefix,
-					Math.abs(temp.intValue()),
-					day,
-					hour);
-    		
-    		return s;
+    	    StringBuilder sb = new StringBuilder(prefix);
+    	    if (temp < 0.0 || 1.0d/temp == Double.NEGATIVE_INFINITY) {
+                sb.append('M');
+            }
+    		sb.append(String.format("%02d",Math.round(Math.abs(temp))));
+    	    sb.append('/');
+    	    sb.append(String.format("%02d",day));
+    	    sb.append(String.format("%02d",hour));
+    	    sb.append('Z');
+    		return sb.toString();
     	}
     }
 }
