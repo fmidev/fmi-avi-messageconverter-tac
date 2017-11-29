@@ -57,6 +57,12 @@ public class METARTACSerializer extends AbstractTACSerializer<METAR> {
         if (appendToken(retval, Identity.ISSUE_TIME, input, METAR.class, hints) > 0) {
             appendWhitespace(retval, ' ', hints);
         }
+
+        if (appendToken(retval, Identity.NIL, input, METAR.class, hints) > 0) {
+            appendToken(retval, Identity.END_TOKEN, input, METAR.class, hints);
+            return retval.build();
+        }
+
         if (appendToken(retval, Identity.AUTOMATED, input, METAR.class, hints) > 0) {
             appendWhitespace(retval, ' ', hints);
         }

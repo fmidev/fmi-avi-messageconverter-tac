@@ -104,6 +104,7 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.CORRECTION, new Correction.Reconstructor());
         s.addReconstructor(Lexeme.Identity.AERODROME_DESIGNATOR, new ICAOCode.Reconstructor());
         s.addReconstructor(Lexeme.Identity.ISSUE_TIME, new IssueTime.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.NIL, new Nil.Reconstructor());
         s.addReconstructor(Lexeme.Identity.AUTOMATED, new AutoMetar.Reconstructor());
         s.addReconstructor(Lexeme.Identity.SURFACE_WIND, new SurfaceWind.Reconstructor());
         s.addReconstructor(Lexeme.Identity.VARIABLE_WIND_DIRECTION, new VariableSurfaceWind.Reconstructor());
@@ -207,6 +208,7 @@ public class TACConverter {
         l.teach(new SeaState(Priority.LOW));
         l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new Nil(Priority.HIGH));
         return l;
     }
 

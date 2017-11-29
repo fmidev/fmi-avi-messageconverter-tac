@@ -75,7 +75,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
     private static final Logger LOG = LoggerFactory.getLogger(METARTACParser.class);
 
     private static Lexeme.Identity[] zeroOrOneAllowed = { Lexeme.Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.WIND_SHEAR, Identity.SEA_STATE,
-            Identity.REMARKS_START };
+            Identity.REMARKS_START, Identity.NIL };
 
     private AviMessageLexer lexer;
 
@@ -118,16 +118,23 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                 result.getConvertedMessage().setTranslatedTAC(lexed.getTAC());
                 result.getConvertedMessage().setTranslationTime(ZonedDateTime.now());
             }
-            Identity[] stopAt = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
+            Identity[] stopAt = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity
+                    .HORIZONTAL_VISIBILITY,
+                    Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
                     Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
             findNext(Identity.CORRECTION, lexed.getFirstLexeme(), stopAt, (match) -> result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.CORRECTION),
                     () -> result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.NORMAL));
 
-            stopAt = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
+            stopAt = new Identity[] { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity
+                    .HORIZONTAL_VISIBILITY, Identity
+                    .CLOUD, Identity
+                    .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
                     Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
             findNext(Identity.AUTOMATED, lexed.getFirstLexeme(), stopAt, (match) -> result.getConvertedMessage().setAutomatedStation(true));
             
-            stopAt = new Identity[] { Identity.ISSUE_TIME, Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
+            stopAt = new Identity[] { Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity
+                    .CLOUD, Identity
+                    .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
                     Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
             findNext(Identity.AERODROME_DESIGNATOR, lexed.getFirstLexeme(), stopAt,
                     (match) -> {
@@ -139,6 +146,27 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                     });
 
             updateMetarIssueTime(result, lexed, hints);
+
+            stopAt = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity
+                    .CLOUD, Identity
+                    .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
+                    Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+
+            findNext(Identity.NIL, lexed.getFirstLexeme(), stopAt, (match) -> {
+                result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.MISSING);
+                if (match.getNext() != null) {
+                    Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
+                    if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
+                        result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Missing METAR message contains extra tokens after NIL: " +
+                                input));
+                    }
+                }
+            });
+
+            if (AviationCodeListUser.MetarStatus.MISSING == result.getConvertedMessage().getStatus()) {
+                return result;
+            }
+
             updateObservedSurfaceWind(result, lexed, hints);
 
             stopAt = new Identity[] { Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
@@ -166,7 +194,9 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
     private static void updateMetarIssueTime(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
-        Identity[] before = { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH,
+        Identity[] before = { Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity
+                .CLOUD, Identity
+                .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH,
                 Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
         result.addIssue(updateIssueTime(msg, lexed, before, hints));
     }
