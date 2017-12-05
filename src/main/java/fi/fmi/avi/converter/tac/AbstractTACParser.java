@@ -4,6 +4,7 @@ import static fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import fi.fmi.avi.converter.ConversionIssue;
@@ -39,47 +40,17 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
     protected static Lexeme findNext(final Lexeme.Identity needle, final Lexeme from) {
-        return findNext(needle, from, null);
-    }
-
-    /**
-     * Finds the next {@link Lexeme} in the sequence of Lexemes starting from <code>from</code> before encountering any Lexemes
-     * identified as any of the values of <code>stopAt</code>.
-     *
-     * @param from
-     *         the starting point
-     * @param stopAt
-     *         search boundary identities
-     *
-     * @return the found Lexeme, or null if match was not found by the last Lexeme
-     */
-    protected static Lexeme findNext(final Lexeme from, final Lexeme.Identity[] stopAt) {
-        return findNext(null, from, stopAt);
+        return findNext(needle, from, null, null);
     }
 
     /**
      * Finds the next {@link Lexeme} identified as <code>needle</code> in the sequence of Lexemes starting
-     * from <code>from</code> before encountering any Lexemes
-     * identified as any of the values of <code>stopAt</code>.
+     * from <code>from</code>.
      *
-     * @param needle the identity of the Lexeme to find
-     * @param from the starting point
-     * @param stopAt search boundary identities
-     * @return the found Lexeme, or null if match was not found by the last Lexeme
-     */
-    protected static Lexeme findNext(final Lexeme.Identity needle, final Lexeme from, final Lexeme.Identity[] stopAt) {
-        return findNext(needle, from, stopAt, null, null);
-    }
-
-    /**
-     * Finds the next {@link Lexeme} identified as <code>needle</code> in the sequence of Lexemes starting
-     * from <code>from</code> before encountering any Lexemes
-     * identified as any of the values of <code>stopAt</code>.
-     *
-     * If the <code>found</code> is not null, it's {@link LexemeParsingConsumer#consume(Lexeme)} is called with the
+     * If the <code>found</code> is not null, it's {@link Consumer<Lexeme>#accept(Lexeme)} is called with the
      * possible match. If not match is found, this method is not called.
      *
-     * As {@link LexemeParsingConsumer} is a functional interface, it can be implemented as a lambda expression:
+     * As {@link Consumer} is a functional interface, it can be implemented as a lambda expression:
      * <pre>
      *     findNext(CORRECTION, lexed.getFirstLexeme(), stopAt, (match) -&gt; taf.setStatus(AviationCodeListUser.TAFStatus.CORRECTION));
      * </pre>
@@ -98,20 +69,18 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
      *
      * @param needle the identity of the Lexeme to find
      * @param from the starting point
-     * @param stopAt search boundary identities
      * @param found the function to execute with the match
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
-    protected static Lexeme findNext(final Lexeme.Identity needle, final Lexeme from, final Lexeme.Identity[] stopAt, final LexemeParsingConsumer found) {
-        return findNext(needle, from, stopAt, found, null);
+    protected static Lexeme findNext(final Lexeme.Identity needle, final Lexeme from, final Consumer<Lexeme> found) {
+        return findNext(needle, from, found, null);
     }
 
     /**
      * Finds the next {@link Lexeme} identified as <code>needle</code> in the sequence of Lexemes starting
-     * from <code>from</code> before encountering any Lexemes
-     * identified as any of the values of <code>stopAt</code>.
+     * from <code>from</code>.
      *
-     * If the <code>found</code> is not null, it's {@link LexemeParsingConsumer#consume(Lexeme)} is called with the
+     * If the <code>found</code> is not null, it's {@link Consumer<Lexeme>#accept(Lexeme)} is called with the
      * possible match. If not match is found and <code>notFound</code> is not null, the function <code>notFound</code> is
      * called instead of <code>found</code>.
      *
@@ -119,8 +88,6 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
      *         the identity of the Lexeme to find
      * @param from
      *         the starting point
-     * @param stopAt
-     *         search boundary identities
      * @param found
      *         the function to execute with the match
      * @param notFound
@@ -128,7 +95,8 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
      *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
-    protected static Lexeme findNext(final Lexeme.Identity needle, final Lexeme from, final Lexeme.Identity[] stopAt, final LexemeParsingConsumer found, final LexemeParsingNotifyer notFound) {
+    protected static Lexeme findNext(final Lexeme.Identity needle, final Lexeme from, final Consumer<Lexeme> found, final
+            LexemeParsingNotifyer notFound) {
         Lexeme retval = null;
         Lexeme current = from.getNext();
         if (current != null) {
@@ -136,30 +104,39 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
             Lexeme.Identity currentId;
             while (!stop) {
                 currentId = current.getIdentityIfAcceptable();
-                if (stopAt != null) {
-                    for (Lexeme.Identity i : stopAt) {
-                        if (i == currentId) {
-                            stop = true;
-                            break;
-                        }
-                    }
+                if (needle == null || currentId == needle) {
+                    retval = current;
                 }
-                if (!stop) {
-                    if (needle == null || currentId == needle) {
-                        retval = current;
-                    }
-                    stop = !current.hasNext() || retval != null;
-                }
+                stop = !current.hasNext() || retval != null;
                 current = current.getNext();
             }
         }
         if (retval != null) {
             if (found != null) {
-                found.consume(retval);
+                found.accept(retval);
             }
         } else {
             if (notFound != null) {
                 notFound.ping();
+            }
+        }
+        return retval;
+    }
+
+
+    protected static ConversionIssue checkBeforeAnyOf(final Lexeme lexeme, final Lexeme.Identity[] toMatch) {
+        ConversionIssue retval = null;
+        if (lexeme != null && toMatch != null) {
+            Lexeme toCheck = lexeme;
+            while(toCheck.hasPrevious()) {
+                toCheck = toCheck.getPrevious();
+                for (Lexeme.Identity i : toMatch) {
+                    if (i == toCheck.getIdentity()) {
+                        retval = new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
+                                "Token '" + lexeme.getTACToken() + "' was found before one of type " + i);
+                        break;
+                    }
+                }
             }
         }
         return retval;
@@ -191,35 +168,49 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
         return retval;
     }
 
-    protected static List<ConversionIssue> updateIssueTime(final AviationWeatherMessage msg, final LexemeSequence lexed, final Lexeme.Identity[] before, final ConversionHints hints) {
+    protected static List<ConversionIssue> updateIssueTime(final AviationWeatherMessage msg, final LexemeSequence lexed, final Lexeme.Identity[] before, final
+            ConversionHints
+            hints) {
         List<ConversionIssue> retval = new ArrayList<>();
-        findNext(Identity.ISSUE_TIME, lexed.getFirstLexeme(), before, (match) -> {
-            Integer day = match.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-            Integer minute = match.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-            Integer hour = match.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-            if (day != null && minute != null && hour != null) {
-                msg.setPartialIssueTime(day, hour, minute);
-            } else {
-            	retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing at least some of the issue time components in " + lexed.getTAC()));
-            }
-        }, () -> {
-            retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing at least some of the issue time components in " + lexed.getTAC()));
-        });
+        findNext(Identity.ISSUE_TIME, lexed.getFirstLexeme(),
+                (match) -> {
+                    ConversionIssue issue = checkBeforeAnyOf(match, before);
+                    if (issue != null) {
+                        retval.add(issue);
+                    } else {
+                        Integer day = match.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+                        Integer minute = match.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+                        Integer hour = match.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                        if (day != null && minute != null && hour != null) {
+                            msg.setPartialIssueTime(day, hour, minute);
+                        } else {
+                            retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing at least some of the issue time components in " + lexed.getTAC()));
+                        }
+                    }
+                } ,() -> retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing at least some of the issue time components in " + lexed
+                        .getTAC()))
+        );
         return retval;
     }
 
     protected static List<ConversionIssue> appendWeatherCodes(final Lexeme source, List<fi.fmi.avi.model.Weather> target, Lexeme.Identity[] before, final ConversionHints hints) {
         Lexeme l = source;
-        List<ConversionIssue> issues = new ArrayList<>();
+        final List<ConversionIssue> issues = new ArrayList<>();
         while (l != null) {
             String code = l.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class);
             if (code != null) {
-                fi.fmi.avi.model.Weather weather = new WeatherImpl();
-                weather.setCode(code);
-                weather.setDescription(Weather.WEATHER_CODES.get(code));
-                target.add(weather);
+                ConversionIssue issue = checkBeforeAnyOf(l, before);
+                if (issue != null) {
+                    issues.add(issue);
+                } else {
+                    fi.fmi.avi.model.Weather weather = new WeatherImpl();
+                    weather.setCode(code);
+                    weather.setDescription(Weather.WEATHER_CODES.get(code));
+                    target.add(weather);
+                }
             }
-            l = findNext(Identity.WEATHER, l, before);
+            l = findNext(Identity.WEATHER, l);
+
         }
         return issues;
     }
@@ -274,7 +265,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
 
     protected static <T extends AviationWeatherMessage> void updateRemarks(final ConversionResult<T> result, final LexemeSequence lexed, final ConversionHints hints) {
         final T msg = result.getConvertedMessage();
-        findNext(Identity.REMARKS_START, lexed.getFirstLexeme(), null, (match) -> {
+        findNext(Identity.REMARKS_START, lexed.getFirstLexeme(), (match) -> {
         	List<String> remarks = new ArrayList<>();
         	match = findNext(Identity.REMARK, match);
         	while (match != null) {
@@ -309,18 +300,8 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
     }
 
     /**
-     * Lambda function interface to use with {@link #findNext(Identity, Lexeme, Identity[], LexemeParsingConsumer)}
-     * or {@link #findNext(Identity, Lexeme, Identity[], LexemeParsingConsumer, LexemeParsingNotifyer)}.
-     *
-     */
-    @FunctionalInterface
-    interface LexemeParsingConsumer {
-        void consume(final Lexeme lexeme);
-    }
-
-    /**
      * Lambda function interface to use with
-     * {@link #findNext(Identity, Lexeme, Identity[], LexemeParsingConsumer, LexemeParsingNotifyer)}.
+     * {@link #findNext(Identity, Lexeme, Consumer, LexemeParsingNotifyer)}.
      *
      */
     @FunctionalInterface

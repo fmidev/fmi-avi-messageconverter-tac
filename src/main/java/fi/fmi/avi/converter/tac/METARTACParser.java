@@ -118,47 +118,68 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                 result.getConvertedMessage().setTranslatedTAC(lexed.getTAC());
                 result.getConvertedMessage().setTranslationTime(ZonedDateTime.now());
             }
-            Identity[] stopAt = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity
-                    .HORIZONTAL_VISIBILITY,
-                    Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
-                    Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-            findNext(Identity.CORRECTION, lexed.getFirstLexeme(), stopAt, (match) -> result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.CORRECTION),
-                    () -> result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.NORMAL));
 
-            stopAt = new Identity[] { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity
-                    .HORIZONTAL_VISIBILITY, Identity
-                    .CLOUD, Identity
-                    .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
-                    Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-            findNext(Identity.AUTOMATED, lexed.getFirstLexeme(), stopAt, (match) -> result.getConvertedMessage().setAutomatedStation(true));
-            
-            stopAt = new Identity[] { Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity
-                    .CLOUD, Identity
-                    .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
-                    Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-            findNext(Identity.AERODROME_DESIGNATOR, lexed.getFirstLexeme(), stopAt,
-                    (match) -> {
-                    	Aerodrome ad = new Aerodrome(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
-                    	result.getConvertedMessage().setAerodrome(ad);
-                    }, 
-                    () -> {
-                        result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Aerodrome designator not given in " + input));
-                    });
+            findNext(Identity.CORRECTION, lexed.getFirstLexeme(), (match) -> {
+                final Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK,
+                        Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
+                        Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR,
+                        Identity.REMARKS_START };
+                ConversionIssue issue = checkBeforeAnyOf(match, before);
+                if (issue != null) {
+                    result.addIssue(issue);
+                } else {
+                    result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.CORRECTION);
+                }
+            }, () -> result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.NORMAL));
+
+
+            findNext(Identity.AUTOMATED, lexed.getFirstLexeme(), (match) -> {
+                final Identity[] before = new Identity[] { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity
+                        .CAVOK, Identity
+                        .HORIZONTAL_VISIBILITY, Identity
+                        .CLOUD, Identity
+                        .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
+                        Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                ConversionIssue issue = checkBeforeAnyOf(match, before);
+                if (issue != null) {
+                    result.addIssue(issue);
+                } else {
+                    result.getConvertedMessage().setAutomatedStation(true);
+                }
+            });
+
+            findNext(Identity.AERODROME_DESIGNATOR, lexed.getFirstLexeme(), (match) -> {
+                final Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK,
+                        Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
+                        Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR,
+                        Identity.REMARKS_START };
+                ConversionIssue issue = checkBeforeAnyOf(match, before);
+                if (issue != null) {
+                    result.addIssue(issue);
+                } else {
+                    Aerodrome ad = new Aerodrome(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
+                    result.getConvertedMessage().setAerodrome(ad);
+                }
+            }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Aerodrome designator not given in " + input)));
 
             updateMetarIssueTime(result, lexed, hints);
 
-            stopAt = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity
-                    .CLOUD, Identity
-                    .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
-                    Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-
-            findNext(Identity.NIL, lexed.getFirstLexeme(), stopAt, (match) -> {
-                result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.MISSING);
-                if (match.getNext() != null) {
-                    Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
-                    if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
-                        result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Missing METAR message contains extra tokens after NIL: " +
-                                input));
+            findNext(Identity.NIL, lexed.getFirstLexeme(), (match) -> {
+                final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
+                        Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
+                        Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
+                        Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                ConversionIssue issue = checkBeforeAnyOf(match, before);
+                if (issue != null) {
+                    result.addIssue(issue);
+                } else {
+                    result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.MISSING);
+                    if (match.getNext() != null) {
+                        Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
+                        if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
+                            result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Missing METAR message contains extra tokens after NIL: " +
+                                    input));
+                        }
                     }
                 }
             });
@@ -169,9 +190,17 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
             updateObservedSurfaceWind(result, lexed, hints);
 
-            stopAt = new Identity[] { Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
-                    Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-            findNext(Identity.CAVOK, lexed.getFirstLexeme(), stopAt, (match) -> result.getConvertedMessage().setCeilingAndVisibilityOk(true));
+            findNext(Identity.CAVOK, lexed.getFirstLexeme(), (match) -> {
+                final Identity[] before = new Identity[] { Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD,
+                        Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
+                        Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                ConversionIssue issue = checkBeforeAnyOf(match, before);
+                if (issue != null) {
+                    result.addIssue(issue);
+                } else {
+                    result.getConvertedMessage().setCeilingAndVisibilityOk(true);
+                }
+            });
 
             updateHorizontalVisibility(result, lexed, hints);
             updateRVR(result, lexed, hints);
@@ -203,46 +232,57 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
     private static void updateObservedSurfaceWind(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
-        Identity[] before = { Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
-                Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-        findNext(Identity.SURFACE_WIND, lexed.getFirstLexeme(), before, (match) -> {
-            Object direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION, Object.class);
-            Integer meanSpeed = match.getParsedValue(Lexeme.ParsedValueName.MEAN_VALUE, Integer.class);
-            Integer gust = match.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
-            String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
 
-            final ObservedSurfaceWind wind = new ObservedSurfaceWindImpl();
-
-            if (direction == SurfaceWind.WindDirection.VARIABLE) {
-                wind.setVariableDirection(true);
-            } else if (direction != null && direction instanceof Integer) {
-                wind.setMeanWindDirection(new NumericMeasureImpl((Integer) direction, "deg"));
+        findNext(Identity.SURFACE_WIND, lexed.getFirstLexeme(), (match) -> {
+            Identity[] before = { Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
+                    Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
             } else {
-                result.addIssue(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Direction missing for surface wind:" + match.getTACToken()));
-            }
+                Object direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION, Object.class);
+                Integer meanSpeed = match.getParsedValue(Lexeme.ParsedValueName.MEAN_VALUE, Integer.class);
+                Integer gust = match.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
+                String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
 
-            if (meanSpeed != null) {
-                wind.setMeanWindSpeed(new NumericMeasureImpl(meanSpeed, unit));
-            } else {
-                result.addIssue(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Mean speed missing for surface wind:" + match.getTACToken()));
-            }
+                final ObservedSurfaceWind wind = new ObservedSurfaceWindImpl();
 
-            if (gust != null) {
-                wind.setWindGust(new NumericMeasureImpl(gust, unit));
-            }
-
-            findNext(Identity.VARIABLE_WIND_DIRECTION, match, before, (match2) -> {
-                Integer maxDirection = match2.getParsedValue(Lexeme.ParsedValueName.MAX_DIRECTION, Integer.class);
-                Integer minDirection = match2.getParsedValue(Lexeme.ParsedValueName.MIN_DIRECTION, Integer.class);
-
-                if (minDirection != null) {
-                    wind.setExtremeCounterClockwiseWindDirection(new NumericMeasureImpl(minDirection, "deg"));
+                if (direction == SurfaceWind.WindDirection.VARIABLE) {
+                    wind.setVariableDirection(true);
+                } else if (direction != null && direction instanceof Integer) {
+                    wind.setMeanWindDirection(new NumericMeasureImpl((Integer) direction, "deg"));
+                } else {
+                    result.addIssue(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Direction missing for surface wind:" + match.getTACToken()));
                 }
-                if (maxDirection != null) {
-                    wind.setExtremeClockwiseWindDirection(new NumericMeasureImpl(maxDirection, "deg"));
+
+                if (meanSpeed != null) {
+                    wind.setMeanWindSpeed(new NumericMeasureImpl(meanSpeed, unit));
+                } else {
+                    result.addIssue(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Mean speed missing for surface wind:" + match.getTACToken()));
                 }
-            });
-            msg.setSurfaceWind(wind);
+
+                if (gust != null) {
+                    wind.setWindGust(new NumericMeasureImpl(gust, unit));
+                }
+
+                findNext(Identity.VARIABLE_WIND_DIRECTION, match, (varMatch) -> {
+                    ConversionIssue varIssue = checkBeforeAnyOf(varMatch, before);
+                    if (varIssue != null) {
+                        result.addIssue(issue);
+                    } else {
+                        Integer maxDirection = varMatch.getParsedValue(Lexeme.ParsedValueName.MAX_DIRECTION, Integer.class);
+                        Integer minDirection = varMatch.getParsedValue(Lexeme.ParsedValueName.MIN_DIRECTION, Integer.class);
+
+                        if (minDirection != null) {
+                            wind.setExtremeCounterClockwiseWindDirection(new NumericMeasureImpl(minDirection, "deg"));
+                        }
+                        if (maxDirection != null) {
+                            wind.setExtremeClockwiseWindDirection(new NumericMeasureImpl(maxDirection, "deg"));
+                        }
+                    }
+                });
+                msg.setSurfaceWind(wind);
+            }
         }, () -> {
             //TODO: cases where it's ok to be missing the surface wind
             result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Missing surface wind information in " + lexed.getTAC()));
@@ -251,40 +291,50 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
     private static void updateHorizontalVisibility(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
-        Identity[] before = { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE,
-                Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
 
-        findNext(Identity.HORIZONTAL_VISIBILITY, lexed.getFirstLexeme(), before, (match) -> {
+        findNext(Identity.HORIZONTAL_VISIBILITY, lexed.getFirstLexeme(), (match) -> {
+            Identity[] before = { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH,
+                    Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE,
+                    Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
             HorizontalVisibility vis = new HorizontalVisibilityImpl();
             while (match != null) {
-                MetricHorizontalVisibility.DirectionValue direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION,
-                        MetricHorizontalVisibility.DirectionValue.class);
-                String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
-                Double value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class);
-                RecognizingAviMessageTokenLexer.RelationalOperator operator = match.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR,
-                        RecognizingAviMessageTokenLexer.RelationalOperator.class);
-                if (direction != null) {
-                    if (vis.getMinimumVisibility() != null) {
-                        result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR, "More than one directional horizontal visibility given: " + match.getTACToken()));
-                    } else {
-                        vis.setMinimumVisibility(new NumericMeasureImpl(value, unit));
-                        vis.setMinimumVisibilityDirection(new NumericMeasureImpl(direction.inDegrees(), "deg"));
-                    }
+                if (issue != null) {
+                    result.addIssue(issue);
                 } else {
-                    if (vis.getPrevailingVisibility() != null) {
-                        result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR, "More than one prevailing horizontal visibility given: " + match.getTACToken()));
+                    MetricHorizontalVisibility.DirectionValue direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION,
+                            MetricHorizontalVisibility.DirectionValue.class);
+                    String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
+                    Double value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class);
+                    RecognizingAviMessageTokenLexer.RelationalOperator operator = match.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR,
+                            RecognizingAviMessageTokenLexer.RelationalOperator.class);
+                    if (direction != null) {
+                        if (vis.getMinimumVisibility() != null) {
+                            result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR, "More than one directional horizontal visibility given: " + match.getTACToken
+                                    ()));
+                        } else {
+                            vis.setMinimumVisibility(new NumericMeasureImpl(value, unit));
+                            vis.setMinimumVisibilityDirection(new NumericMeasureImpl(direction.inDegrees(), "deg"));
+                        }
                     } else {
-                        vis.setPrevailingVisibility(new NumericMeasureImpl(value, unit));
-                        if (RecognizingAviMessageTokenLexer.RelationalOperator.LESS_THAN == operator) {
-                            vis.setPrevailingVisibilityOperator(AviationCodeListUser.RelationalOperator.BELOW);
-                        } else if (RecognizingAviMessageTokenLexer.RelationalOperator.MORE_THAN == operator) {
-                            vis.setPrevailingVisibilityOperator(AviationCodeListUser.RelationalOperator.ABOVE);
+                        if (vis.getPrevailingVisibility() != null) {
+                            result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR, "More than one prevailing horizontal visibility given: " + match.getTACToken
+                                    ()));
+                        } else {
+                            vis.setPrevailingVisibility(new NumericMeasureImpl(value, unit));
+                            if (RecognizingAviMessageTokenLexer.RelationalOperator.LESS_THAN == operator) {
+                                vis.setPrevailingVisibilityOperator(AviationCodeListUser.RelationalOperator.BELOW);
+                            } else if (RecognizingAviMessageTokenLexer.RelationalOperator.MORE_THAN == operator) {
+                                vis.setPrevailingVisibilityOperator(AviationCodeListUser.RelationalOperator.ABOVE);
+                            }
                         }
                     }
+                    msg.setVisibility(vis);
                 }
-                match = findNext(Identity.HORIZONTAL_VISIBILITY, match, before);
+
+                match = findNext(Identity.HORIZONTAL_VISIBILITY, match);
+                issue = checkBeforeAnyOf(match, before);
             }
-            msg.setVisibility(vis);
         }, () -> {
             // If no horizontal visibility and no CAVOK
             if (!result.getConvertedMessage().isCeilingAndVisibilityOk()) {
@@ -295,82 +345,98 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
     private static void updateRVR(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
-        Identity[] before = { Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
-                Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-        findNext(Identity.RUNWAY_VISUAL_RANGE, lexed.getFirstLexeme(), before, (match) -> {
+
+        findNext(Identity.RUNWAY_VISUAL_RANGE, lexed.getFirstLexeme(), (match) -> {
+            Identity[] before = { Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
+                    Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
+                    Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
             List<RunwayVisualRange> rvrs = new ArrayList<>();
             while (match != null) {
-            	String rwCode = match.getParsedValue(Lexeme.ParsedValueName.RUNWAY, String.class);
-            	 if (rwCode == null) {
-                     result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Missing runway code for RVR in " + match.getTACToken()));
-                 } else {
-                	 RunwayDirection runway = new RunwayDirection(rwCode);
-                	 runway.setAssociatedAirportHeliport(msg.getAerodrome());
+                if (issue != null) {
+                    result.addIssue(issue);
+                } else {
+                    String rwCode = match.getParsedValue(Lexeme.ParsedValueName.RUNWAY, String.class);
+                    if (rwCode == null) {
+                        result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Missing runway code for RVR in " + match.getTACToken()));
+                    } else {
+                        RunwayDirection runway = new RunwayDirection(rwCode);
+                        runway.setAssociatedAirportHeliport(msg.getAerodrome());
 
-	                Integer minValue = match.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Integer.class);
-	                RecognizingAviMessageTokenLexer.RelationalOperator minValueOperator = match.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR,
-	                        RecognizingAviMessageTokenLexer.RelationalOperator.class);
-	                Integer maxValue = match.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
-	                RecognizingAviMessageTokenLexer.RelationalOperator maxValueOperator = match.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR2,
-	                        RecognizingAviMessageTokenLexer.RelationalOperator.class);
-	                RecognizingAviMessageTokenLexer.TendencyOperator tendencyIndicator = match.getParsedValue(Lexeme.ParsedValueName.TENDENCY_OPERATOR,
-	                        RecognizingAviMessageTokenLexer.TendencyOperator.class);
-	                String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
+                        Integer minValue = match.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Integer.class);
+                        RecognizingAviMessageTokenLexer.RelationalOperator minValueOperator = match.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR,
+                                RecognizingAviMessageTokenLexer.RelationalOperator.class);
+                        Integer maxValue = match.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
+                        RecognizingAviMessageTokenLexer.RelationalOperator maxValueOperator = match.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR2,
+                                RecognizingAviMessageTokenLexer.RelationalOperator.class);
+                        RecognizingAviMessageTokenLexer.TendencyOperator tendencyIndicator = match.getParsedValue(Lexeme.ParsedValueName.TENDENCY_OPERATOR,
+                                RecognizingAviMessageTokenLexer.TendencyOperator.class);
+                        String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
 
-	                if (minValue == null) {
-	                    result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Missing visibility value for RVR in " + match.getTACToken()));
-	                }
-	                RunwayVisualRange rvr = new RunwayVisualRangeImpl();
-	                rvr.setRunwayDirection(runway);
-	                if (maxValue != null && minValue != null) {
-	                    rvr.setVaryingRVRMinimum(new NumericMeasureImpl(minValue, unit));
-	                    if (RecognizingAviMessageTokenLexer.RelationalOperator.LESS_THAN == minValueOperator) {
-	                        rvr.setVaryingRVRMinimumOperator(AviationCodeListUser.RelationalOperator.BELOW);
-	                    } else if (RecognizingAviMessageTokenLexer.RelationalOperator.MORE_THAN == minValueOperator) {
-	                        rvr.setVaryingRVRMinimumOperator(AviationCodeListUser.RelationalOperator.ABOVE);
-	                    }
-	                    
-	                    rvr.setVaryingRVRMaximum(new NumericMeasureImpl(maxValue, unit));
-	                    if (RecognizingAviMessageTokenLexer.RelationalOperator.LESS_THAN == maxValueOperator) {
-	                        rvr.setVaryingRVRMaximumOperator(AviationCodeListUser.RelationalOperator.BELOW);
-	                    } else if (RecognizingAviMessageTokenLexer.RelationalOperator.MORE_THAN == maxValueOperator) {
-	                        rvr.setVaryingRVRMaximumOperator(AviationCodeListUser.RelationalOperator.ABOVE);
-	                    }
-	                } else if (minValue != null) {
-	                    rvr.setMeanRVR(new NumericMeasureImpl(minValue, unit));
-	                    if (RecognizingAviMessageTokenLexer.RelationalOperator.LESS_THAN == minValueOperator) {
-	                        rvr.setMeanRVROperator(AviationCodeListUser.RelationalOperator.BELOW);
-	                    } else if (RecognizingAviMessageTokenLexer.RelationalOperator.MORE_THAN == minValueOperator) {
-	                        rvr.setMeanRVROperator(AviationCodeListUser.RelationalOperator.ABOVE);
-	                    }
-	                }
-	                if (RecognizingAviMessageTokenLexer.TendencyOperator.DOWNWARD == tendencyIndicator) {
-	                    rvr.setPastTendency(AviationCodeListUser.VisualRangeTendency.DOWNWARD);
-	                } else if (RecognizingAviMessageTokenLexer.TendencyOperator.UPWARD == tendencyIndicator) {
-	                    rvr.setPastTendency(AviationCodeListUser.VisualRangeTendency.UPWARD);
-	                } else if (RecognizingAviMessageTokenLexer.TendencyOperator.NO_CHANGE == tendencyIndicator) {
-	                    rvr.setPastTendency(AviationCodeListUser.VisualRangeTendency.NO_CHANGE);
-	                }
-	                rvrs.add(rvr);
-                 }
-                 match = findNext(Identity.RUNWAY_VISUAL_RANGE, match, before);
+                        if (minValue == null) {
+                            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Missing visibility value for RVR in " + match.getTACToken()));
+                        }
+                        RunwayVisualRange rvr = new RunwayVisualRangeImpl();
+                        rvr.setRunwayDirection(runway);
+                        if (maxValue != null && minValue != null) {
+                            rvr.setVaryingRVRMinimum(new NumericMeasureImpl(minValue, unit));
+                            if (RecognizingAviMessageTokenLexer.RelationalOperator.LESS_THAN == minValueOperator) {
+                                rvr.setVaryingRVRMinimumOperator(AviationCodeListUser.RelationalOperator.BELOW);
+                            } else if (RecognizingAviMessageTokenLexer.RelationalOperator.MORE_THAN == minValueOperator) {
+                                rvr.setVaryingRVRMinimumOperator(AviationCodeListUser.RelationalOperator.ABOVE);
+                            }
+
+                            rvr.setVaryingRVRMaximum(new NumericMeasureImpl(maxValue, unit));
+                            if (RecognizingAviMessageTokenLexer.RelationalOperator.LESS_THAN == maxValueOperator) {
+                                rvr.setVaryingRVRMaximumOperator(AviationCodeListUser.RelationalOperator.BELOW);
+                            } else if (RecognizingAviMessageTokenLexer.RelationalOperator.MORE_THAN == maxValueOperator) {
+                                rvr.setVaryingRVRMaximumOperator(AviationCodeListUser.RelationalOperator.ABOVE);
+                            }
+                        } else if (minValue != null) {
+                            rvr.setMeanRVR(new NumericMeasureImpl(minValue, unit));
+                            if (RecognizingAviMessageTokenLexer.RelationalOperator.LESS_THAN == minValueOperator) {
+                                rvr.setMeanRVROperator(AviationCodeListUser.RelationalOperator.BELOW);
+                            } else if (RecognizingAviMessageTokenLexer.RelationalOperator.MORE_THAN == minValueOperator) {
+                                rvr.setMeanRVROperator(AviationCodeListUser.RelationalOperator.ABOVE);
+                            }
+                        }
+                        if (RecognizingAviMessageTokenLexer.TendencyOperator.DOWNWARD == tendencyIndicator) {
+                            rvr.setPastTendency(AviationCodeListUser.VisualRangeTendency.DOWNWARD);
+                        } else if (RecognizingAviMessageTokenLexer.TendencyOperator.UPWARD == tendencyIndicator) {
+                            rvr.setPastTendency(AviationCodeListUser.VisualRangeTendency.UPWARD);
+                        } else if (RecognizingAviMessageTokenLexer.TendencyOperator.NO_CHANGE == tendencyIndicator) {
+                            rvr.setPastTendency(AviationCodeListUser.VisualRangeTendency.NO_CHANGE);
+                        }
+                        rvrs.add(rvr);
+                        msg.setRunwayVisualRanges(rvrs);
+                    }
+                    match = findNext(Identity.RUNWAY_VISUAL_RANGE, match);
+                    issue = checkBeforeAnyOf(match, before);
+                }
             }
-            msg.setRunwayVisualRanges(rvrs);
         });
     }
 
     private static void updatePresentWeather(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
-        Identity[] before = { Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
-                Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-        findNext(Identity.WEATHER, lexed.getFirstLexeme(), before, (match) -> {
-            List<fi.fmi.avi.model.Weather> weather = new ArrayList<>();
-            result.addIssue(appendWeatherCodes(match, weather, before, hints));
-            if (!weather.isEmpty()) {
-                msg.setPresentWeather(weather);
+
+        findNext(Identity.WEATHER, lexed.getFirstLexeme(), (match) -> {
+            Identity[] before = { Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
+                    Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                List<fi.fmi.avi.model.Weather> weather = new ArrayList<>();
+                result.addIssue(appendWeatherCodes(match, weather, before, hints));
+                if (!weather.isEmpty()) {
+                    msg.setPresentWeather(weather);
+                }
             }
         });
     }
+
+    //TODO: down from here:
 
     private static void updateClouds(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
