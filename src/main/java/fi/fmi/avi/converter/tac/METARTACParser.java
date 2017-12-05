@@ -125,7 +125,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
             findNext(Identity.CORRECTION, lexed.getFirstLexeme(), stopAt, (match) -> result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.CORRECTION),
                     () -> result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.NORMAL));
 
-            stopAt = new Identity[] { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity
+            stopAt = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity
                     .HORIZONTAL_VISIBILITY, Identity
                     .CLOUD, Identity
                     .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
