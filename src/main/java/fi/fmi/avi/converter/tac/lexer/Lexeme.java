@@ -308,7 +308,7 @@ public interface Lexeme {
      * Otherwise the value is ]0.0, 1.0] based on the Lexer's reasoning.
      * 
      * Lexer implementations are allowed to override a previous Lexeme 
-     * recognition only if the value is < 1.0.
+     * recognition only if the value is &lt; 1.0.
      * 
      * @return value between 0.0 and 1.0
      */
@@ -419,7 +419,7 @@ public interface Lexeme {
      * 
      * @param percentage between 0.0 and 1.0
      * 
-     * @see {@link #getIdentificationCertainty()}
+     * @see #getIdentificationCertainty()
      */
     void setIdentificationCertainty(double percentage);
     
