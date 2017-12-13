@@ -547,6 +547,7 @@ public class LexingFactoryImpl implements LexingFactory {
         public Lexeme getNext() {
             Lexeme retval = this.next;
             while (retval != null && Identity.WHITE_SPACE == retval.getIdentity()) {
+                //FIXME: this fails if white space is the last token!!
                 retval = retval.getNext();
             }
             return retval;

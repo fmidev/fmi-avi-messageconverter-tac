@@ -133,7 +133,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                 for (Lexeme.Identity i : toMatch) {
                     if (i == toCheck.getIdentity()) {
                         retval = new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
-                                "Token '" + lexeme.getTACToken() + "' was found before one of type " + i);
+                                "Token '" + lexeme + "' was found before one of type " + i);
                         break;
                     }
                 }
