@@ -107,7 +107,7 @@ public class TrendTimeGroup extends TimeHandlingRegex {
                         retval.add(this.createLexeme("FM" + timeGroups.getPartialStartTime(), TREND_TIME_GROUP));
                     }
                     if (timeGroups.getPartialEndTime() != null) {
-                        retval.add(this.createLexeme("TL" + timeGroups.getCompleteEndTime(), TREND_TIME_GROUP));
+                        retval.add(this.createLexeme("TL" + timeGroups.getPartialEndTime(), TREND_TIME_GROUP));
                     }
                 }
             }
