@@ -1,7 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl;
 
-import com.google.common.base.Splitter;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
