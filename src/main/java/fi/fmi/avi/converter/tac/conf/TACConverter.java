@@ -39,6 +39,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
@@ -107,6 +108,7 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.AERODROME_DESIGNATOR, new ICAOCode.Reconstructor());
         s.addReconstructor(Lexeme.Identity.ISSUE_TIME, new IssueTime.Reconstructor());
         s.addReconstructor(Lexeme.Identity.NIL, new Nil.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.ROUTINE_DELAYED_OBSERVATION, new RoutineDelayedObservation.Reconstructor());
         s.addReconstructor(Lexeme.Identity.AUTOMATED, new AutoMetar.Reconstructor());
         s.addReconstructor(Lexeme.Identity.SURFACE_WIND, new SurfaceWind.Reconstructor());
         s.addReconstructor(Lexeme.Identity.VARIABLE_WIND_DIRECTION, new VariableSurfaceWind.Reconstructor());
@@ -184,7 +186,7 @@ public class TACConverter {
     private RecognizingAviMessageTokenLexer metarTokenLexer() {
         RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
 
-        //The METAR token lexer can understand the following tokens (low priority = should be tried sooner):
+        //The METAR token lexer can understand the following tokens (high priority = should be tried sooner):
         l.teach(new MetarStart(Priority.HIGH));
         l.teach(new ICAOCode(Priority.LOW));
         l.teach(new IssueTime(Priority.LOW));
@@ -213,6 +215,7 @@ public class TACConverter {
         l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));
         l.teach(new Nil(Priority.HIGH));
+        l.teach(new RoutineDelayedObservation(Priority.HIGH));
         return l;
     }
 

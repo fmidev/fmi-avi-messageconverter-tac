@@ -1,0 +1,67 @@
+{
+  "status": "NORMAL",
+  "partialIssueTime": "041250Z",
+  "delayed": true,
+  "aerodrome": {
+    "designator": "EFJY"
+  },
+  "presentWeather": [
+    {
+      "code": "-SHSN",
+      "description": "Light showery precipitation of snow"
+    }
+  ],
+  "airTemperature": {
+    "value": -1.0,
+    "uom": "degC"
+  },
+  "dewpointTemperature": {
+    "value": -3.0,
+    "uom": "degC"
+  },
+  "altimeterSettingQNH": {
+    "value": 1003.0,
+    "uom": "hPa"
+  },
+  "surfaceWind": {
+    "meanWindDirection": {
+      "value": 310.0,
+      "uom": "deg"
+    },
+    "meanWindSpeed": {
+      "value": 10.0,
+      "uom": "kt"
+    }
+  },
+  "visibility": {
+    "prevailingVisibility": {
+      "value": 8000,
+      "uom": "m"
+    }
+  },
+  "clouds": {
+    "layers": [
+      {
+        "amount": "FEW",
+        "base": {
+          "value": 1000.0,
+          "uom": "[ft_i]"
+        }
+      },
+      {
+        "amount": "BKN",
+        "base": {
+          "value": 1400.0,
+          "uom": "[ft_i]"
+        }
+      },
+      {
+        "amount": "BKN",
+        "base": {
+          "value": 1800.0,
+          "uom": "[ft_i]"
+        }
+      }
+    ]
+  }
+}

@@ -13,25 +13,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 /**
- * Created by rinne on 10/02/17.
+ * Token parser for weather codes
  */
 public class Weather extends RegexMatchingLexemeVisitor {
 
-    private final static Set<String> weatherSkipWords = new HashSet<String>(Arrays.asList(
-            new String[] { "METAR", "TAF", "COR", "AMD", "CNL", "NIL", "CAVOK", "TEMPO", "BECMG", "RMK", "NOSIG", "NSC", "NSW", "SKC", "AUTO", "SNOCLO", "BLU", "WHT",
-                    "GRN", "YLO1", "YLO2", "AMB", "RED", "BLACKWHT", "BLACKBLU", "BLACKGRN", "BLACKYLO1", "BLACKYLO2", "BLACKAMB", "BLACKRED" }));
+    private final static Set<String> weatherSkipWords = new HashSet<>(
+            Arrays.asList("METAR", "RTD", "TAF", "COR", "AMD", "CNL", "NIL", "CAVOK", "TEMPO", "BECMG", "RMK", "NOSIG", "NSC", "NSW", "SKC", "NCD", "AUTO",
+                    "SNOCLO", "BLU", "WHT", "GRN", "YLO1", "YLO2", "AMB", "RED", "BLACKWHT", "BLACKBLU", "BLACKGRN", "BLACKYLO1", "BLACKYLO2", "BLACKAMB",
+                    "BLACKRED"));
     public final static Map<String, String> WEATHER_CODES;
 
     //Copied from https://codes.wmo.int/306/4678
@@ -309,7 +310,7 @@ public class Weather extends RegexMatchingLexemeVisitor {
         _WEATHER_CODES.put("FZDZ", "Precipitation of freezing drizzle");
         _WEATHER_CODES.put("FZDZRA", "Precipitation of freezing drizzle and rain");
         _WEATHER_CODES.put("FZFG", "Freezing fog");
-        _WEATHER_CODES.put("FZRA", "Precipitation of freezng rain|Precipitation of freezing rain");
+        _WEATHER_CODES.put("FZRA", "Precipitation of freezing rain");
         _WEATHER_CODES.put("FZRADZ", "Precipitation of freezing rain and drizzle");
         _WEATHER_CODES.put("FZUP", "Unidentified freezing precipitation");
         _WEATHER_CODES.put("HZ", "Haze");
@@ -437,6 +438,13 @@ public class Weather extends RegexMatchingLexemeVisitor {
         _WEATHER_CODES.put("VCSS", "Sandstorm in the vicinity");
         _WEATHER_CODES.put("VCTS", "Thunderstorm in the vicinity");
         _WEATHER_CODES.put("VCVA", "Volcanic ash in the vicinity");
+
+        //Added as these appear in practice:
+        _WEATHER_CODES.put("IC", "Precipitation of ice crystals");
+        _WEATHER_CODES.put("-IC", "Light precipitation of ice crystals");
+        _WEATHER_CODES.put("+IC", "Heavy precipitation of ice crystals");
+        _WEATHER_CODES.put("VCBR", "Mist in the vicinity");
+        _WEATHER_CODES.put("FZBR", "Freezing mist");
         
         WEATHER_CODES = Collections.unmodifiableMap(_WEATHER_CODES);
     }

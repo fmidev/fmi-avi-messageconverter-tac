@@ -74,7 +74,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
     private static final Logger LOG = LoggerFactory.getLogger(METARTACParser.class);
 
     private static Lexeme.Identity[] zeroOrOneAllowed = { Lexeme.Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.WIND_SHEAR, Identity.SEA_STATE,
-            Identity.REMARKS_START, Identity.NIL };
+            Identity.REMARKS_START, Identity.NIL, Identity.ROUTINE_DELAYED_OBSERVATION };
 
     private AviMessageLexer lexer;
 
@@ -122,7 +122,8 @@ public class METARTACParser extends AbstractTACParser<METAR> {
             LexemeSequence obs = subSequences.get(0);
 
             findNext(Identity.CORRECTION, obs.getFirstLexeme(), (match) -> {
-                final Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK,
+                final Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL,
+                        Identity.SURFACE_WIND, Identity.CAVOK,
                         Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
                         Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
                         Identity.REMARKS_START };
@@ -135,7 +136,8 @@ public class METARTACParser extends AbstractTACParser<METAR> {
             }, () -> result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.NORMAL));
 
             findNext(Identity.AERODROME_DESIGNATOR, obs.getFirstLexeme(), (match) -> {
-                final Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK,
+                final Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL, Identity.SURFACE_WIND,
+                        Identity.CAVOK,
                         Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
                         Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
                         Identity.REMARKS_START };
@@ -159,6 +161,18 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                     result.addIssue(issue);
                 } else {
                     result.getConvertedMessage().setAutomatedStation(true);
+                }
+            });
+
+            findNext(Identity.ROUTINE_DELAYED_OBSERVATION, obs.getFirstLexeme(), (match) -> {
+                final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
+                        Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
+                        Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
+                ConversionIssue issue = checkBeforeAnyOf(match, before);
+                if (issue != null) {
+                    result.addIssue(issue);
+                } else {
+                    result.getConvertedMessage().setDelayed(true);
                 }
             });
 
@@ -229,7 +243,8 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
     private static void updateMetarIssueTime(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
-        Identity[] before = { Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD,
+        Identity[] before = { Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY,
+                Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD,
                 Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
                 Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
         result.addIssue(updateIssueTime(msg, lexed, before, hints));
@@ -478,7 +493,8 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
                     if (CloudLayer.SpecialValue.AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM == value) {
                         clouds.setAmountAndHeightUnobservableByAutoSystem(true);
-                    } else if (CloudLayer.CloudCover.NO_SIG_CLOUDS == cover) {
+                    } else if (CloudCover.NO_SIG_CLOUDS == cover || CloudCover.SKY_CLEAR == cover || CloudCover.NO_LOW_CLOUDS == cover
+                            || CloudCover.NO_CLOUD_DETECTED == cover) {
                         clouds.setNoSignificantCloud(true);
                     } else if (value instanceof Integer) {
                         if (CloudLayer.CloudCover.SKY_OBSCURED == cover) {
