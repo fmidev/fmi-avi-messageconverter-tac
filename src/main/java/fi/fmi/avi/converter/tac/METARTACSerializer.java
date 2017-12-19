@@ -1,6 +1,10 @@
 package fi.fmi.avi.converter.tac;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.ConversionIssue;
+import fi.fmi.avi.converter.ConversionIssue.Type;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
@@ -14,17 +18,14 @@ import fi.fmi.avi.model.metar.ObservedClouds;
 import fi.fmi.avi.model.metar.RunwayState;
 import fi.fmi.avi.model.metar.RunwayVisualRange;
 import fi.fmi.avi.model.metar.TrendForecast;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionIssue.Type;
 /**
- * Created by rinne on 07/06/17.
+ * Serializes METAR POJO to TAC format
  */
 public class METARTACSerializer extends AbstractTACSerializer<METAR> {
 
     @Override
     public ConversionResult<String> convertMessage(final METAR input, final ConversionHints hints) {
-        ConversionResult<String> result = new ConversionResult<String>();
+        ConversionResult<String> result = new ConversionResult<>();
         try {
         	LexemeSequence seq = tokenizeMessage(input, hints);
         	result.setConvertedMessage(seq.getTAC());
@@ -137,10 +138,10 @@ public class METARTACSerializer extends AbstractTACSerializer<METAR> {
         }
         if (input.getTrends() != null) {
             for (TrendForecast trend : input.getTrends()) {
-                if (appendToken(retval, Identity.FORECAST_CHANGE_INDICATOR, input, METAR.class, hints, trend) > 0) {
+                if (appendToken(retval, Identity.TREND_CHANGE_INDICATOR, input, METAR.class, hints, trend) > 0) {
                     appendWhitespace(retval, ' ', hints);
                 }
-                if (appendToken(retval, Identity.CHANGE_FORECAST_TIME_GROUP, input, METAR.class, hints, trend) > 0) {
+                if (appendToken(retval, Identity.TREND_TIME_GROUP, input, METAR.class, hints, trend) > 0) {
                     appendWhitespace(retval, ' ', hints);
                 }
                 if (appendToken(retval, Identity.SURFACE_WIND, input, METAR.class, hints, trend) > 0) {

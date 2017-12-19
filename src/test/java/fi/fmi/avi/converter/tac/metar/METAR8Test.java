@@ -6,20 +6,20 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_PRESSURE_QNH;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CLOUD;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.COLOR_CODE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.FORECAST_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TREND_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
 
-import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
+import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.impl.METARImpl;
 
 public class METAR8Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -51,9 +51,8 @@ public class METAR8Test extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return spacify(new Identity[] {
-				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD,
-                AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, COLOR_CODE, FORECAST_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, COLOR_CODE,
+        return spacify(new Identity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD, AIR_DEWPOINT_TEMPERATURE,
+                AIR_PRESSURE_QNH, COLOR_CODE, TREND_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, COLOR_CODE,
                 END_TOKEN
 		});
 	}

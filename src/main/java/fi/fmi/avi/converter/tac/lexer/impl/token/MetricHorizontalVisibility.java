@@ -10,23 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.Lexeme.Status;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser.RelationalOperator;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.taf.TAFForecast;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Status;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 /**
- * Created by rinne on 10/02/17.
+ * Token parser for horizontal visibility given in meters.
  */
 public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
@@ -82,14 +82,14 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
     	}
     	boolean inChangeGroup = false;
     	while (l != null) {
-    		if (Identity.FORECAST_CHANGE_INDICATOR == l.getIdentity()) {
-        		inChangeGroup = true;
-        		break;
-        	}
-    		l = l.getPrevious();
-    	}
-    	if (!inChangeGroup) {
-    		Lexeme prev = token.getPrevious();
+			if (Identity.TAF_FORECAST_CHANGE_INDICATOR == l.getIdentity()) {
+				inChangeGroup = true;
+				break;
+			}
+			l = l.getPrevious();
+		}
+		if (!inChangeGroup) {
+			Lexeme prev = token.getPrevious();
     		if (Identity.SURFACE_WIND == prev.getIdentity() || Identity.VARIABLE_WIND_DIRECTION == prev.getIdentity() || Identity.HORIZONTAL_VISIBILITY == prev.getIdentity()) {
     			certainty = 1.0;
     		}
@@ -103,14 +103,14 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 	    				boolean hasAnotherVisibility = false;
 	    				//we start with the FORECAST_CHANGE_INDICATOR, so skip it:
 	    				l = l.getNext();
-	    				while (l != null && Identity.END_TOKEN != l.getIdentity() && Identity.FORECAST_CHANGE_INDICATOR != l.getIdentity()) {
-	    					if (Identity.HORIZONTAL_VISIBILITY == l.getIdentity() && l != token) {
-	    						hasAnotherVisibility = true;
-	    						break;
-	    					}
-	    					l = l.getNext();
-	    				}
-	    				if (hasAnotherVisibility) {
+						while (l != null && Identity.END_TOKEN != l.getIdentity() && Identity.TAF_FORECAST_CHANGE_INDICATOR != l.getIdentity()) {
+							if (Identity.HORIZONTAL_VISIBILITY == l.getIdentity() && l != token) {
+								hasAnotherVisibility = true;
+								break;
+							}
+							l = l.getNext();
+						}
+						if (hasAnotherVisibility) {
 	    					if (Identity.HORIZONTAL_VISIBILITY == token.getIdentity()) {
 	    	    				token.identify(null, Status.UNRECOGNIZED);
 	    	    			}
@@ -156,7 +156,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 		@Override
         public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ConversionHints hints, Object... specifier)
                 throws SerializingException {
-            List<Lexeme> retval = new ArrayList<Lexeme>();
+			List<Lexeme> retval = new ArrayList<>();
 
 			NumericMeasure visibility = null;
 			RelationalOperator operator = null;
@@ -182,7 +182,6 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
             if (!identified && clz.isAssignableFrom(METAR.class)) {
                 METAR metar = (METAR) msg;
 				if (metar.getVisibility() != null) {
-					identified = true;
 
 					visibility = metar.getVisibility().getPrevailingVisibility();
 					operator = metar.getVisibility().getPrevailingVisibilityOperator();

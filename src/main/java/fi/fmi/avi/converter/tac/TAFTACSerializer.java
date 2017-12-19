@@ -2,9 +2,10 @@ package fi.fmi.avi.converter.tac;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 
+import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.ConversionIssue.Type;
+import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
@@ -17,16 +18,15 @@ import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
-import fi.fmi.avi.converter.ConversionHints;
 
 /**
- * Created by rinne on 07/06/17.
+ * Serializes TAF POJO to TAC format
  */
 public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
 
 	@Override
     public ConversionResult<String> convertMessage(final TAF input, final ConversionHints hints) {
-        ConversionResult<String> result = new ConversionResult<String>();
+        ConversionResult<String> result = new ConversionResult<>();
         try {
         	LexemeSequence seq = tokenizeMessage(input, hints);
         	result.setConvertedMessage(seq.getTAC());
@@ -112,10 +112,10 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                     for (TAFChangeForecast changeFct : input.getChangeForecasts()) {
                         retval.removeLast(); //last whitespace
                         appendWhitespace(retval, '\n', hints);
-                        if (appendToken(retval, Identity.FORECAST_CHANGE_INDICATOR, input, TAF.class, hints, changeFct) > 0) {
+                        if (appendToken(retval, Identity.TAF_FORECAST_CHANGE_INDICATOR, input, TAF.class, hints, changeFct) > 0) {
                             appendWhitespace(retval, ' ', hints);
                         }
-                        if (appendToken(retval, Identity.CHANGE_FORECAST_TIME_GROUP, input, TAF.class, hints, changeFct) > 0) {
+                        if (appendToken(retval, Identity.TAF_CHANGE_FORECAST_TIME_GROUP, input, TAF.class, hints, changeFct) > 0) {
                             appendWhitespace(retval, ' ', hints);
                         }
                         if (appendToken(retval, Identity.SURFACE_WIND, input, TAF.class, hints, changeFct) > 0) {

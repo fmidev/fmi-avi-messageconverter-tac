@@ -5,22 +5,22 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_DEWPOINT_TEMPER
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_PRESSURE_QNH;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CLOUD;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.FORECAST_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.RECENT_WEATHER;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.RUNWAY_VISUAL_RANGE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TREND_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WIND_SHEAR;
 
-import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
+import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.impl.METARImpl;
 
 public class METAR25Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -43,12 +43,11 @@ public class METAR25Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return spacify(new Identity[] {
-				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE,
-                RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH,
-                RECENT_WEATHER, WIND_SHEAR, FORECAST_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, END_TOKEN
-		});
-	}
+        return spacify(
+                new Identity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE,
+                        RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, RECENT_WEATHER, WIND_SHEAR,
+                        TREND_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, END_TOKEN });
+    }
 
 	
 	@Override
