@@ -263,19 +263,19 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
         return retval;
     }
 
-    protected static <T extends AviationWeatherMessage> void updateRemarks(final ConversionResult<T> result, final LexemeSequence lexed, final ConversionHints hints) {
+    protected static <T extends AviationWeatherMessage> void updateRemarks(final ConversionResult<T> result, final Lexeme remarkStart, final ConversionHints hints) {
         final T msg = result.getConvertedMessage();
-        findNext(Identity.REMARKS_START, lexed.getFirstLexeme(), (match) -> {
+        if (Lexeme.Identity.REMARKS_START == remarkStart.getIdentity()) {
         	List<String> remarks = new ArrayList<>();
-        	match = findNext(Identity.REMARK, match);
-        	while (match != null) {
-        		remarks.add(match.getTACToken());
-                match = findNext(Identity.REMARK, match);
+        	Lexeme remark = findNext(Identity.REMARK, remarkStart);
+        	while (remark != null) {
+        		remarks.add(remark.getTACToken());
+                remark = findNext(Identity.REMARK, remark);
             }
         	if (!remarks.isEmpty()) {
         		msg.setRemarks(remarks);
             }
-        });
+        }
     }
 
     protected static boolean endsInEndToken(final LexemeSequence lexed, final ConversionHints hints) {

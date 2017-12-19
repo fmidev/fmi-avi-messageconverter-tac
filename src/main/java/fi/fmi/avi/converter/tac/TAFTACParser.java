@@ -31,7 +31,7 @@ import fi.fmi.avi.model.taf.impl.TAFSurfaceWindImpl;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ForecastChangeIndicator;
+import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover;
@@ -84,11 +84,14 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                 taf.setTranslatedTAC(lexed.getTAC());
                 taf.setTranslationTime(ZonedDateTime.now());
             }
+            
+            //Split & filter in the sequences starting with FORECAST_CHANGE_INDICATOR:
+            List<LexemeSequence> subSequences = lexed.splitBy(Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START);
 
             findNext(Identity.CORRECTION, lexed.getFirstLexeme(), (match) -> {
                 Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION, Identity
                         .SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK,
-                        Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                        Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
                 ConversionIssue issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
                     result.addIssue(issue);
@@ -100,7 +103,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             findNext(Identity.AMENDMENT, lexed.getFirstLexeme(), (match) -> {
                 Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION, Identity
                         .SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK,
-                        Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                        Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
                 ConversionIssue issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
                     result.addIssue(issue);
@@ -124,7 +127,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
            findNext(Identity.AERODROME_DESIGNATOR, lexed.getFirstLexeme(), (match) -> {
                 Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION, Identity
                     .SURFACE_WIND,Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE,
-                    Identity.MAX_TEMPERATURE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                    Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
                 ConversionIssue issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
                     result.addIssue(issue);
@@ -141,7 +144,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             findNext(Identity.NIL, lexed.getFirstLexeme(), (match) -> {
                 Identity[] before = new Identity[] { Identity.VALID_TIME, Identity.CANCELLATION, Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity
                         .WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE,
-                        Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                        Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
                 ConversionIssue issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
                     result.addIssue(issue);
@@ -155,6 +158,13 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                     }
                 }
             });
+            
+            for (int i=1; i<subSequences.size(); i++) {
+                LexemeSequence seq = subSequences.get(i);
+                if (Identity.REMARKS_START == seq.getFirstLexeme().getIdentity()) {
+                    updateRemarks(result, seq.getFirstLexeme(), hints);
+                }
+            }
 
             //End processing here if NIL:
             if (AviationCodeListUser.TAFStatus.MISSING == taf.getStatus()) {
@@ -166,7 +176,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
 
             findNext(Identity.CANCELLATION, lexed.getFirstLexeme(), (match) -> {
                 Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK,
-                        Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                        Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
                 ConversionIssue issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
                     result.addIssue(issue);
@@ -180,22 +190,22 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                     }
                 }
             });
-            
-            updateRemarks(result, lexed, hints);
+           
 
             //End processing here if CNL:
             if (AviationCodeListUser.TAFStatus.CANCELLATION == taf.getStatus()) {
                 return result;
             }
 
-            //Split & filter in the sequences starting with FORECAST_CHANGE_INDICATOR:
-            List<LexemeSequence> subSequences = lexed.splitBy(Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START)
-                    .stream().filter((seq) -> Identity.FORECAST_CHANGE_INDICATOR == seq.getFirstLexeme().getIdentity()).collect(Collectors.toList());
+           
 
             //Should always return at least one as long as lexed is not empty, the first one is the base forecast:
             result.addIssue(updateBaseForecast(taf, subSequences.get(0).getFirstLexeme(), hints));
             for (int i=1; i<subSequences.size(); i++) {
-                result.addIssue(updateChangeForecast(taf, subSequences.get(i).getFirstLexeme(), hints));
+                LexemeSequence seq = subSequences.get(i);
+                if (Identity.TAF_FORECAST_CHANGE_INDICATOR == seq.getFirstLexeme().getIdentity()) {
+                    result.addIssue(updateChangeForecast(taf, subSequences.get(i).getFirstLexeme(), hints));
+                }
             }
 
         } else {
@@ -208,7 +218,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         List<ConversionIssue> retval = new ArrayList<>();
         Identity[] before = new Identity[] { Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION, Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY,
                 Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE,
-                Identity.MAX_TEMPERATURE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
         retval.addAll(updateIssueTime(fct, lexed, before, hints));
         return retval;
     }
@@ -218,7 +228,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         findNext(Identity.VALID_TIME, lexed.getFirstLexeme(), (match) -> {
             Identity[] before = new Identity[] { Identity.CANCELLATION, Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD,
                     Identity.CAVOK, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE,
-                    Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                    Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.add(issue);
@@ -370,8 +380,8 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         }
 
         //PROB30 [TEMPO] or PROB40 [TEMPO] or BECMG or TEMPO or FM
-        ForecastChangeIndicator.ForecastChangeIndicatorType type = changeFctToken.getParsedValue(Lexeme.ParsedValueName.TYPE,
-                ForecastChangeIndicator.ForecastChangeIndicatorType.class);
+        TAFForecastChangeIndicator.ForecastChangeIndicatorType type = changeFctToken.getParsedValue(Lexeme.ParsedValueName.TYPE,
+                TAFForecastChangeIndicator.ForecastChangeIndicatorType.class);
         if (changeFctToken.hasNext()) {
             Lexeme next = changeFctToken.getNext();
             if (Identity.REMARKS_START != next.getIdentityIfAcceptable() && Identity.END_TOKEN != next.getIdentityIfAcceptable()) {
@@ -379,17 +389,17 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                 switch (type) {
                     case TEMPORARY_FLUCTUATIONS:
                         changeFct.setChangeIndicator(AviationCodeListUser.TAFChangeIndicator.TEMPORARY_FLUCTUATIONS);
-                        updateChangeForecastContents(changeFct, type, next, hints);
+                        updateChangeForecastContents(changeFct, type, changeFctToken, hints);
                         break;
                     case BECOMING:
                         changeFct.setChangeIndicator(AviationCodeListUser.TAFChangeIndicator.BECOMING);
-                        updateChangeForecastContents(changeFct, type, next, hints);
+                        updateChangeForecastContents(changeFct, type, changeFctToken, hints);
                         break;
                     case FROM:
                         changeFct.setChangeIndicator(AviationCodeListUser.TAFChangeIndicator.FROM);
-                        Integer day = next.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-                        Integer hour = next.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-                        Integer minute = next.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+                        Integer day = changeFctToken.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+                        Integer hour = changeFctToken.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                        Integer minute = changeFctToken.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
                         if (hour != null && minute != null) {
                             if (day != null) {
                                 changeFct.setPartialValidityStartTime(day, hour, minute);
@@ -400,27 +410,23 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                             result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
                                     "Missing validity start hour or minute in " + next.getTACToken()));
                         }
-                        updateChangeForecastContents(changeFct, type, next, hints);
+                        updateChangeForecastContents(changeFct, type, changeFctToken, hints);
                         break;
                     case WITH_40_PCT_PROBABILITY:
                         changeFct.setChangeIndicator(AviationCodeListUser.TAFChangeIndicator.PROBABILITY_40);
-                        updateChangeForecastContents(changeFct, type, next, hints);
+                        updateChangeForecastContents(changeFct, type, changeFctToken, hints);
                         break;
                     case WITH_30_PCT_PROBABILITY:
                         changeFct.setChangeIndicator(AviationCodeListUser.TAFChangeIndicator.PROBABILITY_30);
-                        updateChangeForecastContents(changeFct, type, next, hints);
+                        updateChangeForecastContents(changeFct, type, changeFctToken, hints);
                         break;
                     case TEMPO_WITH_30_PCT_PROBABILITY:
                         changeFct.setChangeIndicator(AviationCodeListUser.TAFChangeIndicator.PROBABILITY_30_TEMPORARY_FLUCTUATIONS);
-                        updateChangeForecastContents(changeFct, type, next, hints);
+                        updateChangeForecastContents(changeFct, type, changeFctToken, hints);
                         break;
                     case TEMPO_WITH_40_PCT_PROBABILITY:
                         changeFct.setChangeIndicator(AviationCodeListUser.TAFChangeIndicator.PROBABILITY_40_TEMPORARY_FLUCTUATIONS);
-                        updateChangeForecastContents(changeFct, type, next, hints);
-                        break;
-                    case AT:
-                    case UNTIL:
-                        result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Change group " + type + " is not allowed in TAF"));
+                        updateChangeForecastContents(changeFct, type, changeFctToken, hints);
                         break;
                     default:
                         result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Unknown change group " + type));
@@ -436,13 +442,13 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         return result;
     }
 
-    private List<ConversionIssue> updateChangeForecastContents(final TAFChangeForecast fct, final ForecastChangeIndicator.ForecastChangeIndicatorType type,
+    private List<ConversionIssue> updateChangeForecastContents(final TAFChangeForecast fct, final TAFForecastChangeIndicator.ForecastChangeIndicatorType type,
             final Lexeme from, final ConversionHints hints) {
         List<ConversionIssue> result = new ArrayList<>();
 
         //FM case has already been handled in the calling code:
-        if (ForecastChangeIndicator.ForecastChangeIndicatorType.FROM != type) {
-            Lexeme timeGroup = findNext(Identity.CHANGE_FORECAST_TIME_GROUP, from);
+        if (TAFForecastChangeIndicator.ForecastChangeIndicatorType.FROM != type) {
+            Lexeme timeGroup = findNext(Identity.TAF_CHANGE_FORECAST_TIME_GROUP, from);
             if (timeGroup != null) {
                 Identity[] before = { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER,
                         Identity.NO_SIGNIFICANT_WEATHER, Identity.CLOUD };

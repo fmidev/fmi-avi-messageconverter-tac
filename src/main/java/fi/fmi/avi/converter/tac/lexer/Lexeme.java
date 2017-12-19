@@ -98,9 +98,11 @@ public interface Lexeme {
         VARIABLE_WIND_DIRECTION(MIN_DIRECTION, MAX_DIRECTION, UNIT),
         HORIZONTAL_VISIBILITY(RELATIONAL_OPERATOR, VALUE, UNIT, DIRECTION),
         CLOUD(VALUE, COVER, TYPE, UNIT),
-        FORECAST_CHANGE_INDICATOR(DAY1, HOUR1, MINUTE1, TYPE), 
+        TAF_FORECAST_CHANGE_INDICATOR(DAY1, HOUR1, MINUTE1, TYPE),
+        TAF_CHANGE_FORECAST_TIME_GROUP(DAY1, DAY2, HOUR1, HOUR2, MINUTE1),
+        TREND_CHANGE_INDICATOR(TYPE),
+        TREND_TIME_GROUP(TYPE, HOUR1, MINUTE1),
         NO_SIGNIFICANT_WEATHER, 
-        CHANGE_FORECAST_TIME_GROUP(DAY1, DAY2, HOUR1, HOUR2),
         AUTOMATED,
         RUNWAY_VISUAL_RANGE(RUNWAY, MIN_VALUE, MAX_VALUE, RELATIONAL_OPERATOR, RELATIONAL_OPERATOR2, TENDENCY_OPERATOR, UNIT),
         WEATHER(VALUE),
@@ -286,6 +288,14 @@ public interface Lexeme {
      * @return the previous Lexeme
      */
     boolean hasPrevious();
+    
+    /**
+     * For checking if the Lexeme knows the previous Lexeme in it's sequence.
+     * 
+     * @param acceptWhitespace true if {@link Lexeme.Identity#WHITE_SPACE} Lexemes are not to ignored
+     * @return the previous Lexeme
+     */
+    boolean hasPrevious(boolean accecptWhitespace);
 
     /**
      * For checking if the Lexeme knows the next Lexeme in it's sequence.
@@ -293,6 +303,14 @@ public interface Lexeme {
      * @return the next Lexeme
      */
     boolean hasNext();
+    
+    /**
+     * For checking if the Lexeme knows the next Lexeme in it's sequence.
+     * 
+     * @param acceptWhitespace true if {@link Lexeme.Identity#WHITE_SPACE} Lexemes are not to ignored
+     * @return the next Lexeme
+     */
+    boolean hasNext(boolean accecptWhitespace);
 
     /**
      * A synthetic Lexeme has been created by the lexing process to fix some small syntax

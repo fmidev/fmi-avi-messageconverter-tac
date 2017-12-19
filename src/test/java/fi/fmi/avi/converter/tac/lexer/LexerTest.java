@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.List;
 
@@ -13,7 +13,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
-import fi.fmi.avi.converter.tac.conf.TACConverter;
 
 /**
  * Created by rinne on 30/05/17.
@@ -35,7 +34,7 @@ public class LexerTest {
                 "BECMG 0204/0206 21010KT 5000 BKN005\n" +
                 "BECMG 0210/0212 9999 BKN010=");
 
-        List<LexemeSequence> splitUp = seq.splitBy(Lexeme.Identity.FORECAST_CHANGE_INDICATOR);
+        List<LexemeSequence> splitUp = seq.splitBy(Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR);
         assertTrue("Incorrect number of split sequences", splitUp.size() == 6);
         assertEquals("First split-up sequence does not match", splitUp.get(0).getTAC(), "TAF EFHK 011733Z 0118/0218 VRB02KT 4000 -SN BKN003\n");
         assertEquals("Second split-up sequence does not match", splitUp.get(1).getTAC(), "TEMPO 0118/0120 1500 SN \n");
@@ -59,4 +58,28 @@ public class LexerTest {
         String back2tac = seq.getTAC();
         assertEquals(original, back2tac);
     }
+    
+    @Test
+    public void testIteratorWithWhiteSpaceEnding() {
+        LexemeSequence seq = lexer.lexMessage("TAF EFHK 011733Z 0118/0218 VRB02KT 4000 -SN BKN003\n" +
+                "TEMPO 0118/0120 1500 SN \n" +
+                "BECMG 0120/0122 1500 BR \t\n" +
+                "PROB40 TEMPO 0122/0203 0700 FG\n" +
+                "BECMG 0204/0206 21010KT 5000 BKN005\n" +
+                "BECMG 0210/0212 9999 BKN010=");
+
+        List<LexemeSequence> splitUp = seq.splitBy(Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR);
+        Lexeme l = splitUp.get(0).getFirstLexeme();
+        while (!l.getTACToken().equals("BKN003")) {
+            l = l.getNext();
+        }
+        assertFalse(l.hasNext());
+        assertTrue(l.getNext() == null);
+        
+        assertTrue(l.hasNext(true));
+        assertTrue(l.getNext(true) != null);
+        
+        l = l.getNext();
+    }
+        
 }

@@ -1,7 +1,5 @@
 package fi.fmi.avi.converter.tac;
 
-import static fi.fmi.avi.model.AviationCodeListUser.TrendForecastChangeIndicator.BECOMING;
-import static fi.fmi.avi.model.AviationCodeListUser.TrendForecastChangeIndicator.TEMPORARY_FLUCTUATIONS;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 
 import java.time.ZonedDateTime;
@@ -56,9 +54,10 @@ import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ColorCode;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ForecastChangeIndicator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
+import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator.TrendChangeIndicatorType;
+import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup.TrendTimePeriodType;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateContamination;
@@ -120,13 +119,13 @@ public class METARTACParser extends AbstractTACParser<METAR> {
             }
 
             //Split into obs & trends (+possible remarks)
-            List<LexemeSequence> subSequences = lexed.splitBy(Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START);
+            List<LexemeSequence> subSequences = lexed.splitBy(Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START);
             LexemeSequence obs = subSequences.get(0);
 
             findNext(Identity.CORRECTION, obs.getFirstLexeme(), (match) -> {
                 final Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK,
                         Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
-                        Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR,
+                        Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
                         Identity.REMARKS_START };
                 ConversionIssue issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
@@ -137,25 +136,10 @@ public class METARTACParser extends AbstractTACParser<METAR> {
             }, () -> result.getConvertedMessage().setStatus(AviationCodeListUser.MetarStatus.NORMAL));
 
 
-            findNext(Identity.AUTOMATED, obs.getFirstLexeme(), (match) -> {
-                final Identity[] before = new Identity[] { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity
-                        .CAVOK, Identity
-                        .HORIZONTAL_VISIBILITY, Identity
-                        .CLOUD, Identity
-                        .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
-                        Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-                ConversionIssue issue = checkBeforeAnyOf(match, before);
-                if (issue != null) {
-                    result.addIssue(issue);
-                } else {
-                    result.getConvertedMessage().setAutomatedStation(true);
-                }
-            });
-
             findNext(Identity.AERODROME_DESIGNATOR, obs.getFirstLexeme(), (match) -> {
                 final Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK,
                         Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
-                        Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR,
+                        Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
                         Identity.REMARKS_START };
                 ConversionIssue issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
@@ -168,11 +152,26 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
             updateMetarIssueTime(result, obs, hints);
 
+            findNext(Identity.AUTOMATED, obs.getFirstLexeme(), (match) -> {
+                final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity
+                        .CAVOK, Identity
+                        .HORIZONTAL_VISIBILITY, Identity
+                        .CLOUD, Identity
+                        .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
+                        Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
+                ConversionIssue issue = checkBeforeAnyOf(match, before);
+                if (issue != null) {
+                    result.addIssue(issue);
+                } else {
+                    result.getConvertedMessage().setAutomatedStation(true);
+                }
+            });
+            
             findNext(Identity.NIL, obs.getFirstLexeme(), (match) -> {
                 final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
                         Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
                         Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
-                        Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                        Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
                 ConversionIssue issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
                     result.addIssue(issue);
@@ -195,9 +194,9 @@ public class METARTACParser extends AbstractTACParser<METAR> {
             updateObservedSurfaceWind(result, obs, hints);
 
             findNext(Identity.CAVOK, obs.getFirstLexeme(), (match) -> {
-                final Identity[] before = new Identity[] { Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD,
+                final Identity[] before = new Identity[] { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD,
                         Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
-                        Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                        Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
                 ConversionIssue issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
                     result.addIssue(issue);
@@ -221,10 +220,10 @@ public class METARTACParser extends AbstractTACParser<METAR> {
             if (subSequences.size() > 0) {
                 for (int i = 1; i < subSequences.size(); i++) {
                     LexemeSequence seq = subSequences.get(i);
-                    if (Identity.FORECAST_CHANGE_INDICATOR == seq.getFirstLexeme().getIdentity()) {
-                        updateTrends(result, seq, hints);
+                    if (Identity.TREND_CHANGE_INDICATOR == seq.getFirstLexeme().getIdentity()) {
+                        updateTrend(result, seq.getFirstLexeme(), hints);
                     } else if (Identity.REMARKS_START == seq.getFirstLexeme().getIdentity()) {
-                        updateRemarks(result, seq, hints);
+                        updateRemarks(result, seq.getFirstLexeme(), hints);
                     }
                 }
             }
@@ -239,7 +238,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
         Identity[] before = { Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity
                 .CLOUD, Identity
                 .AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH,
-                Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
         result.addIssue(updateIssueTime(msg, lexed, before, hints));
     }
 
@@ -248,7 +247,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
         findNext(Identity.SURFACE_WIND, lexed.getFirstLexeme(), (match) -> {
             Identity[] before = { Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
-                    Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                    Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
@@ -308,7 +307,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
         findNext(Identity.HORIZONTAL_VISIBILITY, lexed.getFirstLexeme(), (match) -> {
             Identity[] before = { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH,
                     Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE,
-                    Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                    Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue;
             HorizontalVisibility vis = new HorizontalVisibilityImpl();
             while (match != null) {
@@ -316,6 +315,10 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                 if (issue != null) {
                     result.addIssue(issue);
                 } else {
+                    if (msg.isCeilingAndVisibilityOk()) {
+                        result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR, "CAVOK cannot co-exist with prevailing visibility"));
+                        break;
+                    }
                     MetricHorizontalVisibility.DirectionValue direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION,
                             MetricHorizontalVisibility.DirectionValue.class);
                     String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
@@ -346,7 +349,6 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                     msg.setVisibility(vis);
                 }
                 match = findNext(Identity.HORIZONTAL_VISIBILITY, match);
-
             }
         }, () -> {
             // If no horizontal visibility and no CAVOK
@@ -362,7 +364,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
         findNext(Identity.RUNWAY_VISUAL_RANGE, lexed.getFirstLexeme(), (match) -> {
             Identity[] before = { Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
                     Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
-                    Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue;
             List<RunwayVisualRange> rvrs = new ArrayList<>();
             while (match != null) {
@@ -370,6 +372,10 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                 if (issue != null) {
                     result.addIssue(issue);
                 } else {
+                    if (msg.isCeilingAndVisibilityOk()) {
+                        result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR, "CAVOK cannot co-exist with runway visual range"));
+                        break;
+                    }
                     String rwCode = match.getParsedValue(Lexeme.ParsedValueName.RUNWAY, String.class);
                     if (rwCode == null) {
                         result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Missing runway code for RVR in " + match.getTACToken()));
@@ -436,15 +442,19 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
         findNext(Identity.WEATHER, lexed.getFirstLexeme(), (match) -> {
             Identity[] before = { Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
-                    Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                List<fi.fmi.avi.model.Weather> weather = new ArrayList<>();
-                result.addIssue(appendWeatherCodes(match, weather, before, hints));
-                if (!weather.isEmpty()) {
-                    msg.setPresentWeather(weather);
+                if (msg.isCeilingAndVisibilityOk()) {
+                    result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR, "CAVOK cannot co-exist with prevailing visibility"));
+                } else {
+                    List<fi.fmi.avi.model.Weather> weather = new ArrayList<>();
+                    result.addIssue(appendWeatherCodes(match, weather, before, hints));
+                    if (!weather.isEmpty()) {
+                        msg.setPresentWeather(weather);
+                    }
                 }
             }
         });
@@ -455,7 +465,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
         findNext(Identity.CLOUD, lexed.getFirstLexeme(), (match) -> {
             Identity[] before = { Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
-                    Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ObservedClouds clouds = new ObservedCloudsImpl();
             ConversionIssue issue;
             List<fi.fmi.avi.model.CloudLayer> layers = new ArrayList<>();
@@ -464,6 +474,10 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                 if (issue != null) {
                     result.addIssue(issue);
                 } else {
+                    if (msg.isCeilingAndVisibilityOk()) {
+                        result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR, "CAVOK cannot co-exist with prevailing visibility"));
+                        break;
+                    }
                     CloudLayer.CloudCover cover = match.getParsedValue(Lexeme.ParsedValueName.COVER, CloudLayer.CloudCover.class);
                     Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
                     String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
@@ -505,7 +519,9 @@ public class METARTACParser extends AbstractTACParser<METAR> {
     private static void updateTemperatures(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
         findNext(Identity.AIR_DEWPOINT_TEMPERATURE, lexed.getFirstLexeme(), (match) -> {
-            Identity[] before = { Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            Identity[] before = { Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, 
+                    Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, 
+                    Identity.REMARKS_START };
             ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
@@ -536,7 +552,8 @@ public class METARTACParser extends AbstractTACParser<METAR> {
     private static void updateQNH(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
         findNext(Identity.AIR_PRESSURE_QNH, lexed.getFirstLexeme(), (match) -> {
-            Identity[] before = { Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            Identity[] before = { Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, 
+                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
@@ -565,7 +582,8 @@ public class METARTACParser extends AbstractTACParser<METAR> {
     private static void updateRecentWeather(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
         findNext(Identity.RECENT_WEATHER, lexed.getFirstLexeme(), (match) -> {
-            Identity[] before = { Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR,
+            Identity[] before = { Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, 
+                    Identity.TREND_CHANGE_INDICATOR,
                     Identity.REMARKS_START };
             List<fi.fmi.avi.model.Weather> weather = new ArrayList<>();
             result.addIssue(appendWeatherCodes(match, weather, before, hints));
@@ -578,7 +596,8 @@ public class METARTACParser extends AbstractTACParser<METAR> {
     private static void updateWindShear(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
         findNext(Identity.WIND_SHEAR, lexed.getFirstLexeme(), (match) -> {
-            Identity[] before = { Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            Identity[] before = { Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, 
+                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue;
             final WindShear ws = new WindShearImpl();
             List<RunwayDirection> runways = new ArrayList<>();
@@ -618,7 +637,8 @@ public class METARTACParser extends AbstractTACParser<METAR> {
     private static void updateSeaState(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
         findNext(Identity.SEA_STATE, lexed.getFirstLexeme(), (match) -> {
-            Lexeme.Identity[] before = { Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            Lexeme.Identity[] before = { Identity.RUNWAY_STATE, Identity.COLOR_CODE, 
+                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
@@ -687,7 +707,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
         final METAR msg = result.getConvertedMessage();
 
         findNext(Identity.RUNWAY_STATE, lexed.getFirstLexeme(), (match) -> {
-            Lexeme.Identity[] before = { Identity.COLOR_CODE, Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            Lexeme.Identity[] before = { Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue;
         	List<RunwayState> states = new ArrayList<>();
         	while (match != null) {
@@ -825,7 +845,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
     private static void updateColorState(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
         final METAR msg = result.getConvertedMessage();
         findNext(Identity.COLOR_CODE, lexed.getFirstLexeme(), (match) -> {
-            Lexeme.Identity[] before = { Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            Lexeme.Identity[] before = { Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
@@ -843,134 +863,128 @@ public class METARTACParser extends AbstractTACParser<METAR> {
         });
     }
 
-    private static void updateTrends(final ConversionResult<METAR> result, final LexemeSequence lexed, final ConversionHints hints) {
-        final METAR msg = result.getConvertedMessage();
-
-        final List<TrendForecast> trends = new ArrayList<>();
-        findNext(Identity.FORECAST_CHANGE_INDICATOR, lexed.getFirstLexeme(), (changeFct) -> {
-            Lexeme.Identity[] before = { Identity.REMARKS_START, Identity.END_TOKEN };
-            ConversionIssue issue;
-            //loop over change forecasts:
-            while (changeFct != null) {
-                issue = checkBeforeAnyOf(changeFct, before);
-                if (issue != null) {
-                    result.addIssue(issue);
-                    changeFct = findNext(Identity.FORECAST_CHANGE_INDICATOR, changeFct);
-                    continue;
-                }
-                TrendForecast fct = new TrendForecastImpl();
-                ForecastChangeIndicator.ForecastChangeIndicatorType type = changeFct.getParsedValue(ParsedValueName.TYPE,
-                        ForecastChangeIndicator.ForecastChangeIndicatorType.class);
-                switch (type) {
-                    case BECOMING:
-                        fct.setChangeIndicator(AviationCodeListUser.TrendForecastChangeIndicator.BECOMING);
-                        updateTrendContents(result, fct, changeFct, hints);
-                        break;
-                    case TEMPORARY_FLUCTUATIONS:
-                        fct.setChangeIndicator(AviationCodeListUser.TrendForecastChangeIndicator.TEMPORARY_FLUCTUATIONS);
-                        updateTrendContents(result, fct, changeFct, hints);
-                        break;
-                    case WITH_30_PCT_PROBABILITY:
-                    case WITH_40_PCT_PROBABILITY:
-                        result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "PROB30/40 groups not allowed in METAR"));
-                        break;
-                    case NO_SIGNIFICANT_CHANGES:
-                        fct.setChangeIndicator(AviationCodeListUser.TrendForecastChangeIndicator.NO_SIGNIFICANT_CHANGES);
-                        break;
-                    default:
-                        break;
-                }
-                trends.add(fct);
-                changeFct = findNext(Identity.FORECAST_CHANGE_INDICATOR, changeFct);
-            }
-        });
-        if (!trends.isEmpty()) {
-            msg.setTrends(trends);
+    private static void updateTrend(final ConversionResult<METAR> result, final Lexeme changeFctToken, final ConversionHints hints) {
+        if (Identity.TREND_CHANGE_INDICATOR != changeFctToken.getIdentity()) {
+            throw new IllegalArgumentException("Cannot update Trend, the start lexeme " +changeFctToken+" is not a change forecast start token");
         }
+        ConversionIssue issue = checkBeforeAnyOf(changeFctToken, new Identity[] { Identity.REMARKS_START });
+        if (issue != null) {
+            result.addIssue(issue);
+            return;
+        }
+        METAR metar = result.getConvertedMessage();
+        List<TrendForecast> trends = metar.getTrends();
+        if (trends == null) {
+            trends = new ArrayList<TrendForecast>();
+            metar.setTrends(trends);
+        }
+        
+        TrendForecast fct = new TrendForecastImpl();
+        TrendChangeIndicatorType type = changeFctToken.getParsedValue(ParsedValueName.TYPE,
+                TrendChangeIndicatorType.class);
+        switch (type) {
+            case BECOMING:
+                fct.setChangeIndicator(AviationCodeListUser.TrendForecastChangeIndicator.BECOMING);
+                updateTrendContents(result, fct, changeFctToken, hints);
+                break;
+            case TEMPORARY_FLUCTUATIONS:
+                fct.setChangeIndicator(AviationCodeListUser.TrendForecastChangeIndicator.TEMPORARY_FLUCTUATIONS);
+                updateTrendContents(result, fct, changeFctToken, hints);
+                break;
+            case NO_SIGNIFICANT_CHANGES:
+                fct.setChangeIndicator(AviationCodeListUser.TrendForecastChangeIndicator.NO_SIGNIFICANT_CHANGES);
+                break;
+            default:
+                break;
+        }
+        trends.add(fct);
     }
 
     private static void updateTrendContents(final ConversionResult<METAR> result, final TrendForecast fct, final Lexeme groupStart, final ConversionHints
             hints) {
         //Check for the possibly following FM, TL and AT tokens:
-        Lexeme changeFct = groupStart;
-        TrendTimeGroups timeGroups = parseChangeTimeGroups(result, groupStart.getNext(), hints);
+        Lexeme token = groupStart.getNext();
+        TrendTimeGroups timeGroups = parseChangeTimeGroups(result, token, hints);
         if (timeGroups != null) {
             fct.setTimeGroups(timeGroups);
-            changeFct = changeFct.getNext();
+            token = token.getNext();
         }
-        Lexeme token = changeFct;
+        
         //loop over change group tokens:
         List<fi.fmi.avi.model.Weather> forecastWeather = null;
-        Lexeme.Identity[] beforeNextGroup = { Identity.FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START, Identity.END_TOKEN };
+        Lexeme.Identity[] before = { Identity.REMARKS_START, Identity.END_TOKEN };
         while (token != null) {
-            if (checkBeforeAnyOf(token, beforeNextGroup) != null) {
+            if (checkBeforeAnyOf(token, before) != null) {
                 break;
             }
-            if (token.hasNext()) {
-                token = token.getNext();
-                Identity id = token.getIdentity();
-                if (id != null) {
-                    switch (id) {
-                        case CAVOK:
-                            fct.setCeilingAndVisibilityOk(true);
-                            break;
-                        case CLOUD: {
-                            updateForecastCloud(result, fct, token, hints);
-                            break;
-                        }
-                        case HORIZONTAL_VISIBILITY: {
-                            if (fct.getPrevailingVisibility() == null) {
-                                updatePrevailingVisibility(fct, token, hints);
-                            } else {
-                                result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR,
-                                        "More than one visibility token within a trend change group: " + token.getTACToken()));
-                            }
-                            break;
-                        }
-                        case SURFACE_WIND: {
-                            if (fct.getSurfaceWind() == null) {
-                                updateForecastWind(result, fct, token, hints);
-                            } else {
-                                result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR, "More than one wind token within a trend change group"));
-                            }
-                            break;
-                        }
-                        case WEATHER: {
-                            if (forecastWeather == null) {
-                                forecastWeather = new ArrayList<>();
-                                fct.setForecastWeather(forecastWeather);
-                            }
-                            String code = token.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class);
-                            if (code != null) {
-                                fi.fmi.avi.model.Weather weather = new WeatherImpl();
-                                weather.setCode(code);
-                                weather.setDescription(Weather.WEATHER_CODES.get(code));
-                                forecastWeather.add(weather);
-                            } else {
-                                result.addIssue(new ConversionIssue(Type.MISSING_DATA, "Weather code not found"));
-                            }
-                            break;
-                        }
-                        case NO_SIGNIFICANT_WEATHER:
-                            fct.setNoSignificantWeather(true);
-                            break;
-                        case COLOR_CODE: {
-                            ColorCode.ColorState code = token.getParsedValue(ParsedValueName.VALUE, ColorCode.ColorState.class);
-                            for (AviationCodeListUser.ColorState state : AviationCodeListUser.ColorState.values()) {
-                                if (state.name().equalsIgnoreCase(code.getCode())) {
-                                    fct.setColorState(state);
-                                }
-                            }
-                            if (fct.getColorState() == null) {
-                                result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Unknown color state '" + code.getCode() + "'"));
-                            }
-                            break;
-                        }
-                        default:
-                            result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Illegal token " + token.getTACToken() + " within the change forecast group"));
-                            break;
+            Identity id = token.getIdentity();
+            if (id != null) {
+                switch (id) {
+                    case CAVOK:
+                        fct.setCeilingAndVisibilityOk(true);
+                        break;
+                    case CLOUD: {
+                        updateForecastCloud(result, fct, token, hints);
+                        break;
                     }
+                    case HORIZONTAL_VISIBILITY: {
+                        if (fct.getPrevailingVisibility() == null) {
+                            updatePrevailingVisibility(fct, token, hints);
+                        } else {
+                            result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR,
+                                    "More than one visibility token within a trend change group: " + token.getTACToken()));
+                        }
+                        break;
+                    }
+                    case SURFACE_WIND: {
+                        if (fct.getSurfaceWind() == null) {
+                            updateForecastWind(result, fct, token, hints);
+                        } else {
+                            result.addIssue(new ConversionIssue(Type.LOGICAL_ERROR, "More than one wind token within a trend change group"));
+                        }
+                        break;
+                    }
+                    case WEATHER: {
+                        if (forecastWeather == null) {
+                            forecastWeather = new ArrayList<>();
+                            fct.setForecastWeather(forecastWeather);
+                        }
+                        String code = token.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class);
+                        if (code != null) {
+                            fi.fmi.avi.model.Weather weather = new WeatherImpl();
+                            weather.setCode(code);
+                            weather.setDescription(Weather.WEATHER_CODES.get(code));
+                            forecastWeather.add(weather);
+                        } else {
+                            result.addIssue(new ConversionIssue(Type.MISSING_DATA, "Weather code not found"));
+                        }
+                        break;
+                    }
+                    case NO_SIGNIFICANT_WEATHER:
+                        fct.setNoSignificantWeather(true);
+                        break;
+                    case COLOR_CODE: {
+                        ColorCode.ColorState code = token.getParsedValue(ParsedValueName.VALUE, ColorCode.ColorState.class);
+                        for (AviationCodeListUser.ColorState state : AviationCodeListUser.ColorState.values()) {
+                            if (state.name().equalsIgnoreCase(code.getCode())) {
+                                fct.setColorState(state);
+                            }
+                        }
+                        if (fct.getColorState() == null) {
+                            result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Unknown color state '" + code.getCode() + "'"));
+                        }
+                        break;
+                    }
+                    case END_TOKEN: {
+                        break;
+                    }
+                    default:
+                        result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Illegal token " + token.getTACToken() + " within the change forecast group"));
+                        break;
                 }
+            }
+            if (Identity.END_TOKEN == token.getIdentity()) {
+                break;
             }
             token = token.getNext();
         }
@@ -1084,22 +1098,17 @@ public class METARTACParser extends AbstractTACParser<METAR> {
     }
 
     private static TrendTimeGroups parseChangeTimeGroups(final ConversionResult<METAR> result, final Lexeme token, final ConversionHints hints) {
-        TrendTimeGroups retval = null;
-        if (Identity.FORECAST_CHANGE_INDICATOR == token.getIdentity()) {
-            ForecastChangeIndicator.ForecastChangeIndicatorType type = token.getParsedValue(ParsedValueName.TYPE, ForecastChangeIndicator
-                    .ForecastChangeIndicatorType.class);
+        TrendTimeGroups timeGroups = null;
+        if (Identity.TREND_TIME_GROUP == token.getIdentity()) {
+            TrendTimePeriodType type = token.getParsedValue(ParsedValueName.TYPE, TrendTimePeriodType.class);
             if (type != null) {
-                TrendTimeGroups timeGroups = new TrendTimeGroupsImpl();
+                timeGroups = new TrendTimeGroupsImpl();
                 switch (type) {
                     case AT: {
-                        Integer fromDay = token.getParsedValue(ParsedValueName.DAY1, Integer.class);
                         Integer fromHour = token.getParsedValue(ParsedValueName.HOUR1, Integer.class);
                         Integer fromMinute = token.getParsedValue(ParsedValueName.MINUTE1, Integer.class);
                         if (fromHour != null && fromMinute != null) {
-                            if (fromDay == null) {
-                                fromDay = Integer.valueOf(-1);
-                            }
-                            timeGroups.setPartialStartTime(fromDay, fromHour, fromMinute);
+                            timeGroups.setPartialStartTime(-1, fromHour, fromMinute);
                         } else {
                             result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Missing hour and/or minute from trend AT group " + token.getTACToken()));
                         }
@@ -1107,28 +1116,20 @@ public class METARTACParser extends AbstractTACParser<METAR> {
                         break;
                     }
                     case FROM: {
-                        Integer fromDay = token.getParsedValue(ParsedValueName.DAY1, Integer.class);
                         Integer fromHour = token.getParsedValue(ParsedValueName.HOUR1, Integer.class);
                         Integer fromMinute = token.getParsedValue(ParsedValueName.MINUTE1, Integer.class);
                         if (fromHour != null && fromMinute != null) {
-                            if (fromDay == null) {
-                                fromDay = Integer.valueOf(-1);
-                            }
-                            timeGroups.setPartialStartTime(fromDay, fromHour, fromMinute);
+                            timeGroups.setPartialStartTime(-1, fromHour, fromMinute);
                         } else {
                             result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Missing hour and/or minute from trend FM group " + token.getTACToken()));
                         }
                         break;
                     }
                     case UNTIL: {
-                        Integer toDay = token.getParsedValue(ParsedValueName.DAY1, Integer.class);
                         Integer toHour = token.getParsedValue(ParsedValueName.HOUR1, Integer.class);
                         Integer toMinute = token.getParsedValue(ParsedValueName.MINUTE1, Integer.class);
                         if (toHour != null && toMinute != null) {
-                            if (toDay == null) {
-                                toDay = Integer.valueOf(-1);
-                            }
-                            timeGroups.setPartialEndTime(toDay, toHour, toMinute);
+                            timeGroups.setPartialEndTime(-1, toHour, toMinute);
                         } else {
                             result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Missing hour and/or minute from trend TL group " + token.getTACToken()));
                         }
@@ -1143,7 +1144,7 @@ public class METARTACParser extends AbstractTACParser<METAR> {
 
             }
         }
-        return retval;
+        return timeGroups;
     }
 
 }

@@ -112,10 +112,10 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                     for (TAFChangeForecast changeFct : input.getChangeForecasts()) {
                         retval.removeLast(); //last whitespace
                         appendWhitespace(retval, '\n', hints);
-                        if (appendToken(retval, Identity.FORECAST_CHANGE_INDICATOR, input, TAF.class, hints, changeFct) > 0) {
+                        if (appendToken(retval, Identity.TAF_FORECAST_CHANGE_INDICATOR, input, TAF.class, hints, changeFct) > 0) {
                             appendWhitespace(retval, ' ', hints);
                         }
-                        if (appendToken(retval, Identity.CHANGE_FORECAST_TIME_GROUP, input, TAF.class, hints, changeFct) > 0) {
+                        if (appendToken(retval, Identity.TAF_CHANGE_FORECAST_TIME_GROUP, input, TAF.class, hints, changeFct) > 0) {
                             appendWhitespace(retval, ' ', hints);
                         }
                         if (appendToken(retval, Identity.SURFACE_WIND, input, TAF.class, hints, changeFct) > 0) {

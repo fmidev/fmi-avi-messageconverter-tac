@@ -137,10 +137,10 @@ public class METARTACSerializer extends AbstractTACSerializer<METAR> {
         }
         if (input.getTrends() != null) {
             for (TrendForecast trend : input.getTrends()) {
-                if (appendToken(retval, Identity.FORECAST_CHANGE_INDICATOR, input, METAR.class, hints, trend) > 0) {
+                if (appendToken(retval, Identity.TREND_CHANGE_INDICATOR, input, METAR.class, hints, trend) > 0) {
                     appendWhitespace(retval, ' ', hints);
                 }
-                if (appendToken(retval, Identity.CHANGE_FORECAST_TIME_GROUP, input, METAR.class, hints, trend) > 0) {
+                if (appendToken(retval, Identity.TREND_TIME_GROUP, input, METAR.class, hints, trend) > 0) {
                     appendWhitespace(retval, ' ', hints);
                 }
                 if (appendToken(retval, Identity.SURFACE_WIND, input, METAR.class, hints, trend) > 0) {

@@ -82,7 +82,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
     	}
     	boolean inChangeGroup = false;
     	while (l != null) {
-    		if (Identity.FORECAST_CHANGE_INDICATOR == l.getIdentity()) {
+    		if (Identity.TAF_FORECAST_CHANGE_INDICATOR == l.getIdentity()) {
         		inChangeGroup = true;
         		break;
         	}
@@ -103,7 +103,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 	    				boolean hasAnotherVisibility = false;
 	    				//we start with the FORECAST_CHANGE_INDICATOR, so skip it:
 	    				l = l.getNext();
-	    				while (l != null && Identity.END_TOKEN != l.getIdentity() && Identity.FORECAST_CHANGE_INDICATOR != l.getIdentity()) {
+	    				while (l != null && Identity.END_TOKEN != l.getIdentity() && Identity.TAF_FORECAST_CHANGE_INDICATOR != l.getIdentity()) {
 	    					if (Identity.HORIZONTAL_VISIBILITY == l.getIdentity() && l != token) {
 	    						hasAnotherVisibility = true;
 	    						break;

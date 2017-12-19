@@ -1,17 +1,6 @@
 package fi.fmi.avi.converter.tac.metar;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_DEWPOINT_TEMPERATURE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_PRESSURE_QNH;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CLOUD;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.COLOR_CODE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.FORECAST_CHANGE_INDICATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.*;
 
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.metar.METAR;
@@ -53,7 +42,7 @@ public class METAR7Test extends AbstractAviMessageTest<String, METAR> {
 	public Identity[] getLexerTokenSequenceIdentity() {
 		return spacify(new Identity[] {
 				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD,
-                AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, COLOR_CODE, FORECAST_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, COLOR_CODE,
+                AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, COLOR_CODE, TREND_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, COLOR_CODE,
                 END_TOKEN
 		});
 	}
