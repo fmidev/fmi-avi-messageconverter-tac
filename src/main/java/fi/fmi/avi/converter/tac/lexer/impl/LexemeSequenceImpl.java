@@ -56,6 +56,11 @@ class LexemeSequenceImpl implements LexemeSequence {
 
     @Override
     public List<Lexeme> getLexemes() {
+        return Collections.unmodifiableList(this.lexemes.stream().filter((item) -> !item.isIgnored()).collect(Collectors.toList()));
+    }
+
+    @Override
+    public List<Lexeme> getLexemes(boolean accept) {
         return Collections.unmodifiableList(this.lexemes);
     }
 
@@ -84,7 +89,7 @@ class LexemeSequenceImpl implements LexemeSequence {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (this.lexemes != null) {
-            for (Lexeme l : this.lexemes.stream().filter(l -> Lexeme.Identity.WHITE_SPACE != l.getIdentity()).collect(Collectors.toList())) {
+            for (Lexeme l : this.lexemes) {
                 sb.append('[');
                 sb.append(l);
                 sb.append(']');

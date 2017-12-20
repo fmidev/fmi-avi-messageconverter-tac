@@ -236,7 +236,8 @@ public interface Lexeme {
     String getTACToken();
 
     /**
-     * Returns the first Lexeme in the {@link LexemeSequence} containing this Lexeme.
+     * Returns the first Lexeme in the {@link LexemeSequence} containing this Lexeme ignoring
+     * any possible {@link Lexeme.Identity#WHITE_SPACE} and ignored Lexemes.
      * This link is provided mainly as navigation shortcut.
      * 
      * @return the first Lexeme of the sequence, if available
@@ -244,8 +245,20 @@ public interface Lexeme {
     Lexeme getFirst();
 
     /**
-     * Returns the Lexeme immediately before this one in the {@link LexemeSequence} 
-     * containing this Lexeme ignoring any possible {@link Lexeme.Identity#WHITE_SPACE} Lexemes. For the first Lexeme in sequence this must return
+     * Returns the first Lexeme in the {@link LexemeSequence} containing this Lexeme.
+     * This link is provided mainly as navigation shortcut.
+     *
+     * @param acceptIgnored
+     *         true if ignored and whitespace Lexemes are to be returned
+     *
+     * @return the first Lexeme of the sequence, if available
+     */
+    Lexeme getFirst(boolean acceptIgnored);
+
+    /**
+     * Returns the Lexeme immediately before this one in the {@link LexemeSequence}
+     * containing this Lexeme ignoring any possible {@link Lexeme.Identity#WHITE_SPACE} and ignored Lexemes.
+     * For the first Lexeme in sequence this must return
      * {@code null}.
      * 
      * @return the previous Lexeme of the sequence, if available
@@ -257,14 +270,15 @@ public interface Lexeme {
      * containing this Lexeme. For the first Lexeme in sequence this must return
      * {@code null}.
      *
-     * @param acceptWhitespace true if {@link Lexeme.Identity#WHITE_SPACE} Lexemes are not to ignored
+     * @param acceptIgnored true if ignored and whitespace Lexemes are to be returned
      * @return the previous Lexeme of the sequence, if available
      */
-    Lexeme getPrevious(boolean acceptWhitespace);
+    Lexeme getPrevious(boolean acceptIgnored);
 
     /**
-     * Returns the Lexeme immediately after this one in the {@link LexemeSequence} 
-     * containing this Lexeme ignoring any possible {@link Lexeme.Identity#WHITE_SPACE} Lexemes. For the last Lexeme in sequence this must return
+     * Returns the Lexeme immediately after this one in the {@link LexemeSequence}
+     * containing this Lexeme ignoring any possible {@link Lexeme.Identity#WHITE_SPACE} and ignored Lexemes.
+     * For the last Lexeme in sequence this must return
      * {@code null}.
      * 
      * @return the next Lexeme of the sequence, if available
@@ -276,10 +290,10 @@ public interface Lexeme {
      * containing this Lexeme. For the last Lexeme in sequence this must return
      * {@code null}.
      *
-     * @param acceptWhitespace true if {@link Lexeme.Identity#WHITE_SPACE} Lexemes are not to ignored
+     * @param acceptIgnored true if ignored and whitespace Lexemes are to be returned
      * @return the next Lexeme of the sequence, if available
      */
-    Lexeme getNext(boolean acceptWhitespace);
+    Lexeme getNext(boolean acceptIgnored);
 
     /**
      * For checking if the Lexeme knows the previous Lexeme in it's sequence.
@@ -291,12 +305,12 @@ public interface Lexeme {
     /**
      * For checking if the Lexeme knows the previous Lexeme in it's sequence.
      *
-     * @param acceptWhitespace
-     *         true if {@link Lexeme.Identity#WHITE_SPACE} Lexemes are not to ignored
+     * @param acceptIgnored
+     *         true if ignored and whitespace Lexemes are to be considered
      *
      * @return the previous Lexeme
      */
-    boolean hasPrevious(boolean acceptWhitespace);
+    boolean hasPrevious(boolean acceptIgnored);
 
     /**
      * For checking if the Lexeme knows the next Lexeme in it's sequence.
@@ -308,12 +322,12 @@ public interface Lexeme {
     /**
      * For checking if the Lexeme knows the next Lexeme in it's sequence.
      *
-     * @param acceptWhitespace
-     *         true if {@link Lexeme.Identity#WHITE_SPACE} Lexemes are not to ignored
+     * @param acceptIgnored
+     *         true if also ignored and whitespace Lexemes are to be considered
      *
      * @return the next Lexeme
      */
-    boolean hasNext(boolean acceptWhitespace);
+    boolean hasNext(boolean acceptIgnored);
 
     /**
      * A synthetic Lexeme has been created by the lexing process to fix some small syntax
@@ -334,6 +348,13 @@ public interface Lexeme {
      * @return value between 0.0 and 1.0
      */
     double getIdentificationCertainty();
+
+    /**
+     * This token has been marked as ignored, and it will not be exposed when iterating
+     * over the lexeme sequences.
+     */
+    boolean isIgnored();
+
     
     /**
      * Identifies this Lexeme as {@code id} with {@link Status#OK} and no additional message.
@@ -443,7 +464,15 @@ public interface Lexeme {
      * @see #getIdentificationCertainty()
      */
     void setIdentificationCertainty(double percentage);
-    
+
+    /**
+     * Setting to set this Lexeme as ignored or not.
+     *
+     * @param ignored
+     *         true if to be ignored
+     */
+    void setIgnored(boolean ignored);
+
     /**
      * Provides access to a {@link LexemeVisitor} to refine this Lexeme.
      * Typically called by a {@link LexemeVisitor} to try to recognize

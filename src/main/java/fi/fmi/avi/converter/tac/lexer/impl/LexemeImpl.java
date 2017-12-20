@@ -13,6 +13,7 @@ class LexemeImpl implements Lexeme {
     private Status status;
     private String lexerMessage;
     private boolean isSynthetic;
+    private boolean explicitlyIgnored;
     private Map<ParsedValueName, Object> parsedValues;
     private int startIndex = -1;
     private int endIndex = -1;
@@ -118,32 +119,41 @@ class LexemeImpl implements Lexeme {
 
     @Override
     public Lexeme getFirst() {
+        Lexeme retval = this.first;
+        if (retval != null && (Identity.WHITE_SPACE == retval.getIdentity() || retval.isIgnored())) {
+            retval = retval.getNext();
+        }
+        return retval;
+    }
+
+    @Override
+    public Lexeme getFirst(boolean acceptIgnored) {
         return this.first;
     }
 
     @Override
-    public Lexeme getPrevious(boolean acceptWhitespace) {
+    public Lexeme getPrevious(boolean acceptIgnored) {
         return this.prev;
     }
 
     @Override
     public Lexeme getPrevious() {
         Lexeme retval = this.prev;
-        while (retval != null && Identity.WHITE_SPACE == retval.getIdentity()) {
+        while (retval != null && (Identity.WHITE_SPACE == retval.getIdentity() || retval.isIgnored())) {
             retval = retval.getPrevious();
         }
         return retval;
     }
 
     @Override
-    public Lexeme getNext(boolean acceptWhitespace) {
+    public Lexeme getNext(boolean acceptIgnored) {
         return this.next;
     }
 
     @Override
     public Lexeme getNext() {
         Lexeme retval = this.next;
-        while (retval != null && Identity.WHITE_SPACE == retval.getIdentity()) {
+        while (retval != null && (Identity.WHITE_SPACE == retval.getIdentity() || retval.isIgnored())) {
             retval = retval.getNext();
         }
         return retval;
@@ -182,6 +192,11 @@ class LexemeImpl implements Lexeme {
     @Override
     public double getIdentificationCertainty() {
         return this.certainty;
+    }
+
+    @Override
+    public boolean isIgnored() {
+        return explicitlyIgnored;
     }
 
     @Override
@@ -250,6 +265,11 @@ class LexemeImpl implements Lexeme {
             throw new IllegalArgumentException("Certainty must be between 0.0 and 1.0");
         }
         this.certainty = percentage;
+    }
+
+    @Override
+    public void setIgnored(final boolean explicitlyIgnored) {
+        this.explicitlyIgnored = explicitlyIgnored;
     }
 
     void setStartIndex(final int index) {

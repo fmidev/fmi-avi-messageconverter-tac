@@ -1,0 +1,43 @@
+{
+  "status": "NORMAL",
+  "partialIssueTime": "181420Z",
+  "automatedStation": "true",
+  "aerodrome": {
+    "designator": "EFIV"
+  },
+  "presentWeather": [
+    {
+      "code": "IC",
+      "description": null
+    }
+  ],
+  "airTemperature": {
+    "value": -18.0,
+    "uom": "degC"
+  },
+  "dewpointTemperature": {
+    "value": -20.0,
+    "uom": "degC"
+  },
+  "altimeterSettingQNH": {
+    "value": 1008.0,
+    "uom": "hPa"
+  },
+  "surfaceWind": {
+    "meanWindDirection": {
+      "value": 210.0,
+      "uom": "deg"
+    },
+    "meanWindSpeed": {
+      "value": 11.0,
+      "uom": "kt"
+    }
+  },
+  "visibility": {
+    "prevailingVisibility": {
+      "value": 10000,
+      "uom": "m"
+    },
+    "prevailingVisibilityOperator": "ABOVE"
+  }
+}

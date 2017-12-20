@@ -30,14 +30,14 @@ public interface LexemeSequence {
     String getTAC();
 
     /**
-     * Convenience methos for accessing the first {@link Lexeme} in the sequence.
+     * Convenience method for accessing the first {@link Lexeme} in the sequence.
      *
      * @return the first {@link Lexeme}
      */
     Lexeme getFirstLexeme();
 
     /**
-     * Convenience methos for accessing the last {@link Lexeme} in the sequence.
+     * Convenience method for accessing the last {@link Lexeme} in the sequence.
      *
      * @return the first {@link Lexeme}
      */
@@ -45,6 +45,7 @@ public interface LexemeSequence {
 
     /**
      * List of all {@link Lexeme}s in the sequence from the first to the last.
+     * Ignored lexemes are not returned.
      *
      * Note that Java 8 users may filter the returned list conveniently using
      * the Stream API:
@@ -57,6 +58,24 @@ public interface LexemeSequence {
      * @return contained Lexemes as a list
      */
     List<Lexeme> getLexemes();
+
+    /**
+     * List of all {@link Lexeme}s in the sequence from the first to the last.
+     *
+     * Note that Java 8 users may filter the returned list conveniently using
+     * the Stream API:
+     * <pre>
+     *     List&lt;Lexeme&gt; recognizedLexemes = lexed.getLexemes().stream()
+     *       .filter((lexeme) -&gt; Lexeme.Status.UNRECOGNIZED != lexeme.getStatus())
+     *       .collect(Collectors.toList());
+     * </pre>
+     *
+     * @param acceptIgnored
+     *         true to also return any lexemes set as ignored
+     *
+     * @return contained Lexemes as a list
+     */
+    List<Lexeme> getLexemes(boolean acceptIgnored);
 
     /**
      * Returns a list of sub-sequences cut from the sequence split by given {@link Lexeme.Identity} set.
