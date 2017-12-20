@@ -278,12 +278,8 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
     }
 
     protected static boolean lexingSuccessful(final LexemeSequence lexed, final ConversionHints hints) {
-
-        if(hints == null)
-            return true;
-
-        if (!hints.containsValue(ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS)) {
-            if (lexed.getLexemes().stream().anyMatch(l -> !Lexeme.Status.OK.equals(l.getStatus()))) {
+        if (hints == null || !hints.containsValue(ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS)) {
+            if (lexed.getLexemes().stream().anyMatch(l -> !l.isIgnored() && !Lexeme.Status.OK.equals(l.getStatus()))) {
                 return false;
             }
         }
