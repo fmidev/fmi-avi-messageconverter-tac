@@ -47,7 +47,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
      * Finds the next {@link Lexeme} identified as <code>needle</code> in the sequence of Lexemes starting
      * from <code>from</code>.
      *
-     * If the <code>found</code> is not null, it's {@link Consumer<Lexeme>#accept(Lexeme)} is called with the
+     * If the <code>found</code> is not null, it's {@link Consumer#accept(Object)} is called with the
      * possible match. If not match is found, this method is not called.
      *
      * As {@link Consumer} is a functional interface, it can be implemented as a lambda expression:
@@ -80,7 +80,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
      * Finds the next {@link Lexeme} identified as <code>needle</code> in the sequence of Lexemes starting
      * from <code>from</code>.
      *
-     * If the <code>found</code> is not null, it's {@link Consumer<Lexeme>#accept(Lexeme)} is called with the
+     * If the <code>found</code> is not null, it's {@link Consumer#accept(Object)} is called with the
      * possible match. If not match is found and <code>notFound</code> is not null, the function <code>notFound</code> is
      * called instead of <code>found</code>.
      *
