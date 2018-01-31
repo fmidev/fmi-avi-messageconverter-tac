@@ -1,16 +1,10 @@
 package fi.fmi.avi.converter.tac.metar;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_DEWPOINT_TEMPERATURE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_PRESSURE_QNH;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CLOUD;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TREND_CHANGE_INDICATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.NIL;
 
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
@@ -19,29 +13,31 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.impl.METARImpl;
 
-public class METAR6Test extends AbstractAviMessageTest<String, METAR> {
+public class NILMETARTest extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
 	public String getJsonFilename() {
-		return "metar/metar6.json";
+		return "metar/metar_nil.json";
 	}
 	
 	@Override
 	public String getMessage() {
 		return
-				"METAR EFHK 010550Z 21018KT 9999 -RA SCT013 BKN025 03/00 Q0988 TEMPO 4000 RASN=";
+				"METAR EFIV 221320Z NIL=";
 	}
-	
-	@Override
+
+    @Override
 	public String getTokenizedMessagePrefix() {
 		return "";
 	}
 
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-        return spacify(new Identity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, CLOUD,
-                AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, TREND_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, WEATHER, END_TOKEN });
-    }
+		return spacify(new Identity[] {
+				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, NIL, END_TOKEN
+		});
+	}
+
 
 	@Override
     public ConversionSpecification<String, METAR> getParsingSpecification() {
@@ -54,8 +50,8 @@ public class METAR6Test extends AbstractAviMessageTest<String, METAR> {
     }
 
 	@Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
-        return METARImpl.class;
-    }
+	public Class<? extends METAR> getTokenizerImplmentationClass() {
+		return METARImpl.class;
+	}
 
 }

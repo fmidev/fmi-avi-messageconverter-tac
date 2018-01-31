@@ -8,6 +8,13 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
 import java.util.regex.Matcher;
 
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser.CloudAmount;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.CloudForecast;
@@ -18,21 +25,22 @@ import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 /**
- * Created by rinne on 10/02/17.
+ * Token parser for clouds
  */
 public class CloudLayer extends RegexMatchingLexemeVisitor {
 
     public enum CloudCover {
-        SKY_CLEAR("SKC"), NO_LOW_CLOUDS("CLR"), NO_SIG_CLOUDS("NSC"), FEW("FEW"), SCATTERED("SCT"), BROKEN("BKN"), OVERCAST("OVC"), SKY_OBSCURED("VV");
+		SKY_CLEAR("SKC"),
+		NO_LOW_CLOUDS("CLR"),
+		NO_CLOUD_DETECTED("NCD"),
+		NO_SIG_CLOUDS("NSC"),
+		FEW("FEW"),
+		SCATTERED("SCT"),
+		BROKEN("BKN"),
+		OVERCAST("OVC"),
+		SKY_OBSCURED("VV");
 
         private final String code;
 
@@ -76,12 +84,12 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
     }
     
     public enum SpecialValue {
-        AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM, CLOUD_BASE_BELOW_AERODROME;
-    }
+		AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM, CLOUD_BASE_BELOW_AERODROME
+	}
 
     public CloudLayer(final Priority prio) {
-        super("^(([A-Z]{3}|VV)([0-9]{3}|/{3})(CB|TCU|/{3})?)|(/{6})|(SKC|NSC)$", prio);
-    }
+		super("^(([A-Z]{3}|VV)([0-9]{3}|/{3})(CB|TCU|/{3})?)|(/{6})|(SKC|NSC|NCD|CLR)$", prio);
+	}
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {

@@ -13,25 +13,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 /**
- * Created by rinne on 10/02/17.
+ * Token parser for weather codes
  */
 public class Weather extends RegexMatchingLexemeVisitor {
 
-    private final static Set<String> weatherSkipWords = new HashSet<String>(Arrays.asList(
-            new String[] { "METAR", "TAF", "COR", "AMD", "CNL", "NIL", "CAVOK", "TEMPO", "BECMG", "RMK", "NOSIG", "NSC", "NSW", "SKC", "AUTO", "SNOCLO", "BLU", "WHT",
-                    "GRN", "YLO1", "YLO2", "AMB", "RED", "BLACKWHT", "BLACKBLU", "BLACKGRN", "BLACKYLO1", "BLACKYLO2", "BLACKAMB", "BLACKRED" }));
+    private final static Set<String> weatherSkipWords = new HashSet<>(
+            Arrays.asList("METAR", "RTD", "TAF", "COR", "AMD", "CNL", "NIL", "CAVOK", "TEMPO", "BECMG", "RMK", "NOSIG", "NSC", "NSW", "SKC", "NCD", "AUTO",
+                    "SNOCLO", "BLU", "WHT", "GRN", "YLO1", "YLO2", "AMB", "RED", "BLACKWHT", "BLACKBLU", "BLACKGRN", "BLACKYLO1", "BLACKYLO2", "BLACKAMB",
+                    "BLACKRED"));
     public final static Map<String, String> WEATHER_CODES;
 
     //Copied from https://codes.wmo.int/306/4678
@@ -309,7 +310,7 @@ public class Weather extends RegexMatchingLexemeVisitor {
         _WEATHER_CODES.put("FZDZ", "Precipitation of freezing drizzle");
         _WEATHER_CODES.put("FZDZRA", "Precipitation of freezing drizzle and rain");
         _WEATHER_CODES.put("FZFG", "Freezing fog");
-        _WEATHER_CODES.put("FZRA", "Precipitation of freezng rain|Precipitation of freezing rain");
+        _WEATHER_CODES.put("FZRA", "Precipitation of freezing rain");
         _WEATHER_CODES.put("FZRADZ", "Precipitation of freezing rain and drizzle");
         _WEATHER_CODES.put("FZUP", "Unidentified freezing precipitation");
         _WEATHER_CODES.put("HZ", "Haze");
@@ -437,7 +438,6 @@ public class Weather extends RegexMatchingLexemeVisitor {
         _WEATHER_CODES.put("VCSS", "Sandstorm in the vicinity");
         _WEATHER_CODES.put("VCTS", "Thunderstorm in the vicinity");
         _WEATHER_CODES.put("VCVA", "Volcanic ash in the vicinity");
-        
         WEATHER_CODES = Collections.unmodifiableMap(_WEATHER_CODES);
     }
 
@@ -467,11 +467,30 @@ public class Weather extends RegexMatchingLexemeVisitor {
             String code = match.group(2);
 
             if (!weatherSkipWords.contains(code)) {
-                if (WEATHER_CODES.containsKey(code)) {
-                    token.identify(isRecent ? RECENT_WEATHER : WEATHER);
-                    token.setParsedValue(Lexeme.ParsedValueName.VALUE, code);
-                } else {
-                    token.identify(isRecent ? RECENT_WEATHER : WEATHER, Lexeme.Status.SYNTAX_ERROR, "Unknown weather code " + code);
+                if (hints == null || hints.isEmpty() || !hints.containsKey(ConversionHints.KEY_WEATHER_CODES)
+                        || ConversionHints.VALUE_WEATHER_CODES_STRICT_WMO_4678.equals(hints.get(ConversionHints.KEY_WEATHER_CODES))) {
+                    // Only the official codes allowed by default
+                    if (WEATHER_CODES.containsKey(code)) {
+                        token.identify(isRecent ? RECENT_WEATHER : WEATHER);
+                        token.setParsedValue(Lexeme.ParsedValueName.VALUE, code);
+                    } else {
+                        token.identify(isRecent ? RECENT_WEATHER : WEATHER, Lexeme.Status.SYNTAX_ERROR, "Unknown weather code " + code);
+                    }
+                } else if (hints != null) {
+                    if (ConversionHints.VALUE_WEATHER_CODES_ALLOW_ANY.equals(hints.get(ConversionHints.KEY_WEATHER_CODES))) {
+                        token.identify(isRecent ? RECENT_WEATHER : WEATHER);
+                        token.setParsedValue(Lexeme.ParsedValueName.VALUE, code);
+                    } else if (ConversionHints.VALUE_WEATHER_CODES_IGNORE_NON_WMO_4678.equals(hints.get(ConversionHints.KEY_WEATHER_CODES))) {
+                        if (WEATHER_CODES.containsKey(code)) {
+                            token.identify(isRecent ? RECENT_WEATHER : WEATHER);
+                            token.setParsedValue(Lexeme.ParsedValueName.VALUE, code);
+                        } else {
+                            token.setIgnored(true);
+                            if (token.hasNext(true) && Lexeme.Identity.WHITE_SPACE == token.getNext(true).getIdentity()) {
+                                token.getNext(true).setIgnored(true);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -492,16 +511,43 @@ public class Weather extends RegexMatchingLexemeVisitor {
             	fi.fmi.avi.model.Weather weather = getAs(specifier, 1, fi.fmi.avi.model.Weather.class);
             	TAFBaseForecast baseFct = getAs(specifier, 0, TAFBaseForecast.class);
             	TAFChangeForecast changeFct = getAs(specifier, 0, TAFChangeForecast.class);
-            	if (baseFct != null || changeFct != null) {
+                if ((baseFct != null || changeFct != null) && isCodeAllowed(weather, hints)) {
                     retval = this.createLexeme(weather.getCode(), Lexeme.Identity.WEATHER);
                 }
             } else if (METAR.class.isAssignableFrom(clz)) {
             	fi.fmi.avi.model.Weather weather = getAs(specifier, fi.fmi.avi.model.Weather.class);
-            	if (recentWeather) {
-            		retval = this.createLexeme("RE"+weather.getCode(), Lexeme.Identity.RECENT_WEATHER);
-            	} else {
-            		retval = this.createLexeme(weather.getCode(), Lexeme.Identity.WEATHER);
-            	}
+                if (isCodeAllowed(weather, hints)) {
+                    if (recentWeather) {
+                        retval = this.createLexeme("RE" + weather.getCode(), Lexeme.Identity.RECENT_WEATHER);
+                    } else {
+                        retval = this.createLexeme(weather.getCode(), Lexeme.Identity.WEATHER);
+                    }
+                }
+            }
+            return retval;
+        }
+
+        private boolean isCodeAllowed(final fi.fmi.avi.model.Weather weather, final ConversionHints hints) throws SerializingException {
+            boolean retval = false;
+            if (weather == null) {
+                return false;
+            }
+            if (hints == null || hints.isEmpty() || !hints.containsKey(ConversionHints.KEY_WEATHER_CODES) || ConversionHints.VALUE_WEATHER_CODES_STRICT_WMO_4678
+                    .equals(hints.get(ConversionHints.KEY_WEATHER_CODES))) {
+                // Only the official codes allowed by default
+                if (WEATHER_CODES.containsKey(weather.getCode())) {
+                    retval = true;
+                } else {
+                    throw new SerializingException("Illegal weather code " + weather.getCode());
+                }
+            } else if (hints != null) {
+                if (ConversionHints.VALUE_WEATHER_CODES_ALLOW_ANY.equals(hints.get(ConversionHints.KEY_WEATHER_CODES))) {
+                    retval = true;
+                } else if (ConversionHints.VALUE_WEATHER_CODES_IGNORE_NON_WMO_4678.equals(hints.get(ConversionHints.KEY_WEATHER_CODES))) {
+                    if (WEATHER_CODES.containsKey(weather.getCode())) {
+                        retval = true;
+                    }
+                }
             }
             return retval;
         }

@@ -3,14 +3,12 @@ package fi.fmi.avi.converter.tac.metar;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_DEWPOINT_TEMPERATURE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_PRESSURE_QNH;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CLOUD;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.COLOR_CODE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AUTOMATED;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TREND_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -21,53 +19,55 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.impl.METARImpl;
 
-public class METAR8Test extends AbstractAviMessageTest<String, METAR> {
+public class METAR34Test extends AbstractAviMessageTest<String, METAR> {
 
-	@Override
-	public String getJsonFilename() {
-		return "metar/metar8.json";
-	}
+    @Override
+    public String getJsonFilename() {
+        return "metar/metar34.json";
+    }
 
-	// Equivalent to METAR7 but with different colors
-	@Override
-	public String getMessage() {
-		return "EGXE 061150Z 03010KT 9999 FEW020 17/11 Q1014 BLACKBLU TEMPO 6000 SHRA SCT020 BLACKWHT=";
-	}
-	
-	@Override
-	public String getTokenizedMessagePrefix() {
-		return "METAR ";
-	}
-	
-	@Override
-	public ConversionHints getLexerParsingHints() {
-		return ConversionHints.METAR;
-	}
+    @Override
+    public String getMessage() {
+        return "METAR EFIV 181420Z AUTO 21011KT 9999 IC M18/M20 Q1008=";
+    }
 
-	@Override
-	public ConversionHints getParserConversionHints() {
-		return ConversionHints.METAR;
-	}
+    @Override
+    public ConversionHints getLexerParsingHints() {
+        return new ConversionHints(ConversionHints.KEY_WEATHER_CODES, ConversionHints.VALUE_WEATHER_CODES_ALLOW_ANY);
+    }
 
-	@Override
-	public Identity[] getLexerTokenSequenceIdentity() {
-        return spacify(new Identity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD, AIR_DEWPOINT_TEMPERATURE,
-                AIR_PRESSURE_QNH, COLOR_CODE, TREND_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, COLOR_CODE,
-                END_TOKEN
-		});
-	}
+    @Override
+    public ConversionHints getParserConversionHints() {
+        return new ConversionHints(ConversionHints.KEY_WEATHER_CODES, ConversionHints.VALUE_WEATHER_CODES_ALLOW_ANY);
+    }
 
-	@Override
+    @Override
+    public ConversionHints getTokenizerParsingHints() {
+        return new ConversionHints(ConversionHints.KEY_WEATHER_CODES, ConversionHints.VALUE_WEATHER_CODES_ALLOW_ANY);
+    }
+
+    @Override
+    public String getTokenizedMessagePrefix() {
+        return "";
+    }
+
+    @Override
+    public Identity[] getLexerTokenSequenceIdentity() {
+        return spacify(new Identity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, HORIZONTAL_VISIBILITY, WEATHER,
+                AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, END_TOKEN });
+    }
+
+    @Override
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
-	
-	@Override
+
+    @Override
     public ConversionSpecification<METAR, String> getSerializationSpecification() {
         return TACConverter.METAR_POJO_TO_TAC;
     }
 
-	@Override
+    @Override
     public Class<? extends METAR> getTokenizerImplmentationClass() {
         return METARImpl.class;
     }

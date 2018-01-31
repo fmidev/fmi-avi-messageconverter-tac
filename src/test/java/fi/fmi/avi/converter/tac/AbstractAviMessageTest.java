@@ -31,16 +31,16 @@ import org.unitils.reflectionassert.report.impl.DefaultDifferenceReport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fi.fmi.avi.converter.AviMessageConverter;
+import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
-import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionSpecification;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -156,9 +156,11 @@ public abstract class AbstractAviMessageTest<S, T> {
 		T input = (T)readFromJSON(getJsonFilename());
 		ConversionResult<String> result = (ConversionResult<String>) converter.convertMessage(input, spec, getTokenizerParsingHints());
 		assertEquals("Serialization was not successful: " + result.getConversionIssues(), getExpectedSerializationStatus(), result.getStatus());
-		assertSerializationIssues(result.getConversionIssues());		
-		String expectedMessage = getTokenizedMessagePrefix() + getCanonicalMessage();
-		assertEquals(expectedMessage, result.getConvertedMessage());
+		assertSerializationIssues(result.getConversionIssues());
+		if (getCanonicalMessage() != null) {
+			String expectedMessage = getTokenizedMessagePrefix() + getCanonicalMessage();
+			assertEquals(expectedMessage, result.getConvertedMessage());
+		}
 	}
 
 	protected Identity[] spacify(Identity[] input) {
