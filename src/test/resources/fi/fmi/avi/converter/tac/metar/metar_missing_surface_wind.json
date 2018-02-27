@@ -1,0 +1,51 @@
+{
+  "status": "NORMAL",
+  "partialIssueTime": "051052Z",
+  "aerodrome": {
+    "designator": "EFHK"
+  },
+  "automatedStation": false,
+  "airTemperature": {
+    "value": -0.0,
+    "uom": "degC"
+  },
+  "dewpointTemperature": {
+    "value": -2.0,
+    "uom": "degC"
+  },
+  "altimeterSettingQNH": {
+    "value": 1005.0,
+    "uom": "hPa"
+  },
+  "surfaceWind": null,
+  "visibility": {
+    "prevailingVisibility": {
+      "value": 10000,
+      "uom": "m"
+    },
+    "prevailingVisibilityOperator": "ABOVE"
+  },
+  "clouds": {
+    "layers": [
+      {
+        "amount": "FEW",
+        "base": {
+          "value": 3300.0,
+          "uom": "[ft_i]"
+        }
+      },
+      {
+        "amount": "BKN",
+        "base": {
+          "value": 11000.0,
+          "uom": "[ft_i]"
+        }
+      }
+    ]
+  },
+  "trends": [
+    {
+      "changeIndicator": "NO_SIGNIFICANT_CHANGES"
+    }
+  ]
+}

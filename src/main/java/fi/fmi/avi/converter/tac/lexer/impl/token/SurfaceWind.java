@@ -8,6 +8,11 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 
 import java.util.regex.Matcher;
 
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.metar.METAR;
@@ -16,11 +21,6 @@ import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.metar.TrendForecastSurfaceWind;
 import fi.fmi.avi.model.taf.TAFForecast;
 import fi.fmi.avi.model.taf.TAFSurfaceWind;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 /**
  * Created by rinne on 10/02/17.
@@ -133,16 +133,18 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                 } else {
                     METAR m = (METAR) msg;
                     ObservedSurfaceWind wind = m.getSurfaceWind();
-                    StringBuilder builder = new StringBuilder();
-                    if (wind.isVariableDirection()) {
-                        builder.append("VRB");
-                    } else if (!wind.getMeanWindDirection().getUom().equals("deg")) {
-                        throw new SerializingException("Mean wind direction unit is not 'deg': " + wind.getMeanWindDirection().getUom());
-                    } else {
-                        builder.append(String.format("%03d", wind.getMeanWindDirection().getValue().intValue()));
+                    if (wind != null) {
+                        StringBuilder builder = new StringBuilder();
+                        if (wind.isVariableDirection()) {
+                            builder.append("VRB");
+                        } else if (!wind.getMeanWindDirection().getUom().equals("deg")) {
+                            throw new SerializingException("Mean wind direction unit is not 'deg': " + wind.getMeanWindDirection().getUom());
+                        } else {
+                            builder.append(String.format("%03d", wind.getMeanWindDirection().getValue().intValue()));
+                        }
+                        this.appendCommonWindParameters(builder, wind.getMeanWindSpeed(), wind.getMeanWindDirection(), wind.getWindGust());
+                        tokenStr = builder.toString();
                     }
-                    this.appendCommonWindParameters(builder, wind.getMeanWindSpeed(), wind.getMeanWindDirection(), wind.getWindGust());
-                    tokenStr = builder.toString();
                 }
                 
                 if (tokenStr != null) {
