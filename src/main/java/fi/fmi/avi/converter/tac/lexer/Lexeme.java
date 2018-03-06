@@ -83,7 +83,7 @@ public interface Lexeme {
      * 
      */
     enum Identity {
-        METAR_START,
+        METAR_START, SPECI_START,
         TAF_START,
         CORRECTION, 
         AMENDMENT, 

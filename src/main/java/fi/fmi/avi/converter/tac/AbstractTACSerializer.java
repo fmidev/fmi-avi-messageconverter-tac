@@ -1,21 +1,20 @@
 package fi.fmi.avi.converter.tac;
 
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fi.fmi.avi.converter.AviMessageSpecificConverter;
+import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.TACTokenReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.CloudLayer;
-import fi.fmi.avi.converter.AviMessageSpecificConverter;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.impl.TACTokenReconstructor;
 
 /**
  * Created by rinne on 07/06/17.
@@ -37,6 +36,10 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
     public void addReconstructor(final Lexeme.Identity id, TACTokenReconstructor reconstructor) {
         reconstructor.setLexingFactory(this.factory);
         this.reconstructors.put(id, reconstructor);
+    }
+
+    public TACTokenReconstructor removeReconstructor(final Lexeme.Identity id) {
+        return this.reconstructors.remove(id);
     }
 
     @Override

@@ -13,7 +13,6 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TREND_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
 
-import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
@@ -38,11 +37,6 @@ public class METAR1Test extends AbstractAviMessageTest<String, METAR> {
 	@Override
 	public String getTokenizedMessagePrefix() {
 		return "";
-	}
-
-	@Override
-	public ConversionHints getLexerParsingHints() {
-		return ConversionHints.METAR;
 	}
 	
 	@Override

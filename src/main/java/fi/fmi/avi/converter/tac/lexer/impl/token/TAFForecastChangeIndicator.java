@@ -91,7 +91,7 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
                 throws SerializingException {
             List<Lexeme> retval = new ArrayList<>();
 
-            if (msg instanceof TAF) {
+            if (TAF.class.isAssignableFrom(clz)) {
                 TAFChangeForecast changeForecast = getAs(specifier, TAFChangeForecast.class);
 
                 if (changeForecast != null) {

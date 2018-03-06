@@ -179,7 +179,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 				operator = metarTrend.getPrevailingVisibilityOperator();
 			}
 
-            if (!identified && clz.isAssignableFrom(METAR.class)) {
+            if (!identified && METAR.class.isAssignableFrom(clz)) {
                 METAR metar = (METAR) msg;
 				if (metar.getVisibility() != null) {
 

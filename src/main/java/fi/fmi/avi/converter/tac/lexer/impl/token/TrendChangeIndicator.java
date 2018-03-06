@@ -60,7 +60,7 @@ public class TrendChangeIndicator extends TimeHandlingRegex {
                 throws SerializingException {
             Lexeme retval = null;
 
-            if (msg instanceof METAR) {
+            if (METAR.class.isAssignableFrom(clz)) {
                 TrendForecast trend = getAs(specifier, TrendForecast.class);
                 if (trend != null) {
                     switch (trend.getChangeIndicator()) {

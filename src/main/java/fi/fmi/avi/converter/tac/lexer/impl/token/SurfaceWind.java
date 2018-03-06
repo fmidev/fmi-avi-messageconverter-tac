@@ -118,7 +118,7 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                     retval = this.createLexeme(builder.toString(), Lexeme.Identity.SURFACE_WIND);
 
                 }
-            } else if (msg instanceof METAR) {
+            } else if (METAR.class.isAssignableFrom(msg.getClass())) {
                 TrendForecast trend = getAs(specifier, TrendForecast.class);
                 
                 String tokenStr = null;

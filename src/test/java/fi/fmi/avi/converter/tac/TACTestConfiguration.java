@@ -8,6 +8,7 @@ import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.taf.TAF;
 
 @Configuration
@@ -19,12 +20,18 @@ public class TACTestConfiguration {
     
     @Autowired
     private AviMessageSpecificConverter<String, TAF> tafTACParser;
+
+    @Autowired
+    private AviMessageSpecificConverter<String, SPECI> speciTACParser;
     
     @Autowired
     private AviMessageSpecificConverter<METAR, String> metarTACSerializer;
     
     @Autowired
     private AviMessageSpecificConverter<TAF, String> tafTACSerializer;
+
+    @Autowired
+    private AviMessageSpecificConverter<SPECI, String> speciTACSerializer;
     
     @Bean
     public AviMessageConverter aviMessageConverter() {
@@ -33,6 +40,8 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(TACConverter.TAC_TO_TAF_POJO, tafTACParser);
         p.setMessageSpecificConverter(TACConverter.METAR_POJO_TO_TAC, metarTACSerializer);
         p.setMessageSpecificConverter(TACConverter.TAF_POJO_TO_TAC, tafTACSerializer);
+        p.setMessageSpecificConverter(TACConverter.TAC_TO_SPECI_POJO, speciTACParser);
+        p.setMessageSpecificConverter(TACConverter.SPECI_POJO_TO_TAC, speciTACSerializer);
         return p;
     }
   

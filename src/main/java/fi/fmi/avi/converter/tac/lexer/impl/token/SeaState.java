@@ -4,14 +4,14 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SEA_STATE;
 
 import java.util.regex.Matcher;
 
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 /**
  * Created by rinne on 10/02/17.
@@ -94,10 +94,10 @@ public class SeaState extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) throws SerializingException {
             Lexeme retval = null;
 
-            if (clz.isAssignableFrom(METAR.class)) {
-            	METAR metar = (METAR)msg;
-            	
-            	fi.fmi.avi.model.metar.SeaState state = metar.getSeaState();
+            if (METAR.class.isAssignableFrom(clz)) {
+                METAR metar = (METAR) msg;
+
+                fi.fmi.avi.model.metar.SeaState state = metar.getSeaState();
             	
             	if (state != null) {
             		StringBuilder builder = new StringBuilder("W");

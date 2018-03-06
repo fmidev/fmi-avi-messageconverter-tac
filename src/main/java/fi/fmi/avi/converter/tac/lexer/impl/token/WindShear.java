@@ -5,13 +5,13 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
 
 import java.util.regex.Matcher;
 
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.RunwayDirection;
-import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.RunwayDirection;
+import fi.fmi.avi.model.metar.METAR;
 
 /**
  * Created by rinne on 10/02/17.
@@ -41,11 +41,11 @@ public class WindShear extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
             Lexeme retval = null;
             fi.fmi.avi.model.metar.WindShear windShear = null;
-            
-            if (clz.isAssignableFrom(METAR.class)) {
-            	METAR metar = (METAR)msg;
-            	
-            	windShear = metar.getWindShear();
+
+            if (METAR.class.isAssignableFrom(clz)) {
+                METAR metar = (METAR) msg;
+
+                windShear = metar.getWindShear();
             }
             
             if (windShear != null) {

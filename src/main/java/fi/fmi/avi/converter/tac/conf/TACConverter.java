@@ -5,8 +5,11 @@ import org.springframework.context.annotation.Configuration;
 
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.ConversionSpecification;
+import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.METARTACParser;
 import fi.fmi.avi.converter.tac.METARTACSerializer;
+import fi.fmi.avi.converter.tac.SPECITACParser;
+import fi.fmi.avi.converter.tac.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.TACParser;
 import fi.fmi.avi.converter.tac.TAFTACParser;
 import fi.fmi.avi.converter.tac.TAFTACSerializer;
@@ -44,6 +47,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFChangeForecastTimeGroup;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
@@ -56,6 +60,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
 import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.taf.TAF;
 
 /**
@@ -76,6 +81,18 @@ public class TACConverter {
             "ICAO Annex 3 TAC");
 
     /**
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link SPECI} POJO.
+     */
+    public static final ConversionSpecification<String, SPECI> TAC_TO_SPECI_POJO = new ConversionSpecification<>(String.class, SPECI.class, "ICAO Annex 3 TAC",
+            null);
+
+    /**
+     * Pre-configured spec for {@link SPECI} to ICAO Annex 3 TAC String.
+     */
+    public static final ConversionSpecification<SPECI, String> SPECI_POJO_TO_TAC = new ConversionSpecification<>(SPECI.class, String.class, null,
+            "ICAO Annex 3 TAC");
+
+    /**
      * Pre-configured spec for ICAO Annex 3 TAC format to {@link TAF} POJO.
      */
     public static final ConversionSpecification<String, TAF> TAC_TO_TAF_POJO = new ConversionSpecification<>(String.class, TAF.class, "ICAO Annex 3 TAC", null);
@@ -93,6 +110,13 @@ public class TACConverter {
     }
 
     @Bean
+    AviMessageSpecificConverter<String, SPECI> speciTACParser() {
+        TACParser<SPECI> p = new SPECITACParser();
+        p.setTACLexer(aviMessageLexer());
+        return p;
+    }
+
+    @Bean
     AviMessageSpecificConverter<String, TAF> tafTACParser() {
         TACParser<TAF> p = new TAFTACParser();
         p.setTACLexer(aviMessageLexer());
@@ -102,8 +126,21 @@ public class TACConverter {
     @Bean
     AviMessageSpecificConverter<METAR, String> metarTACSerializer() {
         METARTACSerializer s = new METARTACSerializer();
-        s.setLexingFactory(lexingFactory());
+        addMetarAndSpeciCommonReconstructors(s);
         s.addReconstructor(Lexeme.Identity.METAR_START, new MetarStart.Reconstructor());
+        return s;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<SPECI, String> speciTACSerializer() {
+        SPECITACSerializer s = new SPECITACSerializer();
+        addMetarAndSpeciCommonReconstructors(s);
+        s.addReconstructor(Lexeme.Identity.SPECI_START, new SpeciStart.Reconstructor());
+        return s;
+    }
+
+    private void addMetarAndSpeciCommonReconstructors(final AbstractTACSerializer<?> s) {
+        s.setLexingFactory(lexingFactory());
         s.addReconstructor(Lexeme.Identity.CORRECTION, new Correction.Reconstructor());
         s.addReconstructor(Lexeme.Identity.AERODROME_DESIGNATOR, new ICAOCode.Reconstructor());
         s.addReconstructor(Lexeme.Identity.ISSUE_TIME, new IssueTime.Reconstructor());
@@ -130,8 +167,8 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.REMARKS_START, new RemarkStart.Reconstructor());
         s.addReconstructor(Lexeme.Identity.REMARK, new Remark.Reconstructor());
         s.addReconstructor(Lexeme.Identity.END_TOKEN, new EndToken.Reconstructor());
-        return s;
     }
+
 
     @Bean
     AviMessageSpecificConverter<TAF, String> tafTACSerializer() {
@@ -166,6 +203,7 @@ public class TACConverter {
         AviMessageLexerImpl l = new AviMessageLexerImpl();
         l.setLexingFactory(lexingFactory());
         l.addTokenLexer("METAR", metarTokenLexer());
+        l.addTokenLexer("SPECI", speciTokenLexer());
         l.addTokenLexer("TAF", tafTokenLexer());
         return l;
     }
@@ -174,6 +212,7 @@ public class TACConverter {
     public AviMessageTACTokenizer tacTokenizer() {
         AviMessageTACTokenizerImpl tokenizer = new AviMessageTACTokenizerImpl();
         tokenizer.setMETARSerializer((METARTACSerializer)metarTACSerializer());
+        tokenizer.setSPECISerializer((SPECITACSerializer) speciTACSerializer());
         tokenizer.setTAFSerializer((TAFTACSerializer)tafTACSerializer());
         return tokenizer;
     }
@@ -185,9 +224,19 @@ public class TACConverter {
 
     private RecognizingAviMessageTokenLexer metarTokenLexer() {
         RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
-
-        //The METAR token lexer can understand the following tokens (high priority = should be tried sooner):
         l.teach(new MetarStart(Priority.HIGH));
+        teachMetarAndSpeciCommonTokens(l);
+        return l;
+    }
+
+    private RecognizingAviMessageTokenLexer speciTokenLexer() {
+        RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        l.teach(new SpeciStart(Priority.HIGH));
+        teachMetarAndSpeciCommonTokens(l);
+        return l;
+    }
+
+    private void teachMetarAndSpeciCommonTokens(final RecognizingAviMessageTokenLexer l) {
         l.teach(new ICAOCode(Priority.LOW));
         l.teach(new IssueTime(Priority.LOW));
         l.teach(new CloudLayer(Priority.HIGH));
@@ -216,7 +265,6 @@ public class TACConverter {
         l.teach(new Whitespace(Priority.HIGH));
         l.teach(new Nil(Priority.HIGH));
         l.teach(new RoutineDelayedObservation(Priority.HIGH));
-        return l;
     }
 
     private RecognizingAviMessageTokenLexer tafTokenLexer() {
