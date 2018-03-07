@@ -352,6 +352,8 @@ public interface Lexeme {
     /**
      * This token has been marked as ignored, and it will not be exposed when iterating
      * over the lexeme sequences.
+     *
+     * @return true is token has been marked as ignored, false otherwise
      */
     boolean isIgnored();
 
