@@ -17,7 +17,6 @@ import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
-import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.impl.SPECIImpl;
 
 public class SPECI1Test extends AbstractAviMessageTest<String, SPECI> {

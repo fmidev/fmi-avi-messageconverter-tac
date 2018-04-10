@@ -5,7 +5,6 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.SPECI;
 
 /**
  * Created by rinne on 06/03/2018.

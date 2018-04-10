@@ -8,7 +8,6 @@ import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.taf.TAF;
 
 @Configuration

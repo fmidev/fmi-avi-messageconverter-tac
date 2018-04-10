@@ -71,30 +71,29 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
 
             if (METAR.class.isAssignableFrom(clz)) {
                 METAR metar = (METAR) msg;
+                if (metar.getAltimeterSettingQNH().isPresent()) {
+                    altimeter = metar.getAltimeterSettingQNH().get();
+                    if (altimeter.getValue() == null) {
+                        throw new SerializingException("AltimeterSettingQNH is missing the value");
+                    }
 
-                altimeter = metar.getAltimeterSettingQNH();
-            }
+                    String unit = null;
+                    if ("hPa" .equals(altimeter.getUom())) {
+                        unit = "Q";
+                    } else if ("in Hg" .equals(altimeter.getUom())) {
+                        unit = "A";
+                    } else {
+                        throw new SerializingException("Unknown unit of measure in AltimeterSettingQNH '" + altimeter.getUom() + "'");
+                    }
 
-            if (altimeter != null) {
-                if (altimeter.getValue() == null) {
-                    throw new SerializingException("AltimeterSettingQNH is missing the value");
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(unit);
+
+                    builder.append(String.format("%04d", altimeter.getValue().intValue()));
+
+                    retval = this.createLexeme(builder.toString(), Identity.AIR_DEWPOINT_TEMPERATURE);
+
                 }
-
-                String unit = null;
-                if ("hPa".equals(altimeter.getUom())) {
-                    unit = "Q";
-                } else if ("in Hg".equals(altimeter.getUom())) {
-                    unit = "A";
-                } else {
-                    throw new SerializingException("Unknown unit of measure in AltimeterSettingQNH '" + altimeter.getUom() + "'");
-                }
-
-                StringBuilder builder = new StringBuilder();
-                builder.append(unit);
-
-                builder.append(String.format("%04d", altimeter.getValue().intValue()));
-
-                retval = this.createLexeme(builder.toString(), Identity.AIR_DEWPOINT_TEMPERATURE);
             }
 
             return retval;

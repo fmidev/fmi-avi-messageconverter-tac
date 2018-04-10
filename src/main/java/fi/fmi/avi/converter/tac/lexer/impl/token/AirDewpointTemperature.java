@@ -78,42 +78,37 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             Lexeme retval = null;
 
-            NumericMeasure air = null;
-            NumericMeasure dew = null;
-
             if (METAR.class.isAssignableFrom(clz)) {
 
                 METAR metar = (METAR) msg;
+                if (metar.getAirTemperature().isPresent() && metar.getDewpointTemperature().isPresent()) {
+                    NumericMeasure air = metar.getAirTemperature().get();
+                    NumericMeasure dew = metar.getDewpointTemperature().get();
 
-                air = metar.getAirTemperature();
-                dew = metar.getDewpointTemperature();
+                    if (air.getValue() == null) {
+                        throw new SerializingException("AirTemperature exists, but no value");
+                    }
 
-            }
+                    if (dew.getValue() == null) {
+                        throw new SerializingException("DewpointTemperature exists, but no value");
+                    }
 
-            if (air != null && dew != null) {
-                if (air.getValue() == null) {
-                    throw new SerializingException("AirTemperature exists, but no value");
+                    if (!"degC" .equals(air.getUom())) {
+                        throw new SerializingException("AirTemperature unit of measure is not degC, but '" + air.getUom() + "'");
+                    }
+
+                    if (!"degC" .equals(dew.getUom())) {
+                        throw new SerializingException("DewpointTemperature unit of measure is not degC, but '" + dew.getUom() + "'");
+                    }
+
+                    StringBuilder builder = new StringBuilder();
+
+                    appendValue(air.getValue(), builder);
+                    builder.append("/");
+                    appendValue(dew.getValue(), builder);
+
+                    retval = this.createLexeme(builder.toString(), Identity.AIR_DEWPOINT_TEMPERATURE);
                 }
-
-                if (dew.getValue() == null) {
-                    throw new SerializingException("DewpointTemperature exists, but no value");
-                }
-
-                if (!"degC".equals(air.getUom())) {
-                    throw new SerializingException("AirTemperature unit of measure is not degC, but '" + air.getUom() + "'");
-                }
-
-                if (!"degC".equals(dew.getUom())) {
-                    throw new SerializingException("DewpointTemperature unit of measure is not degC, but '" + dew.getUom() + "'");
-                }
-
-                StringBuilder builder = new StringBuilder();
-
-                appendValue(air.getValue(), builder);
-                builder.append("/");
-                appendValue(dew.getValue(), builder);
-
-                retval = this.createLexeme(builder.toString(), Identity.AIR_DEWPOINT_TEMPERATURE);
             }
 
             return retval;

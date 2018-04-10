@@ -51,7 +51,6 @@ import fi.fmi.avi.model.metar.RunwayVisualRange;
 import fi.fmi.avi.model.metar.SeaState;
 import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.metar.TrendForecastSurfaceWind;
-import fi.fmi.avi.model.metar.TrendTimeGroups;
 import fi.fmi.avi.model.metar.WindShear;
 import fi.fmi.avi.model.metar.impl.HorizontalVisibilityImpl;
 import fi.fmi.avi.model.metar.impl.ObservedCloudsImpl;

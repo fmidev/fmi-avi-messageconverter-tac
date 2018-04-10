@@ -7,7 +7,6 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.SPECI;
 
 /**
  * Created by rinne on 10/02/17.

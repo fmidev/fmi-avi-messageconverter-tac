@@ -19,7 +19,6 @@ import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.ObservedSurfaceWind;
 import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.metar.TrendForecastSurfaceWind;
-import fi.fmi.avi.model.taf.TAFForecast;
 import fi.fmi.avi.model.taf.TAFSurfaceWind;
 
 /**

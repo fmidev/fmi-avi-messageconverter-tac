@@ -60,7 +60,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.taf.TAF;
 
 /**

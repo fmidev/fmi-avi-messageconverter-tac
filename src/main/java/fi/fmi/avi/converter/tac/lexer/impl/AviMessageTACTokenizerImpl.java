@@ -9,7 +9,6 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.taf.TAF;
 
 public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {

@@ -23,7 +23,6 @@ import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.TrendForecast;
-import fi.fmi.avi.model.taf.TAFForecast;
 
 /**
  * Token parser for horizontal visibility given in meters.

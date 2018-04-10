@@ -17,7 +17,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.TrendForecast;
-import fi.fmi.avi.model.metar.TrendTimeGroups;
 
 /**
  * Trend time group token parser (FM, AT or TL).

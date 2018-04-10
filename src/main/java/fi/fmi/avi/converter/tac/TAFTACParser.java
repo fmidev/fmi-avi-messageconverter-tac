@@ -28,7 +28,6 @@ import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
-import fi.fmi.avi.model.taf.TAFForecast;
 import fi.fmi.avi.model.taf.TAFSurfaceWind;
 import fi.fmi.avi.model.taf.impl.TAFAirTemperatureForecastImpl;
 import fi.fmi.avi.model.taf.impl.TAFBaseForecastImpl;
