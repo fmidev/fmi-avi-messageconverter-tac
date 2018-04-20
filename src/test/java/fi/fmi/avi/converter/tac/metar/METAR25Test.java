@@ -20,7 +20,7 @@ import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR25Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -28,13 +28,12 @@ public class METAR25Test extends AbstractAviMessageTest<String, METAR> {
 	public String getJsonFilename() {
 		return "metar/metar25.json";
 	}
-	
-	// Almost exactly the same as METAR 18 except runway visual range is given in feet
-	@Override
+
+    // Almost exactly the same as METARImpl 18 except runway visual range is given in feet
+    @Override
 	public String getMessage() {
-		return
-				"METAR EFHK 111111Z 15008KT 0700 R04R/1500NFT R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 RESN" + " WS R04R TEMPO 0900=";
-	}
+		return "METARImpl EFHK 111111Z 15008KT 0700 R04R/1500NFT R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 RESN" + " WS R04R TEMPO 0900=";
+    }
 	
 	@Override
 	public String getTokenizedMessagePrefix() {

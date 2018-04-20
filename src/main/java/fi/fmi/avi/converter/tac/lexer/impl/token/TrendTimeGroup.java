@@ -15,8 +15,8 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.TrendForecast;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 /**
  * Trend time group token parser (FM, AT or TL).
@@ -68,7 +68,7 @@ public class TrendTimeGroup extends TimeHandlingRegex {
         public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
                 throws SerializingException {
             List<Lexeme> retval = new ArrayList<>();
-            if (METAR.class.isAssignableFrom(clz)) {
+            if (METARImpl.class.isAssignableFrom(clz)) {
                 TrendForecast trend = getAs(specifier, TrendForecast.class);
                 if (trend != null) {
                     switch (trend.getChangeIndicator()) {

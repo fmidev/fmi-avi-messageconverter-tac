@@ -22,7 +22,7 @@ import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METARAllowLexingSyntaxErrorsTest extends AbstractAviMessageTest<String, METAR> {
 
@@ -33,12 +33,12 @@ public class METARAllowLexingSyntaxErrorsTest extends AbstractAviMessageTest<Str
 
     @Override
     public String getMessage() {
-        return "METAR EFHK 051052Z blaablaa 9999 FEW033 BKN110 M00/M02 Q1005 NOSIG=";
+        return "METARImpl EFHK 051052Z blaablaa 9999 FEW033 BKN110 M00/M02 Q1005 NOSIG=";
     }
 
     @Override
     public String getCanonicalMessage() {
-        return "METAR EFHK 051052Z 9999 FEW033 BKN110 M00/M02 Q1005 NOSIG=";
+        return "METARImpl EFHK 051052Z 9999 FEW033 BKN110 M00/M02 Q1005 NOSIG=";
     }
 
     @Override

@@ -12,6 +12,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.RunwayDirection;
 import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 /**
  * Created by rinne on 10/02/17.
@@ -42,7 +43,7 @@ public class WindShear extends RegexMatchingLexemeVisitor {
             Lexeme retval = null;
             fi.fmi.avi.model.metar.WindShear windShear = null;
 
-            if (METAR.class.isAssignableFrom(clz)) {
+            if (METARImpl.class.isAssignableFrom(clz)) {
                 METAR metar = (METAR) msg;
 
                 windShear = metar.getWindShear();

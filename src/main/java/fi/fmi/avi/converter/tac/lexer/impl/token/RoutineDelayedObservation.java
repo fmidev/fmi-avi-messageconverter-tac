@@ -3,6 +3,8 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ROUTINE_DELAYED_OBSERVATION;
 
+import java.util.Optional;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
@@ -29,14 +31,14 @@ public class RoutineDelayedObservation extends PrioritizedLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
-            Lexeme retval = null;
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
+                final Object... specifier) {
             if (METAR.class.isAssignableFrom(clz)) {
-                if (((METAR) msg).isDelayed()) {
-                    retval = this.createLexeme("RTD", ROUTINE_DELAYED_OBSERVATION);
+                if (((METAR) msg).isRoutineDelayed()) {
+                    return Optional.of(this.createLexeme("RTD", ROUTINE_DELAYED_OBSERVATION));
                 }
             }
-            return retval;
+            return null;
         }
     }
 }

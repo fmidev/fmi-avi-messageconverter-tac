@@ -24,7 +24,7 @@ import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR28StrictTest extends AbstractAviMessageTest<String, METAR> {
 
@@ -35,14 +35,13 @@ public class METAR28StrictTest extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public String getMessage() {
-		return
-				"METAR EFTU 110820Z AUTO 35004KT 310V030 9999 FEW008/// OVC024/// 07/06 Q0999=";
-	}
+		return "METARImpl EFTU 110820Z AUTO 35004KT 310V030 9999 FEW008/// OVC024/// 07/06 Q0999=";
+    }
 
 	@Override
 	public String getCanonicalMessage() {
-		return "METAR EFTU 110820Z AUTO 35004KT 310V030 9999 FEW008 OVC024 07/06 Q0999=";
-	}
+        return "METARImpl EFTU 110820Z AUTO 35004KT 310V030 9999 FEW008 OVC024 07/06 Q0999=";
+    }
 
 	@Override
 	public ConversionHints getParserConversionHints() {

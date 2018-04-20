@@ -45,7 +45,7 @@
         "uom": "mm"
       },
       "depthOperator": "BELOW",
-      "estimatedSurfaceFriction": 38
+      "estimatedSurfaceFriction": 0.38
     },
     {
      "runwayDirection": {

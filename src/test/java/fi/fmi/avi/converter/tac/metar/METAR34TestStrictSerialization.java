@@ -26,7 +26,7 @@ import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR34TestStrictSerialization extends AbstractAviMessageTest<String, METAR> {
 
@@ -37,7 +37,7 @@ public class METAR34TestStrictSerialization extends AbstractAviMessageTest<Strin
 
     @Override
     public String getMessage() {
-        return "METAR EFIV 181420Z AUTO 21011KT 9999 IC M18/M20 Q1008=";
+        return "METARImpl EFIV 181420Z AUTO 21011KT 9999 IC M18/M20 Q1008=";
     }
 
     @Override

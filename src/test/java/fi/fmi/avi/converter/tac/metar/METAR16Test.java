@@ -11,12 +11,12 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
 
-import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
+import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR16Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -27,15 +27,13 @@ public class METAR16Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public String getMessage() {
-		return
-				"METAR EFTU 011350Z AUTO VRB02KT 9999 ////// 22/12 Q1008=";
-	}
+		return "METARImpl EFTU 011350Z AUTO VRB02KT 9999 ////// 22/12 Q1008=";
+    }
 	
 	@Override
 	public String getCanonicalMessage() {
-		return
-				"METAR EFTU 011350Z AUTO VRB02KT 9999 ////// 22/12 Q1008=";
-	}
+		return "METARImpl EFTU 011350Z AUTO VRB02KT 9999 ////// 22/12 Q1008=";
+    }
 	
 	@Override
 	public String getTokenizedMessagePrefix() {

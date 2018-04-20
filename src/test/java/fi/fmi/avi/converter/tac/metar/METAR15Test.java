@@ -16,15 +16,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult.Status;
-import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
-import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
+import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -47,8 +47,8 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public String getTokenizedMessagePrefix() {
-		return "METAR ";
-	}
+        return "METARImpl ";
+    }
 	
 	@Override
     public ConversionHints getLexerParsingHints() {

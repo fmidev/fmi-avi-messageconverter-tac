@@ -8,7 +8,7 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.taf.TAF;
 
 public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
@@ -40,7 +40,7 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
 	public LexemeSequence tokenizeMessage(final AviationWeatherMessage msg, final ConversionHints hints) throws SerializingException {
         if (msg instanceof SPECI && this.speciSerializer != null) {
             return this.speciSerializer.tokenizeMessage(msg, hints);
-        } else if (msg instanceof METAR && this.metarSerializer != null) {
+        } else if (msg instanceof METARImpl && this.metarSerializer != null) {
             return this.metarSerializer.tokenizeMessage(msg, hints);
 		} else if (msg instanceof TAF && this.tafSerializer != null) {
 			return this.tafSerializer.tokenizeMessage(msg, hints);

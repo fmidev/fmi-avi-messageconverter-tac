@@ -22,7 +22,7 @@ import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR19Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -33,9 +33,8 @@ public class METAR19Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public String getMessage() {
-		return
-				"METAR EFHK 111111Z 15008G20KT 0700 R04R/M1500VP2000N R15/P1000VM3000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 " + "WM01/H14 99//9999 " +
-				"BECMG AT0927 25018G25MPS CAVOK " +
+		return "METARImpl EFHK 111111Z 15008G20KT 0700 R04R/M1500VP2000N R15/P1000VM3000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 "
+                + "WM01/H14 99//9999 " + "BECMG AT0927 25018G25MPS CAVOK " +
 				"TEMPO FM1051 VV040 "+
 				"TEMPO FM1130 NSC=";
 	}

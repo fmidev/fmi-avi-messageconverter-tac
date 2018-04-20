@@ -60,6 +60,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
 import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.taf.TAF;
 
 /**
@@ -68,15 +69,16 @@ import fi.fmi.avi.model.taf.TAF;
 @Configuration
 public class TACConverter {
     /**
-     * Pre-configured spec for ICAO Annex 3 TAC format to {@link METAR} POJO.
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link METARImpl} POJO.
      */
-    public static final ConversionSpecification<String, METAR> TAC_TO_METAR_POJO = new ConversionSpecification<>(String.class, METAR.class, "ICAO Annex 3 TAC",
+    public static final ConversionSpecification<String, METAR> TAC_TO_METAR_POJO = new ConversionSpecification<>(String.class, METARImpl.class,
+            "ICAO Annex 3 TAC",
             null);
 
     /**
-     * Pre-configured spec for {@link METAR} to ICAO Annex 3 TAC String.
+     * Pre-configured spec for {@link METARImpl} to ICAO Annex 3 TAC String.
      */
-    public static final ConversionSpecification<METAR, String> METAR_POJO_TO_TAC = new ConversionSpecification<>(METAR.class, String.class, null,
+    public static final ConversionSpecification<METAR, String> METAR_POJO_TO_TAC = new ConversionSpecification<>(METARImpl.class, String.class, null,
             "ICAO Annex 3 TAC");
 
     /**
@@ -201,7 +203,7 @@ public class TACConverter {
     public AviMessageLexer aviMessageLexer() {
         AviMessageLexerImpl l = new AviMessageLexerImpl();
         l.setLexingFactory(lexingFactory());
-        l.addTokenLexer("METAR", metarTokenLexer());
+        l.addTokenLexer("METARImpl", metarTokenLexer());
         l.addTokenLexer("SPECI", speciTokenLexer());
         l.addTokenLexer("TAF", tafTokenLexer());
         return l;

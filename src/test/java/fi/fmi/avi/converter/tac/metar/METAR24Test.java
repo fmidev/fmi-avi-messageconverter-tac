@@ -18,7 +18,7 @@ import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR24Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -29,9 +29,7 @@ public class METAR24Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public String getMessage() {
-		return
-				"METAR EFTU 011350Z VRB02KT 0000 " +
-				"22/12 Q1008 " +
+		return "METARImpl EFTU 011350Z VRB02KT 0000 " + "22/12 Q1008 " +
 				"R15L/410038 R64R/419838 "+
 				"TEMPO TL1530 NSW=";
 	}

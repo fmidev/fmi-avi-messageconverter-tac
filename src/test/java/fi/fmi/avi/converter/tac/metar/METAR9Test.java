@@ -20,7 +20,7 @@ import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR9Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -29,11 +29,12 @@ public class METAR9Test extends AbstractAviMessageTest<String, METAR> {
 		return "metar/metar9.json";
 	}
 
-    // Almost exactly the same as METAR 10 except WS ALL RWY
+    // Almost exactly the same as METARImpl 10 except WS ALL RWY
     @Override
 	public String getMessage() {
-		return "METAR EFHK 111111Z 15008KT 0700 R04R/1500N R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 RESN" + "" + " WS ALL RWY TEMPO 0900=";
-	}
+        return "METARImpl EFHK 111111Z 15008KT 0700 R04R/1500N R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 RESN" + ""
+                + " WS ALL RWY TEMPO 0900=";
+    }
 	
 	@Override
 	public String getTokenizedMessagePrefix() {

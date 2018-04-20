@@ -4,6 +4,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_DEWPOINT_TEMPER
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -74,9 +75,9 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
                 throws SerializingException {
-            Lexeme retval = null;
+            Optional<Lexeme> retval = Optional.empty();
 
             if (METAR.class.isAssignableFrom(clz)) {
 
@@ -107,7 +108,7 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
                     builder.append("/");
                     appendValue(dew.getValue(), builder);
 
-                    retval = this.createLexeme(builder.toString(), Identity.AIR_DEWPOINT_TEMPERATURE);
+                    retval = Optional.of(this.createLexeme(builder.toString(), Identity.AIR_DEWPOINT_TEMPERATURE));
                 }
             }
 

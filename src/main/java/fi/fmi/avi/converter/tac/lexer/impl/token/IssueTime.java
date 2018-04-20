@@ -6,12 +6,14 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
-import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 
 /**
  * Created by rinne on 10/02/17.
@@ -42,8 +44,9 @@ public class IssueTime extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
-            return this.createLexeme(msg.getPartialIssueTime(), Lexeme.Identity.ISSUE_TIME);
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
+            PartialOrCompleteTimeInstant time = msg.getIssueTime();
+            return Optional.of(this.createLexeme(String.format("%02d%02d%02d", time.getDay(), time.getHour(), time.getMinute()), Lexeme.Identity.ISSUE_TIME));
         }
     }
 

@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac;
 
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.model.metar.impl.SPECIImpl;
+import fi.fmi.avi.model.metar.immutable.SPECIImpl;
 
 /**
  * Created by rinne on 06/03/2018.

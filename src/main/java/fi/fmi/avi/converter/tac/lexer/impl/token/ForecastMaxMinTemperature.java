@@ -8,16 +8,19 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 
 /**
  * Created by rinne on 10/02/17.
@@ -102,57 +105,38 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
             List<Lexeme> retval = new ArrayList<>();
     		
     		if (TAF.class.isAssignableFrom(clz)) {
-    			
-    			TAFBaseForecast forecast = getAs(specifier, TAFBaseForecast.class);
-    			
-    			if (forecast.getTemperatures() != null) {
-    				for (TAFAirTemperatureForecast temp : forecast.getTemperatures()) {
+                Optional<TAFBaseForecast> forecast = getAs(specifier, TAFBaseForecast.class);
+                if (forecast.isPresent() && forecast.get().getTemperatures().isPresent()) {
+                    for (TAFAirTemperatureForecast temp : forecast.get().getTemperatures().get()) {
 
-    					if (temp.getMaxTemperature() != null) {
-    						if (!"degC".equals(temp.getMaxTemperature().getUom())) {
-                                throw new SerializingException(
-                                        "Unsupported unit of measurement for maximum temperature: '" + temp.getMaxTemperature().getUom() + "'");
-                            }
-    						
-    						String s = formatTemp("TX", 
-    								temp.getMaxTemperature().getValue(), 
-    								temp.getMaxTemperatureDayOfMonth(),
-    								temp.getMaxTemperatureHour());
+                        if (!"degC".equals(temp.getMaxTemperature().getUom())) {
+                            throw new SerializingException(
+                                    "Unsupported unit of measurement for maximum temperature: '" + temp.getMaxTemperature().getUom() + "'");
+                        }
+                        retval.add(this.createLexeme(formatTemp("TX", temp.getMaxTemperature(), temp.getMaxTemperatureTime()), MAX_TEMPERATURE));
 
-                            retval.add(this.createLexeme(s, MAX_TEMPERATURE));
+                        if (!"degC".equals(temp.getMinTemperature().getUom())) {
+                            throw new SerializingException(
+                                    "Unsupported unit of measurement for minimum temperature: '" + temp.getMinTemperature().getUom() + "'");
                         }
-    					
-    					if (temp.getMinTemperature() != null) {
-    						if (!"degC".equals(temp.getMinTemperature().getUom())) {
-                                throw new SerializingException(
-                                        "Unsupported unit of measurement for minimum temperature: '" + temp.getMaxTemperature().getUom() + "'");
-                            }
-    						
-    						String s = formatTemp("TN", 
-    								temp.getMinTemperature().getValue(), 
-    								temp.getMinTemperatureDayOfMonth(),
-    								temp.getMinTemperatureHour());
-                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
-                            retval.add(this.createLexeme(s, MIN_TEMPERATURE));
-                        }
-    					
-    				}
-    			}
-    		}
-    		
-    		return retval;
+                        retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
+                        retval.add(this.createLexeme(formatTemp("TN", temp.getMinTemperature(), temp.getMinTemperatureTime()), MIN_TEMPERATURE));
+                    }
+                }
+            }
+            return retval;
     	}
-    	
-    	public String formatTemp(String prefix, Double temp, int day, int hour) {
-    	    StringBuilder sb = new StringBuilder(prefix);
-    	    if (temp < 0.0 || 1.0d/temp == Double.NEGATIVE_INFINITY) {
+
+        public String formatTemp(String prefix, NumericMeasure temp, PartialOrCompleteTimeInstant time) {
+            StringBuilder sb = new StringBuilder(prefix);
+            if (temp.getValue() < 0.0 || 1.0d / temp.getValue() == Double.NEGATIVE_INFINITY) {
                 sb.append('M');
             }
-    		sb.append(String.format("%02d",Math.round(Math.abs(temp))));
-    	    sb.append('/');
-    	    sb.append(String.format("%02d",day));
-    	    sb.append(String.format("%02d",hour));
-    	    sb.append('Z');
+            sb.append(String.format("%02d", Math.round(Math.abs(temp.getValue()))));
+            sb.append('/');
+            sb.append(String.format("%02d", time.getDay()));
+            sb.append(String.format("%02d", time.getHour()));
+            sb.append('Z');
     		return sb.toString();
     	}
     }

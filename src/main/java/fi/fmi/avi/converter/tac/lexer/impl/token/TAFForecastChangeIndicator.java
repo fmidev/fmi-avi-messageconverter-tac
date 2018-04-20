@@ -8,6 +8,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -15,6 +16,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 
@@ -86,16 +88,35 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
 
     public static class Reconstructor extends FactoryBasedReconstructor {
 
+        private static String encodeValidityTimeFrom(final PartialOrCompleteTimeInstant instant, final ConversionHints hints) {
+            String retval = null;
+            boolean useShortFormat = false;
+            if (hints != null) {
+                Object hint = hints.get(ConversionHints.KEY_VALIDTIME_FORMAT);
+                if (ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT.equals(hint)) {
+                    useShortFormat = true;
+                }
+            }
+
+            if (useShortFormat) {
+                retval = String.format("%02d%02d", instant.getHour(), instant.getMinute());
+            } else {
+                // Otherwise produce validity in the long format
+                retval = String.format("%02d%02d%02d", instant.getDay(), instant.getHour(), instant.getMinute());
+            }
+            return retval;
+        }
+
 		@Override
         public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
                 throws SerializingException {
             List<Lexeme> retval = new ArrayList<>();
 
             if (TAF.class.isAssignableFrom(clz)) {
-                TAFChangeForecast changeForecast = getAs(specifier, TAFChangeForecast.class);
+                Optional<TAFChangeForecast> changeForecast = getAs(specifier, TAFChangeForecast.class);
 
-                if (changeForecast != null) {
-                    switch (changeForecast.getChangeIndicator()) {
+                if (changeForecast.isPresent()) {
+                    switch (changeForecast.get().getChangeIndicator()) {
                         case BECOMING:
                             retval.add(this.createLexeme("BECMG", TAF_FORECAST_CHANGE_INDICATOR));
                             break;
@@ -119,14 +140,13 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
                             retval.add(this.createLexeme("TEMPO", TAF_FORECAST_CHANGE_INDICATOR));
                             break;
                         case FROM:
-                            StringBuilder ret = new StringBuilder("FM");
-                            if (changeForecast.getValidityStartDayOfMonth() > -1) {
-                                ret.append(String.format("%02d%02d%02d", changeForecast.getValidityStartDayOfMonth(), changeForecast.getValidityStartHour(),
-                                        changeForecast.getValidityStartMinute()));
+                            if (changeForecast.get().getValidityTime().getStartTime().isPresent()) {
+                                StringBuilder ret = new StringBuilder("FM");
+                                ret.append(encodeValidityTimeFrom(changeForecast.get().getValidityTime().getStartTime().get(), hints));
+                                retval.add(this.createLexeme(ret.toString(), TAF_FORECAST_CHANGE_INDICATOR));
                             } else {
-                                ret.append(String.format("%02d%02d", changeForecast.getValidityStartHour(), changeForecast.getValidityStartMinute()));
+                                throw new SerializingException("Validity time start is not available in TAF change forecast");
                             }
-                            retval.add(this.createLexeme(ret.toString(), TAF_FORECAST_CHANGE_INDICATOR));
                             break;
                     }
                 }

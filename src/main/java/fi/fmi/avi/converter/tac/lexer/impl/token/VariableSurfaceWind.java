@@ -7,15 +7,16 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 
 import java.util.regex.Matcher;
 
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.ObservedSurfaceWind;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 /**
  * Created by rinne on 10/02/17.
@@ -53,8 +54,8 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
     		Lexeme retval = null;
     		
     		NumericMeasure clockwise = null, counter = null;
-    		
-            if (METAR.class.isAssignableFrom(clz)) {
+
+            if (METARImpl.class.isAssignableFrom(clz)) {
                 METAR m = (METAR) msg;
                 ObservedSurfaceWind wind = m.getSurfaceWind();
                 

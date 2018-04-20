@@ -11,11 +11,11 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.TrendForecast;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 /**
- * Token parser for METAR trend change indicator types (TEMPO, BECMG and NOSIG)
+ * Token parser for METARImpl trend change indicator types (TEMPO, BECMG and NOSIG)
  */
 public class TrendChangeIndicator extends TimeHandlingRegex {
 
@@ -60,7 +60,7 @@ public class TrendChangeIndicator extends TimeHandlingRegex {
                 throws SerializingException {
             Lexeme retval = null;
 
-            if (METAR.class.isAssignableFrom(clz)) {
+            if (METARImpl.class.isAssignableFrom(clz)) {
                 TrendForecast trend = getAs(specifier, TrendForecast.class);
                 if (trend != null) {
                     switch (trend.getChangeIndicator()) {

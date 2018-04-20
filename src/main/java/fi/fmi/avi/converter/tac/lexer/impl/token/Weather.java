@@ -19,7 +19,7 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
@@ -30,7 +30,7 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
 public class Weather extends RegexMatchingLexemeVisitor {
 
     private final static Set<String> weatherSkipWords = new HashSet<>(
-            Arrays.asList("METAR", "RTD", "TAF", "COR", "AMD", "CNL", "NIL", "CAVOK", "TEMPO", "BECMG", "RMK", "NOSIG", "NSC", "NSW", "SKC", "NCD", "AUTO",
+            Arrays.asList("METARImpl", "RTD", "TAF", "COR", "AMD", "CNL", "NIL", "CAVOK", "TEMPO", "BECMG", "RMK", "NOSIG", "NSC", "NSW", "SKC", "NCD", "AUTO",
                     "SNOCLO", "BLU", "WHT", "GRN", "YLO1", "YLO2", "AMB", "RED", "BLACKWHT", "BLACKBLU", "BLACKGRN", "BLACKYLO1", "BLACKYLO2", "BLACKAMB",
                     "BLACKRED"));
     public final static Map<String, String> WEATHER_CODES;
@@ -514,8 +514,8 @@ public class Weather extends RegexMatchingLexemeVisitor {
                 if ((baseFct != null || changeFct != null) && isCodeAllowed(weather, hints)) {
                     retval = this.createLexeme(weather.getCode(), Lexeme.Identity.WEATHER);
                 }
-            } else if (METAR.class.isAssignableFrom(clz)) {
-            	fi.fmi.avi.model.Weather weather = getAs(specifier, fi.fmi.avi.model.Weather.class);
+            } else if (METARImpl.class.isAssignableFrom(clz)) {
+                fi.fmi.avi.model.Weather weather = getAs(specifier, fi.fmi.avi.model.Weather.class);
                 if (isCodeAllowed(weather, hints)) {
                     if (recentWeather) {
                         retval = this.createLexeme("RE" + weather.getCode(), Lexeme.Identity.RECENT_WEATHER);

@@ -19,7 +19,7 @@ import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR8Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -36,8 +36,8 @@ public class METAR8Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public String getTokenizedMessagePrefix() {
-		return "METAR ";
-	}
+        return "METARImpl ";
+    }
 	
 	@Override
 	public ConversionHints getLexerParsingHints() {

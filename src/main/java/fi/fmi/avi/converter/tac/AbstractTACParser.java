@@ -18,9 +18,9 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.impl.CloudLayerImpl;
-import fi.fmi.avi.model.impl.NumericMeasureImpl;
-import fi.fmi.avi.model.impl.WeatherImpl;
+import fi.fmi.avi.model.immutable.CloudLayerImpl;
+import fi.fmi.avi.model.immutable.NumericMeasureImpl;
+import fi.fmi.avi.model.immutable.WeatherImpl;
 
 /**
  * Common parent class for AviMessageConverter implementations.

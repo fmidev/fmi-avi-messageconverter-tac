@@ -2,6 +2,8 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
 
+import java.util.Optional;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
@@ -27,11 +29,12 @@ public class MetarStart extends PrioritizedLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
+                final Object... specifier) {
             if (METAR.class.isAssignableFrom(clz)) {
-                return this.createLexeme("METAR", METAR_START);
+                return Optional.of(this.createLexeme("METAR", METAR_START));
             } else {
-                return null;
+                return Optional.empty();
             }
 
         }

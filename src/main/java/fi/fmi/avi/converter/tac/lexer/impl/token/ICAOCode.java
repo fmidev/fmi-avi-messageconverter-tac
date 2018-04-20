@@ -6,15 +6,17 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.taf.TAF;
 
 /**
  * Created by rinne on 10/02/17.
@@ -275,21 +277,21 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
-            Lexeme retval = null;
-            if (METAR.class.isAssignableFrom(clz)) {
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
+                final Object... specifier) {
+            if (METARImpl.class.isAssignableFrom(clz)) {
                 METAR m = (METAR) msg;
                 if (m.getAerodrome() != null) {
-                    retval = this.createLexeme(m.getAerodrome().getDesignator(), AERODROME_DESIGNATOR);
+                    return Optional.of(this.createLexeme(m.getAerodrome().getDesignator(), AERODROME_DESIGNATOR));
                 }
 
             } else if (TAF.class.isAssignableFrom(clz)) {
                 TAF t = (TAF) msg;
                 if (t.getAerodrome() != null) {
-                    retval = this.createLexeme(t.getAerodrome().getDesignator(), AERODROME_DESIGNATOR);
+                    return Optional.of(this.createLexeme(t.getAerodrome().getDesignator(), AERODROME_DESIGNATOR));
                 }
             }
-            return retval;
+            return Optional.empty();
         }
     }
 }

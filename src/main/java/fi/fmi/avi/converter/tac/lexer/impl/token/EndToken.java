@@ -2,11 +2,13 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
 
-import fi.fmi.avi.model.AviationWeatherMessage;
+import java.util.Optional;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
+import fi.fmi.avi.model.AviationWeatherMessage;
 
 /**
  * Created by rinne on 10/02/17.
@@ -26,8 +28,9 @@ public class EndToken extends PrioritizedLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
-            return this.createLexeme("=", Lexeme.Identity.END_TOKEN);
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
+                final Object... specifier) {
+            return Optional.of(this.createLexeme("=", Lexeme.Identity.END_TOKEN));
         }
     }
 

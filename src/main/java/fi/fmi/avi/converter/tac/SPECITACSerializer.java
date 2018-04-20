@@ -4,7 +4,7 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 /**
  * Created by rinne on 06/03/2018.
@@ -23,7 +23,7 @@ public class SPECITACSerializer extends METARTACSerializerBase<SPECI> {
 
     @Override
     protected SPECI narrow(final AviationWeatherMessage msg, final ConversionHints hints) throws SerializingException {
-        if (msg instanceof METAR) {
+        if (msg instanceof METARImpl) {
             return (SPECI) msg;
         } else {
             throw new SerializingException("Message to serialize is not a SPECI message POJO!");

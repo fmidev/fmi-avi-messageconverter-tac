@@ -13,16 +13,16 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.Weather;
-import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.ObservedClouds;
 import fi.fmi.avi.model.metar.RunwayState;
 import fi.fmi.avi.model.metar.RunwayVisualRange;
 import fi.fmi.avi.model.metar.TrendForecast;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 /**
- * Serializes METAR POJO to TAC format
+ * Serializes METARImpl POJO to TAC format
  */
-public abstract class METARTACSerializerBase<S extends METAR> extends AbstractTACSerializer<S> {
+public abstract class METARTACSerializerBase<S extends METARImpl> extends AbstractTACSerializer<S> {
 
     @Override
     public ConversionResult<String> convertMessage(final S input, final ConversionHints hints) {

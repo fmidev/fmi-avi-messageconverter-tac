@@ -6,6 +6,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -132,96 +133,96 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
+                final Object... specifier)
                 throws SerializingException {
-            Lexeme retval = null;
-            fi.fmi.avi.model.CloudLayer layer = getAs(specifier, 0, fi.fmi.avi.model.CloudLayer.class);
-            String specialValue = getAs(specifier, 0, String.class);
+            Optional<Lexeme> retval = Optional.empty();
 
-            NumericMeasure verVis = null;
+            Optional<fi.fmi.avi.model.CloudLayer> layer = getAs(specifier, 0, fi.fmi.avi.model.CloudLayer.class);
+            Optional<String> specialValue = getAs(specifier, 0, String.class);
+
+            Optional<NumericMeasure> verVis = null;
             boolean nsc = false;
             boolean cloudsUnobservable = false;
             
             if (TAF.class.isAssignableFrom(clz)) {
-                TAFBaseForecast baseFct = getAs(specifier, 1, TAFBaseForecast.class);
-                TAFChangeForecast changeFct = getAs(specifier, 1, TAFChangeForecast.class);
-            	if (baseFct != null || changeFct != null) {
-            		CloudForecast cFct;
-            		if (baseFct != null) {
-            			cFct = baseFct.getCloud();
-            		} else {
-            			cFct = changeFct.getCloud();
-            		}
-                    if ("VV".equals(specialValue)) {
-                        verVis = cFct.getVerticalVisibility();
-            		} else if (cFct.isNoSignificantCloud()) {
-            			nsc = true;
-            		}
-				}
+                Optional<CloudForecast> cFct = Optional.empty();
+                Optional<TAFBaseForecast> baseFct = getAs(specifier, 1, TAFBaseForecast.class);
+                if (baseFct.isPresent()) {
+                    cFct = Optional.of(baseFct.get().getCloud());
+                } else {
+                    Optional<TAFChangeForecast> changeFct = getAs(specifier, 1, TAFChangeForecast.class);
+                    if (changeFct.isPresent()) {
+                        cFct = changeFct.get().getCloud();
+                    }
+                }
+                if (cFct.isPresent()) {
+                    if (specialValue.isPresent() && "VV".equals(specialValue.get())) {
+                        verVis = cFct.get().getVerticalVisibility();
+                    } else if (cFct.get().isNoSignificantCloud()) {
+                        nsc = true;
+                    }
+                }
             } else if (METAR.class.isAssignableFrom(clz)) {
             	METAR metar = (METAR)msg;
-            	ObservedClouds obsClouds = metar.getClouds();
-            	if (obsClouds.isNoSignificantCloud()) {
-            		nsc = true;
+                Optional<ObservedClouds> obsClouds = metar.getClouds();
+                if (obsClouds.isPresent() && obsClouds.get().isNoSignificantCloud()) {
+                    nsc = true;
             	}
-            	if (obsClouds.isAmountAndHeightUnobservableByAutoSystem()) {
-            		cloudsUnobservable = true;
+                if (obsClouds.isPresent() && obsClouds.get().isAmountAndHeightUnobservableByAutoSystem()) {
+                    cloudsUnobservable = true;
 				}
-            	TrendForecast trend = getAs(specifier, TrendForecast.class);
-            	if (trend != null) {
-            		if ("VV".equals(specialValue)) {
-            			verVis = trend.getCloud().getVerticalVisibility();
-            		} else if (trend.getCloud() != null && trend.getCloud().isNoSignificantCloud()) {
-            			nsc = true;
+                Optional<TrendForecast> trend = getAs(specifier, TrendForecast.class);
+                if (trend.isPresent() && trend.get().getCloud().isPresent()) {
+                    fi.fmi.avi.model.CloudForecast cloud = trend.get().getCloud().get();
+                    if (specialValue.isPresent() && "VV".equals(specialValue.get())) {
+                        verVis = cloud.getVerticalVisibility();
+                    } else if (cloud.isNoSignificantCloud()) {
+                        nsc = true;
             		}
             	} else {
-            		if ("VV".equals(specialValue)) {
-            			verVis = metar.getClouds().getVerticalVisibility();
-            		}
+                    if (metar.getClouds().isPresent() && specialValue.isPresent() && "VV".equals(specialValue.get())) {
+                        verVis = metar.getClouds().get().getVerticalVisibility();
+                    }
             	}
             }
             if (cloudsUnobservable) {
-            	retval = this.createLexeme("//////", Identity.CLOUD);
-			} else if (nsc) {
-            	retval = this.createLexeme("NSC", Identity.CLOUD);
+                retval = Optional.of(this.createLexeme("//////", Identity.CLOUD));
+            } else if (nsc) {
+                retval = Optional.of(this.createLexeme("NSC", Identity.CLOUD));
             } else {
-            	String str = getCloudLayerOrVerticalVisibilityToken(layer, verVis);
-            	if (str != null) {
-            		retval = this.createLexeme(str, Identity.CLOUD);
-            	}
-        	}
-
+                if (layer.isPresent()) {
+                    retval = Optional.of(this.createLexeme(getCloundLayerToken(layer.get()), Identity.CLOUD));
+                } else if (verVis.isPresent()) {
+                    retval = Optional.of(this.createLexeme(getVerticalVisibilityToken(verVis.get()), Identity.CLOUD));
+                }
+            }
             return retval;
         }
 
-        private String getCloudLayerOrVerticalVisibilityToken(final fi.fmi.avi.model.CloudLayer layer, final NumericMeasure verVis) throws SerializingException {
-            String ret = null;
-    		if (layer != null) {
-    			StringBuilder sb = new StringBuilder();
-    			NumericMeasure base = layer.getBase();
+        private String getCloundLayerToken(final fi.fmi.avi.model.CloudLayer layer) throws SerializingException {
+            StringBuilder sb = new StringBuilder();
+            Optional<NumericMeasure> base = layer.getBase();
+            Optional<fi.fmi.avi.model.AviationCodeListUser.CloudType> type = layer.getCloudType();
 
-                CloudAmount amount = layer.getAmount();
-    			fi.fmi.avi.model.AviationCodeListUser.CloudType type = layer.getCloudType();
-        		sb.append(amount.name());
-        		if (CloudAmount.SKC != amount) {
-	                if (base == null || base.getValue() == null) {
-	                    sb.append("///");
-	                } else {
-	                    sb.append(String.format("%03d", getAsHectoFeet(base)));
-	                }
-	                if (type != null) {
-	        			sb.append(type.name());
-	        		}
-        		}
-        		ret = sb.toString();
-        		
-    		} else if (verVis != null) {
-    			StringBuilder sb = new StringBuilder();
-    			sb.append("VV");
-    			sb.append(String.format("%03d", getAsHectoFeet(verVis)));
-    			ret = sb.toString();
-    		}
-    		return ret;
+            CloudAmount amount = layer.getAmount();
+            sb.append(amount.name());
+            if (CloudAmount.SKC != amount) {
+                if (!base.isPresent()) {
+                    sb.append("///");
+                } else {
+                    sb.append(String.format("%03d", getAsHectoFeet(base.get())));
+                }
+                type.ifPresent(sb::append);
+            }
+            return sb.toString();
+        }
+
+        private String getVerticalVisibilityToken(final NumericMeasure verVis) throws SerializingException {
+            StringBuilder sb = new StringBuilder();
+            sb.append("VV");
+            sb.append(String.format("%03d", getAsHectoFeet(verVis)));
+            return sb.toString();
         }
 
         private long getAsHectoFeet(final NumericMeasure value) throws SerializingException {

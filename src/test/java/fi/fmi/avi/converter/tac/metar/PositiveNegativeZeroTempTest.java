@@ -25,7 +25,8 @@ public class PositiveNegativeZeroTempTest {
     
     @Test
     public void testZeroValueRemainsNegative() {
-        ConversionResult<METAR> result = this.converter.convertMessage("METAR EFHK 111111Z 15008KT CAVOK M00/M00 Q1023=", TACConverter.TAC_TO_METAR_POJO);
+        ConversionResult<METAR> result = this.converter.convertMessage("ImmutableMETAR EFHK 111111Z 15008KT CAVOK M00/M00 Q1023=",
+                TACConverter.TAC_TO_METAR_POJO);
         assertTrue(ConversionResult.Status.SUCCESS == result.getStatus());
         METAR m = result.getConvertedMessage();
         assertTrue(1.0d/m.getDewpointTemperature().getValue() == Double.NEGATIVE_INFINITY);
@@ -38,7 +39,8 @@ public class PositiveNegativeZeroTempTest {
     
     @Test
     public void testZeroValueRemainsPositive() {
-        ConversionResult<METAR> result = this.converter.convertMessage("METAR EFHK 111111Z 15008KT CAVOK 00/00 Q1023=", TACConverter.TAC_TO_METAR_POJO);
+        ConversionResult<METAR> result = this.converter.convertMessage("ImmutableMETAR EFHK 111111Z 15008KT CAVOK 00/00 Q1023=",
+                TACConverter.TAC_TO_METAR_POJO);
         assertTrue(ConversionResult.Status.SUCCESS == result.getStatus());
         METAR m = result.getConvertedMessage();
         assertTrue(1.0d/m.getDewpointTemperature().getValue() == Double.POSITIVE_INFINITY);

@@ -7,11 +7,17 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationCodeListUser.RunwayContamination;
 import fi.fmi.avi.model.AviationCodeListUser.RunwayDeposit;
@@ -19,11 +25,6 @@ import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.RunwayDirection;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 /**
  * Created by rinne on 10/02/17.
@@ -334,7 +335,7 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
             if (fcbaValue == 99) {
                 values.put(RunwayStateReportType.FRICTION_COEFFICIENT, RunwayStateReportSpecialValue.MEASUREMENT_UNRELIABLE);
             } else if (fcbaValue < 91) {
-                values.put(RunwayStateReportType.FRICTION_COEFFICIENT, fcbaValue);
+                values.put(RunwayStateReportType.FRICTION_COEFFICIENT, fcbaValue / 100.0);
             } else {
                 BreakingAction ba = BreakingAction.forCode(fcbaValue);
                 if (ba != null) {
@@ -348,25 +349,18 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     
     public static class Reconstructor extends FactoryBasedReconstructor {
     	@Override
-    	public <T extends AviationWeatherMessage> Lexeme getAsLexeme(T msg, Class<T> clz, ConversionHints hints,
-    			Object... specifier) throws SerializingException {
-    		Lexeme retval = null;
-    		fi.fmi.avi.model.metar.RunwayState state = null;
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier) throws SerializingException {
     		
             if (METAR.class.isAssignableFrom(clz)) {
-                state = getAs(specifier, fi.fmi.avi.model.metar.RunwayState.class);
+                Optional<fi.fmi.avi.model.metar.RunwayState> state = getAs(specifier, fi.fmi.avi.model.metar.RunwayState.class);
+                if (state.isPresent()) {
+                    boolean annex3_16th = hints.containsValue(ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
+                    String str = buildRunwayStateToken(state.get(), annex3_16th);
+                    return Optional.of(this.createLexeme(str, RUNWAY_STATE));
+                }
             }
-            
-            
-            if (state != null) {
-                boolean annex3_16th = hints.containsValue(ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
-                String str = buildRunwayStateToken(state, annex3_16th);
-            	
-            	retval = this.createLexeme(str, RUNWAY_STATE);
-            }
-            
-            return retval;
-    	}
+            return Optional.empty();
+        }
 
 		private String buildRunwayStateToken(fi.fmi.avi.model.metar.RunwayState state, boolean annex3_16th)
 				throws SerializingException {
@@ -382,21 +376,25 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 				if (state.isCleared()) {
 					builder.append("CLRD");
 				} else {
-			    	// Deposit
-			    	RunwayStateDeposit deposit = convertAPIToRunwayStateDeposit(state.getDeposit());
-			    	if (deposit == null) {
-			    		throw new SerializingException("RunwayState deposit ("+state.getDeposit()+") missing or unable to convert it");
-			    	}
-			    	builder.append(deposit.code);
-			    	
-			    	// Contamination
-			    	RunwayStateContamination contamination = convertAPIToRunwayStateContamination(state.getContamination());
-			    	if (contamination == null) {
-			    		throw new SerializingException("RunwayState contamination ("+state.getContamination()+") missing or unable to convert it");
-			    	}
-			    	builder.append(contamination.code);
-			    	
-			    	// Depth of deposit
+                    // Deposit
+                    if (state.getDeposit().isPresent()) {
+                        RunwayStateDeposit deposit = convertAPIToRunwayStateDeposit(state.getDeposit().get());
+                        if (deposit == null) {
+                            throw new SerializingException("RunwayState deposit (" + state.getDeposit() + ") missing or unable to convert it");
+                        }
+                        builder.append(deposit.code);
+                    }
+
+                    // Contamination
+                    if (state.getContamination().isPresent()) {
+                        RunwayStateContamination contamination = convertAPIToRunwayStateContamination(state.getContamination().get());
+                        if (contamination == null) {
+                            throw new SerializingException("RunwayState contamination (" + state.getContamination() + ") missing or unable to convert it");
+                        }
+                        builder.append(contamination.code);
+                    }
+
+                    // Depth of deposit
 			    	builder.append(getDepthOfDeposit(state));
 			    	
 				}
@@ -408,8 +406,8 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 		}
 
 		private String getFrictionCoefficient(fi.fmi.avi.model.metar.RunwayState state) throws SerializingException {
-			fi.fmi.avi.model.AviationCodeListUser.BreakingAction action = state.getBreakingAction();
-			Double friction = state.getEstimatedSurfaceFriction();
+            Optional<fi.fmi.avi.model.AviationCodeListUser.BreakingAction> action = state.getBreakingAction();
+            Optional<Double> friction = state.getEstimatedSurfaceFriction();
 
 			if (state.isEstimatedSurfaceFrictionUnreliable()) {
 				return "99";
@@ -419,54 +417,53 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 				return "//";
 			}
 
-			if (action != null) {
-				BreakingAction tmp = convertAPIToBreakingAction(action);
-				if (tmp == null) {
+            if (action.isPresent()) {
+                BreakingAction tmp = convertAPIToBreakingAction(action.get());
+                if (tmp == null) {
 					throw new SerializingException("RunwayState has unknown breaking action "+action);
 				}
 				return String.format("%02d", tmp.code);
 			}
-			
-			if (friction == null) {
-				throw new SerializingException("RunwayState estimated surface friction missing");
-			}
-			
-			int value = friction.intValue();
-			if (value < 0 || value >= 91) {
-				throw new SerializingException("RunwayState friction coefficient "+friction+" is out of bounds (should be between 0 and 90)");
-			}
-			
-			return String.format("%02d", value);
-		}
+
+            if (friction.isPresent()) {
+                Double value = friction.get();
+                if (value < 0 || value >= 0.91) {
+                    throw new SerializingException("RunwayState friction coefficient " + friction + " is out of bounds (should be between 0 and .91)");
+                }
+                return String.format("%02d", Math.round(value * 100));
+            } else {
+                throw new SerializingException("RunwayState estimated surface friction missing");
+            }
+        }
 
 		private String getDepthOfDeposit(fi.fmi.avi.model.metar.RunwayState state) throws SerializingException {
-			NumericMeasure measure = state.getDepthOfDeposit();
-			fi.fmi.avi.model.AviationCodeListUser.RelationalOperator operator = state.getDepthOperator();
-			
-			if (state.isDepthNotMeasurable()) {
+            Optional<NumericMeasure> measure = state.getDepthOfDeposit();
+            Optional<fi.fmi.avi.model.AviationCodeListUser.RelationalOperator> operator = state.getDepthOperator();
+
+            if (state.isDepthNotMeasurable()) {
 				return "//";
 			}
 
 			if (state.isRunwayNotOperational()) {
 				return "99";
 			}
-			
-			if (measure == null) {
-				throw new SerializingException("Depth is measurable, but depthOfDeposit is null. Unable to serialize");
+
+            if (!measure.isPresent()) {
+                throw new SerializingException("Depth is measurable, but depthOfDeposit is null. Unable to serialize");
 			}
 			
 			boolean millimeters;
-			if ("mm".equals(measure.getUom())) {
-				millimeters = true;
-			} else if ("cm".equals(measure.getUom())) {
-				millimeters = false;
+            if ("mm".equals(measure.get().getUom())) {
+                millimeters = true;
+            } else if ("cm".equals(measure.get().getUom())) {
+                millimeters = false;
 			} else {
 				throw new SerializingException("Unit of measure for depth of deposit can only be mm or cm");
 			}
-			
-			int value = measure.getValue().intValue();
-			if (operator == null) {
-				if (millimeters) {
+
+            int value = measure.get().getValue().intValue();
+            if (!operator.isPresent()) {
+                if (millimeters) {
 					if (value < 0 || value > 90) {
 						throw new SerializingException("Depth of deposit mm depth "+value+" is out of bounds. It should be between 0 and 90");
 					}
@@ -485,13 +482,13 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 					}
 					return ret;
 				}
-			} else if (operator == fi.fmi.avi.model.AviationCodeListUser.RelationalOperator.BELOW) {
-				if ( (millimeters && measure.getValue() <= 1.0) || measure.getValue() <= 0.1) {
-					return "00";
+            } else if (operator.get() == fi.fmi.avi.model.AviationCodeListUser.RelationalOperator.BELOW) {
+                if ((millimeters && measure.get().getValue() <= 1.0) || measure.get().getValue() <= 0.1) {
+                    return "00";
 				}
 				throw new SerializingException("Depth of deposit operator is BELOW, but measure is not 1mm or under, but: "+measure);
-			} else if (operator == fi.fmi.avi.model.AviationCodeListUser.RelationalOperator.ABOVE) {
-				if (millimeters && value < 400) {
+            } else if (operator.get() == fi.fmi.avi.model.AviationCodeListUser.RelationalOperator.ABOVE) {
+                if (millimeters && value < 400) {
 					throw new SerializingException("Depth of deposit with operator ABOVE needs to be 400mm or more");
 				} else if (!millimeters && value < 40) {
 					throw new SerializingException("Depth of deposit with operator ABOVE needs to be 40cm or more");
@@ -507,17 +504,19 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 			String runwayDesignator;
 			if (state.isRepetition()) {
 				runwayDesignator = "99";
-			} else if (state.isAllRunways()) {
-				runwayDesignator = "88";
+            } else if (state.isAppliedToAllRunways()) {
+                runwayDesignator = "88";
 			} else {
-				
-				if (annex3_16th) {
-					RunwayDirection rwd = state.getRunwayDirection();
-					if (rwd == null || !rwd.getDesignator().matches("[0-9][0-9]R?")) {
-						throw new SerializingException("Illegal runway designator in RunwayState: "+rwd);
-					}
-					String designator = rwd.getDesignator();
-					boolean rightSide = designator.endsWith("R");
+                Optional<RunwayDirection> rwd = state.getRunwayDirection();
+                if (!rwd.isPresent()) {
+                    throw new SerializingException("Runway direction missing in RunwayState");
+                }
+                if (annex3_16th) {
+                    if (!rwd.get().getDesignator().matches("[0-9][0-9]R?")) {
+                        throw new SerializingException("Illegal runway designator in RunwayState: " + rwd);
+                    }
+                    String designator = rwd.get().getDesignator();
+                    boolean rightSide = designator.endsWith("R");
 					
 					if (rightSide) {
 						designator = designator.substring(0, designator.length()-1);
@@ -533,8 +532,8 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 					}
 					runwayDesignator = String.format("%02d", code);
 				} else {
-					runwayDesignator = "R"+state.getRunwayDirection().getDesignator()+"/";
-				}
+                    runwayDesignator = "R" + rwd.get().getDesignator() + "/";
+                }
 			}
 			return runwayDesignator;
 		}

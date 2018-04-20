@@ -5,6 +5,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR2;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -14,6 +15,8 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.model.AviationCodeListUser.TAFChangeIndicator;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 
@@ -68,17 +71,27 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
 		@Override
-		public <T extends AviationWeatherMessage> Lexeme getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
-				throws SerializingException {
-			Lexeme retval = null;
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+                throws SerializingException {
+
 			if (TAF.class.isAssignableFrom(clz)) {
-				TAFChangeForecast forecast = getAs(specifier, TAFChangeForecast.class);
-				if (forecast != null && forecast.getChangeIndicator() != TAFChangeIndicator.FROM) {
-                    retval = this.createLexeme(forecast.getPartialValidityTimePeriod(), Identity.TAF_CHANGE_FORECAST_TIME_GROUP);
+                Optional<TAFChangeForecast> forecast = getAs(specifier, TAFChangeForecast.class);
+                if (forecast.isPresent() && forecast.get().getChangeIndicator() != TAFChangeIndicator.FROM) {
+                    PartialOrCompleteTimePeriod time = forecast.get().getValidityTime();
+                    Optional<PartialOrCompleteTimeInstant> start = time.getStartTime();
+                    Optional<PartialOrCompleteTimeInstant> end = time.getEndTime();
+                    if (start.isPresent() && end.isPresent()) {
+                        String timeStr = String.format("%02d%02d/%02d%02d", start.get().getDay(), start.get().getHour(), end.get().getDay(),
+                                end.get().getHour());
+                        return Optional.of(this.createLexeme(timeStr, Identity.TAF_CHANGE_FORECAST_TIME_GROUP));
+                    } else {
+                        throw new SerializingException("Unable to serialize TAF change group validity time period, both start and end time must be "
+                                + "available when group type is not " + TAFChangeIndicator.FROM);
+                    }
                 }
 			}
-			return retval;
-		}
+            return Optional.empty();
+        }
     	
     }
    

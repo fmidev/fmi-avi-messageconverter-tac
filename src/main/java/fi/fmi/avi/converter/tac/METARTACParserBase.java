@@ -39,9 +39,9 @@ import fi.fmi.avi.model.AviationCodeListUser.BreakingAction;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.RunwayDirection;
-import fi.fmi.avi.model.impl.CloudForecastImpl;
-import fi.fmi.avi.model.impl.NumericMeasureImpl;
-import fi.fmi.avi.model.impl.WeatherImpl;
+import fi.fmi.avi.model.immutable.CloudForecastImpl;
+import fi.fmi.avi.model.immutable.NumericMeasureImpl;
+import fi.fmi.avi.model.immutable.WeatherImpl;
 import fi.fmi.avi.model.metar.HorizontalVisibility;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.ObservedClouds;
@@ -52,21 +52,22 @@ import fi.fmi.avi.model.metar.SeaState;
 import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.metar.TrendForecastSurfaceWind;
 import fi.fmi.avi.model.metar.WindShear;
-import fi.fmi.avi.model.metar.impl.HorizontalVisibilityImpl;
-import fi.fmi.avi.model.metar.impl.ObservedCloudsImpl;
-import fi.fmi.avi.model.metar.impl.ObservedSurfaceWindImpl;
-import fi.fmi.avi.model.metar.impl.RunwayStateImpl;
-import fi.fmi.avi.model.metar.impl.RunwayVisualRangeImpl;
-import fi.fmi.avi.model.metar.impl.SeaStateImpl;
-import fi.fmi.avi.model.metar.impl.TrendForecastImpl;
-import fi.fmi.avi.model.metar.impl.TrendForecastSurfaceWindImpl;
+import fi.fmi.avi.model.metar.immutable.HorizontalVisibilityImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.metar.immutable.ObservedCloudsImpl;
+import fi.fmi.avi.model.metar.immutable.ObservedSurfaceWindImpl;
+import fi.fmi.avi.model.metar.immutable.RunwayStateImpl;
+import fi.fmi.avi.model.metar.immutable.RunwayVisualRangeImpl;
+import fi.fmi.avi.model.metar.immutable.SeaStateImpl;
+import fi.fmi.avi.model.metar.immutable.TrendForecastImpl;
+import fi.fmi.avi.model.metar.immutable.TrendForecastSurfaceWindImpl;
+import fi.fmi.avi.model.metar.immutable.WindShearImpl;
 import fi.fmi.avi.model.metar.impl.TrendTimeGroupsImpl;
-import fi.fmi.avi.model.metar.impl.WindShearImpl;
 
 /**
  * @author Ilkka Rinne / Spatineo Oy 2017
  */
-public abstract class METARTACParserBase<S extends METAR> extends AbstractTACParser<S> {
+public abstract class METARTACParserBase<S extends METARImpl> extends AbstractTACParser<S> {
 
     private static final Logger LOG = LoggerFactory.getLogger(METARTACParserBase.class);
 
@@ -182,8 +183,8 @@ public abstract class METARTACParserBase<S extends METAR> extends AbstractTACPar
                     if (match.getNext() != null) {
                         Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
                         if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
-                            result.addIssue(
-                                    new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Missing METAR message contains extra tokens after NIL: " + input));
+                            result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR,
+                                    "Missing METARImpl message contains extra tokens after NIL: " + input));
                         }
                     }
                 }

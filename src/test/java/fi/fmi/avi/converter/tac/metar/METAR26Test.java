@@ -13,12 +13,12 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.REMARKS_START;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
 
-import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
+import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR26Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -29,9 +29,8 @@ public class METAR26Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public String getMessage() {
-		return
-				"METAR KORD 201004Z 05008KT P1/3SM -DZ BR OVC006 03/03 A2964 RMK AO2 DZB04 P0000 T00330028=";
-	}
+		return "METARImpl KORD 201004Z 05008KT P1/3SM -DZ BR OVC006 03/03 A2964 RMK AO2 DZB04 P0000 T00330028=";
+    }
 	
 	@Override
 	public String getTokenizedMessagePrefix() {

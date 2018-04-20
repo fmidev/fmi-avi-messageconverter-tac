@@ -2,13 +2,15 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AMENDMENT;
 
-import fi.fmi.avi.model.AviationCodeListUser;
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.taf.TAF;
+import java.util.Optional;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
+import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.taf.TAF;
 
 /**
  * Created by rinne on 10/02/17.
@@ -29,17 +31,17 @@ public class Amendment extends PrioritizedLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
-            Lexeme retval = null;
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
+                final Object... specifier) {
             if (TAF.class.isAssignableFrom(clz)) {
                 // Note: cancellation messages are also amendments
                 if (AviationCodeListUser.TAFStatus.AMENDMENT == ((TAF) msg).getStatus() ||
                     AviationCodeListUser.TAFStatus.CANCELLATION == ((TAF) msg).getStatus()) {
-                    retval = this.createLexeme("AMD", AMENDMENT);
+                    return Optional.of(this.createLexeme("AMD", AMENDMENT));
                 }
 
             }
-            return retval;
+            return Optional.empty();
         }
     }
 }

@@ -6,6 +6,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MEAN_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -19,6 +20,8 @@ import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.ObservedSurfaceWind;
 import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.metar.TrendForecastSurfaceWind;
+import fi.fmi.avi.model.taf.TAF;
+import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFSurfaceWind;
 
 /**
@@ -94,60 +97,57 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
 	public static class Reconstructor extends FactoryBasedReconstructor {
 
 		@Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(T msg, Class<T> clz, final ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ConversionHints hints, Object... specifier)
                 throws SerializingException {
-            Lexeme retval = null;
+            Optional<Lexeme> retval = Optional.empty();
 
-            TAFForecast fct = getAs(specifier, TAFForecast.class);
-            if (fct != null) {
-                TAFSurfaceWind wind = fct.getSurfaceWind();
-                if (wind != null) {
-                	StringBuilder builder = new StringBuilder();
-                	
-                	
-                	if (wind.isVariableDirection()) {
+            if (TAF.class.isAssignableFrom(clz)) {
+                Optional<TAFBaseForecast> base = getAs(specifier, TAFBaseForecast.class);
+                if (base.isPresent()) {
+                    TAFSurfaceWind wind = base.get().getSurfaceWind();
+                    StringBuilder builder = new StringBuilder();
+                    if (wind.isVariableDirection()) {
                         builder.append("VRB");
                     } else if (!wind.getMeanWindDirection().getUom().equals("deg")) {
                         throw new SerializingException("Mean wind direction unit is not 'deg': " + wind.getMeanWindDirection().getUom());
                     } else {
-                    	builder.append(String.format("%03d", wind.getMeanWindDirection().getValue().intValue()));
-                    }
-
-                    this.appendCommonWindParameters(builder, wind.getMeanWindSpeed(), wind.getMeanWindDirection(), wind.getWindGust());
-                    retval = this.createLexeme(builder.toString(), Lexeme.Identity.SURFACE_WIND);
-
-                }
-            } else if (METAR.class.isAssignableFrom(msg.getClass())) {
-                TrendForecast trend = getAs(specifier, TrendForecast.class);
-                
-                String tokenStr = null;
-                if (trend != null) {
-                    TrendForecastSurfaceWind wind = trend.getSurfaceWind();
-                    if (wind != null) {
-                        StringBuilder builder = new StringBuilder();
                         builder.append(String.format("%03d", wind.getMeanWindDirection().getValue().intValue()));
-                        this.appendCommonWindParameters(builder, wind.getMeanWindSpeed(), wind.getMeanWindDirection(), wind.getWindGust());
+                    }
+                    this.appendCommonWindParameters(builder, wind.getMeanWindSpeed(), wind.getMeanWindDirection(), wind.getWindGust().orElse(null));
+                    retval = Optional.of(this.createLexeme(builder.toString(), Lexeme.Identity.SURFACE_WIND));
+                }
+            } else if (METAR.class.isAssignableFrom(clz)) {
+                Optional<TrendForecast> trend = getAs(specifier, TrendForecast.class);
+                String tokenStr = null;
+                if (trend.isPresent()) {
+                    Optional<TrendForecastSurfaceWind> wind = trend.get().getSurfaceWind();
+                    if (wind.isPresent()) {
+                        StringBuilder builder = new StringBuilder();
+                        builder.append(String.format("%03d", wind.get().getMeanWindDirection().getValue().intValue()));
+                        this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getMeanWindDirection(),
+                                wind.get().getWindGust().orElse(null));
                         tokenStr = builder.toString();
                     }
                 } else {
                     METAR m = (METAR) msg;
-                    ObservedSurfaceWind wind = m.getSurfaceWind();
-                    if (wind != null) {
+                    Optional<ObservedSurfaceWind> wind = m.getSurfaceWind();
+                    if (wind.isPresent()) {
                         StringBuilder builder = new StringBuilder();
-                        if (wind.isVariableDirection()) {
+                        if (wind.get().isVariableDirection()) {
                             builder.append("VRB");
-                        } else if (!wind.getMeanWindDirection().getUom().equals("deg")) {
-                            throw new SerializingException("Mean wind direction unit is not 'deg': " + wind.getMeanWindDirection().getUom());
+                        } else if (!wind.get().getMeanWindDirection().getUom().equals("deg")) {
+                            throw new SerializingException("Mean wind direction unit is not 'deg': " + wind.get().getMeanWindDirection().getUom());
                         } else {
-                            builder.append(String.format("%03d", wind.getMeanWindDirection().getValue().intValue()));
+                            builder.append(String.format("%03d", wind.get().getMeanWindDirection().getValue().intValue()));
                         }
-                        this.appendCommonWindParameters(builder, wind.getMeanWindSpeed(), wind.getMeanWindDirection(), wind.getWindGust());
+                        this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getMeanWindDirection(),
+                                wind.get().getWindGust().orElse(null));
                         tokenStr = builder.toString();
                     }
                 }
                 
                 if (tokenStr != null) {
-                	retval = this.createLexeme(tokenStr, Lexeme.Identity.SURFACE_WIND);
+                    retval = Optional.of(this.createLexeme(tokenStr, Lexeme.Identity.SURFACE_WIND));
                 }
             }
 
