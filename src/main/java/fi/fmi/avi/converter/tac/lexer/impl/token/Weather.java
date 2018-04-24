@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 
@@ -19,7 +20,7 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
@@ -30,7 +31,7 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
 public class Weather extends RegexMatchingLexemeVisitor {
 
     private final static Set<String> weatherSkipWords = new HashSet<>(
-            Arrays.asList("METARImpl", "RTD", "TAF", "COR", "AMD", "CNL", "NIL", "CAVOK", "TEMPO", "BECMG", "RMK", "NOSIG", "NSC", "NSW", "SKC", "NCD", "AUTO",
+            Arrays.asList("METAR", "RTD", "TAF", "COR", "AMD", "CNL", "NIL", "CAVOK", "TEMPO", "BECMG", "RMK", "NOSIG", "NSC", "NSW", "SKC", "NCD", "AUTO",
                     "SNOCLO", "BLU", "WHT", "GRN", "YLO1", "YLO2", "AMB", "RED", "BLACKWHT", "BLACKBLU", "BLACKGRN", "BLACKYLO1", "BLACKYLO2", "BLACKAMB",
                     "BLACKRED"));
     public final static Map<String, String> WEATHER_CODES;
@@ -476,7 +477,7 @@ public class Weather extends RegexMatchingLexemeVisitor {
                     } else {
                         token.identify(isRecent ? RECENT_WEATHER : WEATHER, Lexeme.Status.SYNTAX_ERROR, "Unknown weather code " + code);
                     }
-                } else if (hints != null) {
+                } else {
                     if (ConversionHints.VALUE_WEATHER_CODES_ALLOW_ANY.equals(hints.get(ConversionHints.KEY_WEATHER_CODES))) {
                         token.identify(isRecent ? RECENT_WEATHER : WEATHER);
                         token.setParsedValue(Lexeme.ParsedValueName.VALUE, code);
@@ -504,27 +505,28 @@ public class Weather extends RegexMatchingLexemeVisitor {
 		}
     	
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
+                final Object... specifier)
                 throws SerializingException {
-            Lexeme retval = null;
+            Optional<fi.fmi.avi.model.Weather> weather = getAs(specifier, 1, fi.fmi.avi.model.Weather.class);
             if (TAF.class.isAssignableFrom(clz)) {
-            	fi.fmi.avi.model.Weather weather = getAs(specifier, 1, fi.fmi.avi.model.Weather.class);
-            	TAFBaseForecast baseFct = getAs(specifier, 0, TAFBaseForecast.class);
-            	TAFChangeForecast changeFct = getAs(specifier, 0, TAFChangeForecast.class);
-                if ((baseFct != null || changeFct != null) && isCodeAllowed(weather, hints)) {
-                    retval = this.createLexeme(weather.getCode(), Lexeme.Identity.WEATHER);
+                if (weather.isPresent() && isCodeAllowed(weather.get(), hints)) {
+                    Optional<TAFBaseForecast> baseFct = getAs(specifier, 0, TAFBaseForecast.class);
+                    Optional<TAFChangeForecast> changeFct = getAs(specifier, 0, TAFChangeForecast.class);
+                    if ((baseFct.isPresent() || changeFct.isPresent())) {
+                        return Optional.of(this.createLexeme(weather.get().getCode(), Lexeme.Identity.WEATHER));
+                    }
                 }
-            } else if (METARImpl.class.isAssignableFrom(clz)) {
-                fi.fmi.avi.model.Weather weather = getAs(specifier, fi.fmi.avi.model.Weather.class);
-                if (isCodeAllowed(weather, hints)) {
+            } else if (METAR.class.isAssignableFrom(clz)) {
+                if (weather.isPresent() && isCodeAllowed(weather.get(), hints)) {
                     if (recentWeather) {
-                        retval = this.createLexeme("RE" + weather.getCode(), Lexeme.Identity.RECENT_WEATHER);
+                        return Optional.of(this.createLexeme("RE" + weather.get().getCode(), Lexeme.Identity.RECENT_WEATHER));
                     } else {
-                        retval = this.createLexeme(weather.getCode(), Lexeme.Identity.WEATHER);
+                        return Optional.of(this.createLexeme(weather.get().getCode(), Lexeme.Identity.WEATHER));
                     }
                 }
             }
-            return retval;
+            return Optional.empty();
         }
 
         private boolean isCodeAllowed(final fi.fmi.avi.model.Weather weather, final ConversionHints hints) throws SerializingException {

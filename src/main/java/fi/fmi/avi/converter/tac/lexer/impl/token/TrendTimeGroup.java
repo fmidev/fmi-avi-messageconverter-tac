@@ -6,7 +6,9 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -15,8 +17,11 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.PartialOrCompleteTime;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
+import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.TrendForecast;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 /**
  * Trend time group token parser (FM, AT or TL).
@@ -67,49 +72,46 @@ public class TrendTimeGroup extends TimeHandlingRegex {
         @Override
         public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
                 throws SerializingException {
-            List<Lexeme> retval = new ArrayList<>();
-            if (METARImpl.class.isAssignableFrom(clz)) {
-                TrendForecast trend = getAs(specifier, TrendForecast.class);
-                if (trend != null) {
-                    switch (trend.getChangeIndicator()) {
-                        case BECOMING: {
-                            List<Lexeme> periodOfChange = createTrendTimeChangePeriods(trend.getTimeGroups());
-                            if (periodOfChange.isEmpty()) {
-                                throw new SerializingException("No period of time for the trend of type BECOMING");
+            if (METAR.class.isAssignableFrom(clz)) {
+                Optional<TrendForecast> trend = getAs(specifier, TrendForecast.class);
+                if (trend.isPresent()) {
+                    PartialOrCompleteTime validity = null;
+                    if (trend.get().getPeriodOfChange().isPresent()) {
+                        validity = trend.get().getPeriodOfChange().get();
+                    } else if (trend.get().getInstantOfChange().isPresent()) {
+                        validity = trend.get().getInstantOfChange().get();
+                    }
+                    if (validity != null) {
+                        switch (trend.get().getChangeIndicator()) {
+                            case BECOMING: {
+                                return createTrendTimeChangePeriods(validity);
                             }
-                            retval.addAll(periodOfChange);
-                            break;
-                        }
-                        case TEMPORARY_FLUCTUATIONS: {
-                            List<Lexeme> periodOfChange = createTrendTimeChangePeriods(trend.getTimeGroups());
-                            if (!periodOfChange.isEmpty()) {
-                                retval.addAll(periodOfChange);
+                            case TEMPORARY_FLUCTUATIONS: {
+                                return createTrendTimeChangePeriods(validity);
                             }
-                            break;
                         }
                     }
                 }
-
             }
-            return retval;
+            return Collections.emptyList();
         }
 
-        private List<Lexeme> createTrendTimeChangePeriods(final TrendTimeGroups timeGroups) {
+        private List<Lexeme> createTrendTimeChangePeriods(final PartialOrCompleteTime time) {
             List<Lexeme> retval = new ArrayList<>();
-            if (timeGroups != null) {
-                if (timeGroups.isSingleInstance()) {
-                    if (timeGroups.getPartialStartTime() != null) {
-                        retval.add(this.createLexeme("AT" + timeGroups.getPartialStartTime(), TREND_TIME_GROUP));
+            if (time instanceof PartialOrCompleteTimeInstant) {
+                PartialOrCompleteTimeInstant instant = (PartialOrCompleteTimeInstant) time;
+                retval.add(this.createLexeme(String.format("AT%02d%02d", instant.getHour(), instant.getMinute()), TREND_TIME_GROUP));
+            } else if (time instanceof PartialOrCompleteTimePeriod) {
+                PartialOrCompleteTimePeriod period = (PartialOrCompleteTimePeriod) time;
+                if (period.getStartTime().isPresent()) {
+                    PartialOrCompleteTimeInstant start = period.getStartTime().get();
+                    retval.add(this.createLexeme(String.format("FM%02d%02d", start.getHour(), start.getMinute()), TREND_TIME_GROUP));
                     }
-                } else {
-                    if (timeGroups.getPartialStartTime() != null) {
-                        retval.add(this.createLexeme("FM" + timeGroups.getPartialStartTime(), TREND_TIME_GROUP));
-                    }
-                    if (timeGroups.getPartialEndTime() != null) {
-                        retval.add(this.createLexeme("TL" + timeGroups.getPartialEndTime(), TREND_TIME_GROUP));
+                if (period.getEndTime().isPresent()) {
+                    PartialOrCompleteTimeInstant end = period.getEndTime().get();
+                    retval.add(this.createLexeme(String.format("TL%02d%02d", end.getHour(), end.getMinute()), TREND_TIME_GROUP));
                     }
                 }
-            }
             return retval;
         }
 

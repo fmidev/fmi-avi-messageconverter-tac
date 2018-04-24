@@ -3,6 +3,7 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TREND_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -11,11 +12,11 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.TrendForecast;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 /**
- * Token parser for METARImpl trend change indicator types (TEMPO, BECMG and NOSIG)
+ * Token parser for METAR trend change indicator types (TEMPO, BECMG and NOSIG)
  */
 public class TrendChangeIndicator extends TimeHandlingRegex {
 
@@ -56,30 +57,24 @@ public class TrendChangeIndicator extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
                 throws SerializingException {
-            Lexeme retval = null;
-
-            if (METARImpl.class.isAssignableFrom(clz)) {
-                TrendForecast trend = getAs(specifier, TrendForecast.class);
-                if (trend != null) {
-                    switch (trend.getChangeIndicator()) {
+            if (METAR.class.isAssignableFrom(clz)) {
+                Optional<TrendForecast> trend = getAs(specifier, TrendForecast.class);
+                if (trend.isPresent()) {
+                    switch (trend.get().getChangeIndicator()) {
                         case BECOMING: {
-                            retval = this.createLexeme("BECMG", TREND_CHANGE_INDICATOR);
-                            break;
+                            return Optional.of(this.createLexeme("BECMG", TREND_CHANGE_INDICATOR));
                         }
                         case TEMPORARY_FLUCTUATIONS: {
-                            retval = this.createLexeme("TEMPO", TREND_CHANGE_INDICATOR);
-                            break;
+                            return Optional.of(this.createLexeme("TEMPO", TREND_CHANGE_INDICATOR));
                         }
                         case NO_SIGNIFICANT_CHANGES:
-                            retval = this.createLexeme("NOSIG", TREND_CHANGE_INDICATOR);
-                            break;
+                            return Optional.of(this.createLexeme("NOSIG", TREND_CHANGE_INDICATOR));
                     }
                 }
             }
-
-            return retval;
+            return Optional.empty();
         }
 
     }

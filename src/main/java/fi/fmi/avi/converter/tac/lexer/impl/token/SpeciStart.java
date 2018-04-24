@@ -9,7 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.SPECI;
+import fi.fmi.avi.model.metar.METAR;
 
 /**
  * Created by rinne on 10/02/17.
@@ -31,7 +31,7 @@ public class SpeciStart extends PrioritizedLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
                 final Object... specifier) {
-            if (SPECI.class.isAssignableFrom(clz)) {
+            if (METAR.class.isAssignableFrom(clz) && ((METAR) msg).isSpecial()) {
                 return Optional.of(this.createLexeme("SPECI", SPECI_START));
             }
             return Optional.empty();

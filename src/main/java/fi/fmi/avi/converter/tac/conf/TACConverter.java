@@ -6,10 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
-import fi.fmi.avi.converter.tac.METARTACParser;
-import fi.fmi.avi.converter.tac.METARTACSerializer;
-import fi.fmi.avi.converter.tac.SPECITACParser;
-import fi.fmi.avi.converter.tac.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.TACParser;
 import fi.fmi.avi.converter.tac.TAFTACParser;
 import fi.fmi.avi.converter.tac.TAFTACSerializer;
@@ -60,7 +56,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.taf.TAF;
 
 /**
@@ -69,28 +64,28 @@ import fi.fmi.avi.model.taf.TAF;
 @Configuration
 public class TACConverter {
     /**
-     * Pre-configured spec for ICAO Annex 3 TAC format to {@link METARImpl} POJO.
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link METAR} POJO.
      */
-    public static final ConversionSpecification<String, METAR> TAC_TO_METAR_POJO = new ConversionSpecification<>(String.class, METARImpl.class,
+    public static final ConversionSpecification<String, METAR> TAC_TO_METAR_POJO = new ConversionSpecification<>(String.class, METAR.class,
             "ICAO Annex 3 TAC",
             null);
 
     /**
-     * Pre-configured spec for {@link METARImpl} to ICAO Annex 3 TAC String.
+     * Pre-configured spec for {@link METAR} to ICAO Annex 3 TAC String.
      */
-    public static final ConversionSpecification<METAR, String> METAR_POJO_TO_TAC = new ConversionSpecification<>(METARImpl.class, String.class, null,
+    public static final ConversionSpecification<METAR, String> METAR_POJO_TO_TAC = new ConversionSpecification<>(METAR.class, String.class, null,
             "ICAO Annex 3 TAC");
 
     /**
-     * Pre-configured spec for ICAO Annex 3 TAC format to {@link SPECI} POJO.
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link METAR} POJO is type SPECI ({@link METAR#isSpecial() == true}).
      */
-    public static final ConversionSpecification<String, SPECI> TAC_TO_SPECI_POJO = new ConversionSpecification<>(String.class, SPECI.class, "ICAO Annex 3 TAC",
-            null);
+    public static final ConversionSpecification<String, METAR> TAC_TO_SPECI_POJO = new ConversionSpecification<>(String.class, METAR.class, "ICAO Annex 3 TAC",
+            "SPECI");
 
     /**
-     * Pre-configured spec for {@link SPECI} to ICAO Annex 3 TAC String.
+     * Pre-configured spec for {@link METAR} of type SPECI ({@link METAR#isSpecial() == true}) to ICAO Annex 3 TAC String.
      */
-    public static final ConversionSpecification<SPECI, String> SPECI_POJO_TO_TAC = new ConversionSpecification<>(SPECI.class, String.class, null,
+    public static final ConversionSpecification<METAR, String> SPECI_POJO_TO_TAC = new ConversionSpecification<>(SPECI.class, String.class, "SPECI",
             "ICAO Annex 3 TAC");
 
     /**
@@ -111,8 +106,8 @@ public class TACConverter {
     }
 
     @Bean
-    AviMessageSpecificConverter<String, SPECI> speciTACParser() {
-        TACParser<SPECI> p = new SPECITACParser();
+    AviMessageSpecificConverter<String, METAR> speciTACParser() {
+        TACParser<METAR> p = new SPECITACParser();
         p.setTACLexer(aviMessageLexer());
         return p;
     }
@@ -133,7 +128,7 @@ public class TACConverter {
     }
 
     @Bean
-    AviMessageSpecificConverter<SPECI, String> speciTACSerializer() {
+    AviMessageSpecificConverter<METAR, String> speciTACSerializer() {
         SPECITACSerializer s = new SPECITACSerializer();
         addMetarAndSpeciCommonReconstructors(s);
         s.addReconstructor(Lexeme.Identity.SPECI_START, new SpeciStart.Reconstructor());
@@ -203,7 +198,7 @@ public class TACConverter {
     public AviMessageLexer aviMessageLexer() {
         AviMessageLexerImpl l = new AviMessageLexerImpl();
         l.setLexingFactory(lexingFactory());
-        l.addTokenLexer("METARImpl", metarTokenLexer());
+        l.addTokenLexer("METAR", metarTokenLexer());
         l.addTokenLexer("SPECI", speciTokenLexer());
         l.addTokenLexer("TAF", tafTokenLexer());
         return l;

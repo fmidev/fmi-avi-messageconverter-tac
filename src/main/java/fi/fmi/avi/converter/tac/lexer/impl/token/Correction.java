@@ -11,7 +11,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.taf.TAF;
 
 /**
@@ -36,7 +35,7 @@ public class Correction extends PrioritizedLexemeVisitor {
         public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
                 final Object... specifier) {
 
-            if (METARImpl.class.isAssignableFrom(clz)) {
+            if (METAR.class.isAssignableFrom(clz)) {
                 if (AviationCodeListUser.MetarStatus.CORRECTION == ((METAR) msg).getStatus()) {
                     return Optional.of(this.createLexeme("COR", CORRECTION));
                 }

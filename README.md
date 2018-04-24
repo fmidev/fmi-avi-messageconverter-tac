@@ -47,7 +47,7 @@ import org.springframework.context.annotation.Import;
 
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
-import fi.fmi.avi.model.metar.impl.METARImpl;
+import fi.fmi.avi.model.metar.impl.METAR;
 import fi.fmi.avi.model.taf.TAF;
 
 @Configuration
@@ -87,9 +87,9 @@ See [fmi-avi-messageconverter](https://github.com/fmidev/fmi-avi-messageconverte
 
 Identifier                                                          | Input                             | Output
 --------------------------------------------------------------------|-----------------------------------|-------
-fi.fmi.avi.converter.tac.TACConverter.TAC_TO_METAR_POJO | TAC-encoded METAR String | instance of fi.fmi.avi.model.metar.impl.METARImpl
+fi.fmi.avi.converter.tac.TACConverter.TAC_TO_METAR_POJO | TAC-encoded METAR String | instance of fi.fmi.avi.model.metar.impl.METAR
 fi.fmi.avi.converter.tac.TACConverter.TAC_TO_TAF_POJO | TAC-encoded TAF String | instance of fi.fmi.avi.model.taf.TAF
-fi.fmi.avi.converter.tac.TACConverter.METAR_POJO_TO_TAC | instance of fi.fmi.avi.model.metar.impl.METARImpl | TAC-encoded METAR String
+fi.fmi.avi.converter.tac.TACConverter.METAR_POJO_TO_TAC | instance of fi.fmi.avi.model.metar.impl.METAR | TAC-encoded METAR String
 fi.fmi.avi.converter.tac.TACConverter.TAF_POJO_TO_TAC | instance of fi.fmi.avi.model.taf.TAF | TAC-encoded TAF String
 
 METAR an TAF are supported but it's expected that the SPECI, SIGMET and AIRMET support will be added as the project becomes more mature.

@@ -15,7 +15,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.taf.TAF;
 
 /**
@@ -279,7 +278,7 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
                 final Object... specifier) {
-            if (METARImpl.class.isAssignableFrom(clz)) {
+            if (METAR.class.isAssignableFrom(clz)) {
                 METAR m = (METAR) msg;
                 if (m.getAerodrome() != null) {
                     return Optional.of(this.createLexeme(m.getAerodrome().getDesignator(), AERODROME_DESIGNATOR));

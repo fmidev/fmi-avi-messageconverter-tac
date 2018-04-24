@@ -165,28 +165,6 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
         return retval;
     }
 
-    protected static List<ConversionIssue> updateIssueTime(final AviationWeatherMessage msg, final LexemeSequence lexed, final Lexeme.Identity[] before,
-            final ConversionHints hints) {
-        List<ConversionIssue> retval = new ArrayList<>();
-        findNext(Identity.ISSUE_TIME, lexed.getFirstLexeme(), (match) -> {
-            ConversionIssue issue = checkBeforeAnyOf(match, before);
-            if (issue != null) {
-                retval.add(issue);
-            } else {
-                Integer day = match.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-                Integer minute = match.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-                Integer hour = match.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-                if (day != null && minute != null && hour != null) {
-                    msg.setPartialIssueTime(day, hour, minute);
-                } else {
-                    retval.add(
-                            new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing at least some of the issue time components in " + lexed.getTAC()));
-                }
-            }
-        }, () -> retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing at least some of the issue time components in " + lexed.getTAC())));
-        return retval;
-    }
-
     protected static List<ConversionIssue> appendWeatherCodes(final Lexeme source, List<fi.fmi.avi.model.Weather> target, Lexeme.Identity[] before, final ConversionHints hints) {
         Lexeme l = source;
         final List<ConversionIssue> issues = new ArrayList<>();

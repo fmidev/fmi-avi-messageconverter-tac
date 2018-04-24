@@ -16,7 +16,6 @@ import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR20Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -27,14 +26,12 @@ public class METAR20Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public String getMessage() {
-		return "METARImpl EFTU 011350Z VRB02KT CAVOK " + "22/12 Q1008 " +
-				"15R//////=";
+        return "METAR EFTU 011350Z VRB02KT CAVOK " + "22/12 Q1008 " + "15R//////=";
 	}
 	
 	@Override
 	public String getCanonicalMessage() {
-		return "METARImpl EFTU 011350Z VRB02KT CAVOK " + "22/12 Q1008 " +
-				"65//////=";
+        return "METAR EFTU 011350Z VRB02KT CAVOK " + "22/12 Q1008 " + "65//////=";
 	}
 	
 	@Override
@@ -69,7 +66,7 @@ public class METAR20Test extends AbstractAviMessageTest<String, METAR> {
 
     @Override
     public Class<? extends METAR> getTokenizerImplmentationClass() {
-        return METARImpl.class;
+        return METAR.class;
     }
 
 }
