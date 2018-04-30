@@ -6,7 +6,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -87,12 +90,18 @@ public class ValidTimeReconstructorTest {
 	}
 
 	private void injectValidity(TAF msg, int startDay, int startHour, int endDay, int endHour) {
-		when(msg.getValidityStartDayOfMonth()).thenReturn(startDay);
-		when(msg.getValidityStartHour()).thenReturn(startHour);
-		
-		when(msg.getValidityEndDayOfMonth()).thenReturn(endDay);
-		when(msg.getValidityEndHour()).thenReturn(endHour);
-		when(msg.getPartialValidityTimePeriod()).thenReturn(String.format("%02d%02d/%02d%02d", startDay, startHour, endDay, endHour));
+		Optional<PartialOrCompleteTimePeriod> p = Optional.of(new PartialOrCompleteTimePeriod.Builder()
+				.setStartTime(new PartialOrCompleteTimeInstant.Builder()
+						.setPartialTime(String.format("%02d%02d", startDay, startHour))
+						.setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+						.build())
+				.setEndTime(new PartialOrCompleteTimeInstant.Builder()
+						.setPartialTime(String.format("%02d%02d", endDay, endHour))
+						.setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+						.build())
+				.build());
+
+		when(msg.getValidityTime()).thenReturn(p);
 	}
 
 	private void assertOneLexeme(List<Lexeme> lexemes, Identity identity, String token) {

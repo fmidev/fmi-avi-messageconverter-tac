@@ -1,4 +1,5 @@
 package fi.fmi.avi.converter.tac;
+import fi.fmi.avi.model.metar.SPECI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

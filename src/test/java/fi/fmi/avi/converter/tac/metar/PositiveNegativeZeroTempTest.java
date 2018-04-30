@@ -25,12 +25,12 @@ public class PositiveNegativeZeroTempTest {
     
     @Test
     public void testZeroValueRemainsNegative() {
-        ConversionResult<METAR> result = this.converter.convertMessage("ImmutableMETAR EFHK 111111Z 15008KT CAVOK M00/M00 Q1023=",
+        ConversionResult<METAR> result = this.converter.convertMessage("METAR EFHK 111111Z 15008KT CAVOK M00/M00 Q1023=",
                 TACConverter.TAC_TO_METAR_POJO);
         assertTrue(ConversionResult.Status.SUCCESS == result.getStatus());
         METAR m = result.getConvertedMessage();
-        assertTrue(1.0d/m.getDewpointTemperature().getValue() == Double.NEGATIVE_INFINITY);
-        assertTrue(1.0d/m.getAirTemperature().getValue() == Double.NEGATIVE_INFINITY);
+        assertTrue(1.0d/m.getDewpointTemperature().get().getValue() == Double.NEGATIVE_INFINITY);
+        assertTrue(1.0d/m.getAirTemperature().get().getValue() == Double.NEGATIVE_INFINITY);
         ConversionResult<String> result2 = this.converter.convertMessage(m, TACConverter.METAR_POJO_TO_TAC);
         assertTrue(ConversionResult.Status.SUCCESS == result2.getStatus());
         assertTrue(result2.getConvertedMessage().contains("M00/M00"));
@@ -39,12 +39,12 @@ public class PositiveNegativeZeroTempTest {
     
     @Test
     public void testZeroValueRemainsPositive() {
-        ConversionResult<METAR> result = this.converter.convertMessage("ImmutableMETAR EFHK 111111Z 15008KT CAVOK 00/00 Q1023=",
+        ConversionResult<METAR> result = this.converter.convertMessage("METAR EFHK 111111Z 15008KT CAVOK 00/00 Q1023=",
                 TACConverter.TAC_TO_METAR_POJO);
         assertTrue(ConversionResult.Status.SUCCESS == result.getStatus());
         METAR m = result.getConvertedMessage();
-        assertTrue(1.0d/m.getDewpointTemperature().getValue() == Double.POSITIVE_INFINITY);
-        assertTrue(1.0d/m.getAirTemperature().getValue() == Double.POSITIVE_INFINITY);
+        assertTrue(1.0d/m.getDewpointTemperature().get().getValue() == Double.POSITIVE_INFINITY);
+        assertTrue(1.0d/m.getAirTemperature().get().getValue() == Double.POSITIVE_INFINITY);
         ConversionResult<String> result2 = this.converter.convertMessage(m, TACConverter.METAR_POJO_TO_TAC);
         assertTrue(ConversionResult.Status.SUCCESS == result2.getStatus());
         assertTrue(result2.getConvertedMessage().contains("00/00"));

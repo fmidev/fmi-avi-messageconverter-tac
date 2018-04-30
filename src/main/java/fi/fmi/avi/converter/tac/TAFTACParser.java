@@ -5,6 +5,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -19,9 +20,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
-import fi.fmi.avi.model.Aerodrome;
-import fi.fmi.avi.model.AviationCodeListUser;
-import fi.fmi.avi.model.CloudForecast;
+import fi.fmi.avi.model.*;
+import fi.fmi.avi.model.immutable.AerodromeImpl;
 import fi.fmi.avi.model.immutable.CloudForecastImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.taf.TAF;
@@ -29,11 +29,8 @@ import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 import fi.fmi.avi.model.taf.TAFSurfaceWind;
-import fi.fmi.avi.model.taf.impl.TAFAirTemperatureForecastImpl;
-import fi.fmi.avi.model.taf.impl.TAFBaseForecastImpl;
-import fi.fmi.avi.model.taf.impl.TAFChangeForecastImpl;
-import fi.fmi.avi.model.taf.impl.TAFImpl;
-import fi.fmi.avi.model.taf.impl.TAFSurfaceWindImpl;
+import fi.fmi.avi.model.taf.immutable.*;
+
 
 /**
  *
@@ -73,149 +70,158 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             return result;
         }
 
-        if (endsInEndToken(lexed, hints)) {
-            result.addIssue(checkZeroOrOne(lexed, zeroOrOneAllowed));
-            TAF taf = new TAFImpl();
-            result.setConvertedMessage(taf);
-
-            if (lexed.getTAC() != null) {
-                taf.setTranslatedTAC(lexed.getTAC());
-                taf.setTranslationTime(ZonedDateTime.now());
-            }
-
-            //Split & filter in the sequences starting with FORECAST_CHANGE_INDICATOR:
-            List<LexemeSequence> subSequences = lexed.splitBy(Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START);
-
-            findNext(Identity.CORRECTION, lexed.getFirstLexeme(), (match) -> {
-                Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION,
-                        Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE,
-                        Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-                ConversionIssue issue = checkBeforeAnyOf(match, before);
-                if (issue != null) {
-                    result.addIssue(issue);
-                } else {
-                    taf.setStatus(AviationCodeListUser.TAFStatus.CORRECTION);
-                }
-            });
-
-            findNext(Identity.AMENDMENT, lexed.getFirstLexeme(), (match) -> {
-                Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION,
-                        Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE,
-                        Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-                ConversionIssue issue = checkBeforeAnyOf(match, before);
-                if (issue != null) {
-                    result.addIssue(issue);
-                } else {
-                    TAF.TAFStatus status = taf.getStatus();
-                    if (status != null) {
-                        result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
-                                "TAF cannot be both " + TAF.TAFStatus.AMENDMENT + " and " + status + " at " + "the same time"));
-                    } else {
-                        taf.setStatus(AviationCodeListUser.TAFStatus.AMENDMENT);
-                    }
-                }
-            });
-
-            if (taf.getStatus() == null) {
-                taf.setStatus(AviationCodeListUser.TAFStatus.NORMAL);
-            }
-
-            findNext(Identity.AERODROME_DESIGNATOR, lexed.getFirstLexeme(), (match) -> {
-                Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION, Identity.SURFACE_WIND,
-                        Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE,
-                        Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-                ConversionIssue issue = checkBeforeAnyOf(match, before);
-                if (issue != null) {
-                    result.addIssue(issue);
-                } else {
-                    Aerodrome ad = new Aerodrome(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
-                    taf.setAerodrome(ad);
-                }
-            }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Aerodrome designator not given in " + input)));
-
-            result.addIssue(updateTAFIssueTime(taf, lexed, hints));
-
-            findNext(Identity.NIL, lexed.getFirstLexeme(), (match) -> {
-                Identity[] before = new Identity[] { Identity.VALID_TIME, Identity.CANCELLATION, Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY,
-                        Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE,
-                        Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-                ConversionIssue issue = checkBeforeAnyOf(match, before);
-                if (issue != null) {
-                    result.addIssue(issue);
-                } else {
-                    taf.setStatus(AviationCodeListUser.TAFStatus.MISSING);
-                    if (match.getNext() != null) {
-                        Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
-                        if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
-                            result.addIssue(
-                                    new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Missing TAF message contains extra tokens after NIL: " + input));
-                        }
-                    }
-                }
-            });
-
-            for (int i = 1; i < subSequences.size(); i++) {
-                LexemeSequence seq = subSequences.get(i);
-                if (Identity.REMARKS_START == seq.getFirstLexeme().getIdentity()) {
-                    updateRemarks(result, seq.getFirstLexeme(), hints);
-                }
-            }
-
-            //End processing here if NIL:
-            if (AviationCodeListUser.TAFStatus.MISSING == taf.getStatus()) {
-                return result;
-            }
-
-            result.addIssue(updateTAFValidTime(taf, lexed, hints));
-
-            findNext(Identity.CANCELLATION, lexed.getFirstLexeme(), (match) -> {
-                Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK,
-                        Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
-                ConversionIssue issue = checkBeforeAnyOf(match, before);
-                if (issue != null) {
-                    result.addIssue(issue);
-                } else {
-                    taf.setStatus(AviationCodeListUser.TAFStatus.CANCELLATION);
-                    if (match.getNext() != null) {
-                        Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
-                        if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
-                            result.addIssue(
-                                    new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Cancelled TAF message contains extra tokens after CNL: " + input));
-                        }
-                    }
-                }
-            });
-
-            //End processing here if CNL:
-            if (AviationCodeListUser.TAFStatus.CANCELLATION == taf.getStatus()) {
-                return result;
-            }
-
-            //Should always return at least one as long as lexed is not empty, the first one is the base forecast:
-            result.addIssue(updateBaseForecast(taf, subSequences.get(0).getFirstLexeme(), hints));
-            for (int i = 1; i < subSequences.size(); i++) {
-                LexemeSequence seq = subSequences.get(i);
-                if (Identity.TAF_FORECAST_CHANGE_INDICATOR == seq.getFirstLexeme().getIdentity()) {
-                    result.addIssue(updateChangeForecast(taf, subSequences.get(i).getFirstLexeme(), hints));
-                }
-            }
-
-        } else {
+        if (!endsInEndToken(lexed, hints)) {
             result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Message does not end in end token"));
+            return result;
         }
+        List<ConversionIssue> issues = checkZeroOrOne(lexed, zeroOrOneAllowed);
+        if (!issues.isEmpty()) {
+            result.addIssue(issues);
+            return result;
+        }
+        TAFImpl.Builder builder = new TAFImpl.Builder();
+
+        if (lexed.getTAC() != null) {
+            builder.setTranslatedTAC(lexed.getTAC());
+        }
+
+        withTimeForTranslation(hints, builder::setTranslationTime);
+
+        //Split & filter in the sequences starting with FORECAST_CHANGE_INDICATOR:
+        List<LexemeSequence> subSequences = lexed.splitBy(Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START);
+
+        findNext(Identity.CORRECTION, lexed.getFirstLexeme(), (match) -> {
+            Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION,
+                    Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE,
+                    Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setStatus(AviationCodeListUser.TAFStatus.CORRECTION);
+            }
+        });
+
+        findNext(Identity.AMENDMENT, lexed.getFirstLexeme(), (match) -> {
+            Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION,
+                    Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE,
+                    Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                TAF.TAFStatus status = builder.getStatus();
+                if (status != null) {
+                    result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
+                            "TAF cannot be both " + TAF.TAFStatus.AMENDMENT + " and " + status + " at " + "the same time"));
+                } else {
+                    builder.setStatus(AviationCodeListUser.TAFStatus.AMENDMENT);
+                }
+            }
+        });
+
+        if (builder.getStatus() == null) {
+            builder.setStatus(AviationCodeListUser.TAFStatus.NORMAL);
+        }
+
+        findNext(Identity.AERODROME_DESIGNATOR, lexed.getFirstLexeme(), (match) -> {
+            Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION, Identity.SURFACE_WIND,
+                    Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE,
+                    Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setAerodrome(new AerodromeImpl.Builder()
+                        .setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class))
+                        .build());
+            }
+        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Aerodrome designator not given in " + input)));
+
+        result.addIssue(setTAFIssueTime(builder, lexed, hints));
+
+        findNext(Identity.NIL, lexed.getFirstLexeme(), (match) -> {
+            Identity[] before = new Identity[] { Identity.VALID_TIME, Identity.CANCELLATION, Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY,
+                    Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE,
+                    Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setStatus(AviationCodeListUser.TAFStatus.MISSING);
+                if (match.getNext() != null) {
+                    Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
+                    if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
+                        result.addIssue(
+                                new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Missing TAF message contains extra tokens after NIL: " + input));
+                    }
+                }
+            }
+        });
+
+        for (int i = 1; i < subSequences.size(); i++) {
+            LexemeSequence seq = subSequences.get(i);
+            if (Identity.REMARKS_START == seq.getFirstLexeme().getIdentity()) {
+                List<String> remarks = getRemarks(seq.getFirstLexeme(), hints);
+                if (!remarks.isEmpty()) {
+                    builder.setRemarks(remarks);
+                }
+            }
+        }
+
+        //End processing here if NIL:
+        if (AviationCodeListUser.TAFStatus.MISSING == builder.getStatus()) {
+            return result;
+        }
+
+        result.addIssue(setTAFValidTime(builder, lexed, hints));
+
+        findNext(Identity.CANCELLATION, lexed.getFirstLexeme(), (match) -> {
+            Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.CAVOK,
+                    Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setStatus(AviationCodeListUser.TAFStatus.CANCELLATION);
+                if (match.getNext() != null) {
+                    Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
+                    if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
+                        result.addIssue(
+                                new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Cancelled TAF message contains extra tokens after CNL: " + input));
+                    }
+                }
+            }
+        });
+
+        //End processing here if CNL:
+        if (AviationCodeListUser.TAFStatus.CANCELLATION == builder.getStatus()) {
+            return result;
+        }
+
+        //Should always return at least one as long as lexed is not empty, the first one is the base forecast:
+        result.addIssue(setBaseForecast(builder, subSequences.get(0).getFirstLexeme(), hints));
+        for (int i = 1; i < subSequences.size(); i++) {
+            LexemeSequence seq = subSequences.get(i);
+            if (Identity.TAF_FORECAST_CHANGE_INDICATOR == seq.getFirstLexeme().getIdentity()) {
+                result.addIssue(addChangeForecast(builder, subSequences.get(i).getFirstLexeme(), hints));
+            }
+        }
+
+        result.setConvertedMessage(builder.build());
         return result;
     }
 
-    private List<ConversionIssue> updateTAFIssueTime(final TAF fct, final LexemeSequence lexed, final ConversionHints hints) {
+    private List<ConversionIssue> setTAFIssueTime(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
         List<ConversionIssue> retval = new ArrayList<>();
         Identity[] before = new Identity[] { Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION, Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY,
                 Identity.WEATHER, Identity.CLOUD, Identity.CAVOK, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE, Identity.TAF_FORECAST_CHANGE_INDICATOR,
                 Identity.REMARKS_START };
-        retval.addAll(updateIssueTime(fct, lexed, before, hints));
+        retval.addAll(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
         return retval;
     }
 
-    private List<ConversionIssue> updateTAFValidTime(final TAF fct, final LexemeSequence lexed, final ConversionHints hints) {
+    private List<ConversionIssue> setTAFValidTime(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
         List<ConversionIssue> result = new ArrayList<>();
         findNext(Identity.VALID_TIME, lexed.getFirstLexeme(), (match) -> {
             Identity[] before = new Identity[] { Identity.CANCELLATION, Identity.SURFACE_WIND, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD,
@@ -230,9 +236,27 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                 Integer endHour = match.getParsedValue(Lexeme.ParsedValueName.HOUR2, Integer.class);
                 if (startDay != null && startHour != null && endHour != null) {
                     if (endDay != null) {
-                        fct.setPartialValidityTimePeriod(startDay, endDay, startHour, endHour);
+                        builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
+                                .setStartTime(new PartialOrCompleteTimeInstant.Builder()
+                                        .setPartialTime(String.format("%02d%02d", startDay, startHour))
+                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                        .build())
+                                .setEndTime(new PartialOrCompleteTimeInstant.Builder()
+                                        .setPartialTime(String.format("%02d%02d", endDay, endHour))
+                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                        .build())
+                                .build());
                     } else {
-                        fct.setPartialValidityTimePeriod(startDay, startHour, endHour);
+                        builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
+                                .setStartTime(new PartialOrCompleteTimeInstant.Builder()
+                                        .setPartialTime(String.format("%02d%02d", startDay, startHour))
+                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                        .build())
+                                .setEndTime(new PartialOrCompleteTimeInstant.Builder()
+                                        .setPartialTime(String.format("%02d%02d", startDay, endHour))
+                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                        .build())
+                                .build());
                     }
                 } else {
                     result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
@@ -243,14 +267,17 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         return result;
     }
 
-    private List<ConversionIssue> updateBaseForecast(final TAF fct, final Lexeme baseFctToken, final ConversionHints hints) {
+    private List<ConversionIssue> setBaseForecast(final TAFImpl.Builder builder, final Lexeme baseFctToken, final ConversionHints hints) {
         List<ConversionIssue> result = new ArrayList<>();
-        TAFBaseForecast baseFct = new TAFBaseForecastImpl();
+        TAFBaseForecastImpl.Builder baseFct = new TAFBaseForecastImpl.Builder();
 
-        result.addAll(updateForecastSurfaceWind(baseFct, baseFctToken,
+        result.addAll(withForecastSurfaceWind(baseFctToken,
                 new Identity[] { Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.MIN_TEMPERATURE,
-                        Identity.MAX_TEMPERATURE }, hints));
-
+                        Identity.MAX_TEMPERATURE }, hints, baseFct::setSurfaceWind));
+        if (baseFct.getSurfaceWind() == null) {
+            result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Surface wind is missing from TAF base forecast"));
+            return result;
+        }
         findNext(Identity.CAVOK, baseFctToken, (match) -> {
             Identity[] before = new Identity[] { Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.MIN_TEMPERATURE,
                     Identity.MAX_TEMPERATURE };
@@ -262,22 +289,35 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             }
         });
 
-        result.addAll(
-                updateVisibility(baseFct, baseFctToken, new Identity[] { Identity.WEATHER, Identity.CLOUD, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE },
-                        hints));
+        result.addAll(withVisibility(baseFctToken, new Identity[] { Identity.WEATHER, Identity.CLOUD, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE },
+                        hints, (measureAndOperator) -> {
+                            baseFct.setPrevailingVisibility(measureAndOperator.getMeasure());
+                            if (measureAndOperator.getOperator() != null) {
+                                baseFct.setPrevailingVisibilityOperator(measureAndOperator.getOperator());
+                            }
+                        }));
+        if (baseFct.getPrevailingVisibility() == null) {
 
+        }
+        /*
+        if (fct instanceof TAFBaseForecast) {
+            if (!fct.isCeilingAndVisibilityOk()) {
+                result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Visibility or CAVOK is missing from TAF base forecast"));
+            }
+        }
+        */
         result.addAll(updateWeather(baseFct, baseFctToken, new Identity[] { Identity.CLOUD, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE }, hints));
 
         result.addAll(updateClouds(baseFct, baseFctToken, new Identity[] { Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE }, hints));
         result.addAll(updateTemperatures(baseFct, baseFctToken, hints));
-        fct.setBaseForecast(baseFct);
+        builder.setBaseForecast(baseFct.build());
         return result;
     }
 
-    private List<ConversionIssue> updateTemperatures(final TAFBaseForecast baseFct, final Lexeme from, final ConversionHints hints) {
+    private List<ConversionIssue> updateTemperatures(final TAFBaseForecastImpl.Builder builder, final Lexeme from, final ConversionHints hints) {
         List<ConversionIssue> result = new ArrayList<>();
         List<TAFAirTemperatureForecast> temps = new ArrayList<>();
-        TAFAirTemperatureForecast airTemperatureForecast;
+        TAFAirTemperatureForecastImpl.Builder airTemperatureForecast;
 
         //Find a pair of max & min temperatures:
         Lexeme maxTempToken = findNext(Identity.MAX_TEMPERATURE, from);
@@ -290,20 +330,23 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             } else {
                 minTempToken = findNext(Identity.MIN_TEMPERATURE, maxTempToken);
                 if (minTempToken != null) {
-                    airTemperatureForecast = new TAFAirTemperatureForecastImpl();
+                    airTemperatureForecast = new TAFAirTemperatureForecastImpl.Builder();
                     Integer day = minTempToken.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
                     Integer hour = minTempToken.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
                     Double value = minTempToken.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class);
 
                     if (day != null && hour != null) {
-                        airTemperatureForecast.setPartialMinTemperatureTime(day, hour);
+                        airTemperatureForecast.setMinTemperatureTime(new PartialOrCompleteTimeInstant.Builder()
+                                .setPartialTime(String.format("%02d%02d", day, hour))
+                                .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                .build());
                     } else {
                         result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
                                 "Missing day of month and/or hour of day for min forecast temperature: " + minTempToken.getTACToken()));
                     }
 
                     if (value != null) {
-                        airTemperatureForecast.setMinTemperature(new NumericMeasureImpl(value, "degC"));
+                        airTemperatureForecast.setMinTemperature(NumericMeasureImpl.of(value, "degC"));
                     } else {
                         result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
                                 "Missing value for min forecast temperature: " + minTempToken.getTACToken()));
@@ -314,19 +357,22 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                     value = maxTempToken.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class);
 
                     if (day != null && hour != null) {
-                        airTemperatureForecast.setPartialMaxTemperatureTime(day, hour);
+                        airTemperatureForecast.setMaxTemperatureTime(new PartialOrCompleteTimeInstant.Builder()
+                                .setPartialTime(String.format("%02d%02d", day, hour))
+                                .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                .build());
                     } else {
                         result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
                                 "Missing day of month and/or hour of day for max forecast temperature: " + maxTempToken.getTACToken()));
                     }
 
                     if (value != null) {
-                        airTemperatureForecast.setMaxTemperature(new NumericMeasureImpl(value, "degC"));
+                        airTemperatureForecast.setMaxTemperature(NumericMeasureImpl.of(value, "degC"));
                     } else {
                         result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
                                 "Missing value for max forecast temperature: " + maxTempToken.getTACToken()));
                     }
-                    temps.add(airTemperatureForecast);
+                    temps.add(airTemperatureForecast.build());
 
                 } else {
                     result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
@@ -336,22 +382,23 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             maxTempToken = findNext(Identity.MAX_TEMPERATURE, maxTempToken);
         }
         if (!temps.isEmpty()) {
-            baseFct.setTemperatures(temps);
+            builder.setTemperatures(temps);
         }
         return result;
     }
 
-    private List<ConversionIssue> updateChangeForecast(final TAF fct, final Lexeme changeFctToken, final ConversionHints hints) {
+    private List<ConversionIssue> addChangeForecast(final TAFImpl.Builder builder, final Lexeme changeFctToken, final ConversionHints hints) {
         List<ConversionIssue> result = new ArrayList<>();
         ConversionIssue issue = checkBeforeAnyOf(changeFctToken, new Identity[] { Identity.REMARKS_START });
         if (issue != null) {
             result.add(issue);
             return result;
         }
-        List<TAFChangeForecast> changeForecasts = fct.getChangeForecasts();
-        if (changeForecasts == null) {
+        List<TAFChangeForecast> changeForecasts;
+        if (builder.getChangeForecasts().isPresent()) {
+            changeForecasts = builder.getChangeForecasts().get();
+        } else {
             changeForecasts = new ArrayList<>();
-            fct.setChangeForecasts(changeForecasts);
         }
 
         //PROB30 [TEMPO] or PROB40 [TEMPO] or BECMG or TEMPO or FM
@@ -360,7 +407,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         if (changeFctToken.hasNext()) {
             Lexeme next = changeFctToken.getNext();
             if (Identity.REMARKS_START != next.getIdentityIfAcceptable() && Identity.END_TOKEN != next.getIdentityIfAcceptable()) {
-                TAFChangeForecast changeFct = new TAFChangeForecastImpl();
+                TAFChangeForecastImpl.Builder changeFct = new TAFChangeForecastImpl.Builder();
                 switch (type) {
                     case TEMPORARY_FLUCTUATIONS:
                         changeFct.setChangeIndicator(AviationCodeListUser.TAFChangeIndicator.TEMPORARY_FLUCTUATIONS);
@@ -377,9 +424,19 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                         Integer minute = changeFctToken.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
                         if (hour != null && minute != null) {
                             if (day != null) {
-                                changeFct.setPartialValidityStartTime(day, hour, minute);
+                                changeFct.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
+                                        .setStartTime(new PartialOrCompleteTimeInstant.Builder()
+                                                .setPartialTime(String.format("%02d%02d%02d", day, hour, minute))
+                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_MINUTE_TZ_PATTERN)
+                                                .build())
+                                        .build());
                             } else {
-                                changeFct.setPartialValidityStartTime(-1, hour, minute);
+                                changeFct.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
+                                        .setStartTime(new PartialOrCompleteTimeInstant.Builder()
+                                                .setPartialTime(String.format("%02d%02d", hour, minute))
+                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.HOUR_MINUTE_PATTERN)
+                                                .build())
+                                        .build());
                             }
                         } else {
                             result.add(
@@ -407,7 +464,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                         result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Unknown change group " + type));
                         break;
                 }
-                changeForecasts.add(changeFct);
+                changeForecasts.add(changeFct.build());
             } else {
                 result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing change group content"));
             }
@@ -417,7 +474,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         return result;
     }
 
-    private List<ConversionIssue> updateChangeForecastContents(final TAFChangeForecast fct, final TAFForecastChangeIndicator.ForecastChangeIndicatorType type,
+    private List<ConversionIssue> updateChangeForecastContents(final TAFChangeForecastImpl.Builder builder, final TAFForecastChangeIndicator.ForecastChangeIndicatorType type,
             final Lexeme from, final ConversionHints hints) {
         List<ConversionIssue> result = new ArrayList<>();
 
@@ -437,9 +494,27 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                     Integer endHour = timeGroup.getParsedValue(Lexeme.ParsedValueName.HOUR2, Integer.class);
                     if (startHour != null && endHour != null) {
                         if (startDay != null && endDay != null) {
-                            fct.setPartialValidityTimePeriod(startDay, endDay, startHour, endHour);
+                            builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
+                                    .setStartTime(new PartialOrCompleteTimeInstant.Builder()
+                                            .setPartialTime(String.format("%02d%02d", startDay, startHour))
+                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                            .build())
+                                    .setEndTime(new PartialOrCompleteTimeInstant.Builder()
+                                            .setPartialTime(String.format("%02d%02d", endDay, endHour))
+                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                            .build())
+                                    .build());
                         } else {
-                            fct.setPartialValidityTimePeriod(startHour, endHour);
+                            builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
+                                    .setStartTime(new PartialOrCompleteTimeInstant.Builder()
+                                            .setPartialTime(String.format("%02d", startHour))
+                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.HOUR_PATTERN)
+                                            .build())
+                                    .setEndTime(new PartialOrCompleteTimeInstant.Builder()
+                                            .setPartialTime(String.format("%02d", endHour))
+                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.HOUR_PATTERN)
+                                            .build())
+                                    .build());
                         }
                     } else {
                         result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
@@ -451,8 +526,8 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             }
         }
 
-        result.addAll(updateForecastSurfaceWind(fct, from, new Identity[] { Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD },
-                hints));
+        result.addAll(withForecastSurfaceWind(from, new Identity[] { Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD },
+                hints, builder::setSurfaceWind));
 
         findNext(Identity.CAVOK, from, (match) -> {
             Identity[] before = new Identity[] { Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.NO_SIGNIFICANT_WEATHER, Identity.CLOUD };
@@ -460,7 +535,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             if (issue != null) {
                 result.add(issue);
             } else {
-                fct.setCeilingAndVisibilityOk(true);
+                builder.setCeilingAndVisibilityOk(true);
             }
         });
         result.addAll(updateVisibility(fct, from, new Identity[] { Identity.WEATHER, Identity.NO_SIGNIFICANT_WEATHER, Identity.CLOUD }, hints));
@@ -484,14 +559,14 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         return result;
     }
 
-    private List<ConversionIssue> updateForecastSurfaceWind(final TAFForecast fct, final Lexeme from, final Identity[] before, final ConversionHints hints) {
+    private List<ConversionIssue> withForecastSurfaceWind(final Lexeme from, final Identity[] before, final ConversionHints hints, final Consumer<TAFSurfaceWind> consumer) {
         List<ConversionIssue> result = new ArrayList<>();
         findNext(Identity.SURFACE_WIND, from, (match) -> {
             ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.add(issue);
             } else {
-                TAFSurfaceWind wind = new TAFSurfaceWindImpl();
+                TAFSurfaceWindImpl.Builder wind = new TAFSurfaceWindImpl.Builder();
                 Object direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION, Object.class);
                 Integer meanSpeed = match.getParsedValue(Lexeme.ParsedValueName.MEAN_VALUE, Integer.class);
                 Integer gustSpeed = match.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
@@ -500,37 +575,34 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                 if (direction == SurfaceWind.WindDirection.VARIABLE) {
                     wind.setVariableDirection(true);
                 } else if (direction instanceof Integer) {
-                    wind.setMeanWindDirection(new NumericMeasureImpl((Integer) direction, "deg"));
+                    wind.setMeanWindDirection(NumericMeasureImpl.of((Integer) direction, "deg"));
                 } else {
                     result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Surface wind direction is missing: " + match.getTACToken()));
                 }
 
                 if (meanSpeed != null) {
-                    wind.setMeanWindSpeed(new NumericMeasureImpl(meanSpeed, unit));
+                    wind.setMeanWindSpeed(NumericMeasureImpl.of(meanSpeed, unit));
                 } else {
                     result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Surface wind mean speed is missing: " + match.getTACToken()));
                 }
 
                 if (gustSpeed != null) {
-                    wind.setWindGust(new NumericMeasureImpl(gustSpeed, unit));
+                    wind.setWindGust(NumericMeasureImpl.of(gustSpeed, unit));
                 }
-                fct.setSurfaceWind(wind);
-            }
-        }, () -> {
-            if (fct instanceof TAFBaseForecast) {
-                result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Surface wind is missing from TAF base forecast"));
+                consumer.accept(wind.build());
             }
         });
         return result;
     }
 
-    private List<ConversionIssue> updateVisibility(final TAFForecast fct, final Lexeme from, final Identity[] before, final ConversionHints hints) {
+    private List<ConversionIssue> withVisibility(final Lexeme from, final Identity[] before, final ConversionHints hints, final Consumer<MeasureWithOperator> consumer) {
         List<ConversionIssue> result = new ArrayList<>();
         findNext(Identity.HORIZONTAL_VISIBILITY, from, (match) -> {
             ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.add(issue);
             } else {
+                MeasureWithOperator value = new MeasureWithOperator();
                 Double distance = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class);
                 String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
                 RecognizingAviMessageTokenLexer.RelationalOperator distanceOperator = match.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR,
@@ -541,23 +613,18 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                     result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
                             "Directional horizontal visibility not allowed in TAF: " + match.getTACToken()));
                 }
-                if (distance != null && unit != null) {
-                    fct.setPrevailingVisibility(new NumericMeasureImpl(distance, unit));
-                } else {
-                    result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing visibility value or unit: " + match.getTACToken()));
-                }
                 if (distanceOperator != null) {
                     if (RecognizingAviMessageTokenLexer.RelationalOperator.LESS_THAN == distanceOperator) {
-                        fct.setPrevailingVisibilityOperator(AviationCodeListUser.RelationalOperator.BELOW);
+                        value.setOperator(AviationCodeListUser.RelationalOperator.BELOW);
                     } else {
-                        fct.setPrevailingVisibilityOperator(AviationCodeListUser.RelationalOperator.ABOVE);
+                        value.setOperator(AviationCodeListUser.RelationalOperator.ABOVE);
                     }
                 }
-            }
-        }, () -> {
-            if (fct instanceof TAFBaseForecast) {
-                if (!fct.isCeilingAndVisibilityOk()) {
-                    result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Visibility or CAVOK is missing from TAF base forecast"));
+                if (distance != null && unit != null) {
+                    value.setMeasure(NumericMeasureImpl.of(distance, unit));
+                    consumer.accept(value);
+                } else {
+                    result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing visibility value or unit: " + match.getTACToken()));
                 }
             }
         });
@@ -633,6 +700,27 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             }
         });
         return result;
+    }
+
+    private class MeasureWithOperator {
+        private NumericMeasure measure;
+        private AviationCodeListUser.RelationalOperator operator;
+
+        public NumericMeasure getMeasure() {
+            return measure;
+        }
+
+        public AviationCodeListUser.RelationalOperator getOperator() {
+            return operator;
+        }
+
+        public void setMeasure(NumericMeasure measure) {
+            this.measure = measure;
+        }
+
+        public void setOperator(AviationCodeListUser.RelationalOperator operator) {
+            this.operator = operator;
+        }
     }
 
 }

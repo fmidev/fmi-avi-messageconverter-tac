@@ -15,6 +15,7 @@ import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR5Test extends AbstractAviMessageTest<String, METAR> {
 
@@ -53,7 +54,7 @@ public class METAR5Test extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
     public Class<? extends METAR> getTokenizerImplmentationClass() {
-        return METAR.class;
+        return METARImpl.class;
     }
 
 }

@@ -31,7 +31,7 @@ public class MetarStart extends PrioritizedLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
                 final Object... specifier) {
-            if (METAR.class.isAssignableFrom(clz) && !((METAR) msg).isSpecial()) {
+            if (METAR.class.isAssignableFrom(clz)) {
                 return Optional.of(this.createLexeme("METAR", METAR_START));
             } else {
                 return Optional.empty();

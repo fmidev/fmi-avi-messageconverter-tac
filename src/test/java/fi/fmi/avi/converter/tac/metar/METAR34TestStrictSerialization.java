@@ -15,6 +15,7 @@ import static junit.framework.TestCase.assertTrue;
 import java.io.IOException;
 import java.util.List;
 
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 import org.junit.Test;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -100,7 +101,7 @@ public class METAR34TestStrictSerialization extends AbstractAviMessageTest<Strin
 
     @Override
     public Class<? extends METAR> getTokenizerImplmentationClass() {
-        return METAR.class;
+        return METARImpl.class;
     }
 
 }

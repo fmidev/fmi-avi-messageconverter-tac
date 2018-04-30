@@ -59,10 +59,7 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
             for (CloudLayer layer : layers) {
                 Object[] params = new Object[specifier.length + 1];
                 params[0] = layer;
-                for (int i = 0; i < specifier.length; i++) {
-                    params[i + 1] = specifier[i];
-                }
-
+                System.arraycopy(specifier,0,params,1, specifier.length);
                 retval += appendToken(builder, Lexeme.Identity.CLOUD, msg, clz, hints, params);
                 retval += appendWhitespace(builder, ' ', hints);
             }

@@ -19,6 +19,8 @@ import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 
+import java.util.Optional;
+
 /**
  * Serializes TAF POJO to TAC format
  */
@@ -72,8 +74,8 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                 appendWhitespace(retval, ' ', hints);
             }
             if (AviationCodeListUser.TAFStatus.CANCELLATION != input.getStatus()) {
-                TAFBaseForecast baseFct = input.getBaseForecast();
-                if (baseFct == null) {
+                Optional<TAFBaseForecast> baseFct = input.getBaseForecast();
+                if (!baseFct.isPresent()) {
                     throw new SerializingException("Missing base forecast");
                 }
                 if (appendToken(retval, Identity.SURFACE_WIND, input, TAF.class, hints, baseFct) > 0) {
@@ -85,31 +87,27 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                 if (appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, TAF.class, hints, baseFct) > 0) {
                     appendWhitespace(retval, ' ', hints);
                 }
-                if (baseFct.getForecastWeather() != null) {
-                    for (Weather weather : baseFct.getForecastWeather()) {
+                if (baseFct.get().getForecastWeather().isPresent()) {
+                    for (Weather weather : baseFct.get().getForecastWeather().get()) {
                         appendToken(retval, Identity.WEATHER, input, TAF.class, hints, baseFct, weather);
                         appendWhitespace(retval, ' ', hints);
                     }
                 }
-                CloudForecast clouds = baseFct.getCloud();
-                if (clouds != null) {
-                    if (clouds.getVerticalVisibility() != null) {
-                        this.appendToken(retval, Lexeme.Identity.CLOUD, input, TAF.class, hints, "VV", baseFct);
-                        appendWhitespace(retval, ' ', hints);
-                    } else {
-                        this.appendCloudLayers(retval, input, TAF.class, clouds.getLayers(), hints, baseFct);
-                    }
+                Optional<CloudForecast> clouds = baseFct.get().getCloud();
+                if (clouds.isPresent()) {
+                    appendClouds(retval, clouds.get(), input, baseFct, hints);
                 }
-                if (baseFct.getTemperatures() != null) {
-                    for (TAFAirTemperatureForecast tempFct : baseFct.getTemperatures()) {
+
+                if (baseFct.get().getTemperatures().isPresent()) {
+                    for (TAFAirTemperatureForecast tempFct : baseFct.get().getTemperatures().get()) {
                         appendToken(retval, Identity.MAX_TEMPERATURE, input, TAF.class, hints, baseFct, tempFct);
                         appendWhitespace(retval, ' ', hints);
                         // No MIN_TEMPERATURE needed as they are produced together
                     }
                 }
 
-                if (input.getChangeForecasts() != null) {
-                    for (TAFChangeForecast changeFct : input.getChangeForecasts()) {
+                if (input.getChangeForecasts().isPresent()) {
+                    for (TAFChangeForecast changeFct : input.getChangeForecasts().get()) {
                         retval.removeLast(); //last whitespace
                         appendWhitespace(retval, '\n', hints);
                         if (appendToken(retval, Identity.TAF_FORECAST_CHANGE_INDICATOR, input, TAF.class, hints, changeFct) > 0) {
@@ -130,27 +128,21 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                         if (appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, TAF.class, hints, changeFct) > 0) {
                             appendWhitespace(retval, ' ', hints);
                         }
-                        if (changeFct.getForecastWeather() != null) {
-                            for (Weather weather : changeFct.getForecastWeather()) {
+                        if (changeFct.getForecastWeather().isPresent()) {
+                            for (Weather weather : changeFct.getForecastWeather().get()) {
                                 appendToken(retval, Identity.WEATHER, input, TAF.class, hints, changeFct, weather);
                                 appendWhitespace(retval, ' ', hints);
                             }
                         }
-                        clouds = changeFct.getCloud();
-                        if (clouds != null) {
-                            if (clouds.getVerticalVisibility() != null) {
-                                this.appendToken(retval, Lexeme.Identity.CLOUD, input, TAF.class, hints, "VV", changeFct);
-                                appendWhitespace(retval, ' ', hints);
-                            } else {
-                                this.appendCloudLayers(retval, input, TAF.class, clouds.getLayers(), hints, changeFct);
-                            }
+                        if (changeFct.getCloud().isPresent()) {
+                            appendClouds(retval, changeFct.getCloud().get(), input, changeFct, hints);
                         }
                     }
                 }
-                if (input.getRemarks() != null && !input.getRemarks().isEmpty()) {
+                if (input.getRemarks().isPresent()) {
                     appendToken(retval, Identity.REMARKS_START, input, TAF.class, hints);
                     appendWhitespace(retval, ' ', hints);
-                    for (String remark : input.getRemarks()) {
+                    for (String remark : input.getRemarks().get()) {
                         this.appendToken(retval, Identity.REMARK, input, TAF.class, hints, remark);
                         appendWhitespace(retval, ' ', hints);
                     }
@@ -163,5 +155,16 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
         retval.removeLast();
         appendToken(retval, Identity.END_TOKEN, input, TAF.class, hints);
         return retval.build();
+    }
+
+    private void appendClouds(final LexemeSequenceBuilder builder, final CloudForecast clouds, final TAF input, final Object specifier, final ConversionHints hints) throws SerializingException {
+        if (clouds != null) {
+            if (clouds.getVerticalVisibility() != null) {
+                this.appendToken(builder, Lexeme.Identity.CLOUD, input, TAF.class, hints, "VV", specifier);
+                appendWhitespace(builder, ' ', hints);
+            } else if (clouds.getLayers().isPresent()){
+                this.appendCloudLayers(builder, input, TAF.class, clouds.getLayers().get(), hints, specifier);
+            }
+        }
     }
 }

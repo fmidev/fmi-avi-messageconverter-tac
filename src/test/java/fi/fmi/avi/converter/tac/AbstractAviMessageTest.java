@@ -136,15 +136,11 @@ public abstract class AbstractAviMessageTest<S, T> {
 	public void testStringToPOJOParser() throws IOException {
 		ConversionSpecification<S, T> spec = getParsingSpecification();
 		Assume.assumeTrue(String.class.isAssignableFrom(spec.getInputClass()) && AviationWeatherMessage.class.isAssignableFrom(spec.getOutputClass()));
-
 		ConversionResult<? extends AviationWeatherMessage> result = (ConversionResult<? extends AviationWeatherMessage>) converter.convertMessage(getMessage(), spec, getParserConversionHints());
 		assertEquals("Parsing was not successful: " + result.getConversionIssues(), getExpectedParsingStatus(), result.getStatus());
 		assertParsingIssues(result.getConversionIssues());
 
 		if (result.getConvertedMessage() != null) {
-			//These are auto-generated during the conversion, need to reset for comparison:
-			result.getConvertedMessage().setTranslatedTAC(null);
-			result.getConvertedMessage().setTranslationTime(null);
 			assertAviationWeatherMessageEquals(readFromJSON(getJsonFilename()), result.getConvertedMessage());
 		}
 	}

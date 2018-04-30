@@ -12,6 +12,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
 
 import java.io.IOException;
 
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 import org.junit.Test;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -86,7 +87,7 @@ public class METAR34TestStrictLexing extends AbstractAviMessageTest<String, META
 
     @Override
     public Class<? extends METAR> getTokenizerImplmentationClass() {
-        return METAR.class;
+        return METARImpl.class;
     }
 
 }

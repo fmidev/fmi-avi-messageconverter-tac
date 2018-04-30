@@ -21,7 +21,7 @@ import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.taf.TAF;
-import fi.fmi.avi.model.taf.impl.TAFImpl;
+import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 public class TafTokenOrderTest extends AbstractAviMessageTest<String, TAF> {
 

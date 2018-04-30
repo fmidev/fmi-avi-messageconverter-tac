@@ -8,10 +8,11 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TAF_START;
 
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.taf.TAF;
-import fi.fmi.avi.model.taf.impl.TAFImpl;
+
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 public class Taf7Test extends AbstractAviMessageTest<String, TAF> {
 
