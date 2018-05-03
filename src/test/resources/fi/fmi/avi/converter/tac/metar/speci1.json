@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "012231Z",
+  "issueTime": {
+    "partialTime": "012400Z"
+  },
   "aerodrome": {
     "designator": "EFHK"
   },
@@ -124,5 +126,7 @@
         "uom": "m"
       }
     }
-  ]
+  ],
+  "translatedTAC": "SPECI EFHK 012231Z 00000KT 4500 R04R/0500D R15/0600VP1500D R22L/0275N R04L/P1500D BR FEW003 SCT050 14/13 Q1008 TEMPO 2000=",
+  "translated": true
 }

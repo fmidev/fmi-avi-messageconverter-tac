@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "010550Z",
+  "issueTime": {
+    "partialTime": "010550Z"
+  },
   "aerodrome": {
     "designator": "EFHK"
   },
@@ -71,5 +73,7 @@
         }
       ]
     }
-  ]
+  ],
+  "translatedTAC": "METAR EFHK 010550Z 21018KT 9999 -RA SCT013 BKN025 03/00 Q0988 TEMPO 4000 RASN=",
+  "translated": true
 }

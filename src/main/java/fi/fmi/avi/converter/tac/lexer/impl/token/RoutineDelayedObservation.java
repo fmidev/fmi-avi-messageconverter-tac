@@ -38,7 +38,7 @@ public class RoutineDelayedObservation extends PrioritizedLexemeVisitor {
                     return Optional.of(this.createLexeme("RTD", ROUTINE_DELAYED_OBSERVATION));
                 }
             }
-            return null;
+            return Optional.empty();
         }
     }
 }

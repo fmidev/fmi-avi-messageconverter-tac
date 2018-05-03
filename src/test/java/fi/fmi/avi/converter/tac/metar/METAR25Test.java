@@ -32,7 +32,7 @@ public class METAR25Test extends AbstractAviMessageTest<String, METAR> {
     // Almost exactly the same as METAR 18 except runway visual range is given in feet
     @Override
 	public String getMessage() {
-        return "METAR EFHK 111111Z 15008KT 0700 R04R/1500NFT R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 RESN" + " WS R04R TEMPO 0900=";
+        return "METAR EFHK 111111Z 15008KT 0700 R04R/1500NFT R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 RESN WS R04R TEMPO 0900=";
     }
 	
 	@Override

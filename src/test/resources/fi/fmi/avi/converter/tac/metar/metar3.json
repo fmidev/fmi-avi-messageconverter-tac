@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "041600Z",
+  "issueTime": {
+    "partialTime": "041600Z"
+  },
   "aerodrome": {
     "designator": "LBBG"
   },
@@ -109,5 +111,7 @@
     {
       "changeIndicator": "NO_SIGNIFICANT_CHANGES"
     }
-  ]
+  ],
+  "translatedTAC": "METAR LBBG 041600Z 12012MPS 090V150 1400 R04/P1500N R22/P1500U +SN BKN022 OVC050 M04/M07 Q1020 8849//91 NOSIG=",
+  "translated": true
 }

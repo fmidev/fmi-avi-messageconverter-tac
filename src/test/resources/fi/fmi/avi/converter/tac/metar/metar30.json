@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "240620Z",
+  "issueTime": {
+    "partialTime": "240620Z"
+  },
   "aerodrome": {
     "designator": "EFHK"
   },
@@ -70,5 +72,7 @@
     {
       "changeIndicator": "NO_SIGNIFICANT_CHANGES"
     }
-  ]
+  ],
+  "translatedTAC": "METAR EFHK 240620Z 36003KT 300V360 9999 -SHSN FEW020CB BKN032 M02/M03 Q1032 NOSIG=",
+  "translated": true
 }

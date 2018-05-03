@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "201004Z",
+  "issueTime": {
+    "partialTime": "201004Z"
+  },
   "aerodrome": {
     "designator": "KORD"
   },
@@ -53,5 +55,7 @@
   "altimeterSettingQNH": {
     "value": 2964.0,
     "uom": "in Hg"
-  }
+  },
+  "translatedTAC": "METAR KORD 201004Z 05008KT 1 1/4SM -DZ BR OVC006 03/03 04/54 A2964=",
+  "translated": true
 }

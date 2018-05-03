@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "011350Z",
+  "issueTime": {
+    "partialTime": "011350Z"
+  },
   "aerodrome": {
     "designator": "EFTU"
   },
@@ -37,5 +39,7 @@
       "deposit": "MISSING_OR_NOT_REPORTED",
       "contamination": "MISSING_OR_NOT_REPORTED"  
     }
-  ]
+  ],
+  "translatedTAC": "METAR EFTU 011350Z VRB02KT CAVOK 22/12 Q1008 15R//////=",
+  "translated": true
 }

@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "011350Z",
+  "issueTime": {
+    "partialTime": "011350Z"
+  },
   "aerodrome": {
     "designator": "EFTU"
   },
@@ -24,5 +26,7 @@
   "altimeterSettingQNH": {
     "value": 1008.0,
     "uom": "hPa"
-  }
+  },
+  "translatedTAC": "METAR EFTU 011350Z AUTO VRB02KT CAVOK 22/12 Q1008=",
+  "translated": true
 }

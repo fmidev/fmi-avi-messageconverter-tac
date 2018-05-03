@@ -168,7 +168,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
             Optional<TAFBaseForecast> base = getAs(specifier, TAFBaseForecast.class);
             if (base.isPresent()) {
-                visibility = Optional.of(base.get().getPrevailingVisibility());
+                visibility = base.get().getPrevailingVisibility();
                 operator = base.get().getPrevailingVisibilityOperator();
             } else {
                 Optional<TAFChangeForecast> change = getAs(specifier, TAFChangeForecast.class);

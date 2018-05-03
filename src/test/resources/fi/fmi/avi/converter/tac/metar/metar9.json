@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "111111Z",
+  "issueTime": {
+    "partialTime": "111111Z"
+  },
   "aerodrome": {
     "designator":"EFHK"
   },
@@ -120,5 +122,7 @@
         "uom": "m"
       }
     }
-  ]
+  ],
+  "translatedTAC": "METAR EFHK 111111Z 15008KT 0700 R04R/1500N R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 RESN WS ALL RWY TEMPO 0900=",
+  "translated": true
 }

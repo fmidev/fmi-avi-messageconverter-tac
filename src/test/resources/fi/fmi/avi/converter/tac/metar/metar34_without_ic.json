@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "181420Z",
+  "issueTime": {
+    "partialTime": "181420Z"
+  },
   "automatedStation": "true",
   "aerodrome": {
     "designator": "EFIV"
@@ -33,5 +35,7 @@
       "uom": "m"
     },
     "prevailingVisibilityOperator": "ABOVE"
-  }
+  },
+  "translatedTAC": "METAR EFIV 181420Z AUTO 21011KT 9999 IC M18/M20 Q1008=",
+  "translated": true
 }

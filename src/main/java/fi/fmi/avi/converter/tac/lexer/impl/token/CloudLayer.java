@@ -149,7 +149,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
                 Optional<CloudForecast> cFct = Optional.empty();
                 Optional<TAFBaseForecast> baseFct = getAs(specifier, 1, TAFBaseForecast.class);
                 if (baseFct.isPresent()) {
-                    cFct = Optional.of(baseFct.get().getCloud());
+                    cFct = baseFct.get().getCloud();
                 } else {
                     Optional<TAFChangeForecast> changeFct = getAs(specifier, 1, TAFChangeForecast.class);
                     if (changeFct.isPresent()) {

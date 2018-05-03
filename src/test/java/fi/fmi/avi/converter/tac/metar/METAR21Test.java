@@ -26,8 +26,8 @@ public class METAR21Test extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public String getMessage() {
-        return "METAR EFTU 011350Z VRB02KT CAVOK " + "22/12 Q1008 " + "R15L///////=";
-	}
+        return "METAR EFTU 011350Z VRB02KT CAVOK 22/12 Q1008 R15L///////=";
+    }
 	
 	@Override
 	public String getTokenizedMessagePrefix() {

@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "111111Z",
+  "issueTime": {
+    "partialTime": "111111Z"
+  },
   "aerodrome": {
     "designator": "EFHK"
   },
@@ -185,5 +187,7 @@
         "noSignificantCloud": true
       }
     }
-  ]
+  ],
+  "translatedTAC": "METAR EFHK 111111Z 15008G20KT 0700 R04R/M1500VP2000N R15/P1000VM3000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 WM01/H14 99//9999 BECMG AT0927 25018G25MPS CAVOK TEMPO FM1051 VV040 TEMPO FM1130 NSC=",
+  "translated": true
 }

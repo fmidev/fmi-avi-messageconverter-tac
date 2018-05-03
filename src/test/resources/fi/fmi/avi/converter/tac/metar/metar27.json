@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "201004Z",
+  "issueTime": {
+    "partialTime": "201004Z"
+  },
   "aerodrome": {
     "designator": "KORD"
   },
@@ -48,5 +50,7 @@
   },
   "remarks": [
   	"AO2", "DZB04", "P0000", "T00330028"
-  ]
+  ],
+  "translatedTAC": "METAR KORD 201004Z 05008KT P1/3SM -DZ BR NSC 03/03 A2964 RMK AO2 DZB04 P0000 T00330028=",
+  "translated": true
 }

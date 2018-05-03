@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "011350Z",
+  "issueTime": {
+    "partialTime": "011350Z"
+  },
   "aerodrome": {
     "designator":"EFTU"
   },
@@ -72,5 +74,7 @@
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
       "noSignificantWeather": true
     }
-  ]
+  ],
+  "translatedTAC": "METAR EFTU 011350Z VRB02KT 0000 22/12 Q1008 R15L/410038 R64R/418338 TEMPO TL1530 NSW=",
+  "translated": true
 }

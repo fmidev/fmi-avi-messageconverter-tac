@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "041250Z",
+  "issueTime": {
+    "partialTime": "041250Z"
+  },
   "delayed": true,
   "aerodrome": {
     "designator": "EFJY"
@@ -63,5 +65,7 @@
         }
       }
     ]
-  }
+  },
+  "translatedTAC": "METAR EFJY 041250Z RTD 31010KT 8000 -SHSN FEW010 BKN014 BKN018 M01/M03 Q1003=",
+  "translated": true
 }

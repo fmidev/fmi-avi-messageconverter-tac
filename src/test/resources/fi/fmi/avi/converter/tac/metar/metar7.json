@@ -1,5 +1,8 @@
 {
   "status": "NORMAL",
+  "issueTime": {
+    "partialTime": "061150Z"
+  },
   "partialIssueTime": "061150Z",
   "aerodrome": {
     "designator": "EGXE"
@@ -71,5 +74,7 @@
       },
       "colorState": "WHT"
     }
-  ]
+  ],
+  "translatedTAC": "EGXE 061150Z 03010KT 9999 FEW020 17/11 Q1014 BLU TEMPO 6000 SHRA SCT020 WHT=",
+  "translated": true
 }

@@ -508,8 +508,9 @@ public class Weather extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
                 final Object... specifier)
                 throws SerializingException {
-            Optional<fi.fmi.avi.model.Weather> weather = getAs(specifier, 1, fi.fmi.avi.model.Weather.class);
+            Optional<fi.fmi.avi.model.Weather> weather;
             if (TAF.class.isAssignableFrom(clz)) {
+                weather = getAs(specifier, 1, fi.fmi.avi.model.Weather.class);
                 if (weather.isPresent() && isCodeAllowed(weather.get(), hints)) {
                     Optional<TAFBaseForecast> baseFct = getAs(specifier, 0, TAFBaseForecast.class);
                     Optional<TAFChangeForecast> changeFct = getAs(specifier, 0, TAFChangeForecast.class);
@@ -518,6 +519,7 @@ public class Weather extends RegexMatchingLexemeVisitor {
                     }
                 }
             } else if (METAR.class.isAssignableFrom(clz)) {
+                weather = getAs(specifier, 0, fi.fmi.avi.model.Weather.class);
                 if (weather.isPresent() && isCodeAllowed(weather.get(), hints)) {
                     if (recentWeather) {
                         return Optional.of(this.createLexeme("RE" + weather.get().getCode(), Lexeme.Identity.RECENT_WEATHER));

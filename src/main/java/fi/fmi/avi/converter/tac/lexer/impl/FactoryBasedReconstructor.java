@@ -87,6 +87,6 @@ public abstract class FactoryBasedReconstructor implements TACTokenReconstructor
 	 */
     public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
             throws SerializingException {
-        return null;
+		return Optional.empty();
 	}
 }

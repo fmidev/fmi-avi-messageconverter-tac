@@ -2,9 +2,9 @@ package fi.fmi.avi.converter.tac;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -20,16 +20,23 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
-import fi.fmi.avi.model.*;
+import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.CloudForecast;
+import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
 import fi.fmi.avi.model.immutable.AerodromeImpl;
 import fi.fmi.avi.model.immutable.CloudForecastImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
-import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 import fi.fmi.avi.model.taf.TAFSurfaceWind;
-import fi.fmi.avi.model.taf.immutable.*;
+import fi.fmi.avi.model.taf.immutable.TAFAirTemperatureForecastImpl;
+import fi.fmi.avi.model.taf.immutable.TAFBaseForecastImpl;
+import fi.fmi.avi.model.taf.immutable.TAFChangeForecastImpl;
+import fi.fmi.avi.model.taf.immutable.TAFImpl;
+import fi.fmi.avi.model.taf.immutable.TAFSurfaceWindImpl;
 
 
 /**
@@ -274,9 +281,8 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         result.addAll(withForecastSurfaceWind(baseFctToken,
                 new Identity[] { Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.MIN_TEMPERATURE,
                         Identity.MAX_TEMPERATURE }, hints, baseFct::setSurfaceWind));
-        if (baseFct.getSurfaceWind() == null) {
+        if (!baseFct.getSurfaceWind().isPresent()) {
             result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Surface wind is missing from TAF base forecast"));
-            return result;
         }
         findNext(Identity.CAVOK, baseFctToken, (match) -> {
             Identity[] before = new Identity[] { Identity.HORIZONTAL_VISIBILITY, Identity.WEATHER, Identity.CLOUD, Identity.MIN_TEMPERATURE,
@@ -292,24 +298,25 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         result.addAll(withVisibility(baseFctToken, new Identity[] { Identity.WEATHER, Identity.CLOUD, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE },
                         hints, (measureAndOperator) -> {
                             baseFct.setPrevailingVisibility(measureAndOperator.getMeasure());
-                            if (measureAndOperator.getOperator() != null) {
-                                baseFct.setPrevailingVisibilityOperator(measureAndOperator.getOperator());
-                            }
+                    baseFct.setPrevailingVisibilityOperator(measureAndOperator.getOperator());
                         }));
         if (baseFct.getPrevailingVisibility() == null) {
-
-        }
-        /*
-        if (fct instanceof TAFBaseForecast) {
-            if (!fct.isCeilingAndVisibilityOk()) {
+            if (!baseFct.isCeilingAndVisibilityOk()) {
                 result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Visibility or CAVOK is missing from TAF base forecast"));
+                return result;
             }
         }
-        */
-        result.addAll(updateWeather(baseFct, baseFctToken, new Identity[] { Identity.CLOUD, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE }, hints));
 
-        result.addAll(updateClouds(baseFct, baseFctToken, new Identity[] { Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE }, hints));
+        result.addAll(withWeather(baseFctToken, new Identity[] { Identity.CLOUD, Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE }, hints,
+                baseFct::setForecastWeather));
+        result.addAll(withClouds(baseFctToken, new Identity[] { Identity.MIN_TEMPERATURE, Identity.MAX_TEMPERATURE }, hints, baseFct::setCloud));
+
+        if (!baseFct.getCloud().isPresent() && !baseFct.isCeilingAndVisibilityOk()) {
+            result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Cloud or CAVOK is missing from TAF base forecast"));
+        }
+
         result.addAll(updateTemperatures(baseFct, baseFctToken, hints));
+
         builder.setBaseForecast(baseFct.build());
         return result;
     }
@@ -425,16 +432,15 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                         if (hour != null && minute != null) {
                             if (day != null) {
                                 changeFct.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
-                                        .setStartTime(new PartialOrCompleteTimeInstant.Builder()
-                                                .setPartialTime(String.format("%02d%02d%02d", day, hour, minute))
-                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_MINUTE_TZ_PATTERN)
+                                        .setStartTime(new PartialOrCompleteTimeInstant.Builder().setPartialTime(
+                                                String.format("FM%02d%02d%02d", day, hour, minute))
+                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.FROM_DAY_HOUR_MINUTE_PATTERN)
                                                 .build())
                                         .build());
                             } else {
                                 changeFct.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
-                                        .setStartTime(new PartialOrCompleteTimeInstant.Builder()
-                                                .setPartialTime(String.format("%02d%02d", hour, minute))
-                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.HOUR_MINUTE_PATTERN)
+                                        .setStartTime(new PartialOrCompleteTimeInstant.Builder().setPartialTime(String.format("FM%02d%02d", hour, minute))
+                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.FROM_HOUR_MINUTE_PATTERN)
                                                 .build())
                                         .build());
                             }
@@ -538,23 +544,28 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                 builder.setCeilingAndVisibilityOk(true);
             }
         });
-        result.addAll(updateVisibility(fct, from, new Identity[] { Identity.WEATHER, Identity.NO_SIGNIFICANT_WEATHER, Identity.CLOUD }, hints));
-        result.addAll(updateWeather(fct, from, new Identity[] { Identity.NO_SIGNIFICANT_WEATHER, Identity.CLOUD }, hints));
+        result.addAll(
+                withVisibility(from, new Identity[] { Identity.WEATHER, Identity.NO_SIGNIFICANT_WEATHER, Identity.CLOUD }, hints, (measureWithOperator -> {
+                    builder.setPrevailingVisibility(measureWithOperator.getMeasure());
+                    builder.setPrevailingVisibilityOperator(measureWithOperator.operator);
+
+                })));
+        result.addAll(withWeather(from, new Identity[] { Identity.NO_SIGNIFICANT_WEATHER, Identity.CLOUD }, hints, builder::setForecastWeather));
 
         findNext(Identity.NO_SIGNIFICANT_WEATHER, from, (match) -> {
             ConversionIssue issue = checkBeforeAnyOf(match, new Identity[] { Identity.CLOUD });
             if (issue != null) {
                 result.add(issue);
             } else {
-                if (fct.getForecastWeather() != null && !fct.getForecastWeather().isEmpty()) {
+                if (builder.getForecastWeather().isPresent()) {
                     result.add(new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Cannot have both NSW and weather in the same change forecast"));
                 } else {
-                    fct.setNoSignificantWeather(true);
+                    builder.setNoSignificantWeather(true);
                 }
             }
         });
 
-        result.addAll(updateClouds(fct, from, new Identity[] {}, hints));
+        result.addAll(withClouds(from, new Identity[] {}, hints, builder::setCloud));
 
         return result;
     }
@@ -631,7 +642,8 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         return result;
     }
 
-    private List<ConversionIssue> updateWeather(final TAFForecast fct, final Lexeme from, final Identity[] before, final ConversionHints hints) {
+    private List<ConversionIssue> withWeather(final Lexeme from, final Identity[] before, final ConversionHints hints,
+            final Consumer<List<fi.fmi.avi.model.Weather>> consumer) {
         List<ConversionIssue> result = new ArrayList<>();
         findNext(Identity.WEATHER, from, (match) -> {
             ConversionIssue issue = checkBeforeAnyOf(match, before);
@@ -640,17 +652,17 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             } else {
                 List<fi.fmi.avi.model.Weather> weather = new ArrayList<>();
                 result.addAll(appendWeatherCodes(match, weather, before, hints));
-                fct.setForecastWeather(weather);
+                consumer.accept(weather);
             }
         });
         return result;
     }
 
-    private List<ConversionIssue> updateClouds(final TAFForecast fct, final Lexeme from, final Identity[] before, final ConversionHints hints) {
+    private List<ConversionIssue> withClouds(final Lexeme from, final Identity[] before, final ConversionHints hints, Consumer<CloudForecast> consumer) {
         List<ConversionIssue> result = new ArrayList<>();
         findNext(Identity.CLOUD, from, (match) -> {
             ConversionIssue issue;
-            CloudForecast cloud = new CloudForecastImpl();
+            CloudForecastImpl.Builder cloud = new CloudForecastImpl.Builder();
             List<fi.fmi.avi.model.CloudLayer> layers = new ArrayList<>();
             while (match != null) {
                 issue = checkBeforeAnyOf(match, before);
@@ -668,7 +680,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                                 height = height * 100;
                                 unit = "[ft_i]";
                             }
-                            cloud.setVerticalVisibility(new NumericMeasureImpl(height, unit));
+                            cloud.setVerticalVisibility(NumericMeasureImpl.of(height, unit));
                         } else {
                             result.add(
                                     new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Cloud layer height is not an integer in " + match.getTACToken()));
@@ -691,13 +703,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             if (!layers.isEmpty()) {
                 cloud.setLayers(layers);
             }
-            fct.setCloud(cloud);
-        }, () -> {
-            if (fct instanceof TAFBaseForecast) {
-                if (!fct.isCeilingAndVisibilityOk()) {
-                    result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Cloud or CAVOK is missing from TAF base forecast"));
-                }
-            }
+            consumer.accept(cloud.build());
         });
         return result;
     }
@@ -710,8 +716,12 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             return measure;
         }
 
-        public AviationCodeListUser.RelationalOperator getOperator() {
-            return operator;
+        public Optional<AviationCodeListUser.RelationalOperator> getOperator() {
+            if (operator == null) {
+                return Optional.empty();
+            } else {
+                return Optional.of(operator);
+            }
         }
 
         public void setMeasure(NumericMeasure measure) {

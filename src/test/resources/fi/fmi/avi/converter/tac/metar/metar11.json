@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "111111Z",
+  "issueTime": {
+    "partialTime": "111111Z"
+  },
   "aerodrome": {
     "designator": "EFHK"
   },
@@ -112,9 +114,10 @@
   },
   "trends": [
     {
-      "timeGroups": {
-        "partialEndTime": "1530",
-        "singleInstance": false
+      "periodOfChange": {
+        "endTime": {
+          "partialTime": "1530"
+        }
       },
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
       "forecastWeather": [
@@ -137,5 +140,7 @@
       }
 
     }
-  ]
+  ],
+  "translatedTAC": "METAR EFHK 111111Z 15008KT 0700 R04R/1500N R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 WM01/S1 TEMPO TL1530 +SHRA BKN012CB=",
+  "translated": true
 }

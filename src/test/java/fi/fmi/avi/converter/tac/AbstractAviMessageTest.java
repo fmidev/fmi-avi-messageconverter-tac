@@ -29,6 +29,8 @@ import org.unitils.reflectionassert.difference.Difference;
 import org.unitils.reflectionassert.report.impl.DefaultDifferenceReport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionHints;
@@ -42,6 +44,9 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.SPECI;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -190,13 +195,27 @@ public abstract class AbstractAviMessageTest<S, T> {
 	protected AviationWeatherMessage readFromJSON(String fileName) throws IOException {
 		AviationWeatherMessage retval = null;
 		ObjectMapper om = new ObjectMapper();
-		InputStream is = AbstractAviMessageTest.class.getResourceAsStream(fileName);
+        om.registerModule(new Jdk8Module());
+        InputStream is = AbstractAviMessageTest.class.getResourceAsStream(fileName);
 		if (is != null) {
-			retval = om.readValue(is, getTokenizerImplmentationClass());
-		} else {
+            Class<? extends AviationWeatherMessage> clz = getTokenizerImplmentationClass();
+            if (SPECI.class.isAssignableFrom(clz)) {
+                retval = om.readValue(is, METARImpl.class);
+                retval = METARImpl.Builder.from((METAR) retval).buildAsSPECI();
+            } else {
+                retval = om.readValue(is, clz);
+            }
+        } else {
 			throw new FileNotFoundException("Resource '" + fileName + "' could not be loaded");
 		}
 		return retval;
+    }
+
+    private static void printAsJson(METARImpl metar) throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        om.registerModule(new Jdk8Module());
+        ObjectWriter writer = om.writerWithDefaultPrettyPrinter();
+        writer.writeValue(System.out, metar);
     }
     
     protected static void assertAviationWeatherMessageEquals(AviationWeatherMessage expected, AviationWeatherMessage actual) {
@@ -217,8 +236,8 @@ public abstract class AbstractAviMessageTest<S, T> {
 	    			return new LinkedList<Comparator>(getComparatorChain(Collections.emptySet()));
 	    		}
 	    	}).createBaseComparators();
-    	
-    	// Add lenient collection comparator ([] == null) as first-in-chain
+
+        // Add lenient collection comparator ([] == null) as first-in-chain
     	comparatorChain.addFirst(new Comparator() {
 			
 			@Override

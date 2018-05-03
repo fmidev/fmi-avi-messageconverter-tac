@@ -1,6 +1,8 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "091050Z",
+  "issueTime": {
+    "partialTime": "091050Z"
+  },
   "aerodrome": {
     "designator": "EFKK"
   },
@@ -47,5 +49,7 @@
         }
       }
     ]
-  }
+  },
+  "translatedTAC": "EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046 ///// Q////=",
+  "translated": true
 }

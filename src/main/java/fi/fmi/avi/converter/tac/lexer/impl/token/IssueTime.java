@@ -46,7 +46,7 @@ public class IssueTime extends TimeHandlingRegex {
         @Override
         public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
             PartialOrCompleteTimeInstant time = msg.getIssueTime();
-            return Optional.of(this.createLexeme(String.format("%02d%02d%02d", time.getDay(), time.getHour(), time.getMinute()), Lexeme.Identity.ISSUE_TIME));
+            return Optional.of(this.createLexeme(String.format("%02d%02d%02dZ", time.getDay(), time.getHour(), time.getMinute()), Lexeme.Identity.ISSUE_TIME));
         }
     }
 

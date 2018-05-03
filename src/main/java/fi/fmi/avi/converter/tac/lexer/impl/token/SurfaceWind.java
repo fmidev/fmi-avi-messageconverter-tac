@@ -104,16 +104,20 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
             if (TAF.class.isAssignableFrom(clz)) {
                 Optional<TAFBaseForecast> base = getAs(specifier, TAFBaseForecast.class);
                 if (base.isPresent()) {
-                    TAFSurfaceWind wind = base.get().getSurfaceWind();
-                    StringBuilder builder = new StringBuilder();
-                    if (wind.isVariableDirection()) {
-                        builder.append("VRB");
-                    } else if (!wind.getMeanWindDirection().getUom().equals("deg")) {
-                        throw new SerializingException("Mean wind direction unit is not 'deg': " + wind.getMeanWindDirection().getUom());
-                    } else {
-                        builder.append(String.format("%03d", wind.getMeanWindDirection().getValue().intValue()));
+                    Optional<TAFSurfaceWind> wind = base.get().getSurfaceWind();
+                    if (!wind.isPresent()) {
+                        throw new SerializingException("Surface wind missing from TAF base forecast");
                     }
-                    this.appendCommonWindParameters(builder, wind.getMeanWindSpeed(), wind.getMeanWindDirection(), wind.getWindGust().orElse(null));
+                    StringBuilder builder = new StringBuilder();
+                    if (wind.get().isVariableDirection()) {
+                        builder.append("VRB");
+                    } else if (!wind.get().getMeanWindDirection().getUom().equals("deg")) {
+                        throw new SerializingException("Mean wind direction unit is not 'deg': " + wind.get().getMeanWindDirection().getUom());
+                    } else {
+                        builder.append(String.format("%03d", wind.get().getMeanWindDirection().getValue().intValue()));
+                    }
+                    this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getMeanWindDirection(),
+                            wind.get().getWindGust().orElse(null));
                     retval = Optional.of(this.createLexeme(builder.toString(), Lexeme.Identity.SURFACE_WIND));
                 }
             } else if (METAR.class.isAssignableFrom(clz)) {

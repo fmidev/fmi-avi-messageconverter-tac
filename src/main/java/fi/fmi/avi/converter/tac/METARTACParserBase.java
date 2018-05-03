@@ -1,17 +1,16 @@
 package fi.fmi.avi.converter.tac;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
-import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.*;
+import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.RelationalOperator;
+import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.TendencyOperator;
 
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import fi.fmi.avi.model.*;
-import fi.fmi.avi.model.immutable.*;
-import fi.fmi.avi.model.metar.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,6 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover;
@@ -37,7 +35,21 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator.TrendChangeIndicatorType;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup.TrendTimePeriodType;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
+import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationCodeListUser.BreakingAction;
+import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
+import fi.fmi.avi.model.RunwayDirection;
+import fi.fmi.avi.model.immutable.AerodromeImpl;
+import fi.fmi.avi.model.immutable.CloudForecastImpl;
+import fi.fmi.avi.model.immutable.NumericMeasureImpl;
+import fi.fmi.avi.model.immutable.RunwayDirectionImpl;
+import fi.fmi.avi.model.immutable.WeatherImpl;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
+import fi.fmi.avi.model.metar.RunwayState;
+import fi.fmi.avi.model.metar.RunwayVisualRange;
+import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.metar.immutable.HorizontalVisibilityImpl;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.metar.immutable.ObservedCloudsImpl;
@@ -103,6 +115,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
         if (lexed.getTAC() != null) {
             builder.setTranslatedTAC(lexed.getTAC());
+            builder.setTranslated(true);
         }
 
         withTimeForTranslation(hints, builder::setTranslationTime);
@@ -141,6 +154,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
         result.addIssue(setMETARIssueTime(builder,lexed, hints));
 
+        builder.setAutomatedStation(false);
         findNext(Identity.AUTOMATED, obs.getFirstLexeme(), (match) -> {
             final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
                     Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
@@ -184,12 +198,13 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
             }
         });
 
-        if (AviationCodeListUser.MetarStatus.MISSING == result.getConvertedMessage().getStatus()) {
+        if (AviationCodeListUser.MetarStatus.MISSING == builder.getStatus()) {
             return result;
         }
 
         result.addIssue(setObservedSurfaceWind(builder, obs, hints));
 
+        builder.setCeilingAndVisibilityOk(false);
         findNext(Identity.CAVOK, obs.getFirstLexeme(), (match) -> {
             final Identity[] before = new Identity[] { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
                     Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
@@ -263,10 +278,13 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
                 if (direction == SurfaceWind.WindDirection.VARIABLE) {
                     wind.setVariableDirection(true);
-                } else if (direction instanceof Integer) {
-                    wind.setMeanWindDirection(NumericMeasureImpl.of((Integer) direction,"deg"));
                 } else {
-                    retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Direction missing for surface wind:" + match.getTACToken()));
+                    wind.setVariableDirection(false);
+                    if (direction instanceof Integer) {
+                        wind.setMeanWindDirection(NumericMeasureImpl.of((Integer) direction, "deg"));
+                    } else {
+                        retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Direction missing for surface wind:" + match.getTACToken()));
+                    }
                 }
 
                 if (meanSpeed != null) {
@@ -328,7 +346,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     RelationalOperator operator = match.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR,
                             RelationalOperator.class);
                     if (direction != null) {
-                        if (vis.getMinimumVisibility() != null) {
+                        if (vis.getMinimumVisibility().isPresent()) {
                             retval.add(
                                     new ConversionIssue(Type.LOGICAL_ERROR, "More than one directional horizontal visibility given: " + match.getTACToken()));
                         } else {
@@ -336,10 +354,12 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                             vis.setMinimumVisibilityDirection(NumericMeasureImpl.of(direction.inDegrees(),"deg"));
                         }
                     } else {
-                        if (vis.getPrevailingVisibility() != null) {
+                        try {
+                            vis.getPrevailingVisibility();
                             retval.add(
                                     new ConversionIssue(Type.LOGICAL_ERROR, "More than one prevailing horizontal visibility given: " + match.getTACToken()));
-                        } else {
+                        } catch (IllegalStateException e) {
+                            //Normal path, no prevailing visibility set so far
                             vis.setPrevailingVisibility(NumericMeasureImpl.of(value,unit));
                             if (RelationalOperator.LESS_THAN == operator) {
                                 vis.setPrevailingVisibilityOperator(AviationCodeListUser.RelationalOperator.BELOW);
@@ -490,28 +510,34 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
                     if (CloudLayer.SpecialValue.AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM == value) {
                         clouds.setAmountAndHeightUnobservableByAutoSystem(true);
-                    } else if (CloudCover.NO_SIG_CLOUDS == cover || CloudCover.SKY_CLEAR == cover || CloudCover.NO_LOW_CLOUDS == cover
-                            || CloudCover.NO_CLOUD_DETECTED == cover) {
-                        clouds.setNoSignificantCloud(true);
-                    } else if (value instanceof Integer) {
-                        if (CloudLayer.CloudCover.SKY_OBSCURED == cover) {
-                            int height = ((Integer) value);
-                            if ("hft".equals(unit)) {
-                                height = height * 100;
-                                unit = "[ft_i]";
-                            }
-                            clouds.setVerticalVisibility(NumericMeasureImpl.of(height, unit));
+                    } else {
+                        clouds.setAmountAndHeightUnobservableByAutoSystem(false);
+                        if (CloudCover.NO_SIG_CLOUDS == cover || CloudCover.SKY_CLEAR == cover || CloudCover.NO_LOW_CLOUDS == cover
+                                || CloudCover.NO_CLOUD_DETECTED == cover) {
+                            clouds.setNoSignificantCloud(true);
                         } else {
-                            fi.fmi.avi.model.CloudLayer layer = getCloudLayer(match);
-                            if (layer != null) {
-                                layers.add(layer);
+                            clouds.setNoSignificantCloud(false);
+                            if (value instanceof Integer) {
+                                if (CloudLayer.CloudCover.SKY_OBSCURED == cover) {
+                                    int height = ((Integer) value);
+                                    if ("hft".equals(unit)) {
+                                        height = height * 100;
+                                        unit = "[ft_i]";
+                                    }
+                                    clouds.setVerticalVisibility(NumericMeasureImpl.of(height, unit));
+                                } else {
+                                    fi.fmi.avi.model.CloudLayer layer = getCloudLayer(match);
+                                    if (layer != null) {
+                                        layers.add(layer);
+                                    } else {
+                                        retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "Could not parse token " + match.getTACToken() + " as cloud layer"));
+                                    }
+                                }
                             } else {
-                                retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "Could not parse token " + match.getTACToken() + " as cloud layer"));
+                                retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
+                                        "Cloud layer height is not an integer in " + match.getTACToken()));
                             }
                         }
-                    } else {
-                        retval.add(
-                                new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Cloud layer height is not an integer in " + match.getTACToken()));
                     }
                 }
                 match = findNext(Identity.CLOUD, match);
@@ -934,8 +960,13 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         //Check for the possibly following FM, TL and AT tokens:
         Lexeme token = parseChangeTimeGroups(fctBuilder, groupStart.getNext(), retval, hints);
 
+        //Set defaults:
+        fctBuilder.setCeilingAndVisibilityOk(false);
+        fctBuilder.setNoSignificantWeather(false);
+
         //loop over change group tokens:
         Lexeme.Identity[] before = { Identity.REMARKS_START, Identity.END_TOKEN };
+
         while (token != null) {
             if (checkBeforeAnyOf(token, before) != null) {
                 break;
@@ -1018,7 +1049,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
             if (fctBuilder.getCloud().get().getLayers().isPresent() && !fctBuilder.getCloud().get().getLayers().get().isEmpty()) {
                 if (fctBuilder.getCloud().get().isNoSignificantCloud()) {
                     retval.add(new ConversionIssue(Type.LOGICAL_ERROR, "Cloud layers cannot co-exist with NSC in trend"));
-                } else if (fctBuilder.getCloud().get().getVerticalVisibility() != null) {
+                } else if (fctBuilder.getCloud().get().getVerticalVisibility().isPresent()) {
                     retval.add(new ConversionIssue(Type.LOGICAL_ERROR, "Cloud layers cannot co-exist with vertical visibility in trend"));
                 }
             }
