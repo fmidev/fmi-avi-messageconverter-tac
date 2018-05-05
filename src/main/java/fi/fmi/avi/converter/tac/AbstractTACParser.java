@@ -181,7 +181,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                 if (day != null && minute != null && hour != null) {
                     consumer.accept(
                             new PartialOrCompleteTimeInstant.Builder()
-                                    .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_MINUTE_TZ_PATTERN)
+                                    .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHourMinuteZone)
                                     .setPartialTime(String.format("%02d%02d%02dZ", day, hour, minute))
                                     .build());
                 } else {
@@ -218,7 +218,9 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                 } else {
                     WeatherImpl.Builder weather = new WeatherImpl.Builder();
                     weather.setCode(code);
-                    weather.setDescription(Weather.WEATHER_CODES.get(code));
+                    if (Weather.WEATHER_CODES.containsKey(code)) {
+                        weather.setDescription(Weather.WEATHER_CODES.get(code));
+                    }
                     target.add(weather.build());
                 }
             }

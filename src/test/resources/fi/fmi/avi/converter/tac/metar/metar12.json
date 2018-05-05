@@ -123,7 +123,7 @@
         "value": 15.0,
         "uom": "cm"
       },
-      "estimatedSurfaceFriction": 38
+      "estimatedSurfaceFriction": 0.38
     }
   ],
   "translatedTAC": "METAR EFHK 111111Z 15008KT 0700 R04R/1500N R15/1000U R22L/1200N R04L/1000VP1500U SN M08/M10 Q1023 15CLRD95 54419338=",

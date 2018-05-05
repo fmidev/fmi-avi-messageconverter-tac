@@ -246,22 +246,22 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                         builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
                                 .setStartTime(new PartialOrCompleteTimeInstant.Builder()
                                         .setPartialTime(String.format("%02d%02d", startDay, startHour))
-                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
                                         .build())
                                 .setEndTime(new PartialOrCompleteTimeInstant.Builder()
                                         .setPartialTime(String.format("%02d%02d", endDay, endHour))
-                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
                                         .build())
                                 .build());
                     } else {
                         builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
                                 .setStartTime(new PartialOrCompleteTimeInstant.Builder()
                                         .setPartialTime(String.format("%02d%02d", startDay, startHour))
-                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
                                         .build())
                                 .setEndTime(new PartialOrCompleteTimeInstant.Builder()
                                         .setPartialTime(String.format("%02d%02d", startDay, endHour))
-                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
                                         .build())
                                 .build());
                     }
@@ -345,7 +345,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                     if (day != null && hour != null) {
                         airTemperatureForecast.setMinTemperatureTime(new PartialOrCompleteTimeInstant.Builder()
                                 .setPartialTime(String.format("%02d%02d", day, hour))
-                                .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
                                 .build());
                     } else {
                         result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
@@ -366,7 +366,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                     if (day != null && hour != null) {
                         airTemperatureForecast.setMaxTemperatureTime(new PartialOrCompleteTimeInstant.Builder()
                                 .setPartialTime(String.format("%02d%02d", day, hour))
-                                .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
                                 .build());
                     } else {
                         result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
@@ -434,13 +434,13 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                                 changeFct.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
                                         .setStartTime(new PartialOrCompleteTimeInstant.Builder().setPartialTime(
                                                 String.format("FM%02d%02d%02d", day, hour, minute))
-                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.FROM_DAY_HOUR_MINUTE_PATTERN)
+                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.FromDayHourMinute)
                                                 .build())
                                         .build());
                             } else {
                                 changeFct.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
                                         .setStartTime(new PartialOrCompleteTimeInstant.Builder().setPartialTime(String.format("FM%02d%02d", hour, minute))
-                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.FROM_HOUR_MINUTE_PATTERN)
+                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.FromHourMinute)
                                                 .build())
                                         .build());
                             }
@@ -503,22 +503,22 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                             builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
                                     .setStartTime(new PartialOrCompleteTimeInstant.Builder()
                                             .setPartialTime(String.format("%02d%02d", startDay, startHour))
-                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
                                             .build())
                                     .setEndTime(new PartialOrCompleteTimeInstant.Builder()
                                             .setPartialTime(String.format("%02d%02d", endDay, endHour))
-                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
                                             .build())
                                     .build());
                         } else {
                             builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
                                     .setStartTime(new PartialOrCompleteTimeInstant.Builder()
                                             .setPartialTime(String.format("%02d", startHour))
-                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.HOUR_PATTERN)
+                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.Hour)
                                             .build())
                                     .setEndTime(new PartialOrCompleteTimeInstant.Builder()
                                             .setPartialTime(String.format("%02d", endHour))
-                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.HOUR_PATTERN)
+                                            .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.Hour)
                                             .build())
                                     .build());
                         }

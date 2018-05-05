@@ -182,8 +182,8 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.WEATHER, new Weather.Reconstructor(false));
         s.addReconstructor(Lexeme.Identity.NO_SIGNIFICANT_WEATHER, new NoSignificantWeather.Reconstructor());
         s.addReconstructor(Lexeme.Identity.CLOUD, new CloudLayer.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.MAX_TEMPERATURE, new ForecastMaxMinTemperature.Reconstructor());
-        // No need to register MIN_TEMPERATURE as ForecastMaxMinTemperature.Reconstructor will do both if both set
+        s.addReconstructor(Lexeme.Identity.MAX_TEMPERATURE, new ForecastMaxMinTemperature.MaxReconstructor());
+        s.addReconstructor(Lexeme.Identity.MIN_TEMPERATURE, new ForecastMaxMinTemperature.MinReconstructor());
         s.addReconstructor(Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR, new TAFForecastChangeIndicator.Reconstructor());
         s.addReconstructor(Lexeme.Identity.TAF_CHANGE_FORECAST_TIME_GROUP, new TAFChangeForecastTimeGroup.Reconstructor());
         s.addReconstructor(Lexeme.Identity.REMARKS_START, new RemarkStart.Reconstructor());

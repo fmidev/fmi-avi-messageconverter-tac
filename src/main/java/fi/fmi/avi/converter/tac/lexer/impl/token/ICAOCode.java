@@ -12,9 +12,12 @@ import java.util.regex.Matcher;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
+import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.taf.TAF;
 
 /**
@@ -276,14 +279,12 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
-                final Object... specifier) {
-            if (METAR.class.isAssignableFrom(clz)) {
-                METAR m = (METAR) msg;
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                MeteorologicalTerminalAirReport m = (MeteorologicalTerminalAirReport) msg;
                 if (m.getAerodrome() != null) {
                     return Optional.of(this.createLexeme(m.getAerodrome().getDesignator(), AERODROME_DESIGNATOR));
                 }
-
             } else if (TAF.class.isAssignableFrom(clz)) {
                 TAF t = (TAF) msg;
                 if (t.getAerodrome() != null) {

@@ -3,6 +3,9 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 import static org.junit.Assert.*;
 
 import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
 import org.junit.Test;
 
@@ -97,7 +100,8 @@ public class CalculateNumberOfHoursTest {
 	@Test
 	public void testFullTimeReferencesMakesIllegalOk() {
 		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("2708/0122");
-		period = PartialOrCompleteTimePeriod.Builder.from(period).completedWithIssueYearMonth(YearMonth.of(2017,2)).build();
+		ZonedDateTime refTime = ZonedDateTime.of(2017,2,27,0,0,0,0,ZoneId.of("Z"));
+		period = PartialOrCompleteTimePeriod.completePartialTimeReference(period,refTime);
 		int hours = ValidTime.calculateNumberOfHours(period);
 		assertEquals(62, hours);
 	}

@@ -13,6 +13,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationCodeListUser.TAFChangeIndicator;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
@@ -71,11 +72,11 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
 		@Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
 
 			if (TAF.class.isAssignableFrom(clz)) {
-                Optional<TAFChangeForecast> forecast = getAs(specifier, TAFChangeForecast.class);
+                Optional<TAFChangeForecast> forecast = ctx.getParameter("forecast", TAFChangeForecast.class);
                 if (forecast.isPresent() && forecast.get().getChangeIndicator() != TAFChangeIndicator.FROM) {
                     PartialOrCompleteTimePeriod time = forecast.get().getValidityTime();
                     Optional<PartialOrCompleteTimeInstant> start = time.getStartTime();

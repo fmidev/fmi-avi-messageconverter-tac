@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 
@@ -44,7 +45,7 @@ public class IssueTime extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             PartialOrCompleteTimeInstant time = msg.getIssueTime();
             return Optional.of(this.createLexeme(String.format("%02d%02d%02dZ", time.getDay(), time.getHour(), time.getMinute()), Lexeme.Identity.ISSUE_TIME));
         }

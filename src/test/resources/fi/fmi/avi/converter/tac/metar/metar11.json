@@ -116,7 +116,8 @@
     {
       "periodOfChange": {
         "endTime": {
-          "partialTime": "1530"
+          "partialTime": "1530",
+          "partialTimePattern": "HourMinute"
         }
       },
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",

@@ -9,9 +9,10 @@ import java.util.regex.Matcher;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 import fi.fmi.avi.model.metar.TrendForecast;
 
 /**
@@ -76,12 +77,11 @@ public class ColorCode extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
-                final Object... specifier) {
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
 
-            if (METAR.class.isAssignableFrom(clz)) {
-                METAR metar = (METAR) msg;
-                Optional<TrendForecast> trend = getAs(specifier, TrendForecast.class);
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                MeteorologicalTerminalAirReport metar = (MeteorologicalTerminalAirReport) msg;
+                Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
                 Optional<fi.fmi.avi.model.AviationCodeListUser.ColorState> color = trend.map(TrendForecast::getColorState).orElse(metar.getColorState());
                 if (color.isPresent()) {
                     return Optional.of(this.createLexeme(color.get().name(), COLOR_CODE));

@@ -18,6 +18,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser.RelationalOperator;
 import fi.fmi.avi.model.AviationWeatherMessage;
@@ -69,11 +70,10 @@ public class RunwayVisualRange extends RegexMatchingLexemeVisitor {
 	public static class Reconstructor extends FactoryBasedReconstructor {
 
 		@Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-			Lexeme retval = null;
 
-            Optional<fi.fmi.avi.model.metar.RunwayVisualRange> rvr = getAs(specifier, fi.fmi.avi.model.metar.RunwayVisualRange.class);
+            Optional<fi.fmi.avi.model.metar.RunwayVisualRange> rvr = ctx.getParameter("rvr", fi.fmi.avi.model.metar.RunwayVisualRange.class);
             if (rvr.isPresent()) {
                 StringBuilder builder = new StringBuilder();
                 RunwayDirection rwd = rvr.get().getRunwayDirection();

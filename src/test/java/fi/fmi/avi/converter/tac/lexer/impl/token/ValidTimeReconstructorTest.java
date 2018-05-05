@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
 import org.junit.Before;
@@ -24,13 +25,13 @@ import fi.fmi.avi.converter.tac.lexer.impl.TACTokenReconstructor;
 public class ValidTimeReconstructorTest {
 
 	TACTokenReconstructor reconstructor;
-	ConversionHints hints;
+	ReconstructorContext<TAF> ctx;
 	
 	@Before
 	public void setUp() throws Exception {
 		reconstructor = new ValidTime.Reconstructor();
 		reconstructor.setLexingFactory(new LexingFactoryImpl());
-		hints = new ConversionHints();
+		ctx = new ReconstructorContext<>(null, new ConversionHints());
 	}
 
 	@Test
@@ -40,7 +41,7 @@ public class ValidTimeReconstructorTest {
 		
 		injectValidity(msg, 7, 2, 7, 24);
 		
-		List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, hints);
+		List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, ctx);
 		
 		assertOneLexeme(l, Lexeme.Identity.VALID_TIME, "0702/0724");
 	}
@@ -50,11 +51,11 @@ public class ValidTimeReconstructorTest {
 	{
 		TAF msg = mock(TAF.class);
 
-		hints.put(ConversionHints.KEY_VALIDTIME_FORMAT, ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT);
+		ctx.setHint(ConversionHints.KEY_VALIDTIME_FORMAT, ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT);
 		injectValidity(msg, 7, 2, 7, 24);
 		
 		
-		List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, hints);
+		List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, ctx);
 		
 		assertOneLexeme(l, Lexeme.Identity.VALID_TIME, "070224");
 	}
@@ -65,11 +66,11 @@ public class ValidTimeReconstructorTest {
 	{
 		TAF msg = mock(TAF.class);
 
-		hints.put(ConversionHints.KEY_VALIDTIME_FORMAT, ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT);
+		ctx.setHint(ConversionHints.KEY_VALIDTIME_FORMAT, ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT);
 		injectValidity(msg, 7, 18, 8, 10);
 		
 		
-		List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, hints);
+		List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, ctx);
 		
 		assertOneLexeme(l, Lexeme.Identity.VALID_TIME, "071810");
 	}
@@ -80,11 +81,11 @@ public class ValidTimeReconstructorTest {
 	{
 		TAF msg = mock(TAF.class);
 
-		hints.put(ConversionHints.KEY_VALIDTIME_FORMAT, ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT);
+		ctx.setHint(ConversionHints.KEY_VALIDTIME_FORMAT, ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT);
 		injectValidity(msg, 7, 18, 8, 20);
 		
 		
-		List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, hints);
+		List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, ctx);
 		
 		assertOneLexeme(l, Lexeme.Identity.VALID_TIME, "0718/0820");
 	}
@@ -93,11 +94,11 @@ public class ValidTimeReconstructorTest {
 		Optional<PartialOrCompleteTimePeriod> p = Optional.of(new PartialOrCompleteTimePeriod.Builder()
 				.setStartTime(new PartialOrCompleteTimeInstant.Builder()
 						.setPartialTime(String.format("%02d%02d", startDay, startHour))
-						.setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+						.setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
 						.build())
 				.setEndTime(new PartialOrCompleteTimeInstant.Builder()
 						.setPartialTime(String.format("%02d%02d", endDay, endHour))
-						.setPartialTimePattern(PartialOrCompleteTimeInstant.DAY_HOUR_PATTERN)
+						.setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
 						.build())
 				.build());
 

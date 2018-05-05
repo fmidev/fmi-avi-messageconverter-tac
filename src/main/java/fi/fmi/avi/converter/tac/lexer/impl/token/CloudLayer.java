@@ -15,12 +15,13 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser.CloudAmount;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 import fi.fmi.avi.model.metar.ObservedClouds;
 import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.taf.TAF;
@@ -133,58 +134,60 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
-                final Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
-            Optional<fi.fmi.avi.model.CloudLayer> layer = getAs(specifier, 0, fi.fmi.avi.model.CloudLayer.class);
-            Optional<String> specialValue = getAs(specifier, 0, String.class);
+            Optional<fi.fmi.avi.model.CloudLayer> layer = ctx.getParameter("layer", fi.fmi.avi.model.CloudLayer.class);
 
-            Optional<NumericMeasure> verVis = null;
+            Optional<NumericMeasure> verVis = Optional.empty();
             boolean nsc = false;
             boolean cloudsUnobservable = false;
             
             if (TAF.class.isAssignableFrom(clz)) {
                 Optional<CloudForecast> cFct = Optional.empty();
-                Optional<TAFBaseForecast> baseFct = getAs(specifier, 1, TAFBaseForecast.class);
+                Optional<TAFBaseForecast> baseFct = ctx.getParameter("forecast", TAFBaseForecast.class);
                 if (baseFct.isPresent()) {
                     cFct = baseFct.get().getCloud();
                 } else {
-                    Optional<TAFChangeForecast> changeFct = getAs(specifier, 1, TAFChangeForecast.class);
+                    Optional<TAFChangeForecast> changeFct = ctx.getParameter("forecast", TAFChangeForecast.class);
                     if (changeFct.isPresent()) {
                         cFct = changeFct.get().getCloud();
                     }
                 }
                 if (cFct.isPresent()) {
-                    if (specialValue.isPresent() && "VV".equals(specialValue.get())) {
+                    Optional<Boolean> verticalVisibility = ctx.getParameter("verticalVisibility", Boolean.class);
+                    if (verticalVisibility.isPresent() && verticalVisibility.get()) {
                         verVis = cFct.get().getVerticalVisibility();
                     } else if (cFct.get().isNoSignificantCloud()) {
                         nsc = true;
                     }
                 }
-            } else if (METAR.class.isAssignableFrom(clz)) {
-            	METAR metar = (METAR)msg;
-                Optional<ObservedClouds> obsClouds = metar.getClouds();
-                if (obsClouds.isPresent() && obsClouds.get().isNoSignificantCloud()) {
-                    nsc = true;
-            	}
-                if (obsClouds.isPresent() && obsClouds.get().isAmountAndHeightUnobservableByAutoSystem()) {
-                    cloudsUnobservable = true;
-				}
-                Optional<TrendForecast> trend = getAs(specifier, TrendForecast.class);
-                if (trend.isPresent() && trend.get().getCloud().isPresent()) {
-                    fi.fmi.avi.model.CloudForecast cloud = trend.get().getCloud().get();
-                    if (specialValue.isPresent() && "VV".equals(specialValue.get())) {
-                        verVis = cloud.getVerticalVisibility();
-                    } else if (cloud.isNoSignificantCloud()) {
+            } else if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
+                Optional<Boolean> verticalVisibility = ctx.getParameter("verticalVisibility", Boolean.class);
+                if (trend.isPresent()) {
+                    if (trend.get().getCloud().isPresent()) {
+                        fi.fmi.avi.model.CloudForecast cloud = trend.get().getCloud().get();
+                        if (verticalVisibility.isPresent() && verticalVisibility.get()) {
+                            verVis = cloud.getVerticalVisibility();
+                        } else if (cloud.isNoSignificantCloud()) {
+                            nsc = true;
+                        }
+                    }
+                } else {
+                    MeteorologicalTerminalAirReport metar = (MeteorologicalTerminalAirReport) msg;
+                    Optional<ObservedClouds> obsClouds = metar.getClouds();
+                    if (obsClouds.isPresent() && obsClouds.get().isNoSignificantCloud()) {
                         nsc = true;
-            		}
-            	} else {
-                    if (metar.getClouds().isPresent() && specialValue.isPresent() && "VV".equals(specialValue.get())) {
+                    }
+                    if (obsClouds.isPresent() && obsClouds.get().isAmountAndHeightUnobservableByAutoSystem()) {
+                        cloudsUnobservable = true;
+                    }
+                    if (metar.getClouds().isPresent() && verticalVisibility.isPresent() && verticalVisibility.get()) {
                         verVis = metar.getClouds().get().getVerticalVisibility();
                     }
-            	}
+                }
             }
             if (cloudsUnobservable) {
                 retval = Optional.of(this.createLexeme("//////", Identity.CLOUD));

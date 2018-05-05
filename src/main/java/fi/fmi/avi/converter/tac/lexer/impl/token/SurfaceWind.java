@@ -13,10 +13,11 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 import fi.fmi.avi.model.metar.ObservedSurfaceWind;
 import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.metar.TrendForecastSurfaceWind;
@@ -97,12 +98,12 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
 	public static class Reconstructor extends FactoryBasedReconstructor {
 
 		@Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
             if (TAF.class.isAssignableFrom(clz)) {
-                Optional<TAFBaseForecast> base = getAs(specifier, TAFBaseForecast.class);
+                Optional<TAFBaseForecast> base = ctx.getParameter("forecast", TAFBaseForecast.class);
                 if (base.isPresent()) {
                     Optional<TAFSurfaceWind> wind = base.get().getSurfaceWind();
                     if (!wind.isPresent()) {
@@ -120,8 +121,8 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                             wind.get().getWindGust().orElse(null));
                     retval = Optional.of(this.createLexeme(builder.toString(), Lexeme.Identity.SURFACE_WIND));
                 }
-            } else if (METAR.class.isAssignableFrom(clz)) {
-                Optional<TrendForecast> trend = getAs(specifier, TrendForecast.class);
+            } else if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
                 String tokenStr = null;
                 if (trend.isPresent()) {
                     Optional<TrendForecastSurfaceWind> wind = trend.get().getSurfaceWind();
@@ -133,18 +134,21 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                         tokenStr = builder.toString();
                     }
                 } else {
-                    METAR m = (METAR) msg;
-                    Optional<ObservedSurfaceWind> wind = m.getSurfaceWind();
+                    Optional<ObservedSurfaceWind> wind = ((MeteorologicalTerminalAirReport)msg).getSurfaceWind();
                     if (wind.isPresent()) {
                         StringBuilder builder = new StringBuilder();
                         if (wind.get().isVariableDirection()) {
                             builder.append("VRB");
-                        } else if (!wind.get().getMeanWindDirection().getUom().equals("deg")) {
-                            throw new SerializingException("Mean wind direction unit is not 'deg': " + wind.get().getMeanWindDirection().getUom());
+                        } else if (wind.get().getMeanWindDirection().isPresent()) {
+                            if (!wind.get().getMeanWindDirection().get().getUom().equals("deg")) {
+                                throw new SerializingException("Mean wind direction unit is not 'deg': " + wind.get().getMeanWindDirection().get().getUom());
+                            } else {
+                                builder.append(String.format("%03d", wind.get().getMeanWindDirection().get().getValue().intValue()));
+                            }
                         } else {
-                            builder.append(String.format("%03d", wind.get().getMeanWindDirection().getValue().intValue()));
+                            throw new SerializingException("Mean wind direction must be set if variable wind direction is false");
                         }
-                        this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getMeanWindDirection(),
+                        this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getMeanWindDirection().orElse(null),
                                 wind.get().getWindGust().orElse(null));
                         tokenStr = builder.toString();
                     }

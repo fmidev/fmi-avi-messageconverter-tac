@@ -12,10 +12,11 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 import fi.fmi.avi.model.metar.ObservedSurfaceWind;
 
 /**
@@ -49,10 +50,10 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
     
     public static class Reconstructor extends FactoryBasedReconstructor {
     	@Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier) throws SerializingException {
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx) throws SerializingException {
 
-            if (METAR.class.isAssignableFrom(clz)) {
-                METAR m = (METAR) msg;
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                MeteorologicalTerminalAirReport m = (MeteorologicalTerminalAirReport) msg;
                 Optional<ObservedSurfaceWind> wind = m.getSurfaceWind();
 
                 if (wind.isPresent()) {
@@ -90,9 +91,7 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
 			}
 
 			
-			String ret = String.format("%03dV%03d", counter.getValue().intValue(), clockwise.getValue().intValue());
-			
-			return ret;
+			return String.format("%03dV%03d", counter.getValue().intValue(), clockwise.getValue().intValue());
 		}
     }
 }

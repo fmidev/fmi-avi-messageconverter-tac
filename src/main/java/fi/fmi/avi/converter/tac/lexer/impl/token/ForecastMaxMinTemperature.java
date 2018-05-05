@@ -6,8 +6,6 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -15,6 +13,7 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
@@ -98,46 +97,60 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
         
     }
 
-    public static class Reconstructor extends FactoryBasedReconstructor {
+    static String formatTemp(String prefix, NumericMeasure temp, PartialOrCompleteTimeInstant time) {
+        StringBuilder sb = new StringBuilder(prefix);
+        if (temp.getValue() < 0.0 || 1.0d / temp.getValue() == Double.NEGATIVE_INFINITY) {
+            sb.append('M');
+        }
+        sb.append(String.format("%02d", Math.round(Math.abs(temp.getValue()))));
+        sb.append('/');
+        sb.append(String.format("%02d", time.getDay()));
+        sb.append(String.format("%02d", time.getHour()));
+        sb.append('Z');
+        return sb.toString();
+    }
+
+    public static class MaxReconstructor extends FactoryBasedReconstructor {
     	@Override
-        public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            List<Lexeme> retval = new ArrayList<>();
+            Optional<Lexeme> retval = Optional.empty();
     		
     		if (TAF.class.isAssignableFrom(clz)) {
-                Optional<TAFBaseForecast> forecast = getAs(specifier, TAFBaseForecast.class);
-                if (forecast.isPresent() && forecast.get().getTemperatures().isPresent()) {
-                    for (TAFAirTemperatureForecast temp : forecast.get().getTemperatures().get()) {
-
-                        if (!"degC".equals(temp.getMaxTemperature().getUom())) {
-                            throw new SerializingException(
-                                    "Unsupported unit of measurement for maximum temperature: '" + temp.getMaxTemperature().getUom() + "'");
-                        }
-                        retval.add(this.createLexeme(formatTemp("TX", temp.getMaxTemperature(), temp.getMaxTemperatureTime()), MAX_TEMPERATURE));
-
-                        if (!"degC".equals(temp.getMinTemperature().getUom())) {
-                            throw new SerializingException(
-                                    "Unsupported unit of measurement for minimum temperature: '" + temp.getMinTemperature().getUom() + "'");
-                        }
-                        retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
-                        retval.add(this.createLexeme(formatTemp("TN", temp.getMinTemperature(), temp.getMinTemperatureTime()), MIN_TEMPERATURE));
+                Optional<TAFBaseForecast> baseForecast = ctx.getParameter("forecast", TAFBaseForecast.class);
+                Optional<TAFAirTemperatureForecast> airTemperatureForecast = ctx.getParameter("temp", TAFAirTemperatureForecast.class);
+                if (baseForecast.isPresent() && airTemperatureForecast.isPresent()) {
+                    TAFAirTemperatureForecast temp = airTemperatureForecast.get();
+                    if (!"degC".equals(temp.getMaxTemperature().getUom())) {
+                        throw new SerializingException(
+                                "Unsupported unit of measurement for maximum temperature: '" + temp.getMaxTemperature().getUom() + "'");
                     }
+                    retval = Optional.of(this.createLexeme(formatTemp("TX", temp.getMaxTemperature(), temp.getMaxTemperatureTime()), MAX_TEMPERATURE));
                 }
             }
             return retval;
     	}
+    }
 
-        public String formatTemp(String prefix, NumericMeasure temp, PartialOrCompleteTimeInstant time) {
-            StringBuilder sb = new StringBuilder(prefix);
-            if (temp.getValue() < 0.0 || 1.0d / temp.getValue() == Double.NEGATIVE_INFINITY) {
-                sb.append('M');
+    public static class MinReconstructor extends FactoryBasedReconstructor {
+        @Override
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+                throws SerializingException {
+            Optional<Lexeme> retval = Optional.empty();
+
+            if (TAF.class.isAssignableFrom(clz)) {
+                Optional<TAFBaseForecast> baseForecast = ctx.getParameter("forecast", TAFBaseForecast.class);
+                Optional<TAFAirTemperatureForecast> airTemperatureForecast = ctx.getParameter("temp", TAFAirTemperatureForecast.class);
+                if (baseForecast.isPresent() && airTemperatureForecast.isPresent()) {
+                    TAFAirTemperatureForecast temp = airTemperatureForecast.get();
+                    if (!"degC".equals(temp.getMinTemperature().getUom())) {
+                        throw new SerializingException(
+                                "Unsupported unit of measurement for minimum temperature: '" + temp.getMinTemperature().getUom() + "'");
+                    }
+                    retval = Optional.of(this.createLexeme(formatTemp("TN", temp.getMinTemperature(), temp.getMinTemperatureTime()), MIN_TEMPERATURE));
+                }
             }
-            sb.append(String.format("%02d", Math.round(Math.abs(temp.getValue()))));
-            sb.append('/');
-            sb.append(String.format("%02d", time.getDay()));
-            sb.append(String.format("%02d", time.getHour()));
-            sb.append('Z');
-    		return sb.toString();
-    	}
+            return retval;
+        }
     }
 }

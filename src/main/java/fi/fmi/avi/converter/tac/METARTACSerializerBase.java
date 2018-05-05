@@ -10,6 +10,8 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.Weather;
@@ -48,154 +50,156 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessage msg, final ConversionHints hints) throws SerializingException {
         T input = narrow(msg, hints);
+        ReconstructorContext<T> baseCtx = new ReconstructorContext<>(input, hints);
         LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
-        appendToken(retval, getStartTokenIdentity(), input, getMessageClass(), hints);
-        appendWhitespace(retval, ' ', hints);
-        if (appendToken(retval, Identity.CORRECTION, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        appendToken(retval, getStartTokenIdentity(), input, getMessageClass(), baseCtx);
+        appendWhitespace(retval, ' ');
+        if (appendToken(retval, Identity.CORRECTION, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
-        if (appendToken(retval, Identity.AERODROME_DESIGNATOR, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.AERODROME_DESIGNATOR, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
-        if (appendToken(retval, Identity.ISSUE_TIME, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
-        }
-
-        if (appendToken(retval, Identity.ROUTINE_DELAYED_OBSERVATION, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.ISSUE_TIME, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
 
-        if (appendToken(retval, Identity.NIL, input, getMessageClass(), hints) > 0) {
-            appendToken(retval, Identity.END_TOKEN, input, getMessageClass(), hints);
+        if (appendToken(retval, Identity.ROUTINE_DELAYED_OBSERVATION, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
+        }
+
+        if (appendToken(retval, Identity.NIL, input, getMessageClass(), baseCtx) > 0) {
+            appendToken(retval, Identity.END_TOKEN, input, getMessageClass(), baseCtx);
             return retval.build();
         }
 
-        if (appendToken(retval, Identity.AUTOMATED, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.AUTOMATED, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
-        if (appendToken(retval, Identity.SURFACE_WIND, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.SURFACE_WIND, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
-        if (appendToken(retval, Identity.VARIABLE_WIND_DIRECTION, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.VARIABLE_WIND_DIRECTION, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
-        if (appendToken(retval, Identity.CAVOK, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.CAVOK, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
-        if (appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
         if (input.getRunwayVisualRanges().isPresent()) {
             for (RunwayVisualRange range : input.getRunwayVisualRanges().get()) {
-                appendToken(retval, Identity.RUNWAY_VISUAL_RANGE, input, getMessageClass(), hints, range);
-                appendWhitespace(retval, ' ', hints);
+                appendToken(retval, Identity.RUNWAY_VISUAL_RANGE, input, getMessageClass(), baseCtx.copyWithParameter("rvr", range));
+                appendWhitespace(retval, ' ');
             }
         }
         if (input.getPresentWeather().isPresent()) {
             for (Weather weather : input.getPresentWeather().get()) {
-                appendToken(retval, Identity.WEATHER, input, getMessageClass(), hints, weather);
-                appendWhitespace(retval, ' ', hints);
+                appendToken(retval, Identity.WEATHER, input, getMessageClass(), baseCtx.copyWithParameter("weather", weather));
+                appendWhitespace(retval, ' ');
             }
         }
         Optional<ObservedClouds> obsClouds = input.getClouds();
         if (obsClouds.isPresent()) {
-            if (obsClouds.get().getVerticalVisibility() != null) {
-                this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), hints, "VV");
-                appendWhitespace(retval, ' ', hints);
+            if (obsClouds.get().getVerticalVisibility().isPresent()) {
+                this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(),baseCtx.copyWithParameter("verticalVisibility", Boolean.TRUE));
+                appendWhitespace(retval, ' ');
             } else if (obsClouds.get().isAmountAndHeightUnobservableByAutoSystem()) {
-                this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), hints, "//////");
-                appendWhitespace(retval, ' ', hints);
+                this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), baseCtx);
+                appendWhitespace(retval, ' ');
             } else if (obsClouds.get().isNoSignificantCloud()) {
-                this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), hints, "NSC");
-                appendWhitespace(retval, ' ', hints);
+                this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), baseCtx);
+                appendWhitespace(retval, ' ');
             } else if (obsClouds.get().getLayers().isPresent()){
-                this.appendCloudLayers(retval, input, getMessageClass(), obsClouds.get().getLayers().get(), hints);
+                this.appendCloudLayers(retval, input, getMessageClass(), obsClouds.get().getLayers().get(), baseCtx);
             }
         }
-        if (appendToken(retval, Identity.AIR_DEWPOINT_TEMPERATURE, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.AIR_DEWPOINT_TEMPERATURE, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
-        if (appendToken(retval, Identity.AIR_PRESSURE_QNH, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.AIR_PRESSURE_QNH, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
         if (input.getRecentWeather().isPresent()) {
             for (Weather weather : input.getRecentWeather().get()) {
-                appendToken(retval, Identity.RECENT_WEATHER, input, getMessageClass(), hints, weather);
-                appendWhitespace(retval, ' ', hints);
+                appendToken(retval, Identity.RECENT_WEATHER, input, getMessageClass(), baseCtx.copyWithParameter("weather", weather));
+                appendWhitespace(retval, ' ');
             }
         }
-        if (appendToken(retval, Identity.WIND_SHEAR, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.WIND_SHEAR, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
-        if (appendToken(retval, Identity.SEA_STATE, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.SEA_STATE, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
         if (input.getRunwayStates().isPresent()) {
             for (RunwayState state : input.getRunwayStates().get()) {
-                appendToken(retval, Identity.RUNWAY_STATE, input, getMessageClass(), hints, state);
-                appendWhitespace(retval, ' ', hints);
+                appendToken(retval, Identity.RUNWAY_STATE, input, getMessageClass(), baseCtx.copyWithParameter("state", state));
+                appendWhitespace(retval, ' ');
             }
         }
-        if (appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
-        if (appendToken(retval, Identity.COLOR_CODE, input, getMessageClass(), hints) > 0) {
-            appendWhitespace(retval, ' ', hints);
+        if (appendToken(retval, Identity.COLOR_CODE, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
         if (input.getTrends().isPresent()) {
             for (TrendForecast trend : input.getTrends().get()) {
-                if (appendToken(retval, Identity.TREND_CHANGE_INDICATOR, input, getMessageClass(), hints, trend) > 0) {
-                    appendWhitespace(retval, ' ', hints);
+                ReconstructorContext trendCtx = baseCtx.copyWithParameter("trend", trend);
+                if (appendToken(retval, Identity.TREND_CHANGE_INDICATOR, input, getMessageClass(), trendCtx) > 0) {
+                    appendWhitespace(retval, ' ');
                 }
-                if (appendToken(retval, Identity.TREND_TIME_GROUP, input, getMessageClass(), hints, trend) > 0) {
-                    appendWhitespace(retval, ' ', hints);
+                if (appendToken(retval, Identity.TREND_TIME_GROUP, input, getMessageClass(), trendCtx) > 0) {
+                    appendWhitespace(retval, ' ');
                 }
-                if (appendToken(retval, Identity.SURFACE_WIND, input, getMessageClass(), hints, trend) > 0) {
-                    appendWhitespace(retval, ' ', hints);
+                if (appendToken(retval, Identity.SURFACE_WIND, input, getMessageClass(), trendCtx) > 0) {
+                    appendWhitespace(retval, ' ');
                 }
-                if (appendToken(retval, Identity.CAVOK, input, getMessageClass(), hints, trend) > 0) {
-                    appendWhitespace(retval, ' ', hints);
+                if (appendToken(retval, Identity.CAVOK, input, getMessageClass(), trendCtx) > 0) {
+                    appendWhitespace(retval, ' ');
                 }
-                if (appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, getMessageClass(), hints, trend) > 0) {
-                    appendWhitespace(retval, ' ', hints);
+                if (appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, getMessageClass(), trendCtx) > 0) {
+                    appendWhitespace(retval, ' ');
                 }
-                if (appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, getMessageClass(), hints, trend) > 0) {
-                    appendWhitespace(retval, ' ', hints);
+                if (appendToken(retval, Identity.HORIZONTAL_VISIBILITY, input, getMessageClass(), trendCtx) > 0) {
+                    appendWhitespace(retval, ' ');
                 }
                 if (trend.getForecastWeather().isPresent()) {
                     for (Weather weather : trend.getForecastWeather().get()) {
-                        appendToken(retval, Identity.WEATHER, input, getMessageClass(), hints, trend, weather);
-                        appendWhitespace(retval, ' ', hints);
+                        appendToken(retval, Identity.WEATHER, input, getMessageClass(), trendCtx.copyWithParameter("weather", weather));
+                        appendWhitespace(retval, ' ');
                     }
                 }
 
                 Optional<CloudForecast> clouds = trend.getCloud();
                 if (clouds.isPresent()) {
-                    if (clouds.get().getVerticalVisibility() != null) {
-                        this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), hints, "VV", trend);
-                        appendWhitespace(retval, ' ', hints);
+                    if (clouds.get().getVerticalVisibility().isPresent()) {
+                        this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), trendCtx.copyWithParameter("verticalVisibility", Boolean.TRUE));
+                        appendWhitespace(retval, ' ');
                     } else if (clouds.get().isNoSignificantCloud()) {
-                        this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), hints, trend);
-                        appendWhitespace(retval, ' ', hints);
+                        this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), trendCtx);
+                        appendWhitespace(retval, ' ');
                     } else if (clouds.get().getLayers().isPresent()){
-                        this.appendCloudLayers(retval, input, getMessageClass(), clouds.get().getLayers().get(), hints, trend);
+                        this.appendCloudLayers(retval, input, getMessageClass(), clouds.get().getLayers().get(), trendCtx);
                     }
                 }
-                if (appendToken(retval, Identity.COLOR_CODE, input, getMessageClass(), hints, trend) > 0) {
-                    appendWhitespace(retval, ' ', hints);
+                if (appendToken(retval, Identity.COLOR_CODE, input, getMessageClass(), trendCtx) > 0) {
+                    appendWhitespace(retval, ' ');
                 }
             }
         }
         if (input.getRemarks().isPresent()) {
-            appendToken(retval, Identity.REMARKS_START, input, getMessageClass(), hints);
-            appendWhitespace(retval, ' ', hints);
+            appendToken(retval, Identity.REMARKS_START, input, getMessageClass(), baseCtx);
+            appendWhitespace(retval, ' ');
             for (String remark : input.getRemarks().get()) {
-                this.appendToken(retval, Identity.REMARK, input, getMessageClass(), hints, remark);
-                appendWhitespace(retval, ' ', hints);
+                this.appendToken(retval, Identity.REMARK, input, getMessageClass(), baseCtx.copyWithParameter("remark", remark));
+                appendWhitespace(retval, ' ');
             }
         }
         retval.removeLast();
-        appendToken(retval, Identity.END_TOKEN, input, getMessageClass(), hints);
+        appendToken(retval, Identity.END_TOKEN, input, getMessageClass(), baseCtx);
         return retval.build();
     }
 }

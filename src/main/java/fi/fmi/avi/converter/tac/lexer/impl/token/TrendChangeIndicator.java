@@ -11,8 +11,8 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.TrendForecast;
 
 /**
@@ -57,21 +57,19 @@ public class TrendChangeIndicator extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            if (METAR.class.isAssignableFrom(clz)) {
-                Optional<TrendForecast> trend = getAs(specifier, TrendForecast.class);
-                if (trend.isPresent()) {
-                    switch (trend.get().getChangeIndicator()) {
-                        case BECOMING: {
-                            return Optional.of(this.createLexeme("BECMG", TREND_CHANGE_INDICATOR));
-                        }
-                        case TEMPORARY_FLUCTUATIONS: {
-                            return Optional.of(this.createLexeme("TEMPO", TREND_CHANGE_INDICATOR));
-                        }
-                        case NO_SIGNIFICANT_CHANGES:
-                            return Optional.of(this.createLexeme("NOSIG", TREND_CHANGE_INDICATOR));
+            Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
+            if (trend.isPresent()) {
+                switch (trend.get().getChangeIndicator()) {
+                    case BECOMING: {
+                        return Optional.of(this.createLexeme("BECMG", TREND_CHANGE_INDICATOR));
                     }
+                    case TEMPORARY_FLUCTUATIONS: {
+                        return Optional.of(this.createLexeme("TEMPO", TREND_CHANGE_INDICATOR));
+                    }
+                    case NO_SIGNIFICANT_CHANGES:
+                        return Optional.of(this.createLexeme("NOSIG", TREND_CHANGE_INDICATOR));
                 }
             }
             return Optional.empty();

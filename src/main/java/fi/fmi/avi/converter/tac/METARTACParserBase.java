@@ -154,7 +154,6 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
         result.addIssue(setMETARIssueTime(builder,lexed, hints));
 
-        builder.setAutomatedStation(false);
         findNext(Identity.AUTOMATED, obs.getFirstLexeme(), (match) -> {
             final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
                     Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
@@ -199,12 +198,12 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         });
 
         if (AviationCodeListUser.MetarStatus.MISSING == builder.getStatus()) {
+            result.setConvertedMessage(buildUsing(builder));
             return result;
         }
 
         result.addIssue(setObservedSurfaceWind(builder, obs, hints));
 
-        builder.setCeilingAndVisibilityOk(false);
         findNext(Identity.CAVOK, obs.getFirstLexeme(), (match) -> {
             final Identity[] before = new Identity[] { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
                     Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
@@ -279,7 +278,6 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 if (direction == SurfaceWind.WindDirection.VARIABLE) {
                     wind.setVariableDirection(true);
                 } else {
-                    wind.setVariableDirection(false);
                     if (direction instanceof Integer) {
                         wind.setMeanWindDirection(NumericMeasureImpl.of((Integer) direction, "deg"));
                     } else {
@@ -511,12 +509,10 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     if (CloudLayer.SpecialValue.AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM == value) {
                         clouds.setAmountAndHeightUnobservableByAutoSystem(true);
                     } else {
-                        clouds.setAmountAndHeightUnobservableByAutoSystem(false);
                         if (CloudCover.NO_SIG_CLOUDS == cover || CloudCover.SKY_CLEAR == cover || CloudCover.NO_LOW_CLOUDS == cover
                                 || CloudCover.NO_CLOUD_DETECTED == cover) {
                             clouds.setNoSignificantCloud(true);
                         } else {
-                            clouds.setNoSignificantCloud(false);
                             if (value instanceof Integer) {
                                 if (CloudLayer.CloudCover.SKY_OBSCURED == cover) {
                                     int height = ((Integer) value);
@@ -960,10 +956,6 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         //Check for the possibly following FM, TL and AT tokens:
         Lexeme token = parseChangeTimeGroups(fctBuilder, groupStart.getNext(), retval, hints);
 
-        //Set defaults:
-        fctBuilder.setCeilingAndVisibilityOk(false);
-        fctBuilder.setNoSignificantWeather(false);
-
         //loop over change group tokens:
         Lexeme.Identity[] before = { Identity.REMARKS_START, Identity.END_TOKEN };
 
@@ -1083,7 +1075,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                         if (fromHour != null && fromMinute != null) {
                             builder.setInstantOfChange(new PartialOrCompleteTimeInstant.Builder()
                                     .setPartialTime(String.format("%02d%02d", fromHour, fromMinute))
-                                    .setPartialTimePattern(PartialOrCompleteTimeInstant.HOUR_MINUTE_PATTERN)
+                                    .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.HourMinute)
                                     .build());
                         } else {
                             issues.add(new ConversionIssue(Type.SYNTAX_ERROR, "Missing hour and/or minute from trend AT group " + token.getTACToken()));
@@ -1111,7 +1103,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                             }
                             pBuilder.setStartTime(new PartialOrCompleteTimeInstant.Builder()
                                 .setPartialTime(String.format("%02d%02d", fromHour, fromMinute))
-                                .setPartialTimePattern(PartialOrCompleteTimeInstant.HOUR_MINUTE_PATTERN)
+                                .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.HourMinute)
                                 .build());
                             builder.setPeriodOfChange(pBuilder.build());
                         } else {
@@ -1140,7 +1132,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                             }
                             pBuilder.setEndTime(new PartialOrCompleteTimeInstant.Builder()
                                     .setPartialTime(String.format("%02d%02d", toHour, toMinute))
-                                    .setPartialTimePattern(PartialOrCompleteTimeInstant.HOUR_MINUTE_PATTERN)
+                                    .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.HourMinute)
                                     .build());
                             builder.setPeriodOfChange(pBuilder.build());
                         } else {

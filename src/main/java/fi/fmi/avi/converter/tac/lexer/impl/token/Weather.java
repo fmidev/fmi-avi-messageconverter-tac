@@ -18,9 +18,12 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.SPECI;
+import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
@@ -505,27 +508,14 @@ public class Weather extends RegexMatchingLexemeVisitor {
 		}
     	
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
-                final Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            Optional<fi.fmi.avi.model.Weather> weather;
-            if (TAF.class.isAssignableFrom(clz)) {
-                weather = getAs(specifier, 1, fi.fmi.avi.model.Weather.class);
-                if (weather.isPresent() && isCodeAllowed(weather.get(), hints)) {
-                    Optional<TAFBaseForecast> baseFct = getAs(specifier, 0, TAFBaseForecast.class);
-                    Optional<TAFChangeForecast> changeFct = getAs(specifier, 0, TAFChangeForecast.class);
-                    if ((baseFct.isPresent() || changeFct.isPresent())) {
-                        return Optional.of(this.createLexeme(weather.get().getCode(), Lexeme.Identity.WEATHER));
-                    }
-                }
-            } else if (METAR.class.isAssignableFrom(clz)) {
-                weather = getAs(specifier, 0, fi.fmi.avi.model.Weather.class);
-                if (weather.isPresent() && isCodeAllowed(weather.get(), hints)) {
-                    if (recentWeather) {
-                        return Optional.of(this.createLexeme("RE" + weather.get().getCode(), Lexeme.Identity.RECENT_WEATHER));
-                    } else {
-                        return Optional.of(this.createLexeme(weather.get().getCode(), Lexeme.Identity.WEATHER));
-                    }
+            Optional<fi.fmi.avi.model.Weather> weather = ctx.getParameter("weather", fi.fmi.avi.model.Weather.class);
+            if (weather.isPresent() && isCodeAllowed(weather.get(), ctx.getHints())) {
+                if (recentWeather) {
+                    return Optional.of(this.createLexeme("RE" + weather.get().getCode(), Lexeme.Identity.RECENT_WEATHER));
+                } else {
+                    return Optional.of(this.createLexeme(weather.get().getCode(), Lexeme.Identity.WEATHER));
                 }
             }
             return Optional.empty();
@@ -544,7 +534,7 @@ public class Weather extends RegexMatchingLexemeVisitor {
                 } else {
                     throw new SerializingException("Illegal weather code " + weather.getCode());
                 }
-            } else if (hints != null) {
+            } else {
                 if (ConversionHints.VALUE_WEATHER_CODES_ALLOW_ANY.equals(hints.get(ConversionHints.KEY_WEATHER_CODES))) {
                     retval = true;
                 } else if (ConversionHints.VALUE_WEATHER_CODES_IGNORE_NON_WMO_4678.equals(hints.get(ConversionHints.KEY_WEATHER_CODES))) {

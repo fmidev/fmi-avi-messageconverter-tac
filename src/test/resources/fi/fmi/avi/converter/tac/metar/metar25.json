@@ -112,7 +112,7 @@
     }
   ],
   "windShear": {
-    "allRunways": false,
+    "appliedToAllRunways": false,
     "runwayDirections": [
       {
         "associatedAirportHeliport": {

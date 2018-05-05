@@ -42,8 +42,10 @@ public class LexingFactoryImpl implements LexingFactory {
     private static void appendArtifialStartTokenIfNecessary(final String input, final LexemeSequenceImpl result, final ConversionHints hints) {
         if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
             LexemeImpl artificialStartToken = null;
-            if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_METAR && !input.startsWith("ImmutableMETAR ")) {
-                artificialStartToken = new LexemeImpl("ImmutableMETAR", Lexeme.Identity.METAR_START);
+            if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_METAR && !input.startsWith("METAR ")) {
+                artificialStartToken = new LexemeImpl("METAR", Lexeme.Identity.METAR_START);
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_SPECI && !input.startsWith("SPECI ")) {
+                artificialStartToken = new LexemeImpl("SPECI", Lexeme.Identity.SPECI_START);
             } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_TAF && !input.startsWith("TAF ")) {
                 artificialStartToken = new LexemeImpl("TAF", Lexeme.Identity.TAF_START);
             }

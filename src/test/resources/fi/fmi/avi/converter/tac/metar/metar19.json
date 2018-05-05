@@ -133,7 +133,6 @@
   },
   "runwayStates": [
     {
-      "runwayDirection": null,
       "repetition": true,
       "deposit": "MISSING_OR_NOT_REPORTED",
       "contamination": "MISSING_OR_NOT_REPORTED",
@@ -144,9 +143,9 @@
   "trends": [
     {
       "changeIndicator": "BECOMING",
-      "timeGroups": {
-        "partialStartTime": "0927",
-        "singleInstance": true
+      "instantOfChange": {
+        "partialTime": "0927",
+        "partialTimePattern": "HourMinute"
       },
       "surfaceWind": {
         "meanWindDirection": {
@@ -166,9 +165,11 @@
     },
     {
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "timeGroups": {
-        "partialStartTime": "1051",
-        "singleInstance": false
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "1051",
+          "partialTimePattern": "HourMinute"
+        }
       },
       "cloud": {
         "verticalVisibility": {
@@ -179,9 +180,11 @@
     },
     {
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "timeGroups": {
-        "partialStartTime": "1130",
-        "singleInstance": false
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "1130",
+          "partialTimePattern": "HourMinute"
+        }
       },
       "cloud": {
         "noSignificantCloud": true

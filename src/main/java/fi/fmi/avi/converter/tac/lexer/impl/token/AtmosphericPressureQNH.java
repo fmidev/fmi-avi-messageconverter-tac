@@ -12,10 +12,11 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 
 /**
  * Created by rinne on 10/02/17.
@@ -64,16 +65,16 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
             NumericMeasure altimeter = null;
 
-            if (METAR.class.isAssignableFrom(clz)) {
-                METAR metar = (METAR) msg;
-                if (metar.getAltimeterSettingQNH().isPresent()) {
-                    altimeter = metar.getAltimeterSettingQNH().get();
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                Optional<NumericMeasure> qnh = ((MeteorologicalTerminalAirReport)msg).getAltimeterSettingQNH();
+                if (qnh.isPresent()) {
+                    altimeter = qnh.get();
                     if (altimeter.getValue() == null) {
                         throw new SerializingException("AltimeterSettingQNH is missing the value");
                     }
@@ -89,7 +90,6 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
 
                     StringBuilder builder = new StringBuilder();
                     builder.append(unit);
-
                     builder.append(String.format("%04d", altimeter.getValue().intValue()));
 
                     retval = Optional.of(this.createLexeme(builder.toString(), Identity.AIR_DEWPOINT_TEMPERATURE));

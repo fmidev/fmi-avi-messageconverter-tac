@@ -18,11 +18,13 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Status;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser.RelationalOperator;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.HorizontalVisibility;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
@@ -156,7 +158,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 	public static class Reconstructor extends FactoryBasedReconstructor {
 
 		@Override
-        public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
 			List<Lexeme> retval = new ArrayList<>();
 
@@ -166,27 +168,27 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
             Optional<NumericMeasure> minimumVisibilityDistance = Optional.empty();
             Optional<NumericMeasure> minimumVisibilityDirection = Optional.empty();
 
-            Optional<TAFBaseForecast> base = getAs(specifier, TAFBaseForecast.class);
+            Optional<TAFBaseForecast> base = ctx.getParameter("forecast", TAFBaseForecast.class);
             if (base.isPresent()) {
                 visibility = base.get().getPrevailingVisibility();
                 operator = base.get().getPrevailingVisibilityOperator();
             } else {
-                Optional<TAFChangeForecast> change = getAs(specifier, TAFChangeForecast.class);
+                Optional<TAFChangeForecast> change = ctx.getParameter("forecast", TAFChangeForecast.class);
                 if (change.isPresent()) {
                     visibility = change.get().getPrevailingVisibility();
                     operator = change.get().getPrevailingVisibilityOperator();
                 } else {
-                    Optional<TrendForecast> metarTrend = getAs(specifier, TrendForecast.class);
+                    Optional<TrendForecast> metarTrend = ctx.getParameter("trend", TrendForecast.class);
                     if (metarTrend.isPresent()) {
                         visibility = metarTrend.get().getPrevailingVisibility();
                         operator = metarTrend.get().getPrevailingVisibilityOperator();
-                    } else if (METAR.class.isAssignableFrom(clz)) {
-                        METAR metar = (METAR) msg;
-                        if (metar.getVisibility().isPresent()) {
-                            visibility = Optional.of(metar.getVisibility().get().getPrevailingVisibility());
-                            operator = metar.getVisibility().get().getPrevailingVisibilityOperator();
-                            minimumVisibilityDistance = metar.getVisibility().get().getMinimumVisibility();
-                            minimumVisibilityDirection = metar.getVisibility().get().getMinimumVisibilityDirection();
+                    } else if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                        Optional<HorizontalVisibility> vis = ((MeteorologicalTerminalAirReport)msg).getVisibility();
+                        if (vis.isPresent()) {
+                            visibility = Optional.of(vis.get().getPrevailingVisibility());
+                            operator = vis.get().getPrevailingVisibilityOperator();
+                            minimumVisibilityDistance = vis.get().getMinimumVisibility();
+                            minimumVisibilityDirection = vis.get().getMinimumVisibilityDirection();
                         }
                     }
                 }
@@ -314,7 +316,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 			return builder.toString();
 		}
 
-		public static String findClosestFraction(final double number, final int maxDenominator) {
+		static String findClosestFraction(final double number, final int maxDenominator) {
 			if (maxDenominator < 3) {
 				throw new IllegalArgumentException("max denominator should be at least 3 to make any sense, you gave me " + maxDenominator);
 			}

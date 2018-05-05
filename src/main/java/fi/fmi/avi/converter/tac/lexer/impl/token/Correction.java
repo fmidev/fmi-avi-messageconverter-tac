@@ -8,9 +8,10 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 import fi.fmi.avi.model.taf.TAF;
 
 /**
@@ -32,11 +33,10 @@ public class Correction extends PrioritizedLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
-                final Object... specifier) {
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
 
-            if (METAR.class.isAssignableFrom(clz)) {
-                if (AviationCodeListUser.MetarStatus.CORRECTION == ((METAR) msg).getStatus()) {
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                if (AviationCodeListUser.MetarStatus.CORRECTION == ((MeteorologicalTerminalAirReport) msg).getStatus()) {
                     return Optional.of(this.createLexeme("COR", CORRECTION));
                 }
             } else if (TAF.class.isAssignableFrom(clz)) {

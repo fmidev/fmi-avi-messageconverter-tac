@@ -15,6 +15,7 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.taf.TAF;
@@ -108,12 +109,12 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
         }
 
 		@Override
-        public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             List<Lexeme> retval = new ArrayList<>();
 
             if (TAF.class.isAssignableFrom(clz)) {
-                Optional<TAFChangeForecast> changeForecast = getAs(specifier, TAFChangeForecast.class);
+                Optional<TAFChangeForecast> changeForecast = ctx.getParameter("forecast", TAFChangeForecast.class);
 
                 if (changeForecast.isPresent()) {
                     switch (changeForecast.get().getChangeIndicator()) {
@@ -142,7 +143,7 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
                         case FROM:
                             if (changeForecast.get().getValidityTime().getStartTime().isPresent()) {
                                 StringBuilder ret = new StringBuilder("FM");
-                                ret.append(encodeValidityTimeFrom(changeForecast.get().getValidityTime().getStartTime().get(), hints));
+                                ret.append(encodeValidityTimeFrom(changeForecast.get().getValidityTime().getStartTime().get(), ctx.getHints()));
                                 retval.add(this.createLexeme(ret.toString(), TAF_FORECAST_CHANGE_INDICATOR));
                             } else {
                                 throw new SerializingException("Validity time start is not available in TAF change forecast");

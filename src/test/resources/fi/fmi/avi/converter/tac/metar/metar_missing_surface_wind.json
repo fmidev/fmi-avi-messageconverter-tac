@@ -19,7 +19,6 @@
     "value": 1005.0,
     "uom": "hPa"
   },
-  "surfaceWind": null,
   "visibility": {
     "prevailingVisibility": {
       "value": 10000,

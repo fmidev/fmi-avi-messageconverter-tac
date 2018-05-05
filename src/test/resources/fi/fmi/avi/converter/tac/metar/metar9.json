@@ -112,7 +112,7 @@
     }
   ],
   "windShear": {
-    "allRunways": true
+    "appliedToAllRunways": true
   },
   "trends": [
     {

@@ -49,7 +49,7 @@
   },
   "runwayStates": [
     {
-      "allRunways": true,
+      "appliedToAllRunways": true,
       "snowClosure": true
     }
   ],

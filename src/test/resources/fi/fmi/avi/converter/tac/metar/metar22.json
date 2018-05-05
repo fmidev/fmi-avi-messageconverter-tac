@@ -47,7 +47,7 @@
         "uom": "mm"
       },
       "depthOperator": "BELOW",
-      "estimatedSurfaceFriction": 38
+      "estimatedSurfaceFriction": 0.38
     },
     {
      "runwayDirection": {
@@ -67,9 +67,11 @@
   ],
   "trends": [
     {
-      "timeGroups": {
-        "partialEndTime": "1530",
-        "singleInstance": false
+      "periodOfChange": {
+        "endTime": {
+          "partialTime": "1530",
+          "partialTimePattern": "HourMinute"
+        }
       },
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
       "noSignificantWeather": true

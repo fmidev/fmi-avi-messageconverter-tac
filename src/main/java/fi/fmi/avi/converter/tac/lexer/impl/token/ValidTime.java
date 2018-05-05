@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +148,7 @@ public class ValidTime extends TimeHandlingRegex {
                 PartialOrCompleteTimeInstant end = period.getEndTime().get();
                 if (end.getDay() > 0 && useShortFormat) {
                     //If the valid time period is < 24h and the short format is preferred, is the short format
-                    retval = String.format("%02d%02d%02d", start.getDay(), end.getHour(), end.getHour());
+                    retval = String.format("%02d%02d%02d", start.getDay(), start.getHour(), end.getHour());
                 } else {
                     // Otherwise produce validity in the long format
                     retval = String.format("%02d%02d/%02d%02d", start.getDay(), start.getHour(), end.getDay(), end.getHour());
@@ -157,12 +158,12 @@ public class ValidTime extends TimeHandlingRegex {
         }
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (TAF.class.isAssignableFrom(clz)) {
                 TAF taf = (TAF) msg;
                 if (taf.getValidityTime().isPresent()) {
-                    String period = encodeValidityTimePeriod(taf.getValidityTime().get(), hints);
+                    String period = encodeValidityTimePeriod(taf.getValidityTime().get(), ctx.getHints());
                     return Optional.of(this.createLexeme(period, Lexeme.Identity.VALID_TIME));
                 } else {
                     throw new SerializingException("Validity time not available in TAF");

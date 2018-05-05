@@ -10,10 +10,11 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.RunwayDirection;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 
 /**
  * Created by rinne on 10/02/17.
@@ -40,11 +41,10 @@ public class WindShear extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints,
-                final Object... specifier) throws SerializingException {
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) throws SerializingException {
 
-            if (METAR.class.isAssignableFrom(clz)) {
-                METAR metar = (METAR) msg;
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                MeteorologicalTerminalAirReport metar = (MeteorologicalTerminalAirReport) msg;
                 Optional<fi.fmi.avi.model.metar.WindShear> windShear = metar.getWindShear();
 
                 if (windShear.isPresent()) {
@@ -52,7 +52,7 @@ public class WindShear extends RegexMatchingLexemeVisitor {
                     if (windShear.get().isAppliedToAllRunways()) {
                         str.append(" ALL RWY");
                     } else if (windShear.get().getRunwayDirections().isPresent()) {
-                        boolean annex3_16th = hints.containsValue(ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
+                        boolean annex3_16th = ctx.getHints().containsValue(ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
                         for (RunwayDirection rwd : windShear.get().getRunwayDirections().get()) {
                             if (annex3_16th) {
                                 str.append(" RWY");

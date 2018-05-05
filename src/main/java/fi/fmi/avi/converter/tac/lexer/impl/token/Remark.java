@@ -11,6 +11,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 
 /**
@@ -34,15 +35,9 @@ public class Remark extends PrioritizedLexemeVisitor {
     }
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            if (msg.getRemarks().isPresent() && !msg.getRemarks().get().isEmpty()) {
-                Optional<String> rmk = getAs(specifier, String.class);
-                if (rmk.isPresent()) {
-                    return Optional.of(this.createLexeme(rmk.get(), REMARK));
-               }
-            }
-            return null;
+            return ctx.getParameter("remark", String.class).map(rmk -> this.createLexeme(rmk, REMARK));
         }
     }
 }

@@ -12,10 +12,13 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
+import fi.fmi.avi.model.metar.SPECI;
 
 /**
  * Created by rinne on 10/02/17.
@@ -75,16 +78,16 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ReconstructorContext<T> ctx)
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
-            if (METAR.class.isAssignableFrom(clz)) {
-
-                METAR metar = (METAR) msg;
-                if (metar.getAirTemperature().isPresent() && metar.getDewpointTemperature().isPresent()) {
-                    NumericMeasure air = metar.getAirTemperature().get();
-                    NumericMeasure dew = metar.getDewpointTemperature().get();
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                Optional<NumericMeasure> airTemp = ((MeteorologicalTerminalAirReport)msg).getAirTemperature();
+                Optional<NumericMeasure> dewpointTemp = ((MeteorologicalTerminalAirReport)msg).getDewpointTemperature();
+                if (airTemp.isPresent() && dewpointTemp.isPresent()) {
+                    NumericMeasure air = airTemp.get();
+                    NumericMeasure dew = dewpointTemp.get();
 
                     if (air.getValue() == null) {
                         throw new SerializingException("AirTemperature exists, but no value");

@@ -3,7 +3,7 @@
   "issueTime": {
     "partialTime": "041250Z"
   },
-  "delayed": true,
+  "routineDelayed": true,
   "aerodrome": {
     "designator": "EFJY"
   },

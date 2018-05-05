@@ -16,6 +16,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.PartialOrCompleteTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
@@ -70,25 +71,23 @@ public class TrendTimeGroup extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            if (METAR.class.isAssignableFrom(clz)) {
-                Optional<TrendForecast> trend = getAs(specifier, TrendForecast.class);
-                if (trend.isPresent()) {
-                    PartialOrCompleteTime validity = null;
-                    if (trend.get().getPeriodOfChange().isPresent()) {
-                        validity = trend.get().getPeriodOfChange().get();
-                    } else if (trend.get().getInstantOfChange().isPresent()) {
-                        validity = trend.get().getInstantOfChange().get();
-                    }
-                    if (validity != null) {
-                        switch (trend.get().getChangeIndicator()) {
-                            case BECOMING: {
-                                return createTrendTimeChangePeriods(validity);
-                            }
-                            case TEMPORARY_FLUCTUATIONS: {
-                                return createTrendTimeChangePeriods(validity);
-                            }
+            Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
+            if (trend.isPresent()) {
+                PartialOrCompleteTime validity = null;
+                if (trend.get().getPeriodOfChange().isPresent()) {
+                    validity = trend.get().getPeriodOfChange().get();
+                } else if (trend.get().getInstantOfChange().isPresent()) {
+                    validity = trend.get().getInstantOfChange().get();
+                }
+                if (validity != null) {
+                    switch (trend.get().getChangeIndicator()) {
+                        case BECOMING: {
+                            return createTrendTimeChangePeriods(validity);
+                        }
+                        case TEMPORARY_FLUCTUATIONS: {
+                            return createTrendTimeChangePeriods(validity);
                         }
                     }
                 }

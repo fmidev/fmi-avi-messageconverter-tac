@@ -63,14 +63,16 @@
         "uom": "cm"
       },
       "depthOperator": "ABOVE",
-      "estimatedSurfaceFriction": 38
+      "estimatedSurfaceFriction": 0.38
     }
   ],
   "trends": [
     {
-      "timeGroups": {
-        "partialEndTime": "1530",
-        "singleInstance": false
+      "periodOfChange": {
+        "endTime": {
+          "partialTime": "1530",
+          "partialTimePattern": "HourMinute"
+        }
       },
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
       "noSignificantWeather": true
