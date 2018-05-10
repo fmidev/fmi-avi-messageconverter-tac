@@ -14,7 +14,7 @@
     },
     "meanWindSpeed": {
       "value": 9.0,
-      "uom": "kt"
+      "uom": "[kn_i]"
     },
     "extremeClockwiseWindDirection": {
       "value": 40.0,

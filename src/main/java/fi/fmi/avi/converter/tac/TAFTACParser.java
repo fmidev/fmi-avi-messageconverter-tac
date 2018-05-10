@@ -1,5 +1,7 @@
 package fi.fmi.avi.converter.tac;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 
 import java.util.ArrayList;
@@ -117,19 +119,9 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                TAF.TAFStatus status = builder.getStatus();
-                if (status != null) {
-                    result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
-                            "TAF cannot be both " + TAF.TAFStatus.AMENDMENT + " and " + status + " at " + "the same time"));
-                } else {
-                    builder.setStatus(AviationCodeListUser.TAFStatus.AMENDMENT);
-                }
+                builder.setStatus(AviationCodeListUser.TAFStatus.AMENDMENT);
             }
         });
-
-        if (builder.getStatus() == null) {
-            builder.setStatus(AviationCodeListUser.TAFStatus.NORMAL);
-        }
 
         findNext(Identity.AERODROME_DESIGNATOR, lexed.getFirstLexeme(), (match) -> {
             Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.NIL, Identity.VALID_TIME, Identity.CANCELLATION, Identity.SURFACE_WIND,
@@ -178,6 +170,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
 
         //End processing here if NIL:
         if (AviationCodeListUser.TAFStatus.MISSING == builder.getStatus()) {
+            result.setConvertedMessage(builder.build());
             return result;
         }
 
@@ -203,6 +196,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
 
         //End processing here if CNL:
         if (AviationCodeListUser.TAFStatus.CANCELLATION == builder.getStatus()) {
+            result.setConvertedMessage(builder.build());
             return result;
         }
 
@@ -214,6 +208,8 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                 result.addIssue(addChangeForecast(builder, subSequences.get(i).getFirstLexeme(), hints));
             }
         }
+
+        setFromChangeForecastEndTimes(builder);
 
         result.setConvertedMessage(builder.build());
         return result;
@@ -260,8 +256,8 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                                         .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
                                         .build())
                                 .setEndTime(new PartialOrCompleteTimeInstant.Builder()
-                                        .setPartialTime(String.format("%02d%02d", startDay, endHour))
-                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
+                                        .setPartialTime(String.format("%02d", endHour))
+                                        .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.Hour)
                                         .build())
                                 .build());
                     }
@@ -431,16 +427,16 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                         Integer minute = changeFctToken.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
                         if (hour != null && minute != null) {
                             if (day != null) {
-                                changeFct.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
+                                changeFct.setPeriodOfChange(new PartialOrCompleteTimePeriod.Builder()
                                         .setStartTime(new PartialOrCompleteTimeInstant.Builder().setPartialTime(
-                                                String.format("FM%02d%02d%02d", day, hour, minute))
-                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.FromDayHourMinute)
+                                                String.format("%02d%02d%02d", day, hour, minute))
+                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHourMinute)
                                                 .build())
                                         .build());
                             } else {
-                                changeFct.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
-                                        .setStartTime(new PartialOrCompleteTimeInstant.Builder().setPartialTime(String.format("FM%02d%02d", hour, minute))
-                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.FromHourMinute)
+                                changeFct.setPeriodOfChange(new PartialOrCompleteTimePeriod.Builder()
+                                        .setStartTime(new PartialOrCompleteTimeInstant.Builder().setPartialTime(String.format("%02d%02d", hour, minute))
+                                                .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.HourMinute)
                                                 .build())
                                         .build());
                             }
@@ -470,6 +466,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                         result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Unknown change group " + type));
                         break;
                 }
+
                 changeForecasts.add(changeFct.build());
             } else {
                 result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing change group content"));
@@ -477,6 +474,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         } else {
             result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing change group content"));
         }
+        builder.setChangeForecasts(changeForecasts);
         return result;
     }
 
@@ -500,7 +498,8 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                     Integer endHour = timeGroup.getParsedValue(Lexeme.ParsedValueName.HOUR2, Integer.class);
                     if (startHour != null && endHour != null) {
                         if (startDay != null && endDay != null) {
-                            builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
+
+                            builder.setPeriodOfChange(new PartialOrCompleteTimePeriod.Builder()
                                     .setStartTime(new PartialOrCompleteTimeInstant.Builder()
                                             .setPartialTime(String.format("%02d%02d", startDay, startHour))
                                             .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHour)
@@ -511,7 +510,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
                                             .build())
                                     .build());
                         } else {
-                            builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()
+                            builder.setPeriodOfChange(new PartialOrCompleteTimePeriod.Builder()
                                     .setStartTime(new PartialOrCompleteTimeInstant.Builder()
                                             .setPartialTime(String.format("%02d", startHour))
                                             .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.Hour)
@@ -547,7 +546,7 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
         result.addAll(
                 withVisibility(from, new Identity[] { Identity.WEATHER, Identity.NO_SIGNIFICANT_WEATHER, Identity.CLOUD }, hints, (measureWithOperator -> {
                     builder.setPrevailingVisibility(measureWithOperator.getMeasure());
-                    builder.setPrevailingVisibilityOperator(measureWithOperator.operator);
+                    builder.setPrevailingVisibilityOperator(measureWithOperator.getOperator());
 
                 })));
         result.addAll(withWeather(from, new Identity[] { Identity.NO_SIGNIFICANT_WEATHER, Identity.CLOUD }, hints, builder::setForecastWeather));
@@ -567,6 +566,32 @@ public class TAFTACParser extends AbstractTACParser<TAF> {
 
         result.addAll(withClouds(from, new Identity[] {}, hints, builder::setCloud));
 
+        return result;
+    }
+
+    private List<ConversionIssue> setFromChangeForecastEndTimes(final TAFImpl.Builder builder) {
+        checkArgument(builder.getValidityTime().isPresent(), "Validity time period must be set before amending FM end times");
+        List<ConversionIssue> result = new ArrayList<>();
+        Optional<List<TAFChangeForecast>> changeForecasts = builder.getChangeForecasts();
+        if (changeForecasts.isPresent()) {
+            TAFChangeForecastImpl.Builder toChange = null;
+            int indexOfChange = -1;
+            for (int i = 0; i < changeForecasts.get().size(); i++) {
+                TAFChangeForecast fct = changeForecasts.get().get(i);
+                if (AviationCodeListUser.TAFChangeIndicator.FROM == fct.getChangeIndicator() && fct.getPeriodOfChange().getStartTime().isPresent()) {
+                    if (toChange != null) {
+                        toChange.mutatePeriodOfChange(b -> b.setEndTime(fct.getPeriodOfChange().getStartTime().get()));
+                        changeForecasts.get().set(indexOfChange, toChange.build());
+                    }
+                    toChange = TAFChangeForecastImpl.immutableCopyOf(fct).toBuilder();
+                    indexOfChange = i;
+                }
+            }
+            if (toChange != null) {
+                toChange.mutatePeriodOfChange(b -> b.setEndTime(builder.getValidityTime().get().getEndTime()));
+                changeForecasts.get().set(indexOfChange, toChange.build());
+            }
+        }
         return result;
     }
 

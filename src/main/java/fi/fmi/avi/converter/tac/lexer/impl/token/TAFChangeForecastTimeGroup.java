@@ -78,12 +78,17 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
 			if (TAF.class.isAssignableFrom(clz)) {
                 Optional<TAFChangeForecast> forecast = ctx.getParameter("forecast", TAFChangeForecast.class);
                 if (forecast.isPresent() && forecast.get().getChangeIndicator() != TAFChangeIndicator.FROM) {
-                    PartialOrCompleteTimePeriod time = forecast.get().getValidityTime();
+                    PartialOrCompleteTimePeriod time = forecast.get().getPeriodOfChange();
                     Optional<PartialOrCompleteTimeInstant> start = time.getStartTime();
                     Optional<PartialOrCompleteTimeInstant> end = time.getEndTime();
                     if (start.isPresent() && end.isPresent()) {
-                        String timeStr = String.format("%02d%02d/%02d%02d", start.get().getDay(), start.get().getHour(), end.get().getDay(),
-                                end.get().getHour());
+                        String timeStr;
+                        if (start.get().getDay() < 0 && end.get().getDay() < 0) {
+                            timeStr = String.format("%02d%02d", start.get().getHour(), end.get().getHour());
+                        } else {
+                             timeStr = String.format("%02d%02d/%02d%02d", start.get().getDay(), start.get().getHour(), end.get().getDay(),
+                                    end.get().getHour());
+                        }
                         return Optional.of(this.createLexeme(timeStr, Identity.TAF_CHANGE_FORECAST_TIME_GROUP));
                     } else {
                         throw new SerializingException("Unable to serialize TAF change group validity time period, both start and end time must be "

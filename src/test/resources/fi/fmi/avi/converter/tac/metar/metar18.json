@@ -13,7 +13,7 @@
     },
     "meanWindSpeed": {
       "value": 8.0,
-      "uom": "kt"
+      "uom": "[kn_i]"
     }
   },
   "visibility": {

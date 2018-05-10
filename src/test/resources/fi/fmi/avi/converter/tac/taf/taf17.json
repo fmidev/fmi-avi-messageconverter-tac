@@ -1,11 +1,21 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "051130Z",
+  "issueTime": {
+    "partialTime": "051130Z"
+  },
   "aerodrome": {
      "designator": "KOKC"
   },
-  "partialValidityTimePeriod": "051212",
-  
+  "validityTime": {
+    "startTime": {
+      "partialTime": "0512",
+      "partialTimePattern": "DayHour"
+    },
+    "endTime": {
+      "partialTime": "12",
+      "partialTimePattern": "Hour"
+    }
+  },
   "baseForecast": {
     "surfaceWind": {
 	  "meanWindDirection": {
@@ -14,7 +24,7 @@
 	  },
 	  "meanWindSpeed": {
 	    "value": 8.0,
-	    "uom": "kt"
+	    "uom": "[kn_i]"
 	  }
 	},
 	
@@ -43,7 +53,16 @@
    "changeForecasts": [
     {
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "partialValidityTimePeriod": "1316",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "13",
+          "partialTimePattern": "Hour"
+        },
+        "endTime": {
+          "partialTime": "16",
+          "partialTimePattern": "Hour"
+        }
+      },
       "prevailingVisibility": {
         "value": 1.5,
         "uom": "sm"
@@ -57,7 +76,16 @@
     },
     {
       "changeIndicator": "FROM",
-      "partialValidityStartTime": "1600",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "1600",
+          "partialTimePattern": "HourMinute"
+        },
+        "endTime": {
+          "partialTime": "12",
+          "partialTimePattern": "Hour"
+        }
+      },
       "surfaceWind": {
         "meanWindDirection": {
           "value": 160.0,
@@ -65,7 +93,7 @@
         },
         "meanWindSpeed": {
           "value": 10.0,
-          "uom": "kt"
+          "uom": "[kn_i]"
         }
       },
       
@@ -84,7 +112,16 @@
     },
     {
       "changeIndicator": "BECOMING",
-      "partialValidityTimePeriod": "2224",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "22",
+          "partialTimePattern": "Hour"
+        },
+        "endTime": {
+          "partialTime": "24",
+          "partialTimePattern": "Hour"
+        }
+      },
       "surfaceWind": {
         "meanWindDirection": {
           "value": 200.0,
@@ -92,11 +129,11 @@
         },
         "meanWindSpeed": {
           "value": 13.0,
-          "uom": "kt"
+          "uom": "[kn_i]"
         },
         "windGust": {
           "value": 20.0,
-          "uom": "kt"
+          "uom": "[kn_i]"
         }
       },
       
@@ -125,7 +162,16 @@
     },
     {
       "changeIndicator": "PROBABILITY_40",
-      "partialValidityTimePeriod": "0006",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "00",
+          "partialTimePattern": "Hour"
+        },
+        "endTime": {
+          "partialTime": "06",
+          "partialTimePattern": "Hour"
+        }
+      },
       "prevailingVisibility": {
         "value": 2.0,
         "uom": "sm"
@@ -151,7 +197,16 @@
     },
     {
       "changeIndicator": "BECOMING",
-      "partialValidityTimePeriod": "0608",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "06",
+          "partialTimePattern": "Hour"
+        },
+        "endTime": {
+          "partialTime": "08",
+          "partialTimePattern": "Hour"
+        }
+      },
       "surfaceWind": {
         "meanWindDirection": {
           "value": 210.0,
@@ -159,7 +214,7 @@
         },
         "meanWindSpeed": {
           "value": 15.0,
-          "uom": "kt"
+          "uom": "[kn_i]"
         }
       },
       
@@ -181,5 +236,6 @@
         ]
       }
     }
-  ]
+  ],
+  "translatedTAC": "TAF KOKC 051130Z 051212 14008KT 5SM BR BKN030\nTEMPO 1316 1 1/2SM BR\nFM1600 16010KT P6SM SKC\nBECMG 2224 20013G20KT 4SM SHRA OVC020\nPROB40 0006 2SM TSRA OVC008CB\nBECMG 0608 21015KT P6SM NSW SCT040="
 }

@@ -99,7 +99,7 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
                 }
             }
 
-            if (useShortFormat) {
+            if (instant.getDay() < 0 || useShortFormat) {
                 retval = String.format("%02d%02d", instant.getHour(), instant.getMinute());
             } else {
                 // Otherwise produce validity in the long format
@@ -141,9 +141,9 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
                             retval.add(this.createLexeme("TEMPO", TAF_FORECAST_CHANGE_INDICATOR));
                             break;
                         case FROM:
-                            if (changeForecast.get().getValidityTime().getStartTime().isPresent()) {
+                            if (changeForecast.get().getPeriodOfChange().getStartTime().isPresent()) {
                                 StringBuilder ret = new StringBuilder("FM");
-                                ret.append(encodeValidityTimeFrom(changeForecast.get().getValidityTime().getStartTime().get(), ctx.getHints()));
+                                ret.append(encodeValidityTimeFrom(changeForecast.get().getPeriodOfChange().getStartTime().get(), ctx.getHints()));
                                 retval.add(this.createLexeme(ret.toString(), TAF_FORECAST_CHANGE_INDICATOR));
                             } else {
                                 throw new SerializingException("Validity time start is not available in TAF change forecast");

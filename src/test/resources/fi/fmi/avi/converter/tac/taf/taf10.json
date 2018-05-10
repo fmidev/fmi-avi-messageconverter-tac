@@ -1,10 +1,21 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "301130Z",
+  "issueTime": {
+    "partialTime": "301130Z"
+  },
   "aerodrome": {
     "designator": "ESNS"
   },
-  "partialValidityTimePeriod": "3012/3021",
+  "validityTime": {
+    "startTime": {
+      "partialTime": "3012",
+      "partialTimePattern": "DayHour"
+    },
+    "endTime": {
+      "partialTime": "3021",
+      "partialTimePattern": "DayHour"
+    }
+  },
   "baseForecast": {
     "surfaceWind": {
 	  "variableDirection": false,
@@ -14,7 +25,7 @@
 	  },
 	  "meanWindSpeed": {
 	    "value": 8.0,
-	    "uom": "kt"
+	    "uom": "[kn_i]"
 	  }
 	},
 	
@@ -41,7 +52,16 @@
   "changeForecasts": [
     {
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "partialValidityTimePeriod": "3012/3013",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "3012",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "3013",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "cloud": {
         "layers": [
           {
@@ -56,7 +76,16 @@
     },
     {
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "partialValidityTimePeriod": "3013/3016",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "3013",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "3016",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "prevailingVisibility": {
 	    "value": 4000.0,
 	    "uom": "m"
@@ -82,7 +111,16 @@
     },
     {
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "partialValidityTimePeriod": "3016/3018",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "3016",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "3018",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "prevailingVisibility": {
 	    "value": 2400.0,
 	    "uom": "m"
@@ -108,7 +146,16 @@
     },
     {
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "partialValidityTimePeriod": "3018/3021",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "3018",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "3021",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "prevailingVisibility": {
 	    "value": 900.0,
 	    "uom": "m"
@@ -126,5 +173,6 @@
         }
       }
     }
-  ]
+  ],
+  "translatedTAC": "ESNS 301130Z 3012/3021 15008KT 9999 OVC008\nTEMPO 3012/3013 BKN004\nTEMPO 3013/3016 4000 -RA BKN004\nTEMPO 3016/3018 2400 RASN BKN004\nTEMPO 3018/3021 0900 SNRA VV002="
 }

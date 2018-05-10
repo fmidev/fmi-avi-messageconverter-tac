@@ -1,10 +1,21 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "190830Z",
+  "issueTime": {
+    "partialTime": "190830Z"
+  },
   "aerodrome": {
      "designator": "EFKU"
   },
-  "partialValidityTimePeriod": "1909/2009",  
+  "validityTime": {
+    "startTime": {
+      "partialTime": "1909",
+      "partialTimePattern": "DayHour"
+    },
+    "endTime": {
+      "partialTime": "2009",
+      "partialTimePattern": "DayHour"
+    }
+  },
   "baseForecast": {
     "surfaceWind": {
 	  "variableDirection": false,
@@ -14,7 +25,7 @@
 	  },
 	  "meanWindSpeed": {
 	    "value": 10.0,
-	    "uom": "kt"
+	    "uom": "[kn_i]"
 	  }
 	},
 	"ceilingAndVisibilityOk": true
@@ -23,7 +34,16 @@
   "changeForecasts": [
     {
       "changeIndicator": "PROBABILITY_30_TEMPORARY_FLUCTUATIONS",
-      "partialValidityTimePeriod": "1915/1919",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "1915",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "1919",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "prevailingVisibility": {
 	    "value": 7000.0,
 	    "uom": "m"
@@ -58,7 +78,16 @@
 	},
 	{
       "changeIndicator": "BECOMING",
-      "partialValidityTimePeriod": "1923/2001",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "1923",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "2001",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "surfaceWind": {
 	    "variableDirection": false,
 	    "meanWindDirection": {
@@ -67,9 +96,10 @@
 	    },
 	    "meanWindSpeed": {
 	      "value": 10.0,
-	      "uom": "kt"
+	      "uom": "[kn_i]"
 	    }
 	  }
     }
-  ]
+  ],
+  "translatedTAC": "TAF EFKU 190830Z 1909/2009 23010KT CAVOK\nPROB30 TEMPO 1915/1919 7000 SHRA SCT030CB BKN045\nBECMG 1923/2001 30010KT="
 }

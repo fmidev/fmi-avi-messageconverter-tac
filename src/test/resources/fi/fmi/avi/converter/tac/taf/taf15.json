@@ -1,10 +1,21 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "062331Z",
+  "issueTime": {
+    "partialTime": "062331Z"
+  },
   "aerodrome": {
      "designator": "EFRO"
   },
-  "partialValidityTimePeriod": "0700/0724",
+  "validityTime": {
+    "startTime": {
+      "partialTime": "0700",
+      "partialTimePattern": "DayHour"
+    },
+    "endTime": {
+      "partialTime": "0724",
+      "partialTimePattern": "DayHour"
+    }
+  },
   "baseForecast": {
   	"ceilingAndVisibilityOk": true,
     "surfaceWind": {
@@ -15,7 +26,7 @@
 	  },
 	  "meanWindSpeed": {
 	    "value": 9.0,
-	    "uom": "kt"
+	    "uom": "[kn_i]"
 	  }
 	}
   },
@@ -23,7 +34,16 @@
   "changeForecasts": [
     {
       "changeIndicator": "PROBABILITY_30",
-      "partialValidityTimePeriod": "0702/0706",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "0702",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "0706",
+          "partialTimePattern": "DayHour"
+        }
+      },
      "prevailingVisibility": {
 	    "value": 1000.0,
 	    "uom": "m"
@@ -46,5 +66,6 @@
 	    ]
 	  }
     }
-  ]
+  ],
+  "translatedTAC": "TAF EFRO 062331Z 0700/0724 20009KT CAVOK\nPROB30 0702/0706 1000 BCFG BKN001="
 }

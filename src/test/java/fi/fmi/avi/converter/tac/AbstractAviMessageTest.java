@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -189,13 +190,14 @@ public abstract class AbstractAviMessageTest<S, T> {
 			throws IOException, SerializingException {
 		LexemeSequence seq = tokenizer.tokenizeMessage(readFromJSON(fileName), hints);
 		assertNotNull("Null sequence was produced", seq);
-		assertEquals(expected, seq.getTAC());
+		assertEquals("expected '"+expected+"' does not match with actual'"+seq.getTAC()+"'", expected, seq.getTAC());
 	}
 
 	protected AviationWeatherMessage readFromJSON(String fileName) throws IOException {
 		AviationWeatherMessage retval = null;
 		ObjectMapper om = new ObjectMapper();
         om.registerModule(new Jdk8Module());
+        om.registerModule(new JavaTimeModule());
         InputStream is = AbstractAviMessageTest.class.getResourceAsStream(fileName);
 		if (is != null) {
             Class<? extends AviationWeatherMessage> clz = getTokenizerImplmentationClass();
@@ -209,13 +211,6 @@ public abstract class AbstractAviMessageTest<S, T> {
 			throw new FileNotFoundException("Resource '" + fileName + "' could not be loaded");
 		}
 		return retval;
-    }
-
-    private static void printAsJson(METARImpl metar) throws IOException {
-        ObjectMapper om = new ObjectMapper();
-        om.registerModule(new Jdk8Module());
-        ObjectWriter writer = om.writerWithDefaultPrettyPrinter();
-        writer.writeValue(System.out, metar);
     }
     
     protected static void assertAviationWeatherMessageEquals(AviationWeatherMessage expected, AviationWeatherMessage actual) {

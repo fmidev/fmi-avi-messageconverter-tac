@@ -41,7 +41,12 @@ public class Taf16Test extends AbstractAviMessageTest<String, TAF> {
 	
 	@Override
     public ConversionHints getTokenizerParsingHints() {
-        ConversionHints hints = super.getTokenizerParsingHints();
+		ConversionHints hints = super.getTokenizerParsingHints();
+		if (hints != null) {
+            hints = new ConversionHints(super.getTokenizerParsingHints(), true);
+        } else {
+		    hints = new ConversionHints(true);
+        }
         hints.put(ConversionHints.KEY_VALIDTIME_FORMAT, ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT);
         return hints;
 	}

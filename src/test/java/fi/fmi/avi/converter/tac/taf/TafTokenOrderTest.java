@@ -27,7 +27,7 @@ public class TafTokenOrderTest extends AbstractAviMessageTest<String, TAF> {
 
     @Override
     public String getJsonFilename() {
-        return "taf/taf2.json";
+        return "taf/taf2_illegal_weather_code_pos.json";
     }
 
     @Override

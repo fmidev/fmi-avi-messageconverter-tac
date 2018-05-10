@@ -1,8 +1,20 @@
 {
   "status": "CANCELLATION",
-  "partialIssueTime": "191100Z",
+  "issueTime": {
+    "partialTime": "191100Z"
+  },
   "aerodrome": {
      "designator": "EFAB"
   },
-  "partialValidityTimePeriod": "1909/1915"
+  "validityTime": {
+    "startTime": {
+      "partialTime": "1909",
+      "partialTimePattern": "DayHour"
+    },
+    "endTime": {
+      "partialTime": "1915",
+      "partialTimePattern": "DayHour"
+    }
+  },
+  "translatedTAC": "TAF AMD EFAB 191100Z 1909/1915 CNL="
 }

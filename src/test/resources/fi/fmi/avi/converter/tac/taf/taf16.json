@@ -1,10 +1,21 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "190840Z",
+  "issueTime": {
+    "partialTime": "190840Z"
+  },
   "aerodrome": {
      "designator": "EFKU"
   },
-  "partialValidityTimePeriod": "191618",
+  "validityTime": {
+    "startTime": {
+      "partialTime": "1916",
+      "partialTimePattern": "DayHour"
+    },
+    "endTime": {
+      "partialTime": "18",
+      "partialTimePattern": "Hour"
+    }
+  },
   "baseForecast": {
     "ceilingAndVisibilityOk": true,
     "surfaceWind": {
@@ -15,7 +26,7 @@
 	  },
 	  "meanWindSpeed": {
 	    "value": 20.0,
-	    "uom": "kt"
+	    "uom": "[kn_i]"
 	  }
 	},
 	
@@ -27,6 +38,7 @@
   
   "remarks": [
     "HELLO", "WORLD", "WIND", "700FT", "13010KT"
-  ]
+  ],
+  "translatedTAC": "TAF EFKU 190840Z 191618 18020KT CAVOK 7500 RMK HELLO WORLD WIND 700FT 13010KT="
   
 }

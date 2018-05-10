@@ -60,6 +60,10 @@ public class ValidTime extends TimeHandlingRegex {
                 int endDay = end.getDay();
                 int endHour = end.getHour();
 
+                if (endDay == -1) {
+                    endDay = startDay;
+                }
+
                 // Store original parameters for exception texts
                 String dateStr = String.format("%02d%02d/%02d%02d", startDay, startHour, endDay, endHour);
 
@@ -146,11 +150,9 @@ public class ValidTime extends TimeHandlingRegex {
             if (period.getStartTime().isPresent() && period.getEndTime().isPresent()) {
                 PartialOrCompleteTimeInstant start = period.getStartTime().get();
                 PartialOrCompleteTimeInstant end = period.getEndTime().get();
-                if (end.getDay() > 0 && useShortFormat) {
-                    //If the valid time period is < 24h and the short format is preferred, is the short format
+                if (end.getDay() < 0 || useShortFormat) {
                     retval = String.format("%02d%02d%02d", start.getDay(), start.getHour(), end.getHour());
                 } else {
-                    // Otherwise produce validity in the long format
                     retval = String.format("%02d%02d/%02d%02d", start.getDay(), start.getHour(), end.getDay(), end.getHour());
                 }
             }

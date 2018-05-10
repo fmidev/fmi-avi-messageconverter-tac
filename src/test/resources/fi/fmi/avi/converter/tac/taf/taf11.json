@@ -1,10 +1,21 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "301103Z",
+  "issueTime": {
+    "partialTime": "301103Z"
+  },
   "aerodrome": {
      "designator": "EVRA"
   },
-  "partialValidityTimePeriod": "3012/3112",
+  "validityTime": {
+    "startTime": {
+      "partialTime": "3012",
+      "partialTimePattern": "DayHour"
+    },
+    "endTime": {
+      "partialTime": "3112",
+      "partialTimePattern": "DayHour"
+    }
+  },
   "baseForecast": {
     "surfaceWind": {
 	  "variableDirection": false,
@@ -14,7 +25,7 @@
 	  },
 	  "meanWindSpeed": {
 	    "value": 13.0,
-	    "uom": "kt"
+	    "uom": "[kn_i]"
 	  }
 	},
 	
@@ -39,7 +50,16 @@
   "changeForecasts": [
     {
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "partialValidityTimePeriod": "3012/3015",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "3012",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "3015",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "surfaceWind": {
 	    "variableDirection": false,
 	    "meanWindDirection": {
@@ -48,11 +68,11 @@
 	    },
 	    "meanWindSpeed": {
 	      "value": 15.0,
-	      "uom": "kt"
+	      "uom": "[kn_i]"
 	    },
 	    "windGust": {
 	      "value": 26.0,
-	      "uom": "kt"
+	      "uom": "[kn_i]"
 	    }
 	  },
 	  
@@ -82,7 +102,16 @@
     },
     {
       "changeIndicator": "FROM",
-      "partialValidityStartTime": "301500",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "301500",
+          "partialTimePattern": "DayHourMinute"
+        },
+        "endTime": {
+          "partialTime": "3112",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "surfaceWind": {
 	    "variableDirection": false,
 	    "meanWindDirection": {
@@ -91,7 +120,7 @@
 	    },
 	    "meanWindSpeed": {
 	      "value": 12.0,
-	      "uom": "kt"
+	      "uom": "[kn_i]"
 	    }
 	  },
 	  
@@ -121,7 +150,16 @@
     },
     {
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "partialValidityTimePeriod": "3017/3103",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "3017",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "3103",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "surfaceWind": {
 	    "variableDirection": false,
 	    "meanWindDirection": {
@@ -130,11 +168,11 @@
 	    },
 	    "meanWindSpeed": {
 	      "value": 20.0,
-	      "uom": "kt"
+	      "uom": "[kn_i]"
 	    },
 	    "windGust": {
 	      "value": 33.0,
-	      "uom": "kt"
+	      "uom": "[kn_i]"
 	    }
 	  },
 	  
@@ -170,6 +208,7 @@
         ]
       }
     }
-  ]
+  ],
+  "translatedTAC": "EVRA 301103Z 3012/3112 15013KT 8000 OVC008\nTEMPO 3012/3015 14015G26KT 5000 -RA OVC010\nFM301500 18012KT 9000 NSW SCT015 BKN020\nTEMPO 3017/3103 19020G33KT 3000 -SHRA BKN012CB BKN020="
   
 }

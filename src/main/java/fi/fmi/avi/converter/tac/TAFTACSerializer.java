@@ -80,7 +80,7 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                 if (!baseFct.isPresent()) {
                     throw new SerializingException("Missing base forecast");
                 }
-                ReconstructorContext<TAF> baseFctCtx = baseCtx.copyWithParameter("forecast", baseFct);
+                ReconstructorContext<TAF> baseFctCtx = baseCtx.copyWithParameter("forecast", baseFct.get());
                 if (appendToken(retval, Identity.SURFACE_WIND, input, TAF.class, baseFctCtx) > 0) {
                     appendWhitespace(retval, ' ');
                 }
@@ -103,10 +103,11 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
 
                 if (baseFct.get().getTemperatures().isPresent()) {
                     for (TAFAirTemperatureForecast tempFct : baseFct.get().getTemperatures().get()) {
-                        ReconstructorContext<TAF> tempCtx = baseCtx.copyWithParameter("temp", tempFct);
+                        ReconstructorContext<TAF> tempCtx = baseFctCtx.copyWithParameter("temp", tempFct);
                         appendToken(retval, Identity.MAX_TEMPERATURE, input, TAF.class, tempCtx);
                         appendWhitespace(retval, ' ');
                         appendToken(retval, Identity.MIN_TEMPERATURE, input, TAF.class, tempCtx);
+                        appendWhitespace(retval, ' ');
                     }
                 }
 
@@ -164,7 +165,7 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
 
     private void appendClouds(final LexemeSequenceBuilder builder, final CloudForecast clouds, final TAF input, final ReconstructorContext<TAF> ctx) throws SerializingException {
         if (clouds != null) {
-            if (clouds.getVerticalVisibility() != null) {
+            if (clouds.getVerticalVisibility().isPresent()) {
                 this.appendToken(builder, Lexeme.Identity.CLOUD, input, TAF.class, ctx.copyWithParameter("verticalVisibility", Boolean.TRUE));
                 appendWhitespace(builder, ' ');
             } else if (clouds.getLayers().isPresent()){

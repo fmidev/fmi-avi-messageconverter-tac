@@ -10,7 +10,7 @@
     "variableDirection": true,
     "meanWindSpeed": {
       "value": 2.0,
-      "uom": "kt"
+      "uom": "[kn_i]"
     }
   },
   "ceilingAndVisibilityOk": true,

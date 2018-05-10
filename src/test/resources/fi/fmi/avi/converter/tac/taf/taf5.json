@@ -1,10 +1,21 @@
 {
   "status": "NORMAL",
-  "partialIssueTime": "301100Z",
+  "issueTime": {
+    "partialTime": "301100Z"
+  },
   "aerodrome": {
      "designator": "ENOA"
   },
-  "partialValidityTimePeriod": "3012/3112",
+  "validityTime": {
+    "startTime": {
+      "partialTime": "3012",
+      "partialTimePattern": "DayHour"
+    },
+    "endTime": {
+      "partialTime": "3112",
+      "partialTimePattern": "DayHour"
+    }
+  },
   "baseForecast": {
     "surfaceWind": {
 	  "variableDirection": false,
@@ -14,7 +25,7 @@
 	  },
 	  "meanWindSpeed": {
 	    "value": 28.0,
-	    "uom": "kt"
+	    "uom": "[kn_i]"
 	  }
 	},
 	"prevailingVisibility": {
@@ -29,7 +40,6 @@
 	  }
 	],
 	"cloud": {
-	  "verticalVisibility": null,
 	  "layers": [
 	    {
 	       "amount": "FEW",
@@ -52,7 +62,16 @@
   "changeForecasts": [
     {
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "partialValidityTimePeriod": "3012/3024",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "3012",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "3024",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "prevailingVisibility": {
 	    "value": 4000.0,
 	    "uom": "m"
@@ -79,7 +98,16 @@
     },
     {
       "changeIndicator": "BECOMING",
-      "partialValidityTimePeriod": "3017/3020",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "3017",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "3020",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "surfaceWind": {
 	    "variableDirection": false,
 	    "meanWindDirection": {
@@ -88,13 +116,22 @@
 	    },
 	    "meanWindSpeed": {
 	      "value": 18.0,
-	      "uom": "kt"
+	      "uom": "[kn_i]"
 	    }
 	  }
     },
     {
       "changeIndicator": "BECOMING",
-      "partialValidityTimePeriod": "3100/3103",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "3100",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "3103",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "surfaceWind": {
 	    "variableDirection": false,
 	    "meanWindDirection": {
@@ -103,13 +140,22 @@
 	    },
 	    "meanWindSpeed": {
 	      "value": 8.0,
-	      "uom": "kt"
+	      "uom": "[kn_i]"
 	    }
 	  }
     },
     {
       "changeIndicator": "BECOMING",
-      "partialValidityTimePeriod": "3107/3110",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "3107",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "3110",
+          "partialTimePattern": "DayHour"
+        }
+      },
       "surfaceWind": {
 	    "variableDirection": false,
 	    "meanWindDirection": {
@@ -118,10 +164,10 @@
 	    },
 	    "meanWindSpeed": {
 	      "value": 15.0,
-	      "uom": "kt"
+	      "uom": "[kn_i]"
 	    }
 	  }
     }
-
-  ]
+  ],
+  "translatedTAC": "ENOA 301100Z 3012/3112 29028KT 9999 -SHRA FEW015TCU SCT025\nTEMPO 3012/3024 4000 SHRAGS BKN012CB\nBECMG 3017/3020 25018KT\nBECMG 3100/3103 17008KT\nBECMG 3107/3110 23015KT="
 }
