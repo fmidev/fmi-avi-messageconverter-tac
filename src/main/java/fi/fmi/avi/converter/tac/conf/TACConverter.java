@@ -2,6 +2,8 @@ package fi.fmi.avi.converter.tac.conf;
 
 import fi.fmi.avi.converter.tac.*;
 import fi.fmi.avi.model.metar.SPECI;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.taf.immutable.TAFImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -96,9 +98,30 @@ public class TACConverter {
      */
     public static final ConversionSpecification<TAF, String> TAF_POJO_TO_TAC = new ConversionSpecification<>(TAF.class, String.class, null, "ICAO Annex 3 TAC");
 
+    /**
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link METARImpl} POJO.
+     */
+    public static final ConversionSpecification<String, METARImpl> TAC_TO_IMMUTABLE_METAR_POJO = new ConversionSpecification<>(String.class, METARImpl.class,
+            "ICAO Annex 3 TAC",
+            null);
+
+
+    /**
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link TAFImpl} POJO.
+     */
+    public static final ConversionSpecification<String, TAFImpl> TAC_TO_IMMUTABLE_TAF_POJO = new ConversionSpecification<>(String.class, TAFImpl.class, "ICAO Annex 3 TAC", null);
+
+
     @Bean
     AviMessageSpecificConverter<String, METAR> metarTACParser() {
         TACParser<METAR> p = new METARTACParser();
+        p.setTACLexer(aviMessageLexer());
+        return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<String, METARImpl> immutableMetarTACParser() {
+        TACParser<METARImpl> p = new ImmutableMETARTACParser();
         p.setTACLexer(aviMessageLexer());
         return p;
     }
@@ -113,6 +136,13 @@ public class TACConverter {
     @Bean
     AviMessageSpecificConverter<String, TAF> tafTACParser() {
         TACParser<TAF> p = new TAFTACParser();
+        p.setTACLexer(aviMessageLexer());
+        return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<String, TAFImpl> immutableTafTACParser() {
+        TACParser<TAFImpl> p = new ImmutableTAFTACParser();
         p.setTACLexer(aviMessageLexer());
         return p;
     }
