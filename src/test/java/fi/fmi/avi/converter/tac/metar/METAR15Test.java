@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
@@ -40,9 +41,9 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
 	}
 	
 	@Override
-	public String getCanonicalMessage() {
-		return
-				"EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046=";
+	public Optional<String> getCanonicalMessage() {
+		return Optional.of(
+				"EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046=");
 	}
 	
 	@Override

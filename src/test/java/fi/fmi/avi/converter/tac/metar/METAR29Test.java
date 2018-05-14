@@ -18,6 +18,8 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
+import java.util.Optional;
+
 public class METAR29Test extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
@@ -31,8 +33,8 @@ public class METAR29Test extends AbstractAviMessageTest<String, METAR> {
     }
 
 	@Override
-	public String getCanonicalMessage() {
-        return "METAR EFTU 230320Z AUTO 05004KT 9999 BKN003 OVC052 00/00 Q1023=";
+	public Optional<String> getCanonicalMessage() {
+        return Optional.of("METAR EFTU 230320Z AUTO 05004KT 9999 BKN003 OVC052 00/00 Q1023=");
     }
 
     @Override

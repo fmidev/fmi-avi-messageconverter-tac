@@ -11,6 +11,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 import org.junit.Test;
@@ -36,8 +37,8 @@ public class METAR34TestStrictLexing extends AbstractAviMessageTest<String, META
     }
 
     @Override
-    public String getCanonicalMessage() {
-        return null;
+    public Optional<String> getCanonicalMessage() {
+        return Optional.empty();
     }
 
     @Override

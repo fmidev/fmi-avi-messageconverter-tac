@@ -13,6 +13,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
@@ -37,8 +38,8 @@ public class METAR17Test extends AbstractAviMessageTest<String, METAR> {
     }
 	
 	@Override
-	public String getCanonicalMessage() {
-        return "METAR KORD 201004Z 05008KT 1 1/4SM -DZ BR OVC006 03/03 A2964=";
+	public Optional<String> getCanonicalMessage() {
+        return Optional.of("METAR KORD 201004Z 05008KT 1 1/4SM -DZ BR OVC006 03/03 A2964=");
     }
 	
 	@Override

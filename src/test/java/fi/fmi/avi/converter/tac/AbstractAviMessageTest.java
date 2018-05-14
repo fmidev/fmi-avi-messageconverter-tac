@@ -1,18 +1,12 @@
 package fi.fmi.avi.converter.tac;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.Assume;
@@ -84,8 +78,8 @@ public abstract class AbstractAviMessageTest<S, T> {
 	 * @see #testTokenizer()
 	 * @see #getMessage()
 	 */
-	public S getCanonicalMessage() {
-		return getMessage();
+	public Optional<S> getCanonicalMessage() {
+		return Optional.of(getMessage());
 	}
 	
 	public ConversionHints getLexerParsingHints() {
@@ -114,8 +108,8 @@ public abstract class AbstractAviMessageTest<S, T> {
 	@Test
 	public void testTokenizer() throws SerializingException, IOException {
 		Assume.assumeTrue(String.class.isAssignableFrom(getSerializationSpecification().getOutputClass()));
-		
-		String expectedMessage = getTokenizedMessagePrefix() + getCanonicalMessage();
+		Assume.assumeTrue(getCanonicalMessage().isPresent());
+        String expectedMessage = getTokenizedMessagePrefix() + getCanonicalMessage().get();
         assertTokenSequenceMatch(expectedMessage, getJsonFilename(), getTokenizerParsingHints());
 	}
 
@@ -146,8 +140,8 @@ public abstract class AbstractAviMessageTest<S, T> {
 		assertEquals("Parsing was not successful: " + result.getConversionIssues(), getExpectedParsingStatus(), result.getStatus());
 		assertParsingIssues(result.getConversionIssues());
 
-		if (result.getConvertedMessage() != null) {
-			assertAviationWeatherMessageEquals(readFromJSON(getJsonFilename()), result.getConvertedMessage());
+		if (result.getConvertedMessage().isPresent()) {
+			assertAviationWeatherMessageEquals(readFromJSON(getJsonFilename()), result.getConvertedMessage().get());
 		}
 	}
 	
@@ -159,10 +153,14 @@ public abstract class AbstractAviMessageTest<S, T> {
 		ConversionResult<String> result = (ConversionResult<String>) converter.convertMessage(input, spec, getTokenizerParsingHints());
 		assertEquals("Serialization was not successful: " + result.getConversionIssues(), getExpectedSerializationStatus(), result.getStatus());
 		assertSerializationIssues(result.getConversionIssues());
-		if (getCanonicalMessage() != null) {
-			String expectedMessage = getTokenizedMessagePrefix() + getCanonicalMessage();
-			assertEquals(expectedMessage, result.getConvertedMessage());
-		}
+		if (result.getConvertedMessage().isPresent() && getCanonicalMessage().isPresent()) {
+            String expectedMessage = getTokenizedMessagePrefix() + getCanonicalMessage().get();
+            assertEquals(expectedMessage, result.getConvertedMessage().get());
+		} else if (!getCanonicalMessage().isPresent()) {
+		    assertFalse(result.getConvertedMessage().isPresent());
+        } else {
+		    fail("Converted message is not present when one is expected");
+        }
 	}
 
 	protected Identity[] spacify(Identity[] input) {

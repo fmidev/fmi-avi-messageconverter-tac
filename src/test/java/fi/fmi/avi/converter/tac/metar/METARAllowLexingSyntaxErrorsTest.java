@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
@@ -37,8 +38,8 @@ public class METARAllowLexingSyntaxErrorsTest extends AbstractAviMessageTest<Str
     }
 
     @Override
-    public String getCanonicalMessage() {
-        return "METAR EFHK 051052Z 9999 FEW033 BKN110 M00/M02 Q1005 NOSIG=";
+    public Optional<String> getCanonicalMessage() {
+        return Optional.of("METAR EFHK 051052Z 9999 FEW033 BKN110 M00/M02 Q1005 NOSIG=");
     }
 
     @Override

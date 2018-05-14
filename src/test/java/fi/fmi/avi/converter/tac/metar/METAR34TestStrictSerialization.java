@@ -14,6 +14,7 @@ import static junit.framework.TestCase.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 import org.junit.Test;
@@ -41,8 +42,8 @@ public class METAR34TestStrictSerialization extends AbstractAviMessageTest<Strin
     }
 
     @Override
-    public String getCanonicalMessage() {
-        return null;
+    public Optional<String> getCanonicalMessage() {
+        return Optional.empty();
     }
 
     @Override

@@ -12,6 +12,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionIssue.Type;
@@ -74,8 +75,8 @@ public class TafTokenOrderTest extends AbstractAviMessageTest<String, TAF> {
     }
 
     @Override
-    public String getCanonicalMessage() {
-        return "TAF EFAB 190815Z 1909/1915 14008G15MPS 9999 BKN010 BKN015=";
+    public Optional<String> getCanonicalMessage() {
+        return Optional.of("TAF EFAB 190815Z 1909/1915 14008G15MPS 9999 BKN010 BKN015=");
     }
 
 }
