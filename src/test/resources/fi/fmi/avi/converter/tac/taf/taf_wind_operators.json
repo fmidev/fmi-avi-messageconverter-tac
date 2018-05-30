@@ -1,0 +1,104 @@
+{
+  "status": "NORMAL",
+  "issueTime": {
+    "partialTime": "190830Z"
+  },
+  "aerodrome": {
+    "designator": "EFKU"
+  },
+  "validityTime": {
+    "startTime": {
+      "partialTime": "1909",
+      "partialTimePattern": "DayHour"
+    },
+    "endTime": {
+      "partialTime": "2009",
+      "partialTimePattern": "DayHour"
+    }
+  },
+  "baseForecast": {
+    "surfaceWind": {
+      "variableDirection": false,
+      "meanWindDirection": {
+        "value": 230.0,
+        "uom": "deg"
+      },
+      "meanWindSpeed": {
+        "value": 80.0,
+        "uom": "[kn_i]"
+      },
+      "meanWindSpeedOperator": "ABOVE"
+    },
+    "ceilingAndVisibilityOk": true
+  },
+  "changeForecasts": [
+    {
+      "changeIndicator": "PROBABILITY_30_TEMPORARY_FLUCTUATIONS",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "1915",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "1919",
+          "partialTimePattern": "DayHour"
+        }
+      },
+      "prevailingVisibility": {
+        "value": 7000.0,
+        "uom": "m"
+      },
+      "forecastWeather": [
+        {
+          "code": "SHRA",
+          "description": "Showery precipitation of rain"
+        }
+      ],
+      "cloud": {
+        "layers": [
+          {
+            "amount": "SCT",
+            "base": {
+              "value": 3000.0,
+              "uom": "[ft_i]"
+            },
+            "cloudType": "CB"
+          },
+          {
+            "amount": "BKN",
+            "base": {
+              "value": 4500.0,
+              "uom": "[ft_i]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeIndicator": "BECOMING",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "1923",
+          "partialTimePattern": "DayHour"
+        },
+        "endTime": {
+          "partialTime": "2001",
+          "partialTimePattern": "DayHour"
+        }
+      },
+      "surfaceWind": {
+        "variableDirection": false,
+        "meanWindDirection": {
+          "value": 300.0,
+          "uom": "deg"
+        },
+        "meanWindSpeed": {
+          "value": 100.0,
+          "uom": "[kn_i]"
+        },
+        "meanWindSpeedOperator": "ABOVE"
+      }
+    }
+  ],
+  "translatedTAC": "TAF EFKU 190830Z 1909/2009 230P80KT CAVOK\nPROB30 TEMPO 1915/1919 7000 SHRA SCT030CB BKN045\nBECMG 1923/2001 300P100KT="
+}

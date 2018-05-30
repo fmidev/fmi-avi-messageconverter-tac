@@ -4,6 +4,8 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DIRECTION;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MEAN_VALUE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 
 import java.util.Optional;
@@ -15,6 +17,7 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
@@ -51,22 +54,35 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
     }
 
     public SurfaceWind(final Priority prio) {
-        super("^(VRB|[0-9]{3})([0-9]{2})(G[0-9]{2})?(KT|MPS|KMH)$", prio);
+        super("^(VRB|[0-9]{3})(P?[0-9]{2,3})(GP?[0-9]{2,3})?(KT|MPS|KMH)$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         boolean formatOk = true;
         int direction = -1, mean, gustValue = -1;
+        boolean meanWindAbove = false;
+        boolean gustAbove = false;
+
         String unit;
         if (!"VRB".equals(match.group(1))) {
             direction = Integer.parseInt(match.group(1));
         }
-        mean = Integer.parseInt(match.group(2));
+        if (match.group(2).charAt(0) == 'P') {
+            mean = Integer.parseInt(match.group(2).substring(1));
+            meanWindAbove = true;
+        } else {
+            mean = Integer.parseInt(match.group(2));
+        }
         String gust = match.group(3);
         if (gust != null && 'G' == gust.charAt(0)) {
             try {
-                gustValue = Integer.parseInt(gust.substring(1));
+                if (gust.charAt(1) == 'P') {
+                    gustValue = Integer.parseInt(gust.substring(2));
+                    gustAbove = true;
+                } else {
+                    gustValue = Integer.parseInt(gust.substring(1));
+                }
                 if (gustValue < 0) {
                     formatOk = false;
                 }
@@ -87,8 +103,14 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                 token.setParsedValue(DIRECTION, Integer.valueOf(direction));
             }
             token.setParsedValue(MEAN_VALUE, Integer.valueOf(mean));
+            if (meanWindAbove) {
+                token.setParsedValue(RELATIONAL_OPERATOR, AviationCodeListUser.RelationalOperator.ABOVE);
+            }
             if (gustValue > -1) {
                 token.setParsedValue(MAX_VALUE, Integer.valueOf(gustValue));
+            }
+            if (gustAbove) {
+                token.setParsedValue(RELATIONAL_OPERATOR2, AviationCodeListUser.RelationalOperator.ABOVE);
             }
             if ("KT".equalsIgnoreCase(unit)) {
                 unit = "[kn_i]";
@@ -129,7 +151,8 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                             builder.append(String.format("%03d", wind.get().getMeanWindDirection().get().getValue().intValue()));
                         }
                     }
-                    this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getWindGust().orElse(null));
+                    this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getMeanWindSpeedOperator().orElse(null),
+                            wind.get().getWindGust().orElse(null), wind.get().getWindGustOperator().orElse(null));
                     retval = Optional.of(this.createLexeme(builder.toString(), Lexeme.Identity.SURFACE_WIND));
                 }
 
@@ -141,7 +164,8 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                     if (wind.isPresent()) {
                         StringBuilder builder = new StringBuilder();
                         builder.append(String.format("%03d", wind.get().getMeanWindDirection().getValue().intValue()));
-                        this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getWindGust().orElse(null));
+                        this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getMeanWindSpeedOperator().orElse(null),
+                                wind.get().getWindGust().orElse(null), wind.get().getWindGustOperator().orElse(null));
                         tokenStr = builder.toString();
                     }
                 } else {
@@ -159,7 +183,8 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                         } else {
                             throw new SerializingException("Mean wind direction must be set if variable wind direction is false");
                         }
-                        this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getWindGust().orElse(null));
+                        this.appendCommonWindParameters(builder, wind.get().getMeanWindSpeed(), wind.get().getMeanWindSpeedOperator().orElse(null),
+                                wind.get().getWindGust().orElse(null), wind.get().getWindGustOperator().orElse(null));
                         tokenStr = builder.toString();
                     }
                 }
@@ -172,9 +197,13 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
 			return retval;
 		}
 
-        private void appendCommonWindParameters(StringBuilder builder, NumericMeasure meanSpeed, NumericMeasure gustSpeed)
+        private void appendCommonWindParameters(StringBuilder builder, NumericMeasure meanSpeed, AviationCodeListUser.RelationalOperator meanSpeedOperator,
+                NumericMeasure gustSpeed, AviationCodeListUser.RelationalOperator gustOperator)
                 throws SerializingException {
             int speed = meanSpeed.getValue().intValue();
+            if (meanSpeedOperator != null && AviationCodeListUser.RelationalOperator.ABOVE == meanSpeedOperator) {
+                builder.append('P');
+            }
             appendSpeed(builder, speed);
 
             if (gustSpeed != null) {
@@ -182,7 +211,10 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                     throw new SerializingException(
                             "Wind gust speed unit '" + gustSpeed.getUom() + "' is not the same as mean wind speed unit '" + meanSpeed.getUom() + "'");
                 }
-                builder.append("G");
+                builder.append('G');
+                if (gustOperator != null && AviationCodeListUser.RelationalOperator.ABOVE == gustOperator) {
+                    builder.append('P');
+                }
                 appendSpeed(builder, gustSpeed.getValue().intValue());
             }
 

@@ -1,0 +1,62 @@
+{
+  "status": "NORMAL",
+  "issueTime": {
+    "partialTime": "011350Z"
+  },
+  "aerodrome": {
+    "designator": "EFTU"
+  },
+  "automatedStation": true,
+  "surfaceWind": {
+    "meanWindDirection": {
+      "value": 50,
+      "uom": "deg"
+    },
+    "meanWindSpeed": {
+      "value": 50,
+      "uom": "[kn_i]"
+    },
+    "meanWindSpeedOperator": "ABOVE",
+    "windGust": {
+      "value": 80,
+      "uom": "[kn_i]"
+    },
+    "windGustOperator": "ABOVE"
+  },
+  "ceilingAndVisibilityOk": true,
+  "airTemperature": {
+    "value": 22.0,
+    "uom": "degC"
+  },
+  "dewpointTemperature": {
+    "value": 12.0,
+    "uom": "degC"
+  },
+  "altimeterSettingQNH": {
+    "value": 1008.0,
+    "uom": "hPa"
+  },
+  "trends": [
+    {
+      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
+      "surfaceWind": {
+        "meanWindDirection": {
+          "value": 80,
+          "uom": "deg"
+        },
+        "meanWindSpeed": {
+          "value": 60,
+          "uom": "[kn_i]"
+        },
+        "meanWindSpeedOperator": "ABOVE",
+        "windGust": {
+          "value": 100,
+          "uom": "[kn_i]"
+        },
+        "windGustOperator": "ABOVE"
+      }
+    }
+  ],
+  "translatedTAC": "METAR EFTU 011350Z AUTO 050P50GP80KT CAVOK 22/12 Q1008 TEMPO 080P60GP100KT=",
+  "translated": true
+}

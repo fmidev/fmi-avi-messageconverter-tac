@@ -271,6 +271,10 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 Object direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION, Object.class);
                 Integer meanSpeed = match.getParsedValue(Lexeme.ParsedValueName.MEAN_VALUE, Integer.class);
                 Integer gust = match.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
+                AviationCodeListUser.RelationalOperator meanSpeedOperator = match.getParsedValue(ParsedValueName.RELATIONAL_OPERATOR,
+                        AviationCodeListUser.RelationalOperator.class);
+                AviationCodeListUser.RelationalOperator gustOperator = match.getParsedValue(ParsedValueName.RELATIONAL_OPERATOR2,
+                        AviationCodeListUser.RelationalOperator.class);
                 String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
 
                 final ObservedSurfaceWindImpl.Builder wind = new ObservedSurfaceWindImpl.Builder();
@@ -287,12 +291,18 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
                 if (meanSpeed != null) {
                     wind.setMeanWindSpeed(NumericMeasureImpl.of(meanSpeed,unit));
+                    if (meanSpeedOperator != null) {
+                        wind.setMeanWindSpeedOperator(meanSpeedOperator);
+                    }
                 } else {
                     retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Mean speed missing for surface wind:" + match.getTACToken()));
                 }
 
                 if (gust != null) {
                     wind.setWindGust(NumericMeasureImpl.of(gust,unit));
+                    if (gustOperator != null) {
+                        wind.setWindGustOperator(gustOperator);
+                    }
                 }
 
                 findNext(Identity.VARIABLE_WIND_DIRECTION, match, (varMatch) -> {
@@ -1227,6 +1237,10 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         Integer meanSpeed = token.getParsedValue(Lexeme.ParsedValueName.MEAN_VALUE, Integer.class);
         Integer gust = token.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
         String unit = token.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
+        AviationCodeListUser.RelationalOperator meanSpeedOperator = token.getParsedValue(ParsedValueName.RELATIONAL_OPERATOR,
+                AviationCodeListUser.RelationalOperator.class);
+        AviationCodeListUser.RelationalOperator gustOperator = token.getParsedValue(ParsedValueName.RELATIONAL_OPERATOR2,
+                AviationCodeListUser.RelationalOperator.class);
 
         if (direction == SurfaceWind.WindDirection.VARIABLE) {
             retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "Wind cannot be variable in trend: " + token.getTACToken()));
@@ -1238,12 +1252,18 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
         if (meanSpeed != null) {
             wind.setMeanWindSpeed(NumericMeasureImpl.of(meanSpeed, unit));
+            if (meanSpeedOperator != null) {
+                wind.setMeanWindSpeedOperator(meanSpeedOperator);
+            }
         } else {
             retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Mean speed missing for surface wind:" + token.getTACToken()));
         }
 
         if (gust != null) {
             wind.setWindGust(NumericMeasureImpl.of(gust, unit));
+            if (gustOperator != null) {
+                wind.setWindGustOperator(gustOperator);
+            }
         }
         fctBuilder.setSurfaceWind(wind.build());
         return retval;
