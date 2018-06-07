@@ -3,6 +3,7 @@ package fi.fmi.avi.converter.tac;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.RelationalOperator;
 import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.TendencyOperator;
+import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +35,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateReportTy
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator.TrendChangeIndicatorType;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup.TrendTimePeriodType;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationCodeListUser.BreakingAction;
 import fi.fmi.avi.model.NumericMeasure;
@@ -1010,8 +1010,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                         String code = token.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class);
                         if (code != null) {
                             forecastWeather.add(new WeatherImpl.Builder()
-                                    .setCode(code)
-                                    .setDescription(Weather.WEATHER_CODES.get(code))
+                                    .setCode(code).setDescription(WEATHER_CODES.get(code))
                                     .build());
                             fctBuilder.setForecastWeather(forecastWeather);
                         } else {

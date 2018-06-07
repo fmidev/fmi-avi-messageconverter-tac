@@ -1,6 +1,7 @@
 package fi.fmi.avi.converter.tac;
 
 import static fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover.SKY_OBSCURED;
+import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -11,13 +12,11 @@ import java.util.stream.Collectors;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
@@ -218,8 +217,8 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                 } else {
                     WeatherImpl.Builder weather = new WeatherImpl.Builder();
                     weather.setCode(code);
-                    if (Weather.WEATHER_CODES.containsKey(code)) {
-                        weather.setDescription(Weather.WEATHER_CODES.get(code));
+                    if (WEATHER_CODES.containsKey(code)) {
+                        weather.setDescription(WEATHER_CODES.get(code));
                     }
                     target.add(weather.build());
                 }
