@@ -61,15 +61,15 @@ public class METAR28StrictTest extends AbstractAviMessageTest<String, METAR> {
 		assertEquals(3, conversionIssues.size());
 
 		ConversionIssue issue = conversionIssues.get(0);
-		assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+		assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
 		assertTrue("Unexpected error message",issue.getMessage().indexOf("Input message lexing was not fully successful") > -1);
 
 		issue = conversionIssues.get(1);
-		assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+		assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
 		assertTrue("Unexpected error message", issue.getMessage().indexOf("Cloud token may only be postfixed with 'TCU' or 'CB'") > -1);
 
 		issue = conversionIssues.get(2);
-		assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+		assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
 		assertTrue("Unxexpected error message", issue.getMessage().indexOf("Cloud token may only be postfixed with 'TCU' or 'CB'") > -1);
 
 	}

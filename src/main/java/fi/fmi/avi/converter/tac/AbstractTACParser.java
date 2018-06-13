@@ -132,7 +132,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                 toCheck = toCheck.getPrevious();
                 for (Lexeme.Identity i : toMatch) {
                     if (i == toCheck.getIdentity()) {
-                        retval = new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Token '" + lexeme + "' was found before one of type " + i);
+                        retval = new ConversionIssue(ConversionIssue.Type.SYNTAX, "Token '" + lexeme + "' was found before one of type " + i);
                         break;
                     }
                 }
@@ -159,7 +159,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                     if (!oneFound[i]) {
                         oneFound[i] = true;
                     } else {
-                        retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "More than one of " + l.getIdentity() + " in " + lexed.getTAC()));
+                        retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "More than one of " + l.getIdentity() + " in " + lexed.getTAC()));
                     }
                 }
             }

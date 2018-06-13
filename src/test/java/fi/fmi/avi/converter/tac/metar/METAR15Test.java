@@ -71,15 +71,15 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
         assertEquals(3, conversionIssues.size());
 
         ConversionIssue issue = conversionIssues.get(0);
-        assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+        assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
         assertTrue("Unexpected error message", issue.getMessage().indexOf("Input message lexing was not fully successful") > -1);
 
         issue = conversionIssues.get(1);
-        assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+        assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
         assertTrue("Unexpected error message", issue.getMessage().indexOf("Values for air and/or dew point temperature missing") > -1);
 
         issue = conversionIssues.get(2);
-        assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+        assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
         assertTrue("Unxexpected error message", issue.getMessage().indexOf("Missing value for air pressure") > -1);
 
     }

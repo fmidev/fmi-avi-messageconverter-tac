@@ -62,7 +62,7 @@ public class METAR17Test extends AbstractAviMessageTest<String, METAR> {
 		assertEquals(1, conversionIssues.size());
 		ConversionIssue issue = conversionIssues.get(0);
 
-		assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+		assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
 		assertEquals("More than one of AIR_DEWPOINT_TEMPERATURE in " + getMessage(), issue.getMessage());
 	}
 

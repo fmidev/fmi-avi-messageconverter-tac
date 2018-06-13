@@ -55,22 +55,22 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         LexemeSequence lexed = this.lexer.lexMessage(input, hints);
 
         if (!lexingSuccessful(lexed, hints)) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Input message lexing was not fully successful: " + lexed));
+            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Input message lexing was not fully successful: " + lexed));
             List<Lexeme> errors = lexed.getLexemes().stream().filter(l -> !Lexeme.Status.OK.equals(l.getStatus())).collect(Collectors.toList());
             for (Lexeme l:errors) {
-                result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Lexing problem with '" + l.getTACToken() + "': " + l.getLexerMessage
+                result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Lexing problem with '" + l.getTACToken() + "': " + l.getLexerMessage
                         ()));
             }
             return result;
         }
 
         if (Lexeme.Identity.TAF_START != lexed.getFirstLexeme().getIdentityIfAcceptable()) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "The input message is not recognized as TAF"));
+            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as TAF"));
             return result;
         }
 
         if (!endsInEndToken(lexed, hints)) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Message does not end in end token"));
+            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Message does not end in end token"));
             return result;
         }
         List<ConversionIssue> issues = checkZeroOrOne(lexed, zeroOrOneAllowed);
@@ -125,7 +125,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                         .setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class))
                         .build());
             }
-        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Aerodrome designator not given in " + input)));
+        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Aerodrome designator not given in " + input)));
 
         result.addIssue(setTAFIssueTime(builder, lexed, hints));
 
@@ -141,8 +141,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 if (match.getNext() != null) {
                     Lexeme.Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
                     if (Lexeme.Identity.END_TOKEN != nextTokenId && Lexeme.Identity.REMARKS_START != nextTokenId) {
-                        result.addIssue(
-                                new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Missing TAF message contains extra tokens after NIL: " + input));
+                        result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL, "Missing TAF message contains extra tokens after NIL: " + input));
                     }
                 }
             }
@@ -177,8 +176,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 if (match.getNext() != null) {
                     Lexeme.Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
                     if (Lexeme.Identity.END_TOKEN != nextTokenId && Lexeme.Identity.REMARKS_START != nextTokenId) {
-                        result.addIssue(
-                                new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Cancelled TAF message contains extra tokens after CNL: " + input));
+                        result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL, "Cancelled TAF message contains extra tokens after CNL: " + input));
                     }
                 }
             }
@@ -368,7 +366,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                     temps.add(airTemperatureForecast.build());
 
                 } else {
-                    result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
+                    result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX,
                             "Missing min temperature pair for max temperature " + maxTempToken.getTACToken()));
                 }
             }
@@ -453,7 +451,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                         result.addAll(updateChangeForecastContents(changeFct, type, changeFctToken, hints));
                         break;
                     default:
-                        result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Unknown change group " + type));
+                        result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Unknown change group " + type));
                         break;
                 }
 
@@ -547,7 +545,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 result.add(issue);
             } else {
                 if (builder.getForecastWeather().isPresent()) {
-                    result.add(new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR, "Cannot have both NSW and weather in the same change forecast"));
+                    result.add(new ConversionIssue(ConversionIssue.Type.LOGICAL, "Cannot have both NSW and weather in the same change forecast"));
                 } else {
                     builder.setNoSignificantWeather(true);
                 }
@@ -646,7 +644,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 MetricHorizontalVisibility.DirectionValue direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION,
                         MetricHorizontalVisibility.DirectionValue.class);
                 if (direction != null) {
-                    result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
+                    result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX,
                             "Directional horizontal visibility not allowed in TAF: " + match.getTACToken()));
                 }
                 if (distanceOperator != null) {
@@ -707,8 +705,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                             }
                             cloud.setVerticalVisibility(NumericMeasureImpl.of(height, unit));
                         } else {
-                            result.add(
-                                    new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Cloud layer height is not an integer in " + match.getTACToken()));
+                            result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Cloud layer height is not an integer in " + match.getTACToken()));
                         }
 
                     } else if (fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover.NO_SIG_CLOUDS == cover) {
@@ -718,7 +715,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                         if (layer != null) {
                             layers.add(layer);
                         } else {
-                            result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
+                            result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX,
                                     "Could not parse token " + match.getTACToken() + " as cloud " + "layer"));
                         }
                     }

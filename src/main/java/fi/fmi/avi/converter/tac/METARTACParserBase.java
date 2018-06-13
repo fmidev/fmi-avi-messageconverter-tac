@@ -86,22 +86,22 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         LexemeSequence lexed = this.lexer.lexMessage(input, hints);
 
         if (!lexingSuccessful(lexed, hints)) {
-            result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Input message lexing was not fully successful: " + lexed));
+            result.addIssue(new ConversionIssue(Type.SYNTAX, "Input message lexing was not fully successful: " + lexed));
             List<Lexeme> errors = lexed.getLexemes().stream().filter(l -> !Lexeme.Status.OK.equals(l.getStatus())).collect(Collectors.toList());
             for (Lexeme l : errors) {
-                result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Lexing problem with '" + l.getTACToken() + "': " + l.getLexerMessage()));
+                result.addIssue(new ConversionIssue(Type.SYNTAX, "Lexing problem with '" + l.getTACToken() + "': " + l.getLexerMessage()));
             }
             result.setStatus(ConversionResult.Status.WITH_ERRORS);
             return result;
         }
 
         if (getExpectedFirstTokenIdentity() != lexed.getFirstLexeme().getIdentityIfAcceptable()) {
-            result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Input message is not recognized as " + getExpectedFirstTokenIdentity()));
+            result.addIssue(new ConversionIssue(Type.SYNTAX, "Input message is not recognized as " + getExpectedFirstTokenIdentity()));
             return result;
         }
 
         if (!endsInEndToken(lexed, hints)) {
-            result.addIssue(new ConversionIssue(Type.SYNTAX_ERROR, "Message does not end in end token"));
+            result.addIssue(new ConversionIssue(Type.SYNTAX, "Message does not end in end token"));
             return result;
         }
 
@@ -150,7 +150,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                         .setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class))
                         .build());
             }
-        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Aerodrome designator not given in " + input)));
+        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Aerodrome designator not given in " + input)));
 
         result.addIssue(setMETARIssueTime(builder,lexed, hints));
 
@@ -190,7 +190,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 if (match.getNext() != null) {
                     Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
                     if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
-                        result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL_ERROR,
+                        result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL,
                                 "Missing METAR message contains extra tokens after NIL: " + input));
                     }
                 }
@@ -325,7 +325,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
             }
         }, () -> {
             //TODO: cases where it's ok to be missing the surface wind
-            retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Missing surface wind information in " + lexed.getTAC()));
+            retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Missing surface wind information in " + lexed.getTAC()));
         });
         return retval;
     }
@@ -344,7 +344,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     retval.add(issue);
                 } else {
                     if (builder.isCeilingAndVisibilityOk()) {
-                        retval.add(new ConversionIssue(Type.LOGICAL_ERROR, "CAVOK cannot co-exist with prevailing visibility"));
+                        retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with prevailing visibility"));
                         break;
                     }
                     MetricHorizontalVisibility.DirectionValue direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION,
@@ -355,8 +355,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                             RelationalOperator.class);
                     if (direction != null) {
                         if (vis.getMinimumVisibility().isPresent()) {
-                            retval.add(
-                                    new ConversionIssue(Type.LOGICAL_ERROR, "More than one directional horizontal visibility given: " + match.getTACToken()));
+                            retval.add(new ConversionIssue(Type.LOGICAL, "More than one directional horizontal visibility given: " + match.getTACToken()));
                         } else {
                             vis.setMinimumVisibility(NumericMeasureImpl.of(value,unit));
                             vis.setMinimumVisibilityDirection(NumericMeasureImpl.of(direction.inDegrees(),"deg"));
@@ -364,8 +363,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     } else {
                         try {
                             vis.getPrevailingVisibility();
-                            retval.add(
-                                    new ConversionIssue(Type.LOGICAL_ERROR, "More than one prevailing horizontal visibility given: " + match.getTACToken()));
+                            retval.add(new ConversionIssue(Type.LOGICAL, "More than one prevailing horizontal visibility given: " + match.getTACToken()));
                         } catch (IllegalStateException e) {
                             //Normal path, no prevailing visibility set so far
                             vis.setPrevailingVisibility(NumericMeasureImpl.of(value,unit));
@@ -383,7 +381,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         }, () -> {
             // If no horizontal visibility and no CAVOK
             if (!builder.isCeilingAndVisibilityOk()) {
-                retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Missing horizontal visibility / cavok in " + lexed.getTAC()));
+                retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Missing horizontal visibility / cavok in " + lexed.getTAC()));
             }
         });
         return retval;
@@ -403,12 +401,12 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     retval.add(issue);
                 } else {
                     if (builder.isCeilingAndVisibilityOk()) {
-                        retval.add(new ConversionIssue(Type.LOGICAL_ERROR, "CAVOK cannot co-exist with runway visual range"));
+                        retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with runway visual range"));
                         break;
                     }
                     String rwCode = match.getParsedValue(Lexeme.ParsedValueName.RUNWAY, String.class);
                     if (rwCode == null) {
-                        retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Missing runway code for RVR in " + match.getTACToken()));
+                        retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Missing runway code for RVR in " + match.getTACToken()));
                     } else {
                         RunwayDirectionImpl.Builder runway = new RunwayDirectionImpl.Builder();
                         runway.setDesignator(rwCode);
@@ -425,8 +423,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                         String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
 
                         if (minValue == null) {
-                            retval.add(
-                                    new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "Missing visibility value for RVR in " + match.getTACToken()));
+                            retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Missing visibility value for RVR in " + match.getTACToken()));
                         }
                         RunwayVisualRangeImpl.Builder rvr = new RunwayVisualRangeImpl.Builder();
                         rvr.setRunwayDirection(runway.build());
@@ -481,7 +478,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 retval.add(issue);
             } else {
                 if (builder.isCeilingAndVisibilityOk()) {
-                    retval.add(new ConversionIssue(Type.LOGICAL_ERROR, "CAVOK cannot co-exist with prevailing visibility"));
+                    retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with prevailing visibility"));
                 } else {
                     List<fi.fmi.avi.model.Weather> weather = new ArrayList<>();
                     retval.addAll(appendWeatherCodes(match, weather, before, hints));
@@ -509,7 +506,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     retval.add(issue);
                 } else {
                     if (builder.isCeilingAndVisibilityOk()) {
-                        retval.add(new ConversionIssue(Type.LOGICAL_ERROR, "CAVOK cannot co-exist with prevailing visibility"));
+                        retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with prevailing visibility"));
                         break;
                     }
                     CloudLayer.CloudCover cover = match.getParsedValue(Lexeme.ParsedValueName.COVER, CloudLayer.CloudCover.class);
@@ -536,11 +533,11 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                                     if (layer != null) {
                                         layers.add(layer);
                                     } else {
-                                        retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "Could not parse token " + match.getTACToken() + " as cloud layer"));
+                                        retval.add(new ConversionIssue(Type.SYNTAX, "Could not parse token " + match.getTACToken() + " as cloud layer"));
                                     }
                                 }
                             } else {
-                                retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
+                                retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX,
                                         "Cloud layer height is not an integer in " + match.getTACToken()));
                             }
                         }
@@ -575,12 +572,12 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     if (values[0] != null) {
                         builder.setAirTemperature(NumericMeasureImpl.of(values[0], unit));
                     } else {
-                        retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "Missing air temperature value in " + match.getTACToken()));
+                        retval.add(new ConversionIssue(Type.SYNTAX, "Missing air temperature value in " + match.getTACToken()));
                     }
                     if (values[1] != null) {
                         builder.setDewpointTemperature(NumericMeasureImpl.of(values[1], unit));
                     } else {
-                        retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "Missing dewpoint temperature value in " + match.getTACToken()));
+                        retval.add(new ConversionIssue(Type.SYNTAX, "Missing dewpoint temperature value in " + match.getTACToken()));
                     }
                 }
             }
@@ -609,7 +606,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     } else if (unit == AtmosphericPressureQNH.PressureMeasurementUnit.INCHES_OF_MERCURY) {
                         unitStr = "in Hg";
                     } else {
-                        retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
+                        retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX,
                                 "Unknown unit for air pressure: " + unitStr + " in " + match.getTACToken()));
                     }
                     builder.setAltimeterSettingQNH(NumericMeasureImpl.of(value, unitStr));
@@ -617,7 +614,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing air pressure value: " + match.getTACToken()));
                 }
             }
-        }, () -> retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR, "QNH missing in " + lexed.getTAC())));
+        }, () -> retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "QNH missing in " + lexed.getTAC())));
 
         return retval;
     }
@@ -651,14 +648,14 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     String rw = match.getParsedValue(Lexeme.ParsedValueName.RUNWAY, String.class);
                     if ("ALL".equals(rw)) {
                         if (!runways.isEmpty()) {
-                            retval.add(new ConversionIssue(Type.LOGICAL_ERROR,
+                            retval.add(new ConversionIssue(Type.LOGICAL,
                                     "Wind shear reported both to all runways and at least one specific runway: " + match.getTACToken()));
                         } else {
                             ws.setAppliedToAllRunways(true);
                         }
                     } else if (rw != null) {
                         if (ws.isAppliedToAllRunways()) {
-                            retval.add(new ConversionIssue(Type.LOGICAL_ERROR,
+                            retval.add(new ConversionIssue(Type.LOGICAL,
                                     "Wind shear reported both to all runways and at least one specific runway:" + match.getTACToken()));
                         } else {
                             runways.add(new RunwayDirectionImpl.Builder()
@@ -694,7 +691,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 }
                 if (values[1] instanceof fi.fmi.avi.converter.tac.lexer.impl.token.SeaState.SeaSurfaceState) {
                     if (values[2] != null) {
-                        retval.add(new ConversionIssue(Type.LOGICAL_ERROR,
+                        retval.add(new ConversionIssue(Type.LOGICAL,
                                 "Sea state cannot contain both sea surface state and significant wave height:" + match.getTACToken()));
                     } else {
                         switch ((fi.fmi.avi.converter.tac.lexer.impl.token.SeaState.SeaSurfaceState) values[1]) {
@@ -736,7 +733,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 }
                 if (values[2] instanceof Number) {
                     if (values[1] != null) {
-                        retval.add(new ConversionIssue(Type.LOGICAL_ERROR,
+                        retval.add(new ConversionIssue(Type.LOGICAL,
                                 "Sea state cannot contain both sea surface state and significant wave height:" + match.getTACToken()));
                     } else {
                         String heightUnit = match.getParsedValue(Lexeme.ParsedValueName.UNIT2, String.class);
@@ -798,7 +795,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                             .setAssociatedAirportHeliport(builder.getAerodrome())
                             .build());
                 } else {
-                    retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "No runway specified for runway state report: " + match.getTACToken()));
+                    retval.add(new ConversionIssue(Type.SYNTAX, "No runway specified for runway state report: " + match.getTACToken()));
                 }
                 if (deposit != null) {
                     AviationCodeListUser.RunwayDeposit value = fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.convertRunwayStateDepositToAPI(deposit);
@@ -817,8 +814,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
                 if (depthOfDeposit != null) {
                     if (deposit == null) {
-                        retval.add(
-                                new ConversionIssue(Type.LOGICAL_ERROR, "Missing deposit kind but depth given for runway state: " + match.getTACToken()));
+                        retval.add(new ConversionIssue(Type.LOGICAL, "Missing deposit kind but depth given for runway state: " + match.getTACToken()));
                     } else {
                         rws.setDepthOfDeposit(NumericMeasureImpl.of(depthOfDeposit, unitOfDeposit));
                     }
@@ -829,7 +825,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                         rws.setDepthNotMeasurable(true);
                         rws.setDepthOfDeposit(Optional.empty());
                     } else if (depthOfDeposit == null && depthModifier != RunwayStateReportSpecialValue.RUNWAY_NOT_OPERATIONAL) {
-                        retval.add(new ConversionIssue(Type.LOGICAL_ERROR,
+                        retval.add(new ConversionIssue(Type.LOGICAL,
                                 "Missing deposit depth but depth modifier given for runway state: " + match.getTACToken()));
                     } else {
                         switch (depthModifier) {
@@ -838,7 +834,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                                 break;
                             case MEASUREMENT_UNRELIABLE:
                             case NOT_MEASURABLE:
-                                retval.add(new ConversionIssue(Type.SYNTAX_ERROR,
+                                retval.add(new ConversionIssue(Type.SYNTAX,
                                         "Illegal modifier for depth of deposit for runway state:" + match.getTACToken()));
                                 break;
                             case MORE_THAN_OR_EQUAL:
@@ -852,7 +848,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 }
                 if (cleared != null && cleared) {
                     if (deposit != null || contamination != null || depthOfDeposit != null) {
-                        retval.add(new ConversionIssue(Type.LOGICAL_ERROR,
+                        retval.add(new ConversionIssue(Type.LOGICAL,
                                 "Runway state cannot be both cleared and contain deposit or contamination info: " + match.getTACToken()));
                     } else {
                         rws.setCleared(true);
@@ -911,7 +907,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     }
                 }
                 if (builder.getColorState() == null) {
-                    retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "Unknown color state '" + code.getCode() + "'"));
+                    retval.add(new ConversionIssue(Type.SYNTAX, "Unknown color state '" + code.getCode() + "'"));
                 }
             }
         });
@@ -987,7 +983,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                         if (!fctBuilder.getPrevailingVisibility().isPresent()) {
                             retval.addAll(setPrevailingVisibility(fctBuilder, token, hints));
                         } else {
-                            retval.add(new ConversionIssue(Type.SYNTAX_ERROR,
+                            retval.add(new ConversionIssue(Type.SYNTAX,
                                     "More than one visibility token within a trend change group: " + token.getTACToken()));
                         }
                         break;
@@ -996,7 +992,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                         if (!fctBuilder.getSurfaceWind().isPresent()) {
                             retval.addAll(setForecastWind(fctBuilder, token, hints));
                         } else {
-                            retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "More than one wind token within a trend change group"));
+                            retval.add(new ConversionIssue(Type.SYNTAX, "More than one wind token within a trend change group"));
                         }
                         break;
                     }
@@ -1029,7 +1025,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                             }
                         }
                         if (!fctBuilder.getColorState().isPresent()) {
-                            retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "Unknown color state '" + code.getCode() + "'"));
+                            retval.add(new ConversionIssue(Type.SYNTAX, "Unknown color state '" + code.getCode() + "'"));
                         }
                         break;
                     }
@@ -1037,7 +1033,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                         break;
                     }
                     default:
-                        retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "Illegal token " + token.getTACToken() + " within the change forecast group"));
+                        retval.add(new ConversionIssue(Type.SYNTAX, "Illegal token " + token.getTACToken() + " within the change forecast group"));
                         break;
                 }
             }
@@ -1049,20 +1045,20 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         if (fctBuilder.getCloud().isPresent()) {
             if (fctBuilder.getCloud().get().getLayers().isPresent() && !fctBuilder.getCloud().get().getLayers().get().isEmpty()) {
                 if (fctBuilder.getCloud().get().isNoSignificantCloud()) {
-                    retval.add(new ConversionIssue(Type.LOGICAL_ERROR, "Cloud layers cannot co-exist with NSC in trend"));
+                    retval.add(new ConversionIssue(Type.LOGICAL, "Cloud layers cannot co-exist with NSC in trend"));
                 } else if (fctBuilder.getCloud().get().getVerticalVisibility().isPresent()) {
-                    retval.add(new ConversionIssue(Type.LOGICAL_ERROR, "Cloud layers cannot co-exist with vertical visibility in trend"));
+                    retval.add(new ConversionIssue(Type.LOGICAL, "Cloud layers cannot co-exist with vertical visibility in trend"));
                 }
             }
         }
 
         if (fctBuilder.isCeilingAndVisibilityOk()) {
             if (fctBuilder.getCloud().isPresent() || fctBuilder.getPrevailingVisibility().isPresent() || fctBuilder.getForecastWeather().isPresent() || fctBuilder.isNoSignificantWeather()) {
-                retval.add(new ConversionIssue(Type.LOGICAL_ERROR, "CAVOK cannot co-exist with cloud, prevailing visibility, weather, NSW in trend"));
+                retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with cloud, prevailing visibility, weather, NSW in trend"));
             }
         } else {
             if (fctBuilder.isNoSignificantWeather() && fctBuilder.getForecastWeather().isPresent() && !fctBuilder.getForecastWeather().get().isEmpty()) {
-                retval.add(new ConversionIssue(Type.LOGICAL_ERROR, "Forecast weather cannot co-exist with NSW in trend"));
+                retval.add(new ConversionIssue(Type.LOGICAL, "Forecast weather cannot co-exist with NSW in trend"));
             }
         }
         return retval;
@@ -1076,7 +1072,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 switch (type) {
                     case AT: {
                         if (builder.getInstantOfChange().isPresent()) {
-                            issues.add(new ConversionIssue(Type.SYNTAX_ERROR, "More than one AT token in the same trend forecast"));
+                            issues.add(new ConversionIssue(Type.SYNTAX, "More than one AT token in the same trend forecast"));
                             return t;
                         }
                         Integer fromHour = t.getParsedValue(ParsedValueName.HOUR1, Integer.class);
@@ -1087,13 +1083,13 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                                     .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.HourMinute)
                                     .build());
                         } else {
-                            issues.add(new ConversionIssue(Type.SYNTAX_ERROR, "Missing hour and/or minute from trend AT group " + token.getTACToken()));
+                            issues.add(new ConversionIssue(Type.SYNTAX, "Missing hour and/or minute from trend AT group " + token.getTACToken()));
                         }
                         break;
                     }
                     case FROM: {
                         if (builder.getInstantOfChange().isPresent()) {
-                            issues.add(new ConversionIssue(Type.SYNTAX_ERROR, "FM token found after AT token in the same trend forecast"));
+                            issues.add(new ConversionIssue(Type.SYNTAX, "FM token found after AT token in the same trend forecast"));
                             return t;
                         }
                         Optional<PartialOrCompleteTimePeriod> period = builder.getPeriodOfChange();
@@ -1103,7 +1099,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                             PartialOrCompleteTimePeriod.Builder pBuilder;
                             if (period.isPresent()) {
                                 if (period.get().getStartTime().isPresent()) {
-                                    issues.add(new ConversionIssue(Type.SYNTAX_ERROR, "More than one FM token in the same trend forecast"));
+                                    issues.add(new ConversionIssue(Type.SYNTAX, "More than one FM token in the same trend forecast"));
                                     return t;
                                 }
                                 pBuilder = period.get().toBuilder();
@@ -1116,13 +1112,13 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                                 .build());
                             builder.setPeriodOfChange(pBuilder.build());
                         } else {
-                            issues.add(new ConversionIssue(Type.SYNTAX_ERROR, "Missing hour and/or minute from trend FM group " + token.getTACToken()));
+                            issues.add(new ConversionIssue(Type.SYNTAX, "Missing hour and/or minute from trend FM group " + token.getTACToken()));
                         }
                         break;
                     }
                     case UNTIL: {
                         if (builder.getInstantOfChange().isPresent()) {
-                            issues.add(new ConversionIssue(Type.SYNTAX_ERROR, "TL token found after AT token in the same trend forecast"));
+                            issues.add(new ConversionIssue(Type.SYNTAX, "TL token found after AT token in the same trend forecast"));
                             return t;
                         }
                         Optional<PartialOrCompleteTimePeriod> period = builder.getPeriodOfChange();
@@ -1132,7 +1128,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                             PartialOrCompleteTimePeriod.Builder pBuilder;
                             if (period.isPresent()) {
                                 if (period.get().getEndTime().isPresent()) {
-                                    issues.add(new ConversionIssue(Type.SYNTAX_ERROR, "More than one TL token in the same trend forecast"));
+                                    issues.add(new ConversionIssue(Type.SYNTAX, "More than one TL token in the same trend forecast"));
                                     return t;
                                 }
                                 pBuilder = period.get().toBuilder();
@@ -1145,13 +1141,12 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                                     .build());
                             builder.setPeriodOfChange(pBuilder.build());
                         } else {
-                            issues.add(new ConversionIssue(Type.SYNTAX_ERROR, "Missing hour and/or minute from trend TL group " + token.getTACToken()));
+                            issues.add(new ConversionIssue(Type.SYNTAX, "Missing hour and/or minute from trend TL group " + token.getTACToken()));
                         }
                         break;
                     }
                     default: {
-                        issues.add(
-                                new ConversionIssue(Type.SYNTAX_ERROR, "Illegal change group '" + token.getTACToken() + "' after change group start token"));
+                        issues.add(new ConversionIssue(Type.SYNTAX, "Illegal change group '" + token.getTACToken() + "' after change group start token"));
                         break;
                     }
                 }
@@ -1242,7 +1237,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 AviationCodeListUser.RelationalOperator.class);
 
         if (direction == SurfaceWind.WindDirection.VARIABLE) {
-            retval.add(new ConversionIssue(Type.SYNTAX_ERROR, "Wind cannot be variable in trend: " + token.getTACToken()));
+            retval.add(new ConversionIssue(Type.SYNTAX, "Wind cannot be variable in trend: " + token.getTACToken()));
         } else if (direction instanceof Integer) {
             wind.setMeanWindDirection(NumericMeasureImpl.of((Integer) direction, "deg"));
         } else {

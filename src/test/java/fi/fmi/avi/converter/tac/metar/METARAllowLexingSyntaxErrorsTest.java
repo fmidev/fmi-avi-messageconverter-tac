@@ -59,7 +59,7 @@ public class METARAllowLexingSyntaxErrorsTest extends AbstractAviMessageTest<Str
         assertEquals(1, conversionIssues.size());
 
         ConversionIssue issue = conversionIssues.get(0);
-        assertEquals(ConversionIssue.Type.SYNTAX_ERROR, issue.getType());
+        assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
         assertTrue("Unexpected error message", issue.getMessage().indexOf("Missing surface wind") > -1);
 
     }
