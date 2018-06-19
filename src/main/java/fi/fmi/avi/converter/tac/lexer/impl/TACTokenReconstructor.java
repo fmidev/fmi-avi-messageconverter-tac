@@ -4,9 +4,8 @@ import java.util.List;
 
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.model.AviationWeatherMessage;
 /**
  *
  * Created by rinne on 15/02/17.
@@ -25,6 +24,7 @@ public interface TACTokenReconstructor {
      * "PROB30 TEMPO" or "TXM02/3015 TNM10/3103"
      *
      * @param msg the source message
+     * @param clz a class of type T
      * @param ctx reconstruction context to guide the reconstructor
      * @param <T> the type of the source message
      *
