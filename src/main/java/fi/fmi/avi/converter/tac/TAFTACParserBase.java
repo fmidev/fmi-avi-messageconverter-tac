@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
@@ -54,13 +53,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         }
         LexemeSequence lexed = this.lexer.lexMessage(input, hints);
 
-        if (!lexingSuccessful(lexed, hints)) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Input message lexing was not fully successful: " + lexed));
-            List<Lexeme> errors = lexed.getLexemes().stream().filter(l -> !Lexeme.Status.OK.equals(l.getStatus())).collect(Collectors.toList());
-            for (Lexeme l:errors) {
-                result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Lexing problem with '" + l.getTACToken() + "': " + l.getLexerMessage
-                        ()));
-            }
+        if (!checkAndReportLexingResult(lexed, hints, result)) {
             return result;
         }
 

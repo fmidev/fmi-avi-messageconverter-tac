@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,13 +84,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
         LexemeSequence lexed = this.lexer.lexMessage(input, hints);
 
-        if (!lexingSuccessful(lexed, hints)) {
-            result.addIssue(new ConversionIssue(Type.SYNTAX, "Input message lexing was not fully successful: " + lexed));
-            List<Lexeme> errors = lexed.getLexemes().stream().filter(l -> !Lexeme.Status.OK.equals(l.getStatus())).collect(Collectors.toList());
-            for (Lexeme l : errors) {
-                result.addIssue(new ConversionIssue(Type.SYNTAX, "Lexing problem with '" + l.getTACToken() + "': " + l.getLexerMessage()));
-            }
-            result.setStatus(ConversionResult.Status.WITH_ERRORS);
+        if (!checkAndReportLexingResult(lexed, hints, result)) {
             return result;
         }
 

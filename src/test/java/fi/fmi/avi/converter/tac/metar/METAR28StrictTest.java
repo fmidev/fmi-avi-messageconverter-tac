@@ -53,7 +53,7 @@ public class METAR28StrictTest extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
 	public ConversionResult.Status getExpectedParsingStatus() {
-		return ConversionResult.Status.WITH_ERRORS;
+		return ConversionResult.Status.FAIL;
 	}
 
 	@Override

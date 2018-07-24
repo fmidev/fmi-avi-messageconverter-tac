@@ -56,11 +56,15 @@ public class METARAllowLexingSyntaxErrorsTest extends AbstractAviMessageTest<Str
 
     @Override
     public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
-        assertEquals(1, conversionIssues.size());
+        assertEquals(2, conversionIssues.size());
 
         ConversionIssue issue = conversionIssues.get(0);
         assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
-        assertTrue("Unexpected error message", issue.getMessage().indexOf("Missing surface wind") > -1);
+        assertTrue("Unexpected error message", issue.getMessage().indexOf("Lexing problem with 'blaablaa'") > -1);
+
+        issue = conversionIssues.get(1);
+        assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
+        assertTrue("Unexpected error message", issue.getMessage().indexOf("Missing surface wind information in") > -1);
 
     }
 

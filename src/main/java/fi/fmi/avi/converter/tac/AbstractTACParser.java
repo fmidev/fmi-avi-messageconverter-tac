@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
+import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
@@ -295,8 +296,29 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
     }
 
     protected static boolean lexingSuccessful(final LexemeSequence lexed, final ConversionHints hints) {
-        if (hints == null || !hints.containsValue(ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS)) {
-            if (lexed.getLexemes().stream().anyMatch(l -> !l.isIgnored() && !Lexeme.Status.OK.equals(l.getStatus()))) {
+        if (lexed.getLexemes().stream().anyMatch(l -> !l.isIgnored() && !Lexeme.Status.OK.equals(l.getStatus()))) {
+            return false;
+        }
+        return true;
+    }
+
+    protected boolean checkAndReportLexingResult(final LexemeSequence lexed, final ConversionHints hints, final ConversionResult<?> result) {
+        if (!lexingSuccessful(lexed, hints)) {
+            ConversionIssue.Severity severity = ConversionIssue.Severity.ERROR;
+            if (hints != null && hints.containsValue(ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS)) {
+                severity = ConversionIssue.Severity.WARNING;
+            } else {
+                result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Input message lexing was not fully successful: " + lexed));
+            }
+            List<Lexeme> errors = lexed.getLexemes().stream().filter(l -> !Lexeme.Status.OK.equals(l.getStatus())).collect(Collectors.toList());
+            for (Lexeme l : errors) {
+                String msg = "Lexing problem with '" + l.getTACToken() + "'";
+                if (l.getLexerMessage() != null) {
+                    msg = msg + ": " + l.getLexerMessage();
+                }
+                result.addIssue(new ConversionIssue(severity, ConversionIssue.Type.SYNTAX, msg));
+            }
+            if (ConversionIssue.Severity.ERROR == severity) {
                 return false;
             }
         }

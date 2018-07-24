@@ -58,7 +58,10 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
 
     @Override
     public ConversionHints getParserConversionHints() {
-        return ConversionHints.METAR;
+        ConversionHints hints = new ConversionHints();
+        hints.put(ConversionHints.KEY_MESSAGE_TYPE, ConversionHints.VALUE_MESSAGE_TYPE_METAR);
+        hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
+        return hints;
     }
 
 	@Override
@@ -68,19 +71,24 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
 
     @Override
     public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
-        assertEquals(3, conversionIssues.size());
+        assertEquals(4, conversionIssues.size());
 
         ConversionIssue issue = conversionIssues.get(0);
         assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
-        assertTrue("Unexpected error message", issue.getMessage().indexOf("Input message lexing was not fully successful") > -1);
+        assertTrue("Unexpected error message", issue.getMessage().indexOf("Values for air and/or dew point temperature missing") > -1);
 
         issue = conversionIssues.get(1);
         assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
-        assertTrue("Unexpected error message", issue.getMessage().indexOf("Values for air and/or dew point temperature missing") > -1);
+        assertTrue("Unxexpected error message", issue.getMessage().indexOf("Missing value for air pressure") > -1);
 
         issue = conversionIssues.get(2);
-        assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
-        assertTrue("Unxexpected error message", issue.getMessage().indexOf("Missing value for air pressure") > -1);
+        assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
+        assertTrue("Unxexpected error message", issue.getMessage().indexOf("Missing air temperature and dewpoint temperature values in /////") > -1);
+
+        issue = conversionIssues.get(3);
+        assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
+        assertTrue("Unxexpected error message", issue.getMessage().indexOf("Missing air pressure value: Q////") > -1);
+
 
     }
 

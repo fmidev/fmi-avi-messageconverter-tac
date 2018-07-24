@@ -126,7 +126,10 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
 	    		if (CloudType.MISSING == type && hints != null && hints.containsValue(ConversionHints.VALUE_PARSING_MODE_STRICT)) {
 					token.identify(CLOUD, Lexeme.Status.SYNTAX_ERROR, "Cloud token may only be postfixed with 'TCU' or 'CB', not '" + CloudType.MISSING.getCode());
 				}
-	            token.setParsedValue(TYPE, CloudType.forCode(match.group(4)));
+                if (CloudCover.SKY_OBSCURED == cloudCover && (CloudType.CUMULONIMBUS == type || CloudType.TOWERING_CUMULUS == type)) {
+                    token.identify(CLOUD, Lexeme.Status.SYNTAX_ERROR, "'CB' and 'TCU' not allowed with 'VV'");
+                }
+                token.setParsedValue(TYPE, type);
             }
         }
     }
