@@ -67,7 +67,7 @@ public class Taf10VVWithTCUTest extends AbstractAviMessageTest<String, TAF> {
 
     @Override
     public ConversionResult.Status getExpectedParsingStatus() {
-        return ConversionResult.Status.WITH_ERRORS;
+        return ConversionResult.Status.WITH_WARNINGS;
     }
 
     @Override
