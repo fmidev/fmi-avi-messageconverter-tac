@@ -10,9 +10,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
@@ -129,9 +126,10 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 
     static {
     	{
-	    	BiMap<RunwayStateDeposit, RunwayDeposit> tmp = HashBiMap.create();
-	    	
-	    	tmp.put(RunwayStateDeposit.CLEAR_AND_DRY, RunwayDeposit.CLEAR_AND_DRY);
+            HashMap<RunwayStateDeposit, RunwayDeposit> tmp = new HashMap<>();
+            HashMap<RunwayDeposit, RunwayStateDeposit> tmp2 = new HashMap<>();
+
+            tmp.put(RunwayStateDeposit.CLEAR_AND_DRY, RunwayDeposit.CLEAR_AND_DRY);
 	    	tmp.put(RunwayStateDeposit.COMPACTED_OR_ROLLED_SNOW, RunwayDeposit.COMPACT_OR_ROLLED_SNOW);
 	    	tmp.put(RunwayStateDeposit.DAMP, RunwayDeposit.DAMP);
 	    	tmp.put(RunwayStateDeposit.DRY_SNOW, RunwayDeposit.DRY_SNOW);
@@ -144,25 +142,33 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 	    	tmp.put(RunwayStateDeposit.WET_SNOW, RunwayDeposit.WET_SNOW);
 	    	
 	    	runwayStateDepositToAPI = Collections.unmodifiableMap(tmp);
-	    	apiToRunwayStateDeposit = Collections.unmodifiableMap(tmp.inverse());
-    	}
+            tmp.forEach((lexemeDeposit, apiDeposit) -> {
+                tmp2.put(apiDeposit, lexemeDeposit);
+            });
+            apiToRunwayStateDeposit = Collections.unmodifiableMap(tmp2);
+        }
     	
     	{
-	    	BiMap<RunwayStateContamination, RunwayContamination> tmp = HashBiMap.create();
-	    	
-	    	tmp.put(RunwayStateContamination.LESS_OR_EQUAL_TO_10PCT, RunwayContamination.PCT_COVERED_LESS_THAN_10);
+            HashMap<RunwayStateContamination, RunwayContamination> tmp = new HashMap<>();
+            HashMap<RunwayContamination, RunwayStateContamination> tmp2 = new HashMap<>();
+
+            tmp.put(RunwayStateContamination.LESS_OR_EQUAL_TO_10PCT, RunwayContamination.PCT_COVERED_LESS_THAN_10);
 	    	tmp.put(RunwayStateContamination.FROM_11_TO_25PCT, RunwayContamination.PCT_COVERED_11_25);
 	    	tmp.put(RunwayStateContamination.FROM_26_TO_50PCT, RunwayContamination.PCT_COVERED_26_50);
 	    	tmp.put(RunwayStateContamination.FROM_51_TO_100PCT, RunwayContamination.PCT_COVERED_51_100);
 	    	tmp.put(RunwayStateContamination.NOT_REPORTED, RunwayContamination.MISSING_OR_NOT_REPORTED);
 
 	    	runwayStateContaminationToAPI = Collections.unmodifiableMap(tmp);
-	    	apiToRunwayStateContamination = Collections.unmodifiableMap(tmp.inverse());
-    	}
+            tmp.forEach((lexemeContamination, apiContamination) -> {
+                tmp2.put(apiContamination, lexemeContamination);
+            });
+            apiToRunwayStateContamination = Collections.unmodifiableMap(tmp2);
+        }
     	
     	{
-    		BiMap<BreakingAction, AviationCodeListUser.BreakingAction> tmp = HashBiMap.create();
-    		
+            HashMap<BreakingAction, AviationCodeListUser.BreakingAction> tmp = new HashMap<>();
+            HashMap<AviationCodeListUser.BreakingAction, BreakingAction> tmp2 = new HashMap<>();
+
     		tmp.put(BreakingAction.POOR, AviationCodeListUser.BreakingAction.POOR);
     		tmp.put(BreakingAction.MEDIUM_POOR, AviationCodeListUser.BreakingAction.MEDIUM_POOR);
     		tmp.put(BreakingAction.MEDIUM, AviationCodeListUser.BreakingAction.MEDIUM);
@@ -170,10 +176,13 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     		tmp.put(BreakingAction.GOOD, AviationCodeListUser.BreakingAction.GOOD);
     		
     		breakingActionToAPI = Collections.unmodifiableMap(tmp);
-    		apiTobreakingAction = Collections.unmodifiableMap(tmp.inverse());
-    	}
+            tmp.forEach((lexemeBreakingAction, apiBreakingAction) -> {
+                tmp2.put(apiBreakingAction, lexemeBreakingAction);
+            });
+            apiTobreakingAction = Collections.unmodifiableMap(tmp2);
+        }
     }
-    
+
     
     
     public RunwayState(final Priority prio) {
@@ -308,7 +317,7 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     public static RunwayStateDeposit convertAPIToRunwayStateDeposit(RunwayDeposit deposit) {
     	return apiToRunwayStateDeposit.get(deposit);
 	}
-    
+
     public static RunwayContamination convertRunwayStateContaminationToAPI(RunwayStateContamination contamination) {
     	return runwayStateContaminationToAPI.get(contamination);
     }
@@ -324,7 +333,6 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     public static BreakingAction convertAPIToBreakingAction(AviationCodeListUser.BreakingAction breakingAction) {
     	return apiTobreakingAction.get(breakingAction);
     }
-
     
     private static void appendFrictionCoeffOrBreakingAction(final String coded, HashMap<RunwayStateReportType, Object> values) throws IllegalArgumentException {
         if ("//".equals(coded)) {
