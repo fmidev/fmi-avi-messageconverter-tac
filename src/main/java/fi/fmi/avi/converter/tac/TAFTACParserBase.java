@@ -1,7 +1,5 @@
 package fi.fmi.avi.converter.tac;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -189,8 +187,11 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 result.addIssue(addChangeForecast(builder, subSequences.get(i).getFirstLexeme(), hints));
             }
         }
-
-        setFromChangeForecastEndTimes(builder);
+        if (builder.getValidityTime().isPresent()) {
+            setFromChangeForecastEndTimes(builder);
+        } else {
+            result.addIssue(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Validity time period must be set before amending FM end times"));
+        }
 
         result.setConvertedMessage(builder.build());
         return result;
@@ -551,7 +552,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
     }
 
     protected List<ConversionIssue> setFromChangeForecastEndTimes(final TAFImpl.Builder builder) {
-        checkArgument(builder.getValidityTime().isPresent(), "Validity time period must be set before amending FM end times");
         List<ConversionIssue> result = new ArrayList<>();
         Optional<List<TAFChangeForecast>> changeForecasts = builder.getChangeForecasts();
         if (changeForecasts.isPresent()) {
