@@ -37,6 +37,7 @@
     "prevailingVisibilityOperator": "ABOVE"
   },
   "clouds": {
+    "cloudTypeUnobservableByAutoSystem": "true",
     "layers": [
       {
         "amount": "BKN",

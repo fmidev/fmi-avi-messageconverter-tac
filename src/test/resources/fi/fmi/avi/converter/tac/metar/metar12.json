@@ -108,7 +108,7 @@
         "designator": "15"
       },
       "cleared": true,
-      "breakingAction": "GOOD"
+      "brakingAction": "GOOD"
     },
     {
     "runwayDirection": {

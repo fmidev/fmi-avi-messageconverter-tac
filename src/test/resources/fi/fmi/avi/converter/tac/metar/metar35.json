@@ -1,38 +1,40 @@
 {
   "status": "NORMAL",
   "issueTime": {
-    "partialTime": "181420Z"
+    "partialTime": "110820Z"
   },
-  "automatedStation": "true",
   "aerodrome": {
-    "designator": "EFIV"
+    "designator": "EFTU"
   },
-  "presentWeather": [
-    {
-      "code": "-SN",
-      "description": "Light precipitation of snow"
-    }
-  ],
+  "automatedStation": true,
   "airTemperature": {
-    "value": -18.0,
+    "value": 7.0,
     "uom": "degC"
   },
   "dewpointTemperature": {
-    "value": -20.0,
+    "value": 6.0,
     "uom": "degC"
   },
   "altimeterSettingQNH": {
-    "value": 1008.0,
+    "value": 999.0,
     "uom": "hPa"
   },
   "surfaceWind": {
     "meanWindDirection": {
-      "value": 210.0,
+      "value": 350.0,
       "uom": "deg"
     },
     "meanWindSpeed": {
-      "value": 11.0,
+      "value": 4.0,
       "uom": "[kn_i]"
+    },
+    "extremeClockwiseWindDirection": {
+      "value": 30,
+      "uom": "deg"
+    },
+    "extremeCounterClockwiseWindDirection": {
+      "value": 310.0,
+      "uom": "deg"
     }
   },
   "visibility": {
@@ -43,8 +45,8 @@
     "prevailingVisibilityOperator": "ABOVE"
   },
   "clouds": {
-    "noCloudsDetectedByAutoSystem": true
+    "verticalVisibilityUnobservableByAutoSystem": true
   },
-  "translatedTAC": "METAR EFIV 181420Z AUTO 21011KT 9999 -SN NCD M18/M20 Q1008=",
+  "translatedTAC": "METAR EFTU 110820Z AUTO 35004KT 310V030 9999 VV/// 07/06 Q0999=",
   "translated": true
 }

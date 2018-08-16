@@ -22,7 +22,8 @@
     "prevailingVisibilityOperator": "ABOVE"
   },
   "clouds": {
-    "amountAndHeightUnobservableByAutoSystem": true
+    "amountUnobservableByAutoSystem": true,
+    "heightUnobservableByAutoSystem": true
   },
   "airTemperature": {
     "value": 22.0,

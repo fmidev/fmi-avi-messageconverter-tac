@@ -78,7 +78,6 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     }
 
     public enum RunwayStateReportType {
-        SNOW_CLOSURE,
         DEPOSITS,
         CONTAMINATION,
         DEPTH_OF_DEPOSIT,
@@ -120,9 +119,9 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 
     private static final Map<RunwayStateContamination, RunwayContamination> runwayStateContaminationToAPI;
     private static final Map<RunwayContamination, RunwayStateContamination> apiToRunwayStateContamination;
-    
-    private static final Map<BreakingAction, AviationCodeListUser.BreakingAction> breakingActionToAPI;
-    private static final Map<AviationCodeListUser.BreakingAction, BreakingAction> apiTobreakingAction;
+
+    private static final Map<BreakingAction, AviationCodeListUser.BrakingAction> breakingActionToAPI;
+    private static final Map<AviationCodeListUser.BrakingAction, BreakingAction> apiTobreakingAction;
 
     static {
     	{
@@ -166,16 +165,16 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
         }
     	
     	{
-            HashMap<BreakingAction, AviationCodeListUser.BreakingAction> tmp = new HashMap<>();
-            HashMap<AviationCodeListUser.BreakingAction, BreakingAction> tmp2 = new HashMap<>();
+            HashMap<BreakingAction, AviationCodeListUser.BrakingAction> tmp = new HashMap<>();
+            HashMap<AviationCodeListUser.BrakingAction, BreakingAction> tmp2 = new HashMap<>();
 
-    		tmp.put(BreakingAction.POOR, AviationCodeListUser.BreakingAction.POOR);
-    		tmp.put(BreakingAction.MEDIUM_POOR, AviationCodeListUser.BreakingAction.MEDIUM_POOR);
-    		tmp.put(BreakingAction.MEDIUM, AviationCodeListUser.BreakingAction.MEDIUM);
-    		tmp.put(BreakingAction.MEDIUM_GOOD, AviationCodeListUser.BreakingAction.MEDIUM_GOOD);
-    		tmp.put(BreakingAction.GOOD, AviationCodeListUser.BreakingAction.GOOD);
-    		
-    		breakingActionToAPI = Collections.unmodifiableMap(tmp);
+            tmp.put(BreakingAction.POOR, AviationCodeListUser.BrakingAction.POOR);
+            tmp.put(BreakingAction.MEDIUM_POOR, AviationCodeListUser.BrakingAction.MEDIUM_POOR);
+            tmp.put(BreakingAction.MEDIUM, AviationCodeListUser.BrakingAction.MEDIUM);
+            tmp.put(BreakingAction.MEDIUM_GOOD, AviationCodeListUser.BrakingAction.MEDIUM_GOOD);
+            tmp.put(BreakingAction.GOOD, AviationCodeListUser.BrakingAction.GOOD);
+
+            breakingActionToAPI = Collections.unmodifiableMap(tmp);
             tmp.forEach((lexemeBreakingAction, apiBreakingAction) -> {
                 tmp2.put(apiBreakingAction, lexemeBreakingAction);
             });
@@ -325,13 +324,13 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     public static RunwayStateContamination convertAPIToRunwayStateContamination(RunwayContamination contamination) {
     	return apiToRunwayStateContamination.get(contamination);
     }
-    
-    public static AviationCodeListUser.BreakingAction convertBreakingActionToAPI(BreakingAction breakingAction) {
-    	return breakingActionToAPI.get(breakingAction);
+
+    public static AviationCodeListUser.BrakingAction convertBreakingActionToAPI(BreakingAction breakingAction) {
+        return breakingActionToAPI.get(breakingAction);
     }
-    
-    public static BreakingAction convertAPIToBreakingAction(AviationCodeListUser.BreakingAction breakingAction) {
-    	return apiTobreakingAction.get(breakingAction);
+
+    public static BreakingAction convertAPIToBreakingAction(AviationCodeListUser.BrakingAction brakingAction) {
+        return apiTobreakingAction.get(brakingAction);
     }
     
     private static void appendFrictionCoeffOrBreakingAction(final String coded, HashMap<RunwayStateReportType, Object> values) throws IllegalArgumentException {
@@ -358,7 +357,6 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
     	@Override
         public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) throws SerializingException {
-
             Optional<fi.fmi.avi.model.metar.RunwayState> state = ctx.getParameter("state", fi.fmi.avi.model.metar.RunwayState.class);
             if (state.isPresent()) {
                 boolean annex3_16th = ctx.getHints().containsValue(ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
@@ -371,48 +369,44 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 		private String buildRunwayStateToken(fi.fmi.avi.model.metar.RunwayState state, boolean annex3_16th)
 				throws SerializingException {
 			StringBuilder builder = new StringBuilder();
-			
-			if (state.isSnowClosure()) {
-				builder.append("R/SNOCLO");
-			} else {
-				
-				// Runway designator
-				builder.append(getRunwayDesignator(state, annex3_16th));
-				
-				if (state.isCleared()) {
-					builder.append("CLRD");
-				} else {
-                    // Deposit
-                    if (state.getDeposit().isPresent()) {
-                        RunwayStateDeposit deposit = convertAPIToRunwayStateDeposit(state.getDeposit().get());
-                        if (deposit == null) {
-                            throw new SerializingException("RunwayState deposit (" + state.getDeposit() + ") missing or unable to convert it");
-                        }
-                        builder.append(deposit.code);
-                    }
 
-                    // Contamination
-                    if (state.getContamination().isPresent()) {
-                        RunwayStateContamination contamination = convertAPIToRunwayStateContamination(state.getContamination().get());
-                        if (contamination == null) {
-                            throw new SerializingException("RunwayState contamination (" + state.getContamination() + ") missing or unable to convert it");
-                        }
-                        builder.append(contamination.code);
-                    }
+            // Runway designator
+            builder.append(getRunwayDesignator(state, annex3_16th));
 
-                    // Depth of deposit
-			    	builder.append(getDepthOfDeposit(state));
-			    	
-				}
-				
-				// Friction coefficient - appending it after CLRD is not 100% as spec, but we have real world test cases where this is done
-				builder.append(getFrictionCoefficient(state));
-			}
+            if (state.isCleared()) {
+                builder.append("CLRD");
+            } else {
+                // Deposit
+                if (state.getDeposit().isPresent()) {
+                    RunwayStateDeposit deposit = convertAPIToRunwayStateDeposit(state.getDeposit().get());
+                    if (deposit == null) {
+                        throw new SerializingException("RunwayState deposit (" + state.getDeposit() + ") missing or unable to convert it");
+                    }
+                    builder.append(deposit.code);
+                }
+
+                // Contamination
+                if (state.getContamination().isPresent()) {
+                    RunwayStateContamination contamination = convertAPIToRunwayStateContamination(state.getContamination().get());
+                    if (contamination == null) {
+                        throw new SerializingException("RunwayState contamination (" + state.getContamination() + ") missing or unable to convert it");
+                    }
+                    builder.append(contamination.code);
+                }
+
+                // Depth of deposit
+                builder.append(getDepthOfDeposit(state));
+
+            }
+
+            // Friction coefficient - appending it after CLRD is not 100% as spec, but we have real world test cases where this is done
+            builder.append(getFrictionCoefficient(state));
+
 			return builder.toString();
 		}
 
 		private String getFrictionCoefficient(fi.fmi.avi.model.metar.RunwayState state) throws SerializingException {
-            Optional<fi.fmi.avi.model.AviationCodeListUser.BreakingAction> action = state.getBreakingAction();
+            Optional<AviationCodeListUser.BrakingAction> action = state.getBrakingAction();
             Optional<Double> friction = state.getEstimatedSurfaceFriction();
 
 			if (state.isEstimatedSurfaceFrictionUnreliable()) {

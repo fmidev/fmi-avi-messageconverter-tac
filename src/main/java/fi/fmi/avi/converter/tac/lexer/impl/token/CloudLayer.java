@@ -1,18 +1,8 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CLOUD;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COVER;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
-
-import java.util.Optional;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -27,6 +17,12 @@ import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
+
+import java.util.Optional;
+import java.util.regex.Matcher;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CLOUD;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
 
 /**
  * Token parser for clouds
@@ -62,7 +58,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
     }
 
     public enum CloudType {
-        TOWERING_CUMULUS("TCU"), CUMULONIMBUS("CB"), MISSING("///");
+        TOWERING_CUMULUS("TCU"), CUMULONIMBUS("CB");
 
         private final String code;
 
@@ -86,50 +82,61 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
     }
     
     public enum SpecialValue {
-		AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM, CLOUD_BASE_BELOW_AERODROME
-	}
+        AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM, CLOUD_BASE_UNOBSERVABLE, CLOUD_AMOUNT_UNOBSERVABLE, CLOUD_TYPE_UNOBSERVABLE
+    }
 
     public CloudLayer(final Priority prio) {
-		super("^(([A-Z]{3}|VV)([0-9]{3}|/{3})(CB|TCU|/{3})?)|(/{6})|(SKC|NSC|NCD|CLR)$", prio);
-	}
+        super("^(?<iscloud>(?<amount>[A-Z]{3}|VV|/{3})(?<height>[0-9]{3}|/{3})(?<type>CB|TCU|/{3})?)|(?<nocloud>SKC|NSC|NCD|CLR)$", prio);
+    }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (match.group(5) != null) {
-        	token.identify(CLOUD);
-        	//Amount And Height Unobservable By Auto System
-        	token.setParsedValue(ParsedValueName.VALUE, SpecialValue.AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM);
-        
-        } else { 
-	    	CloudCover cloudCover;
-	    	if (match.group(6) != null) {
-	    		cloudCover = CloudCover.forCode(match.group(6));
-	    	} else {
-	    		cloudCover = CloudCover.forCode(match.group(2));
-	    	}
-	        if (cloudCover != null) {
-	            token.identify(Lexeme.Identity.CLOUD);
-	            token.setParsedValue(COVER, cloudCover);
-	        } else {
-	            token.identify(CLOUD, Lexeme.Status.SYNTAX_ERROR, "Unknown cloud cover " + match.group(2));
-	        }
-	        if (match.group(3) != null) {
-	            if ("///".equals(match.group(3))) {
-	                token.setParsedValue(VALUE, SpecialValue.CLOUD_BASE_BELOW_AERODROME);
-	            } else {
-	                token.setParsedValue(VALUE, Integer.parseInt(match.group(3)));
-	                token.setParsedValue(UNIT, "hft");
-	            }
-	        }
-            if (match.group(4) != null) {
-	    		CloudType type = CloudType.forCode(match.group(4));
-	    		if (CloudType.MISSING == type && hints != null && hints.containsValue(ConversionHints.VALUE_PARSING_MODE_STRICT)) {
-					token.identify(CLOUD, Lexeme.Status.SYNTAX_ERROR, "Cloud token may only be postfixed with 'TCU' or 'CB', not '" + CloudType.MISSING.getCode());
-				}
-                if (CloudCover.SKY_OBSCURED == cloudCover && (CloudType.CUMULONIMBUS == type || CloudType.TOWERING_CUMULUS == type)) {
-                    token.identify(CLOUD, Lexeme.Status.SYNTAX_ERROR, "'CB' and 'TCU' not allowed with 'VV'");
+        if ("///".equals(match.group("amount")) && "///".equals(match.group("height"))) {
+            if ("///".equals(match.group("type"))) {
+                token.identify(Lexeme.Identity.CLOUD, Lexeme.Status.SYNTAX_ERROR, "Cloud type cannot be missing '///' if also amount and height are missing");
+            } else {
+                token.identify(Lexeme.Identity.CLOUD);
+                token.setParsedValue(VALUE, SpecialValue.AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM);
+            }
+        } else {
+            if (match.group("amount") != null) {
+                if ("///".equals(match.group("amount"))) {
+                    token.identify(Lexeme.Identity.CLOUD);
+                    token.setParsedValue(COVER, SpecialValue.CLOUD_AMOUNT_UNOBSERVABLE);
+                } else {
+                    CloudCover cloudCover = CloudCover.forCode(match.group("amount"));
+                    if (cloudCover != null) {
+                        token.identify(Lexeme.Identity.CLOUD);
+                        token.setParsedValue(COVER, cloudCover);
+                    } else {
+                        token.identify(CLOUD, Lexeme.Status.SYNTAX_ERROR, "Unknown cloud cover " + match.group("amount"));
+                    }
                 }
-                token.setParsedValue(TYPE, type);
+            } else if (match.group("nocloud") != null) {
+                CloudCover cloudCover = CloudCover.forCode(match.group("nocloud"));
+                token.identify(Lexeme.Identity.CLOUD);
+                token.setParsedValue(COVER, cloudCover);
+            }
+
+            if (match.group("height") != null) {
+                if ("///".equals(match.group("height"))) {
+                    token.setParsedValue(VALUE, SpecialValue.CLOUD_BASE_UNOBSERVABLE);
+                } else {
+                    token.setParsedValue(VALUE, Integer.parseInt(match.group("height")));
+                    token.setParsedValue(UNIT, "hft");
+                }
+            }
+
+            if (match.group("type") != null) {
+                if ("///".equals(match.group("type"))) {
+                    token.setParsedValue(TYPE, SpecialValue.CLOUD_TYPE_UNOBSERVABLE);
+                } else {
+                    CloudType type = CloudType.forCode(match.group("type"));
+                    if (CloudCover.SKY_OBSCURED.code.equals(match.group("amount")) && (CloudType.CUMULONIMBUS == type || CloudType.TOWERING_CUMULUS == type)) {
+                        token.identify(CLOUD, Lexeme.Status.SYNTAX_ERROR, "'CB' and 'TCU' not allowed with 'VV'");
+                    }
+                    token.setParsedValue(TYPE, type);
+                }
             }
         }
     }
@@ -144,8 +151,10 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
             Optional<fi.fmi.avi.model.CloudLayer> layer = ctx.getParameter("layer", fi.fmi.avi.model.CloudLayer.class);
 
             Optional<NumericMeasure> verVis = Optional.empty();
-            boolean nsc = false;
-            boolean cloudsUnobservable = false;
+            boolean noSignificantClouds = false;
+            boolean noCloudsDetected = false;
+            boolean typeNotObservable = false;
+            boolean verticalVisibilityNotObservable = false;
             
             if (TAF.class.isAssignableFrom(clz)) {
                 Optional<CloudForecast> cFct = Optional.empty();
@@ -163,7 +172,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
                     if (verticalVisibility.isPresent() && verticalVisibility.get()) {
                         verVis = cFct.get().getVerticalVisibility();
                     } else if (cFct.get().isNoSignificantCloud()) {
-                        nsc = true;
+                        noSignificantClouds = true;
                     }
                 }
             } else if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
@@ -175,50 +184,75 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
                         if (verticalVisibility.isPresent() && verticalVisibility.get()) {
                             verVis = cloud.getVerticalVisibility();
                         } else if (cloud.isNoSignificantCloud()) {
-                            nsc = true;
+                            noSignificantClouds = true;
                         }
                     }
                 } else {
                     MeteorologicalTerminalAirReport metar = (MeteorologicalTerminalAirReport) msg;
                     Optional<ObservedClouds> obsClouds = metar.getClouds();
-                    if (obsClouds.isPresent() && obsClouds.get().isNoSignificantCloud()) {
-                        nsc = true;
+                    if (obsClouds.isPresent()) {
+                        if (obsClouds.get().isNoSignificantCloud()) {
+                            noSignificantClouds = true;
+                        } else if (obsClouds.get().isNoCloudsDetectedByAutoSystem()) {
+                            noCloudsDetected = true;
+                        }
+
+                        typeNotObservable = obsClouds.get().isCloudTypeUnobservableByAutoSystem();
+
+                        //Both amount and height missing, no layer, must construct the missing token:
+                        if (!layer.isPresent()) {
+                            if ((obsClouds.get().isAmountNotDetectedCloudsDetectedByAutoSystem() || obsClouds.get().isAmountUnobservableByAutoSystem()) && (
+                                    obsClouds.get().isHeightNotDetectedCloudsDetectedByAutoSystem() || obsClouds.get().isHeightUnobservableByAutoSystem())) {
+                                retval = Optional.of(this.createLexeme("//////", Identity.CLOUD));
+                            }
+                        }
+                        if (verticalVisibility.isPresent() && verticalVisibility.get()) {
+                            if (obsClouds.get().isVerticalVisibilityUnobservableByAutoSystem()) {
+                                verticalVisibilityNotObservable = true;
+                            } else {
+                                verVis = obsClouds.get().getVerticalVisibility();
+                            }
+                        }
                     }
-                    if (obsClouds.isPresent() && obsClouds.get().isAmountAndHeightUnobservableByAutoSystem()) {
-                        cloudsUnobservable = true;
-                    }
-                    if (metar.getClouds().isPresent() && verticalVisibility.isPresent() && verticalVisibility.get()) {
-                        verVis = metar.getClouds().get().getVerticalVisibility();
-                    }
+
                 }
             }
-            if (cloudsUnobservable) {
-                retval = Optional.of(this.createLexeme("//////", Identity.CLOUD));
-            } else if (nsc) {
-                retval = Optional.of(this.createLexeme("NSC", Identity.CLOUD));
-            } else {
-                if (layer.isPresent()) {
-                    retval = Optional.of(this.createLexeme(getCloundLayerToken(layer.get()), Identity.CLOUD));
-                } else if (verVis.isPresent()) {
-                    retval = Optional.of(this.createLexeme(getVerticalVisibilityToken(verVis.get()), Identity.CLOUD));
+            if (!retval.isPresent()) {
+                if (noSignificantClouds) {
+                    retval = Optional.of(this.createLexeme("NSC", Identity.CLOUD));
+                } else if (noCloudsDetected) {
+                    retval = Optional.of(this.createLexeme("NCD", Identity.CLOUD));
+                } else if (verticalVisibilityNotObservable) {
+                    retval = Optional.of(this.createLexeme("VV///", Identity.CLOUD));
+                } else {
+                    if (layer.isPresent()) {
+                        retval = Optional.of(this.createLexeme(getCloundLayerToken(layer.get(), typeNotObservable), Identity.CLOUD));
+                    } else if (verVis.isPresent()) {
+                        retval = Optional.of(this.createLexeme(getVerticalVisibilityToken(verVis.get()), Identity.CLOUD));
+                    }
                 }
             }
             return retval;
         }
 
-        private String getCloundLayerToken(final fi.fmi.avi.model.CloudLayer layer) throws SerializingException {
+        private String getCloundLayerToken(final fi.fmi.avi.model.CloudLayer layer, final boolean typeNotObservable) throws SerializingException {
             StringBuilder sb = new StringBuilder();
             Optional<NumericMeasure> base = layer.getBase();
             Optional<fi.fmi.avi.model.AviationCodeListUser.CloudType> type = layer.getCloudType();
-
-            CloudAmount amount = layer.getAmount();
-            sb.append(amount.name());
-            if (CloudAmount.SKC != amount) {
-                if (!base.isPresent()) {
-                    sb.append("///");
-                } else {
-                    sb.append(String.format("%03d", getAsHectoFeet(base.get())));
-                }
+            Optional<CloudAmount> amount = layer.getAmount();
+            if (amount.isPresent()) {
+                sb.append(amount.get().name());
+            } else {
+                sb.append("///");
+            }
+            if (base.isPresent()) {
+                sb.append(String.format("%03d", getAsHectoFeet(base.get())));
+            } else if (amount.isPresent() && CloudAmount.SKC != amount.get()) {
+                sb.append("///");
+            }
+            if (typeNotObservable) {
+                sb.append("///");
+            } else {
                 type.ifPresent(sb::append);
             }
             return sb.toString();

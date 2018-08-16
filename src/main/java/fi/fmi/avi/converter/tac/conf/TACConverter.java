@@ -1,14 +1,20 @@
 package fi.fmi.avi.converter.tac.conf;
 
-import fi.fmi.avi.converter.tac.*;
-import fi.fmi.avi.model.metar.SPECI;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
-import fi.fmi.avi.model.taf.immutable.TAFImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.ConversionSpecification;
+import fi.fmi.avi.converter.tac.AbstractTACSerializer;
+import fi.fmi.avi.converter.tac.ImmutableMETARTACParser;
+import fi.fmi.avi.converter.tac.ImmutableTAFTACParser;
+import fi.fmi.avi.converter.tac.METARTACParser;
+import fi.fmi.avi.converter.tac.METARTACSerializer;
+import fi.fmi.avi.converter.tac.SPECITACParser;
+import fi.fmi.avi.converter.tac.SPECITACSerializer;
+import fi.fmi.avi.converter.tac.TACParser;
+import fi.fmi.avi.converter.tac.TAFTACParser;
+import fi.fmi.avi.converter.tac.TAFTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -56,7 +62,10 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
 import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.SPECI;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.taf.TAF;
+import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 /**
  * TAC converter Spring configuration
@@ -187,6 +196,7 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.WIND_SHEAR, new WindShear.Reconstructor());
         s.addReconstructor(Lexeme.Identity.SEA_STATE, new SeaState.Reconstructor());
         s.addReconstructor(Lexeme.Identity.RUNWAY_STATE, new RunwayState.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.SNOW_CLOSURE, new SnowClosure.Reconstructor());
         s.addReconstructor(Lexeme.Identity.COLOR_CODE, new ColorCode.Reconstructor());
         s.addReconstructor(Lexeme.Identity.REMARKS_START, new RemarkStart.Reconstructor());
         s.addReconstructor(Lexeme.Identity.REMARK, new Remark.Reconstructor());
