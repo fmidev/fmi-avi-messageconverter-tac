@@ -9,7 +9,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.RUNWAY_STATE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SNOW_CLOSURE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
 
 import fi.fmi.avi.converter.ConversionSpecification;
@@ -38,9 +38,8 @@ public class METAR14Test extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
 	public Identity[] getLexerTokenSequenceIdentity() {
-		return spacify(new Identity[] {
-				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD,
-                AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, RUNWAY_STATE, END_TOKEN
+		return spacify(new Identity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD,
+				AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, SNOW_CLOSURE, END_TOKEN
 		});
 	}
 

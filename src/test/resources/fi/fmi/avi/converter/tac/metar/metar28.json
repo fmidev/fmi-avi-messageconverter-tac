@@ -45,23 +45,11 @@
     "prevailingVisibilityOperator": "ABOVE"
   },
   "clouds": {
-    "layers": [
-      {
-        "amount": "FEW",
-        "base": {
-          "value": 800.0,
-          "uom": "[ft_i]"
-        }
-      },
-      {
-        "amount": "OVC",
-        "base": {
-          "value": 2400.0,
-          "uom": "[ft_i]"
-        }
-      }
-    ]
+    "verticalVisibility": {
+      "value": 800.0,
+      "uom": "[ft_i]"
+    }
   },
-  "translatedTAC": "METAR EFTU 110820Z AUTO 35004KT 310V030 9999 FEW008/// OVC024/// 07/06 Q0999=",
+  "translatedTAC": "METAR EFTU 110820Z AUTO 35004KT 310V030 9999 VV008 07/06 Q0999=",
   "translated": true
 }

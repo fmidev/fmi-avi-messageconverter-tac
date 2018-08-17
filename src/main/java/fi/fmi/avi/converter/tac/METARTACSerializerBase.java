@@ -1,7 +1,5 @@
 package fi.fmi.avi.converter.tac;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionIssue.Type;
@@ -11,13 +9,14 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
-import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.Weather;
 import fi.fmi.avi.model.metar.*;
 
 import java.util.Optional;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 
 /**
  * Serializes METAR POJO to TAC format
@@ -102,17 +101,16 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
         }
         Optional<ObservedClouds> obsClouds = input.getClouds();
         if (obsClouds.isPresent()) {
-            if (obsClouds.get().getVerticalVisibility().isPresent()) {
+            if (obsClouds.get().getVerticalVisibility().isPresent() || obsClouds.get().isVerticalVisibilityUnobservableByAutoSystem()) {
                 this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(),baseCtx.copyWithParameter("verticalVisibility", Boolean.TRUE));
-                appendWhitespace(retval, ' ');
-            } else if (obsClouds.get().isAmountAndHeightUnobservableByAutoSystem()) {
-                this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), baseCtx);
-                appendWhitespace(retval, ' ');
-            } else if (obsClouds.get().isNoSignificantCloud()) {
-                this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), baseCtx);
                 appendWhitespace(retval, ' ');
             } else if (obsClouds.get().getLayers().isPresent()){
                 this.appendCloudLayers(retval, input, getMessageClass(), obsClouds.get().getLayers().get(), baseCtx);
+            } else if (obsClouds.get().isNoCloudsDetectedByAutoSystem()
+                    || obsClouds.get().isNoSignificantCloud()
+                    || (obsClouds.get().isAmountUnobservableByAutoSystem() || obsClouds.get().isAmountNotDetectedCloudsDetectedByAutoSystem()) && (obsClouds.get().isHeightNotDetectedCloudsDetectedByAutoSystem() || obsClouds.get().isHeightUnobservableByAutoSystem())) {
+                this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), baseCtx);
+                appendWhitespace(retval, ' ');
             }
         }
         if (appendToken(retval, Identity.AIR_DEWPOINT_TEMPERATURE, input, getMessageClass(), baseCtx) > 0) {
@@ -138,6 +136,9 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
                 appendToken(retval, Identity.RUNWAY_STATE, input, getMessageClass(), baseCtx.copyWithParameter("state", state));
                 appendWhitespace(retval, ' ');
             }
+        }
+        if (appendToken(retval, Identity.SNOW_CLOSURE, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
         }
         if (appendToken(retval, Identity.NO_SIGNIFICANT_WEATHER, input, getMessageClass(), baseCtx) > 0) {
             appendWhitespace(retval, ' ');

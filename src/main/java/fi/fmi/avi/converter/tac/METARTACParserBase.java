@@ -1,16 +1,5 @@
 package fi.fmi.avi.converter.tac;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
-import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.RelationalOperator;
-import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.TendencyOperator;
-import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionIssue.Type;
@@ -19,62 +8,240 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
+import fi.fmi.avi.converter.tac.lexer.impl.token.*;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ColorCode;
-import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateContamination;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateDeposit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateReportSpecialValue;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateReportType;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator.TrendChangeIndicatorType;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup.TrendTimePeriodType;
-import fi.fmi.avi.model.AviationCodeListUser;
-import fi.fmi.avi.model.AviationCodeListUser.BreakingAction;
-import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.PartialDateTime;
-import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
-import fi.fmi.avi.model.RunwayDirection;
-import fi.fmi.avi.model.immutable.AerodromeImpl;
-import fi.fmi.avi.model.immutable.CloudForecastImpl;
-import fi.fmi.avi.model.immutable.NumericMeasureImpl;
-import fi.fmi.avi.model.immutable.RunwayDirectionImpl;
-import fi.fmi.avi.model.immutable.WeatherImpl;
+import fi.fmi.avi.model.*;
+import fi.fmi.avi.model.immutable.*;
 import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 import fi.fmi.avi.model.metar.RunwayState;
 import fi.fmi.avi.model.metar.RunwayVisualRange;
 import fi.fmi.avi.model.metar.TrendForecast;
-import fi.fmi.avi.model.metar.immutable.HorizontalVisibilityImpl;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
-import fi.fmi.avi.model.metar.immutable.ObservedCloudsImpl;
-import fi.fmi.avi.model.metar.immutable.ObservedSurfaceWindImpl;
-import fi.fmi.avi.model.metar.immutable.RunwayStateImpl;
-import fi.fmi.avi.model.metar.immutable.RunwayVisualRangeImpl;
-import fi.fmi.avi.model.metar.immutable.SeaStateImpl;
-import fi.fmi.avi.model.metar.immutable.TrendForecastImpl;
-import fi.fmi.avi.model.metar.immutable.TrendForecastSurfaceWindImpl;
-import fi.fmi.avi.model.metar.immutable.WindShearImpl;
+import fi.fmi.avi.model.metar.immutable.*;
+
+import java.util.*;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.RelationalOperator;
+import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.TendencyOperator;
+import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
 
 /**
  * @author Ilkka Rinne / Spatineo Oy 2017
  */
 public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirReport> extends AbstractTACParser<T> {
 
-    private static final Lexeme.Identity[] zeroOrOneAllowed = { Lexeme.Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.AIR_DEWPOINT_TEMPERATURE,
-            Identity.AIR_PRESSURE_QNH, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.REMARKS_START, Identity.NIL, Identity.ROUTINE_DELAYED_OBSERVATION };
+    private static Lexeme.Identity[] zeroOrOneAllowed = { Lexeme.Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.AIR_DEWPOINT_TEMPERATURE,
+            Identity.AIR_PRESSURE_QNH, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.SNOW_CLOSURE, Identity.REMARKS_START, Identity.NIL,
+            Identity.ROUTINE_DELAYED_OBSERVATION };
 
     private AviMessageLexer lexer;
 
+    public void setTACLexer(final AviMessageLexer lexer) {
+        this.lexer = lexer;
+    }
+
+    public ConversionResult<T> convertMessage(final String input, final ConversionHints hints) {
+        ConversionResult<T> result = new ConversionResult<>();
+        if (this.lexer == null) {
+            throw new IllegalStateException("TAC lexer not set");
+        }
+
+        LexemeSequence lexed = this.lexer.lexMessage(input, hints);
+
+        if (!checkAndReportLexingResult(lexed, hints, result)) {
+            return result;
+        }
+
+        if (getExpectedFirstTokenIdentity() != lexed.getFirstLexeme().getIdentityIfAcceptable()) {
+            result.addIssue(new ConversionIssue(Type.SYNTAX, "Input message is not recognized as " + getExpectedFirstTokenIdentity()));
+            return result;
+        }
+
+        if (!endsInEndToken(lexed, hints)) {
+            result.addIssue(new ConversionIssue(Type.SYNTAX, "Message does not end in end token"));
+            return result;
+        }
+
+        List<ConversionIssue> issues = checkZeroOrOne(lexed, zeroOrOneAllowed);
+        if (!issues.isEmpty()) {
+            result.addIssue(issues);
+        }
+
+        METARImpl.Builder builder = new METARImpl.Builder();
+
+
+        if (lexed.getTAC() != null) {
+            builder.setTranslatedTAC(lexed.getTAC());
+            builder.setTranslated(true);
+        }
+
+        withTimeForTranslation(hints, builder::setTranslationTime);
+
+        //Split into obs & trends (+possible remarks)
+        List<LexemeSequence> subSequences = lexed.splitBy(Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START);
+        LexemeSequence obs = subSequences.get(0);
+
+        findNext(Identity.CORRECTION, obs.getFirstLexeme(), (match) -> {
+            final Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL,
+                    Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
+                    Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE,
+                    Identity.COLOR_CODE,
+                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setStatus(AviationCodeListUser.MetarStatus.CORRECTION);
+            }
+        }, () -> builder.setStatus(AviationCodeListUser.MetarStatus.NORMAL));
+
+        findNext(Identity.AERODROME_DESIGNATOR, obs.getFirstLexeme(), (match) -> {
+            final Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL, Identity.SURFACE_WIND,
+                    Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH,
+                    Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE,
+                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setAerodrome(new AerodromeImpl.Builder()
+                        .setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class))
+                        .build());
+            }
+        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Aerodrome designator not given in " + input)));
+
+        result.addIssue(setMETARIssueTime(builder,lexed, hints));
+
+        findNext(Identity.AUTOMATED, obs.getFirstLexeme(), (match) -> {
+            final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
+                    Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
+                    Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setAutomatedStation(true);
+            }
+        });
+
+        findNext(Identity.ROUTINE_DELAYED_OBSERVATION, obs.getFirstLexeme(), (match) -> {
+            final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
+                    Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
+                    Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setRoutineDelayed(true);
+            }
+        });
+
+        findNext(Identity.NIL, obs.getFirstLexeme(), (match) -> {
+            final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
+                    Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
+                    Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setStatus(AviationCodeListUser.MetarStatus.MISSING);
+                if (match.getNext() != null) {
+                    Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
+                    if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
+                        result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL,
+                                "Missing METAR message contains extra tokens after NIL: " + input));
+                    }
+                }
+            }
+        });
+
+        if (AviationCodeListUser.MetarStatus.MISSING == builder.getStatus()) {
+            result.setConvertedMessage(buildUsing(builder));
+            return result;
+        }
+
+        result.addIssue(setObservedSurfaceWind(builder, obs, hints));
+
+        findNext(Identity.CAVOK, obs.getFirstLexeme(), (match) -> {
+            final Identity[] before = new Identity[] { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
+                    Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE,
+                    Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setCeilingAndVisibilityOk(true);
+            }
+        });
+
+        result.addIssue(setHorizontalVisibilities(builder, obs, hints));
+        result.addIssue(setRVRs(builder, obs, hints));
+        result.addIssue(setPresentWeather(builder, obs, hints));
+        result.addIssue(setObservedClouds(builder, obs, hints));
+        result.addIssue(setTemperatures(builder, obs, hints));
+        result.addIssue(setQNH(builder, obs, hints));
+        result.addIssue(setRecentWeather(builder, obs, hints));
+        result.addIssue(setWindShears(builder, obs, hints));
+        result.addIssue(setSeaState(builder, obs, hints));
+        result.addIssue(setRunwayStates(builder, obs, hints));
+
+        findNext(Identity.SNOW_CLOSURE, obs.getFirstLexeme(), (match) -> {
+            final Identity[] before = new Identity[] { Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setSnowClosure(true);
+            }
+        });
+
+        result.addIssue(setColorState(builder, obs, hints));
+
+        if (subSequences.size() > 0) {
+            for (int i = 1; i < subSequences.size(); i++) {
+                LexemeSequence seq = subSequences.get(i);
+                if (Identity.TREND_CHANGE_INDICATOR == seq.getFirstLexeme().getIdentity()) {
+                    result.addIssue(addToTrends(builder, seq.getFirstLexeme(), hints));
+                } else if (Identity.REMARKS_START == seq.getFirstLexeme().getIdentity()) {
+                    List<String> remarks = getRemarks(seq.getFirstLexeme(), hints);
+                    if (!remarks.isEmpty()) {
+                        builder.setRemarks(remarks);
+                    }
+                }
+            }
+        }
+        result.setConvertedMessage(buildUsing(builder));
+        return result;
+    }
+
+    protected abstract Identity getExpectedFirstTokenIdentity();
+
+    protected abstract T buildUsing(final METARImpl.Builder builder);
+
+
+    private List<ConversionIssue> setMETARIssueTime(final METARImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
+        List<ConversionIssue> retval = new ArrayList<>();
+        Identity[] before = { Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY,
+                Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
+                Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
+                Identity.REMARKS_START };
+        retval.addAll(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
+        return retval;
+    }
     private static List<ConversionIssue> setObservedSurfaceWind(final METARImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         findNext(Identity.SURFACE_WIND, lexed.getFirstLexeme(), (match) -> {
             final Identity[] before = { Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD,
                     Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
-                    Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+                    Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 retval.add(issue);
             } else {
@@ -143,8 +310,8 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
     private static List<ConversionIssue> setHorizontalVisibilities(final METARImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         findNext(Identity.HORIZONTAL_VISIBILITY, lexed.getFirstLexeme(), (match) -> {
-            final Identity[] before = { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH,
-                    Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
+            Identity[] before = { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH,
+                    Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE,
                     Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue;
             final HorizontalVisibilityImpl.Builder vis = new HorizontalVisibilityImpl.Builder();
@@ -154,7 +321,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     retval.add(issue);
                 } else {
                     if (builder.isCeilingAndVisibilityOk()) {
-                        retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with prevailing visibility"));
+                        retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with horizontal visibility"));
                         break;
                     }
                     final MetricHorizontalVisibility.DirectionValue direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION,
@@ -200,8 +367,8 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         final List<ConversionIssue> retval = new ArrayList<>();
 
         findNext(Identity.RUNWAY_VISUAL_RANGE, lexed.getFirstLexeme(), (match) -> {
-            final Identity[] before = { Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
-                    Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
+            Identity[] before = { Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
+                    Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
                     Identity.REMARKS_START };
             ConversionIssue issue;
             final List<RunwayVisualRange> rvrs = new ArrayList<>();
@@ -278,15 +445,15 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         final List<ConversionIssue> retval = new ArrayList<>();
 
         findNext(Identity.WEATHER, lexed.getFirstLexeme(), (match) -> {
-            final Identity[] before = { Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
-                    Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
+            Identity[] before = { Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
+                    Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
                     Identity.REMARKS_START };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 retval.add(issue);
             } else {
                 if (builder.isCeilingAndVisibilityOk()) {
-                    retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with prevailing visibility"));
+                    retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with present weather"));
                 } else {
                     final List<fi.fmi.avi.model.Weather> weather = new ArrayList<>();
                     retval.addAll(appendWeatherCodes(match, weather, before, hints));
@@ -303,9 +470,10 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         final List<ConversionIssue> retval = new ArrayList<>();
 
         findNext(Identity.CLOUD, lexed.getFirstLexeme(), (match) -> {
-            final Identity[] before = { Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
-                    Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
-            final ObservedCloudsImpl.Builder clouds = new ObservedCloudsImpl.Builder();
+            Identity[] before = { Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
+                    Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
+                    Identity.REMARKS_START };
+            ObservedCloudsImpl.Builder clouds = new ObservedCloudsImpl.Builder();
             ConversionIssue issue;
             final List<fi.fmi.avi.model.CloudLayer> layers = new ArrayList<>();
             while (match != null) {
@@ -314,38 +482,52 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     retval.add(issue);
                 } else {
                     if (builder.isCeilingAndVisibilityOk()) {
-                        retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with prevailing visibility"));
+                        retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with observed clouds"));
                         break;
                     }
-                    final CloudLayer.CloudCover cover = match.getParsedValue(Lexeme.ParsedValueName.COVER, CloudLayer.CloudCover.class);
-                    final Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
+                    Object cover = match.getParsedValue(Lexeme.ParsedValueName.COVER, Object.class);
+                    Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
+                    Object type = match.getParsedValue(ParsedValueName.TYPE, Object.class);
                     String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
 
                     if (CloudLayer.SpecialValue.AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM == value) {
-                        clouds.setAmountAndHeightUnobservableByAutoSystem(true);
+                        clouds.setAmountUnobservableByAutoSystem(true);
+                        clouds.setHeightUnobservableByAutoSystem(true);
                     } else {
-                        if (CloudCover.NO_SIG_CLOUDS == cover || CloudCover.SKY_CLEAR == cover || CloudCover.NO_LOW_CLOUDS == cover
-                                || CloudCover.NO_CLOUD_DETECTED == cover) {
+                        if (CloudLayer.SpecialValue.CLOUD_AMOUNT_UNOBSERVABLE == cover) {
+                            clouds.setAmountUnobservableByAutoSystem(true);
+                        }
+                        if (CloudLayer.SpecialValue.CLOUD_BASE_UNOBSERVABLE == value) {
+                            if (CloudLayer.CloudCover.SKY_OBSCURED == cover) {
+                                clouds.setVerticalVisibilityUnobservableByAutoSystem(true);
+                            } else {
+                                clouds.setHeightUnobservableByAutoSystem(true);
+                            }
+                        }
+                        if (CloudLayer.SpecialValue.CLOUD_TYPE_UNOBSERVABLE == type) {
+                            clouds.setCloudTypeUnobservableByAutoSystem(true);
+                        }
+                        if (CloudCover.NO_SIG_CLOUDS == cover || CloudCover.SKY_CLEAR == cover || CloudCover.NO_LOW_CLOUDS == cover) {
                             clouds.setNoSignificantCloud(true);
+                        } else if (CloudCover.NO_CLOUD_DETECTED == cover) {
+                            clouds.setNoCloudsDetectedByAutoSystem(true);
                         } else {
-                            if (value instanceof Integer) {
-                                if (CloudLayer.CloudCover.SKY_OBSCURED == cover) {
+                            if (CloudLayer.CloudCover.SKY_OBSCURED == cover) {
+                                if (value instanceof Integer) {
                                     int height = ((Integer) value);
                                     if ("hft".equals(unit)) {
                                         height = height * 100;
                                         unit = "[ft_i]";
                                     }
                                     clouds.setVerticalVisibility(NumericMeasureImpl.of(height, unit));
-                                } else {
-                                    final fi.fmi.avi.model.CloudLayer layer = getCloudLayer(match);
-                                    if (layer != null) {
-                                        layers.add(layer);
-                                    } else {
-                                        retval.add(new ConversionIssue(Type.SYNTAX, "Could not parse token " + match.getTACToken() + " as cloud layer"));
-                                    }
                                 }
                             } else {
-                                retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Cloud layer height is not an integer in " + match.getTACToken()));
+                                fi.fmi.avi.model.CloudLayer layer = getCloudLayer(match);
+                                if (layer != null) {
+                                    layers.add(layer);
+                                } else {
+                                    retval.add(new ConversionIssue(Type.SYNTAX, "Could not parse token " + match.getTACToken() + " as cloud layer"));
+                                }
                             }
                         }
                     }
@@ -364,7 +546,8 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         final List<ConversionIssue> retval = new ArrayList<>();
 
         findNext(Identity.AIR_DEWPOINT_TEMPERATURE, lexed.getFirstLexeme(), (match) -> {
-            final Identity[] before = { Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE,
+            Identity[] before = { Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE,
+                    Identity.SNOW_CLOSURE,
                     Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
@@ -396,7 +579,8 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         final List<ConversionIssue> retval = new ArrayList<>();
 
         findNext(Identity.AIR_PRESSURE_QNH, lexed.getFirstLexeme(), (match) -> {
-            final Identity[] before = { Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
+            Identity[] before = { Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE,
+                    Identity.COLOR_CODE,
                     Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
@@ -428,7 +612,8 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
     private static List<ConversionIssue> setRecentWeather(final METARImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         findNext(Identity.RECENT_WEATHER, lexed.getFirstLexeme(), (match) -> {
-            final Identity[] before = { Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
+            Identity[] before = { Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE,
+                    Identity.TREND_CHANGE_INDICATOR,
                     Identity.REMARKS_START };
             final List<fi.fmi.avi.model.Weather> weather = new ArrayList<>();
             retval.addAll(appendWeatherCodes(match, weather, before, hints));
@@ -442,7 +627,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
     private static List<ConversionIssue> setWindShears(final METARImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         findNext(Identity.WIND_SHEAR, lexed.getFirstLexeme(), (match) -> {
-            final Identity[] before = { Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
+            Identity[] before = { Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
                     Identity.REMARKS_START };
             ConversionIssue issue;
             final WindShearImpl.Builder ws = new WindShearImpl.Builder();
@@ -482,8 +667,9 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
     private static List<ConversionIssue> setSeaState(final METARImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         findNext(Identity.SEA_STATE, lexed.getFirstLexeme(), (match) -> {
-            final Lexeme.Identity[] before = { Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            Lexeme.Identity[] before = { Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
+                    Identity.REMARKS_START };
+            ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 retval.add(issue);
             } else {
@@ -583,16 +769,11 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 final Object breakingAction = values.get(RunwayStateReportType.BREAKING_ACTION);
                 final Object frictionCoefficient = values.get(RunwayStateReportType.FRICTION_COEFFICIENT);
 
-                final Boolean snowClosure = (Boolean) values.get(RunwayStateReportType.SNOW_CLOSURE);
-
-                // Runway direction is missing if repetition, allRunways or SnoClo:
+                // Runway direction is missing if repetition or allRunways:
                 if (repetition != null && repetition) {
                     rws.setRepetition(true);
                 } else if (allRunways != null && allRunways) {
                     rws.setAppliedToAllRunways(true);
-                } else if (snowClosure != null && snowClosure) {
-                    rws.setAppliedToAllRunways(true);
-                    rws.setSnowClosure(true);
                 } else if (runwayDesignator != null) {
                     rws.setRunwayDirection(
                             new RunwayDirectionImpl.Builder().setDesignator(runwayDesignator).setAssociatedAirportHeliport(builder.getAerodrome()).build());
@@ -658,10 +839,10 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 }
 
                 if (breakingAction instanceof fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.BreakingAction) {
-                    final BreakingAction action = fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.convertBreakingActionToAPI(
+                    AviationCodeListUser.BrakingAction action = fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.convertBreakingActionToAPI(
                             (fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.BreakingAction) breakingAction);
 
-                    rws.setBreakingAction(action);
+                    rws.setBrakingAction(action);
                 } else if (breakingAction instanceof RunwayStateReportSpecialValue) {
                     switch ((RunwayStateReportSpecialValue) breakingAction) {
                         case RUNWAY_NOT_OPERATIONAL:
@@ -757,7 +938,6 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
     }
 
     private static List<ConversionIssue> setTrendContents(final TrendForecastImpl.Builder fctBuilder, final Lexeme groupStart, final ConversionHints hints) {
-
         final List<ConversionIssue> retval = new ArrayList<>();
         //Check for the possibly following FM, TL and AT tokens:
         Lexeme token = parseChangeTimeGroups(fctBuilder, groupStart.getNext(), retval, hints);
@@ -1047,183 +1227,6 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         }
         fctBuilder.setSurfaceWind(wind.build());
         return retval;
-    }
-
-    @Override
-    public void setTACLexer(final AviMessageLexer lexer) {
-        this.lexer = lexer;
-    }
-
-    @Override
-    public ConversionResult<T> convertMessage(final String input, final ConversionHints hints) {
-        final ConversionResult<T> result = new ConversionResult<>();
-        if (this.lexer == null) {
-            throw new IllegalStateException("TAC lexer not set");
-        }
-
-        final LexemeSequence lexed = this.lexer.lexMessage(input, hints);
-
-        if (!checkAndReportLexingResult(lexed, hints, result)) {
-            return result;
-        }
-
-        if (getExpectedFirstTokenIdentity() != lexed.getFirstLexeme().getIdentityIfAcceptable()) {
-            result.addIssue(new ConversionIssue(Type.SYNTAX, "Input message is not recognized as " + getExpectedFirstTokenIdentity()));
-            return result;
-        }
-
-        if (!endsInEndToken(lexed, hints)) {
-            result.addIssue(new ConversionIssue(Type.SYNTAX, "Message does not end in end token"));
-            return result;
-        }
-
-        final List<ConversionIssue> issues = checkZeroOrOne(lexed, zeroOrOneAllowed);
-        if (!issues.isEmpty()) {
-            result.addIssue(issues);
-        }
-
-        final METARImpl.Builder builder = new METARImpl.Builder();
-
-        if (lexed.getTAC() != null) {
-            builder.setTranslatedTAC(lexed.getTAC());
-            builder.setTranslated(true);
-        }
-
-        withTimeForTranslation(hints, builder::setTranslationTime);
-
-        //Split into obs & trends (+possible remarks)
-        final List<LexemeSequence> subSequences = lexed.splitBy(Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START);
-        final LexemeSequence obs = subSequences.get(0);
-
-        findNext(Identity.CORRECTION, obs.getFirstLexeme(), (match) -> {
-            final Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL,
-                    Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
-                    Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
-                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
-            if (issue != null) {
-                result.addIssue(issue);
-            } else {
-                builder.setStatus(AviationCodeListUser.MetarStatus.CORRECTION);
-            }
-        }, () -> builder.setStatus(AviationCodeListUser.MetarStatus.NORMAL));
-
-        findNext(Identity.AERODROME_DESIGNATOR, obs.getFirstLexeme(), (match) -> {
-            final Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL, Identity.SURFACE_WIND,
-                    Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH,
-                    Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
-                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
-            if (issue != null) {
-                result.addIssue(issue);
-            } else {
-                builder.setAerodrome(new AerodromeImpl.Builder().setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build());
-            }
-        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Aerodrome designator not given in " + input)));
-
-        result.addIssue(setMETARIssueTime(builder, lexed, hints));
-
-        findNext(Identity.AUTOMATED, obs.getFirstLexeme(), (match) -> {
-            final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
-                    Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
-                    Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
-            if (issue != null) {
-                result.addIssue(issue);
-            } else {
-                builder.setAutomatedStation(true);
-            }
-        });
-
-        findNext(Identity.ROUTINE_DELAYED_OBSERVATION, obs.getFirstLexeme(), (match) -> {
-            final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
-                    Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
-                    Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
-            if (issue != null) {
-                result.addIssue(issue);
-            } else {
-                builder.setRoutineDelayed(true);
-            }
-        });
-
-        findNext(Identity.NIL, obs.getFirstLexeme(), (match) -> {
-            final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
-                    Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
-                    Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
-            if (issue != null) {
-                result.addIssue(issue);
-            } else {
-                builder.setStatus(AviationCodeListUser.MetarStatus.MISSING);
-                if (match.getNext() != null) {
-                    final Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
-                    if (Identity.END_TOKEN != nextTokenId && Identity.REMARKS_START != nextTokenId) {
-                        result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL, "Missing METAR message contains extra tokens after NIL: " + input));
-                    }
-                }
-            }
-        });
-
-        if (AviationCodeListUser.MetarStatus.MISSING == builder.getStatus()) {
-            result.setConvertedMessage(buildUsing(builder));
-            return result;
-        }
-
-        result.addIssue(setObservedSurfaceWind(builder, obs, hints));
-
-        findNext(Identity.CAVOK, obs.getFirstLexeme(), (match) -> {
-            final Identity[] before = new Identity[] { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
-                    Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE,
-                    Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
-            if (issue != null) {
-                result.addIssue(issue);
-            } else {
-                builder.setCeilingAndVisibilityOk(true);
-            }
-        });
-
-        result.addIssue(setHorizontalVisibilities(builder, obs, hints));
-        result.addIssue(setRVRs(builder, obs, hints));
-        result.addIssue(setPresentWeather(builder, obs, hints));
-        result.addIssue(setObservedClouds(builder, obs, hints));
-        result.addIssue(setTemperatures(builder, obs, hints));
-        result.addIssue(setQNH(builder, obs, hints));
-        result.addIssue(setRecentWeather(builder, obs, hints));
-        result.addIssue(setWindShears(builder, obs, hints));
-        result.addIssue(setSeaState(builder, obs, hints));
-        result.addIssue(setRunwayStates(builder, obs, hints));
-        result.addIssue(setColorState(builder, obs, hints));
-
-        if (subSequences.size() > 0) {
-            for (int i = 1; i < subSequences.size(); i++) {
-                final LexemeSequence seq = subSequences.get(i);
-                if (Identity.TREND_CHANGE_INDICATOR == seq.getFirstLexeme().getIdentity()) {
-                    result.addIssue(addToTrends(builder, seq.getFirstLexeme(), hints));
-                } else if (Identity.REMARKS_START == seq.getFirstLexeme().getIdentity()) {
-                    final List<String> remarks = getRemarks(seq.getFirstLexeme(), hints);
-                    if (!remarks.isEmpty()) {
-                        builder.setRemarks(remarks);
-                    }
-                }
-            }
-        }
-        result.setConvertedMessage(buildUsing(builder));
-        return result;
-    }
-
-    protected abstract Identity getExpectedFirstTokenIdentity();
-
-    protected abstract T buildUsing(final METARImpl.Builder builder);
-
-    private List<ConversionIssue> setMETARIssueTime(final METARImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
-        final Identity[] before = {//
-                Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL, Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY,
-                Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER,
-                Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START //
-        };
-        return new ArrayList<>(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
     }
 
 }

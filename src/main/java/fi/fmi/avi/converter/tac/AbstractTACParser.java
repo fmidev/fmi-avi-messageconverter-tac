@@ -1,16 +1,5 @@
 package fi.fmi.avi.converter.tac;
 
-import static fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover.SKY_OBSCURED;
-import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
@@ -26,6 +15,16 @@ import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.immutable.CloudLayerImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.WeatherImpl;
+
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import static fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover.SKY_OBSCURED;
+import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
 
 /**
  * Common parent class for AviMessageConverter implementations.
@@ -238,15 +237,17 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
         return issues;
     }
 
-    protected static fi.fmi.avi.model.CloudLayer getCloudLayer(final Lexeme match) {
-        CloudLayerImpl.Builder retval = null;
-        final CloudCover cover = match.getParsedValue(Lexeme.ParsedValueName.COVER, CloudCover.class);
-        final CloudLayer.CloudType type = match.getParsedValue(Lexeme.ParsedValueName.TYPE, CloudLayer.CloudType.class);
-        final Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
-        final String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
-
-        if (SKY_OBSCURED != cover) {
-            retval = new CloudLayerImpl.Builder();
+    protected static fi.fmi.avi.model.CloudLayer getCloudLayer(final Lexeme match) throws IllegalArgumentException {
+        CloudLayerImpl.Builder retval = new CloudLayerImpl.Builder();
+        Object coverOrMissing = match.getParsedValue(Lexeme.ParsedValueName.COVER, Object.class);
+        Object type = match.getParsedValue(Lexeme.ParsedValueName.TYPE, Object.class);
+        Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
+        String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
+        if (coverOrMissing instanceof CloudCover) {
+            CloudCover cover = (CloudCover) coverOrMissing;
+            if (SKY_OBSCURED == cover) {
+                throw new IllegalArgumentException("Cannot create cloud layer with vertical visibility 'VV' token");
+            }
             switch (cover) {
                 case FEW:
                     retval.setAmount(AviationCodeListUser.CloudAmount.FEW);
@@ -267,21 +268,25 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                     //NOOP
                     break;
             }
-            if (CloudLayer.CloudType.TOWERING_CUMULUS == type) {
-                retval.setCloudType(fi.fmi.avi.model.AviationCodeListUser.CloudType.TCU);
-            } else if (CloudLayer.CloudType.CUMULONIMBUS == type) {
-                retval.setCloudType(fi.fmi.avi.model.AviationCodeListUser.CloudType.CB);
+        } else if (CloudLayer.SpecialValue.CLOUD_AMOUNT_UNOBSERVABLE == coverOrMissing) {
+            retval.setAmount(Optional.empty());
+        } else {
+            throw new IllegalArgumentException("Unknown cloud cover (amount): " + coverOrMissing);
+        }
+        if (CloudLayer.CloudType.TOWERING_CUMULUS == type) {
+            retval.setCloudType(fi.fmi.avi.model.AviationCodeListUser.CloudType.TCU);
+        } else if (CloudLayer.CloudType.CUMULONIMBUS == type) {
+            retval.setCloudType(fi.fmi.avi.model.AviationCodeListUser.CloudType.CB);
+        }
+        if (value instanceof Integer) {
+            Integer height = (Integer) value;
+            if ("hft".equals(unit)) {
+                retval.setBase(NumericMeasureImpl.of(height * 100, "[ft_i]"));
+            } else {
+                retval.setBase(NumericMeasureImpl.of(height, unit));
             }
-            if (value instanceof Integer) {
-                final Integer height = (Integer) value;
-                if ("hft".equals(unit)) {
-                    retval.setBase(NumericMeasureImpl.of(height * 100, "[ft_i]"));
-                } else {
-                    retval.setBase(NumericMeasureImpl.of(height, unit));
-                }
-            } else if (CloudLayer.SpecialValue.CLOUD_BASE_BELOW_AERODROME == value) {
-                retval.setBase(Optional.empty());
-            }
+        } else if (CloudLayer.SpecialValue.CLOUD_BASE_UNOBSERVABLE == value) {
+            retval.setBase(Optional.empty());
         }
         return retval.build();
     }

@@ -22,7 +22,7 @@ import fi.fmi.avi.model.CloudLayer;
  */
 public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> implements AviMessageSpecificConverter<S, String>, AviMessageTACTokenizer {
 
-    private Map<Lexeme.Identity, TACTokenReconstructor> reconstructors = new HashMap<Lexeme.Identity, TACTokenReconstructor>();
+    private Map<Lexeme.Identity, TACTokenReconstructor> reconstructors = new HashMap<>();
 
     private LexingFactory factory;
 

@@ -34,7 +34,7 @@ public class METAR29Test extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
 	public Optional<String> getCanonicalMessage() {
-        return Optional.of("METAR EFTU 230320Z AUTO 05004KT 9999 BKN003 OVC052 00/00 Q1023=");
+        return Optional.of("METAR EFTU 230320Z AUTO 05004KT 9999 BKN003/// OVC052/// 00/00 Q1023=");
     }
 
     @Override
