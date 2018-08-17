@@ -1,19 +1,17 @@
 {
 	"status": "NORMAL",
 	"issueTime": {
-		"partialTime": "190815Z"
+      "partialTime": "--19T08:15Z"
 	},
 	"aerodrome": {
 	    "designator": "EFAB"
 	},
 	"validityTime": {
 		"startTime": {
-			"partialTime": "1909",
-			"partialTimePattern": "DayHour"
+          "partialTime": "--19T09:"
 		},
 		"endTime": {
-			"partialTime": "1915",
-			"partialTimePattern": "DayHour"
+          "partialTime": "--19T15:"
 		}
 	},
 	"baseForecast": {

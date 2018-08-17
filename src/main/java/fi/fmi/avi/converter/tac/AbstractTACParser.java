@@ -3,6 +3,7 @@ package fi.fmi.avi.converter.tac;
 import static fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover.SKY_OBSCURED;
 import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.immutable.CloudLayerImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
@@ -70,9 +72,13 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
      *     });
      * </pre>
      *
-     * @param needle the identity of the Lexeme to find
-     * @param from the starting point
-     * @param found the function to execute with the match
+     * @param needle
+     *         the identity of the Lexeme to find
+     * @param from
+     *         the starting point
+     * @param found
+     *         the function to execute with the match
+     *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
     protected static Lexeme findNext(final Lexeme.Identity needle, final Lexeme from, final Consumer<Lexeme> found) {
@@ -131,7 +137,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
             Lexeme toCheck = lexeme;
             while (toCheck.hasPrevious()) {
                 toCheck = toCheck.getPrevious();
-                for (Lexeme.Identity i : toMatch) {
+                for (final Lexeme.Identity i : toMatch) {
                     if (i == toCheck.getIdentity()) {
                         retval = new ConversionIssue(ConversionIssue.Type.SYNTAX, "Token '" + lexeme + "' was found before one of type " + i);
                         break;
@@ -146,15 +152,21 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
      * Convenience method for verifying that the {@link LexemeSequence} given only contains maximum of one
      * any of the {@link Lexeme}s identified as one of <code>ids</code>.
      *
-     * @param lexed sequence to check
-     * @param ids the identities to verify
+     * @param lexed
+     *         sequence to check
+     * @param ids
+     *         the identities to verify
+     *
      * @return list the ParsingIssues to report for found extra Lexemes
      */
-    protected static List<ConversionIssue> checkZeroOrOne(LexemeSequence lexed, Lexeme.Identity[] ids) {
-        List<ConversionIssue> retval = new ArrayList<>();
-        boolean[] oneFound = new boolean[ids.length];
-        List<Lexeme> recognizedLexemes = lexed.getLexemes().stream().filter((lexeme) -> Lexeme.Status.UNRECOGNIZED != lexeme.getStatus()).collect(Collectors.toList());
-        for (Lexeme l : recognizedLexemes) {
+    protected static List<ConversionIssue> checkZeroOrOne(final LexemeSequence lexed, final Lexeme.Identity[] ids) {
+        final List<ConversionIssue> retval = new ArrayList<>();
+        final boolean[] oneFound = new boolean[ids.length];
+        final List<Lexeme> recognizedLexemes = lexed.getLexemes()
+                .stream()
+                .filter((lexeme) -> Lexeme.Status.UNRECOGNIZED != lexeme.getStatus())
+                .collect(Collectors.toList());
+        for (final Lexeme l : recognizedLexemes) {
             for (int i = 0; i < ids.length; i++) {
                 if (ids[i] == l.getIdentity()) {
                     if (!oneFound[i]) {
@@ -168,22 +180,19 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
         return retval;
     }
 
-    protected static List<ConversionIssue> withFoundIssueTime(final LexemeSequence lexed, final Identity[] before, final ConversionHints hints, final Consumer<PartialOrCompleteTimeInstant> consumer) {
-        List<ConversionIssue> retval = new ArrayList<>();
+    protected static List<ConversionIssue> withFoundIssueTime(final LexemeSequence lexed, final Identity[] before, final ConversionHints hints,
+            final Consumer<PartialOrCompleteTimeInstant> consumer) {
+        final List<ConversionIssue> retval = new ArrayList<>();
         findNext(Identity.ISSUE_TIME, lexed.getFirstLexeme(), (match) -> {
-            ConversionIssue issue = checkBeforeAnyOf(match, before);
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 retval.add(issue);
             } else {
-                Integer day = match.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-                Integer minute = match.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-                Integer hour = match.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                final Integer day = match.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+                final Integer minute = match.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+                final Integer hour = match.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
                 if (day != null && minute != null && hour != null) {
-                    consumer.accept(
-                            new PartialOrCompleteTimeInstant.Builder()
-                                    .setPartialTimePattern(PartialOrCompleteTimeInstant.TimePattern.DayHourMinuteZone)
-                                    .setPartialTime(String.format("%02d%02d%02dZ", day, hour, minute))
-                                    .build());
+                    consumer.accept(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"))));
                 } else {
                     retval.add(
                             new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing at least some of the issue time components in " + lexed.getTAC()));
@@ -194,29 +203,28 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
     }
 
     protected static void withTimeForTranslation(final ConversionHints hints, final Consumer<ZonedDateTime> consumer) {
-        if (hints != null && hints.containsKey(ConversionHints.KEY_TRANSLATION_TIME)){
-            Object value = hints.get(ConversionHints.KEY_TRANSLATION_TIME);
+        if (hints != null && hints.containsKey(ConversionHints.KEY_TRANSLATION_TIME)) {
+            final Object value = hints.get(ConversionHints.KEY_TRANSLATION_TIME);
             if (ConversionHints.VALUE_TRANSLATION_TIME_AUTO.equals(value)) {
                 consumer.accept(ZonedDateTime.now());
             } else if (value instanceof ZonedDateTime) {
-                consumer.accept((ZonedDateTime)value);
+                consumer.accept((ZonedDateTime) value);
             }
         }
     }
 
-
-
-    protected static List<ConversionIssue> appendWeatherCodes(final Lexeme source, List<fi.fmi.avi.model.Weather> target, Lexeme.Identity[] before, final ConversionHints hints) {
+    protected static List<ConversionIssue> appendWeatherCodes(final Lexeme source, final List<fi.fmi.avi.model.Weather> target, final Lexeme.Identity[] before,
+            final ConversionHints hints) {
         Lexeme l = source;
         final List<ConversionIssue> issues = new ArrayList<>();
         while (l != null) {
-            String code = l.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class);
+            final String code = l.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class);
             if (code != null) {
-                ConversionIssue issue = checkBeforeAnyOf(l, before);
+                final ConversionIssue issue = checkBeforeAnyOf(l, before);
                 if (issue != null) {
                     issues.add(issue);
                 } else {
-                    WeatherImpl.Builder weather = new WeatherImpl.Builder();
+                    final WeatherImpl.Builder weather = new WeatherImpl.Builder();
                     weather.setCode(code);
                     if (WEATHER_CODES.containsKey(code)) {
                         weather.setDescription(WEATHER_CODES.get(code));
@@ -232,10 +240,10 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
 
     protected static fi.fmi.avi.model.CloudLayer getCloudLayer(final Lexeme match) {
         CloudLayerImpl.Builder retval = null;
-        CloudCover cover = match.getParsedValue(Lexeme.ParsedValueName.COVER, CloudCover.class);
-        CloudLayer.CloudType type = match.getParsedValue(Lexeme.ParsedValueName.TYPE, CloudLayer.CloudType.class);
-        Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
-        String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
+        final CloudCover cover = match.getParsedValue(Lexeme.ParsedValueName.COVER, CloudCover.class);
+        final CloudLayer.CloudType type = match.getParsedValue(Lexeme.ParsedValueName.TYPE, CloudLayer.CloudType.class);
+        final Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
+        final String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
 
         if (SKY_OBSCURED != cover) {
             retval = new CloudLayerImpl.Builder();
@@ -253,8 +261,8 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                     retval.setAmount(AviationCodeListUser.CloudAmount.OVC);
                     break;
                 case SKY_CLEAR:
-                	retval.setAmount(AviationCodeListUser.CloudAmount.SKC);
-                	break;
+                    retval.setAmount(AviationCodeListUser.CloudAmount.SKC);
+                    break;
                 default:
                     //NOOP
                     break;
@@ -265,7 +273,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                 retval.setCloudType(fi.fmi.avi.model.AviationCodeListUser.CloudType.CB);
             }
             if (value instanceof Integer) {
-                Integer height = (Integer) value;
+                final Integer height = (Integer) value;
                 if ("hft".equals(unit)) {
                     retval.setBase(NumericMeasureImpl.of(height * 100, "[ft_i]"));
                 } else {
@@ -278,9 +286,8 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
         return retval.build();
     }
 
-    protected static List<String> getRemarks(final Lexeme remarkStart,
-            final ConversionHints hints) {
-        List<String> remarks = new ArrayList<>();
+    protected static List<String> getRemarks(final Lexeme remarkStart, final ConversionHints hints) {
+        final List<String> remarks = new ArrayList<>();
         if (Lexeme.Identity.REMARKS_START == remarkStart.getIdentity()) {
             Lexeme remark = findNext(Identity.REMARK, remarkStart);
             while (remark != null) {
@@ -296,10 +303,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
     }
 
     protected static boolean lexingSuccessful(final LexemeSequence lexed, final ConversionHints hints) {
-        if (lexed.getLexemes().stream().anyMatch(l -> !l.isIgnored() && !Lexeme.Status.OK.equals(l.getStatus()))) {
-            return false;
-        }
-        return true;
+        return lexed.getLexemes().stream().noneMatch(l -> !l.isIgnored() && !Lexeme.Status.OK.equals(l.getStatus()));
     }
 
     protected boolean checkAndReportLexingResult(final LexemeSequence lexed, final ConversionHints hints, final ConversionResult<?> result) {
@@ -310,17 +314,15 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
             } else {
                 result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Input message lexing was not fully successful: " + lexed));
             }
-            List<Lexeme> errors = lexed.getLexemes().stream().filter(l -> !Lexeme.Status.OK.equals(l.getStatus())).collect(Collectors.toList());
-            for (Lexeme l : errors) {
+            final List<Lexeme> errors = lexed.getLexemes().stream().filter(l -> !Lexeme.Status.OK.equals(l.getStatus())).collect(Collectors.toList());
+            for (final Lexeme l : errors) {
                 String msg = "Lexing problem with '" + l.getTACToken() + "'";
                 if (l.getLexerMessage() != null) {
                     msg = msg + ": " + l.getLexerMessage();
                 }
                 result.addIssue(new ConversionIssue(severity, ConversionIssue.Type.SYNTAX, msg));
             }
-            if (ConversionIssue.Severity.ERROR == severity) {
-                return false;
-            }
+            return ConversionIssue.Severity.ERROR != severity;
         }
         return true;
     }
@@ -328,7 +330,6 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
     /**
      * Lambda function interface to use with
      * {@link #findNext(Identity, Lexeme, Consumer, LexemeParsingNotifyer)}.
-     *
      */
     @FunctionalInterface
     interface LexemeParsingNotifyer {

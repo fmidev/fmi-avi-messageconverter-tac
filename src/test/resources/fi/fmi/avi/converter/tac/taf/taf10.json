@@ -1,19 +1,17 @@
 {
   "status": "NORMAL",
   "issueTime": {
-    "partialTime": "301130Z"
+    "partialTime": "--30T11:30Z"
   },
   "aerodrome": {
     "designator": "ESNS"
   },
   "validityTime": {
     "startTime": {
-      "partialTime": "3012",
-      "partialTimePattern": "DayHour"
+      "partialTime": "--30T12:"
     },
     "endTime": {
-      "partialTime": "3021",
-      "partialTimePattern": "DayHour"
+      "partialTime": "--30T21:"
     }
   },
   "baseForecast": {
@@ -54,12 +52,10 @@
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
       "periodOfChange": {
         "startTime": {
-          "partialTime": "3012",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--30T12:"
         },
         "endTime": {
-          "partialTime": "3013",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--30T13:"
         }
       },
       "cloud": {
@@ -78,12 +74,10 @@
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
       "periodOfChange": {
         "startTime": {
-          "partialTime": "3013",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--30T13:"
         },
         "endTime": {
-          "partialTime": "3016",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--30T16:"
         }
       },
       "prevailingVisibility": {
@@ -113,12 +107,10 @@
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
       "periodOfChange": {
         "startTime": {
-          "partialTime": "3016",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--30T16:"
         },
         "endTime": {
-          "partialTime": "3018",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--30T18:"
         }
       },
       "prevailingVisibility": {
@@ -148,12 +140,10 @@
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
       "periodOfChange": {
         "startTime": {
-          "partialTime": "3018",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--30T18:"
         },
         "endTime": {
-          "partialTime": "3021",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--30T21:"
         }
       },
       "prevailingVisibility": {

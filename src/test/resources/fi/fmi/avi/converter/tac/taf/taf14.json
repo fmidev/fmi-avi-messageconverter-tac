@@ -1,19 +1,17 @@
 {
   "status": "NORMAL",
   "issueTime": {
-    "partialTime": "190840Z"
+    "partialTime": "--19T08:40Z"
   },
   "aerodrome": {
      "designator": "EFKU"
   },
   "validityTime": {
     "startTime": {
-      "partialTime": "1916",
-      "partialTimePattern": "DayHour"
+      "partialTime": "--19T16:"
     },
     "endTime": {
-      "partialTime": "2004",
-      "partialTimePattern": "DayHour"
+      "partialTime": "--20T04:"
     }
   },
   "baseForecast": {

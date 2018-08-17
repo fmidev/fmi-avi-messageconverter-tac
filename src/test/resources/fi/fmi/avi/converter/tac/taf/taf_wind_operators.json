@@ -1,19 +1,17 @@
 {
   "status": "NORMAL",
   "issueTime": {
-    "partialTime": "190830Z"
+    "partialTime": "--19T08:30Z"
   },
   "aerodrome": {
     "designator": "EFKU"
   },
   "validityTime": {
     "startTime": {
-      "partialTime": "1909",
-      "partialTimePattern": "DayHour"
+      "partialTime": "--19T09:"
     },
     "endTime": {
-      "partialTime": "2009",
-      "partialTimePattern": "DayHour"
+      "partialTime": "--20T09:"
     }
   },
   "baseForecast": {
@@ -36,12 +34,10 @@
       "changeIndicator": "PROBABILITY_30_TEMPORARY_FLUCTUATIONS",
       "periodOfChange": {
         "startTime": {
-          "partialTime": "1915",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--19T15:"
         },
         "endTime": {
-          "partialTime": "1919",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--19T19:"
         }
       },
       "prevailingVisibility": {
@@ -78,12 +74,10 @@
       "changeIndicator": "BECOMING",
       "periodOfChange": {
         "startTime": {
-          "partialTime": "1923",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--19T23:"
         },
         "endTime": {
-          "partialTime": "2001",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--20T01:"
         }
       },
       "surfaceWind": {

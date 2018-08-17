@@ -1,19 +1,17 @@
 {
   "status": "NORMAL",
   "issueTime": {
-    "partialTime": "062331Z"
+    "partialTime": "--06T23:31Z"
   },
   "aerodrome": {
      "designator": "EFRO"
   },
   "validityTime": {
     "startTime": {
-      "partialTime": "0700",
-      "partialTimePattern": "DayHour"
+      "partialTime": "--07T00:"
     },
     "endTime": {
-      "partialTime": "0724",
-      "partialTimePattern": "DayHour"
+      "partialTime": "--07T24:"
     }
   },
   "baseForecast": {
@@ -36,12 +34,10 @@
       "changeIndicator": "PROBABILITY_30",
       "periodOfChange": {
         "startTime": {
-          "partialTime": "0702",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--07T02:"
         },
         "endTime": {
-          "partialTime": "0706",
-          "partialTimePattern": "DayHour"
+          "partialTime": "--07T06:"
         }
       },
      "prevailingVisibility": {

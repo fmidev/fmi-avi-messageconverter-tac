@@ -1,7 +1,7 @@
 {
   "status": "NORMAL",
   "issueTime": {
-    "partialTime": "111111Z"
+    "partialTime": "--11T11:11Z"
   },
   "aerodrome": {
     "designator": "EFHK"
@@ -144,8 +144,7 @@
     {
       "changeIndicator": "BECOMING",
       "instantOfChange": {
-        "partialTime": "0927",
-        "partialTimePattern": "HourMinute"
+        "partialTime": "--T09:27"
       },
       "surfaceWind": {
         "meanWindDirection": {
@@ -167,8 +166,7 @@
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
       "periodOfChange": {
         "startTime": {
-          "partialTime": "1051",
-          "partialTimePattern": "HourMinute"
+          "partialTime": "--T10:51"
         }
       },
       "cloud": {
@@ -182,8 +180,7 @@
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
       "periodOfChange": {
         "startTime": {
-          "partialTime": "1130",
-          "partialTimePattern": "HourMinute"
+          "partialTime": "--T11:30"
         }
       },
       "cloud": {

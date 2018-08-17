@@ -21,6 +21,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
+import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
 import fi.fmi.avi.model.taf.TAF;
@@ -42,9 +43,9 @@ public class TimePeriodSerialisationTest {
                 .setValidityTime(PartialOrCompleteTimePeriod.createValidityTimeDHDH("0100/0124"))//
                 .buildPartial();
 
-        ValidTime.Reconstructor reconstructor = new ValidTime.Reconstructor();
+        final ValidTime.Reconstructor reconstructor = new ValidTime.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
-        ReconstructorContext<TAF> ctx = new ReconstructorContext<>(msg);
+        final ReconstructorContext<TAF> ctx = new ReconstructorContext<>(msg);
 
         Optional<Lexeme> l = reconstructor.getAsLexeme(msg, TAF.class, ctx);
         assertTrue(l.isPresent());
@@ -59,11 +60,12 @@ public class TimePeriodSerialisationTest {
         assertTrue(l.isPresent());
         assertEquals("0100/0124", l.get().getTACToken());
 
+        final ZonedDateTime completeStartTime = ZonedDateTime.parse("2018-01-01T00:00:00Z", DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        final ZonedDateTime completeEndTime = ZonedDateTime.parse("2018-01-02T00:00:00Z", DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         msg = new TAFImpl.Builder()//
-                .setValidityTime(new PartialOrCompleteTimePeriod.Builder().setStartTime(new PartialOrCompleteTimeInstant.Builder().setCompleteTime(
-                        ZonedDateTime.parse("2018-01-01T00:00:00Z", DateTimeFormatter.ISO_OFFSET_DATE_TIME)).build())
-                        .setEndTime(new PartialOrCompleteTimeInstant.Builder().setCompleteTime(
-                                ZonedDateTime.parse("2018-01-02T00:00:00Z", DateTimeFormatter.ISO_OFFSET_DATE_TIME)).build())
+                .setValidityTime(new PartialOrCompleteTimePeriod.Builder()//
+                        .setStartTime(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHour(completeStartTime, false), completeStartTime))//
+                        .setEndTime(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHour(completeEndTime, true), completeEndTime))//
                         .build()).buildPartial();
 
         l = reconstructor.getAsLexeme(msg, TAF.class, ctx);

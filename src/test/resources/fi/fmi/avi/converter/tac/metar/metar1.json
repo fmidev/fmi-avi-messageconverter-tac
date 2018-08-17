@@ -1,7 +1,7 @@
 {
   "status": "NORMAL",
   "issueTime": {
-    "partialTime": "012400Z"
+    "partialTime": "--01T24:00Z"
   },
   "aerodrome": {
     "designator":"EFHK"

@@ -1,7 +1,7 @@
 {
   "status": "NORMAL",
   "issueTime": {
-    "partialTime": "111111Z"
+    "partialTime": "--11T11:11Z"
   },
   "aerodrome": {
     "designator": "EFHK"
@@ -116,8 +116,7 @@
     {
       "periodOfChange": {
         "endTime": {
-          "partialTime": "1530",
-          "partialTimePattern": "HourMinute"
+          "partialTime": "--T15:30"
         }
       },
       "changeIndicator": "TEMPORARY_FLUCTUATIONS",
