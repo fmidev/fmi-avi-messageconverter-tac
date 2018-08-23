@@ -21,7 +21,7 @@ import fi.fmi.avi.model.metar.TrendForecast;
 public class TrendChangeIndicator extends TimeHandlingRegex {
 
     public enum TrendChangeIndicatorType {
-        TEMPORARY_FLUCTUATIONS("TEMPO"), BECOMING("BECMG"), NO_SIGNIFICANT_CHANGES("NOSIG");
+        TEMPORARY_FLUCTUATIONS("TEMPO"), BECOMING("BECMG");
 
         private String code;
 
@@ -41,7 +41,7 @@ public class TrendChangeIndicator extends TimeHandlingRegex {
     }
 
     public TrendChangeIndicator(final Priority prio) {
-        super("^(NOSIG|TEMPO|BECMG)$", prio);
+        super("^(TEMPO|BECMG)$", prio);
     }
 
     @Override
@@ -68,8 +68,6 @@ public class TrendChangeIndicator extends TimeHandlingRegex {
                     case TEMPORARY_FLUCTUATIONS: {
                         return Optional.of(this.createLexeme("TEMPO", TREND_CHANGE_INDICATOR));
                     }
-                    case NO_SIGNIFICANT_CHANGES:
-                        return Optional.of(this.createLexeme("NOSIG", TREND_CHANGE_INDICATOR));
                 }
             }
             return Optional.empty();

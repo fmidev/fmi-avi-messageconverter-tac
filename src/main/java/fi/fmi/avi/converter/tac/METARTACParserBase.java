@@ -1,5 +1,16 @@
 package fi.fmi.avi.converter.tac;
 
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.RelationalOperator;
+import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.TendencyOperator;
+import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionIssue.Type;
@@ -8,29 +19,42 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.converter.tac.lexer.impl.token.*;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ColorCode;
+import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateContamination;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateDeposit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateReportSpecialValue;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateReportType;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator.TrendChangeIndicatorType;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup.TrendTimePeriodType;
-import fi.fmi.avi.model.*;
-import fi.fmi.avi.model.immutable.*;
+import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
+import fi.fmi.avi.model.RunwayDirection;
+import fi.fmi.avi.model.immutable.AerodromeImpl;
+import fi.fmi.avi.model.immutable.CloudForecastImpl;
+import fi.fmi.avi.model.immutable.NumericMeasureImpl;
+import fi.fmi.avi.model.immutable.RunwayDirectionImpl;
+import fi.fmi.avi.model.immutable.WeatherImpl;
 import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 import fi.fmi.avi.model.metar.RunwayState;
 import fi.fmi.avi.model.metar.RunwayVisualRange;
 import fi.fmi.avi.model.metar.TrendForecast;
-import fi.fmi.avi.model.metar.immutable.*;
-
-import java.util.*;
-
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
-import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.RelationalOperator;
-import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.TendencyOperator;
-import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
+import fi.fmi.avi.model.metar.immutable.HorizontalVisibilityImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.metar.immutable.ObservedCloudsImpl;
+import fi.fmi.avi.model.metar.immutable.ObservedSurfaceWindImpl;
+import fi.fmi.avi.model.metar.immutable.RunwayStateImpl;
+import fi.fmi.avi.model.metar.immutable.RunwayVisualRangeImpl;
+import fi.fmi.avi.model.metar.immutable.SeaStateImpl;
+import fi.fmi.avi.model.metar.immutable.TrendForecastImpl;
+import fi.fmi.avi.model.metar.immutable.TrendForecastSurfaceWindImpl;
+import fi.fmi.avi.model.metar.immutable.WindShearImpl;
 
 /**
  * @author Ilkka Rinne / Spatineo Oy 2017
@@ -85,7 +109,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
         withTimeForTranslation(hints, builder::setTranslationTime);
 
         //Split into obs & trends (+possible remarks)
-        List<LexemeSequence> subSequences = lexed.splitBy(Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START);
+        List<LexemeSequence> subSequences = lexed.splitBy(Identity.TREND_CHANGE_INDICATOR, Identity.NO_SIGNIFICANT_CHANGES, Identity.REMARKS_START);
         LexemeSequence obs = subSequences.get(0);
 
         findNext(Identity.CORRECTION, obs.getFirstLexeme(), (match) -> {
@@ -209,6 +233,8 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 LexemeSequence seq = subSequences.get(i);
                 if (Identity.TREND_CHANGE_INDICATOR == seq.getFirstLexeme().getIdentity()) {
                     result.addIssue(addToTrends(builder, seq.getFirstLexeme(), hints));
+                } else if (Identity.NO_SIGNIFICANT_CHANGES == seq.getFirstLexeme().getIdentity()) {
+                    builder.setNoSignificantChanges(true);
                 } else if (Identity.REMARKS_START == seq.getFirstLexeme().getIdentity()) {
                     List<String> remarks = getRemarks(seq.getFirstLexeme(), hints);
                     if (!remarks.isEmpty()) {
@@ -934,9 +960,6 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
             case TEMPORARY_FLUCTUATIONS:
                 fct.setChangeIndicator(AviationCodeListUser.TrendForecastChangeIndicator.TEMPORARY_FLUCTUATIONS);
                 retval.addAll(setTrendContents(fct, changeFctToken, hints));
-                break;
-            case NO_SIGNIFICANT_CHANGES:
-                fct.setChangeIndicator(AviationCodeListUser.TrendForecastChangeIndicator.NO_SIGNIFICANT_CHANGES);
                 break;
             default:
                 break;

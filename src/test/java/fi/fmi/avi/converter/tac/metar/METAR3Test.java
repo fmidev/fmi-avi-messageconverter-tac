@@ -8,10 +8,10 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.NO_SIGNIFICANT_CHANGES;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.RUNWAY_STATE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.RUNWAY_VISUAL_RANGE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TREND_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.VARIABLE_WIND_DIRECTION;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
 
@@ -44,7 +44,7 @@ public class METAR3Test extends AbstractAviMessageTest<String, METAR> {
 		return spacify(new Identity[] {
 				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, VARIABLE_WIND_DIRECTION, HORIZONTAL_VISIBILITY,
                 RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER, CLOUD, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, RUNWAY_STATE,
-				TREND_CHANGE_INDICATOR, END_TOKEN });
+				NO_SIGNIFICANT_CHANGES, END_TOKEN });
 	}
 
 	@Override
