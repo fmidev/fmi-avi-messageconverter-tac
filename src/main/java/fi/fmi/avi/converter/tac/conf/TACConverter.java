@@ -41,6 +41,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.IssueTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetarStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
@@ -188,6 +189,7 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.NO_SIGNIFICANT_WEATHER, new NoSignificantWeather.Reconstructor());
         s.addReconstructor(Lexeme.Identity.CLOUD, new CloudLayer.Reconstructor());
         s.addReconstructor(Lexeme.Identity.TREND_CHANGE_INDICATOR, new TrendChangeIndicator.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.NO_SIGNIFICANT_CHANGES, new NoSignificantChanges.Reconstructor());
         s.addReconstructor(Lexeme.Identity.TREND_TIME_GROUP, new TrendTimeGroup.Reconstructor());
         s.addReconstructor(Lexeme.Identity.RUNWAY_VISUAL_RANGE, new RunwayVisualRange.Reconstructor());
         s.addReconstructor(Lexeme.Identity.AIR_DEWPOINT_TEMPERATURE, new AirDewpointTemperature.Reconstructor());
@@ -280,6 +282,7 @@ public class TACConverter {
         l.teach(new MetricHorizontalVisibility(Priority.NORMAL));
         l.teach(new FractionalHorizontalVisibility(Priority.NORMAL));
         l.teach(new TrendChangeIndicator(Priority.LOW));
+        l.teach(new NoSignificantChanges(Priority.LOW));
         l.teach(new TrendTimeGroup(Priority.LOW));
         l.teach(new ColorCode(Priority.LOW));
         l.teach(new CAVOK(Priority.LOW));

@@ -1,5 +1,9 @@
 package fi.fmi.avi.converter.tac;
 
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+
+import java.util.Optional;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionIssue.Type;
@@ -12,11 +16,11 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.Weather;
-import fi.fmi.avi.model.metar.*;
-
-import java.util.Optional;
-
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
+import fi.fmi.avi.model.metar.ObservedClouds;
+import fi.fmi.avi.model.metar.RunwayState;
+import fi.fmi.avi.model.metar.RunwayVisualRange;
+import fi.fmi.avi.model.metar.TrendForecast;
 
 /**
  * Serializes METAR POJO to TAC format
@@ -144,6 +148,9 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
             appendWhitespace(retval, ' ');
         }
         if (appendToken(retval, Identity.COLOR_CODE, input, getMessageClass(), baseCtx) > 0) {
+            appendWhitespace(retval, ' ');
+        }
+        if (appendToken(retval, Identity.NO_SIGNIFICANT_CHANGES, input, getMessageClass(), baseCtx) > 0) {
             appendWhitespace(retval, ' ');
         }
         if (input.getTrends().isPresent()) {

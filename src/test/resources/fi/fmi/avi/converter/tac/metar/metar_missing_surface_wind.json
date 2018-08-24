@@ -44,11 +44,7 @@
       }
     ]
   },
-  "trends": [
-    {
-      "changeIndicator": "NO_SIGNIFICANT_CHANGES"
-    }
-  ],
+  "noSignificantChanges": true,
   "translatedTAC": "METAR EFHK 051052Z blaablaa 9999 FEW033 BKN110 M00/M02 Q1005 NOSIG=",
   "translated": true
 }

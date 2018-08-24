@@ -8,7 +8,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TREND_CHANGE_INDICATOR;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.NO_SIGNIFICANT_CHANGES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -76,7 +76,7 @@ public class METARAllowLexingSyntaxErrorsTest extends AbstractAviMessageTest<Str
     @Override
     public Identity[] getLexerTokenSequenceIdentity() {
         return spacify(new Identity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, null, HORIZONTAL_VISIBILITY, CLOUD, CLOUD, AIR_DEWPOINT_TEMPERATURE,
-                AIR_PRESSURE_QNH, TREND_CHANGE_INDICATOR, END_TOKEN });
+                AIR_PRESSURE_QNH, NO_SIGNIFICANT_CHANGES, END_TOKEN });
     }
 
     @Override
