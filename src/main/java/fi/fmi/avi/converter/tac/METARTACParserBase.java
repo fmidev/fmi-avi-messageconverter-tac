@@ -33,6 +33,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator.TrendChang
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup.TrendTimePeriodType;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
 import fi.fmi.avi.model.RunwayDirection;

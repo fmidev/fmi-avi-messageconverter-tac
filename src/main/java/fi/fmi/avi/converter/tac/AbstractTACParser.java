@@ -1,5 +1,16 @@
 package fi.fmi.avi.converter.tac;
 
+import static fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover.SKY_OBSCURED;
+import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
@@ -15,16 +26,6 @@ import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.immutable.CloudLayerImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.WeatherImpl;
-
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover.SKY_OBSCURED;
-import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
 
 /**
  * Common parent class for AviMessageConverter implementations.

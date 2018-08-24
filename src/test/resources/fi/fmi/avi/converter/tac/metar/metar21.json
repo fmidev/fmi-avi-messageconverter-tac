@@ -1,45 +1,45 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "--01T13:50Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--01T13:50Z"
   },
-  "aerodrome": {
+  "aerodrome" : {
     "designator":"EFTU"
   },
-  "surfaceWind": {
+  "surfaceWind" : {
     "variableDirection": true,
-    "meanWindSpeed": {
+    "meanWindSpeed" : {
       "value": 2.0,
-      "uom": "[kn_i]"
+      "uom" : "[kn_i]"
     }
   },
   "ceilingAndVisibilityOk": true,
-  "airTemperature": {
+  "airTemperature" : {
     "value": 22.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "dewpointTemperature": {
+  "dewpointTemperature" : {
     "value": 12.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "altimeterSettingQNH": {
+  "altimeterSettingQNH" : {
     "value": 1008.0,
-    "uom": "hPa"
+    "uom" : "hPa"
   },
   "runwayStates": [
     {
-     "runwayDirection": {
-        "associatedAirportHeliport": {
-          "designator": "EFTU"
+     "runwayDirection" : {
+        "associatedAirportHeliport" : {
+          "designator" : "EFTU"
         },
-        "designator": "15L"
+        "designator" : "15L"
       },
       "runwayNotOperational": true,
       "depthNotMeasurable": true,
-      "deposit": "MISSING_OR_NOT_REPORTED",
-      "contamination": "MISSING_OR_NOT_REPORTED"  
+      "deposit" : "MISSING_OR_NOT_REPORTED",
+      "contamination" : "MISSING_OR_NOT_REPORTED"
     }
   ],
-  "translatedTAC": "METAR EFTU 011350Z VRB02KT CAVOK 22/12 Q1008 R15L///////=",
+  "translatedTAC" : "METAR EFTU 011350Z VRB02KT CAVOK 22/12 Q1008 R15L///////=",
   "translated": true
 }

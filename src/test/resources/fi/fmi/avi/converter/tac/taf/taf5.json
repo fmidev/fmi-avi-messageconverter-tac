@@ -1,57 +1,57 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "--30T11:00Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--30T11:00Z"
   },
-  "aerodrome": {
-     "designator": "ENOA"
+  "aerodrome" : {
+     "designator" : "ENOA"
   },
-  "validityTime": {
-    "startTime": {
-      "partialTime": "--30T12:"
+  "validityTime" : {
+    "startTime" : {
+      "partialTime" : "--30T12:"
     },
-    "endTime": {
-      "partialTime": "--31T12:"
+    "endTime" : {
+      "partialTime" : "--31T12:"
     }
   },
-  "baseForecast": {
-    "surfaceWind": {
+  "baseForecast" : {
+    "surfaceWind" : {
 	  "variableDirection": false,
-	  "meanWindDirection": {
+	  "meanWindDirection" : {
 	    "value": 290.0,
-	    "uom": "deg"
+	    "uom" : "deg"
 	  },
-	  "meanWindSpeed": {
+	  "meanWindSpeed" : {
 	    "value": 28.0,
-	    "uom": "[kn_i]"
+	    "uom" : "[kn_i]"
 	  }
 	},
-	"prevailingVisibility": {
+	"prevailingVisibility" : {
 	  "value": 10000.0,
-	  "uom": "m"
+	  "uom" : "m"
 	},
-	"prevailingVisibilityOperator": "ABOVE",
+	"prevailingVisibilityOperator" : "ABOVE",
 	"forecastWeather": [
 	  {
-        "code": "-SHRA",
-        "description": "Light showery precipitation of rain"
+        "code" : "-SHRA",
+        "description" : "Light showery precipitation of rain"
 	  }
 	],
-	"cloud": {
+	"cloud" : {
 	  "layers": [
 	    {
-	       "amount": "FEW",
-	       "base": {
+	       "amount" : "FEW",
+	       "base" : {
 	         "value": 1500.0,
-	         "uom": "[ft_i]"
+	         "uom" : "[ft_i]"
 	       },
-	       "cloudType": "TCU"
+	       "cloudType" : "TCU"
 	    },
 	    {
-	       "amount": "SCT",
-	       "base": {
+	       "amount" : "SCT",
+	       "base" : {
 	         "value": 2500.0,
-	         "uom": "[ft_i]"
+	         "uom" : "[ft_i]"
 	       }
 	    }
 	  ]
@@ -59,105 +59,105 @@
   },
   "changeForecasts": [
     {
-      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "--30T12:"
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--30T12:"
         },
-        "endTime": {
-          "partialTime": "--30T24:"
+        "endTime" : {
+          "partialTime" : "--30T24:"
         }
       },
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
 	    "value": 4000.0,
-	    "uom": "m"
+	    "uom" : "m"
 	  },
 	  
       "forecastWeather": [
 	    {
-          "code": "SHRAGS",
-          "description": "Showery precipitation of rain and snow pellets/small hail"
+          "code" : "SHRAGS",
+          "description" : "Showery precipitation of rain and snow pellets/small hail"
 	    }
 	  ],
-	  "cloud": {
+	  "cloud" : {
 	    "layers": [
 	      {
-            "amount": "BKN",
-            "base": {
+            "amount" : "BKN",
+            "base" : {
               "value": 1200.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             },
-            "cloudType": "CB"
+            "cloudType" : "CB"
 	      }
 	    ]
 	  }
     },
     {
-      "changeIndicator": "BECOMING",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "--30T17:"
+      "changeIndicator" : "BECOMING",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--30T17:"
         },
-        "endTime": {
-          "partialTime": "--30T20:"
+        "endTime" : {
+          "partialTime" : "--30T20:"
         }
       },
-      "surfaceWind": {
+      "surfaceWind" : {
 	    "variableDirection": false,
-	    "meanWindDirection": {
+	    "meanWindDirection" : {
 	      "value": 250.0,
-	      "uom": "deg"
+	      "uom" : "deg"
 	    },
-	    "meanWindSpeed": {
+	    "meanWindSpeed" : {
 	      "value": 18.0,
-	      "uom": "[kn_i]"
+	      "uom" : "[kn_i]"
 	    }
 	  }
     },
     {
-      "changeIndicator": "BECOMING",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "--31T00:"
+      "changeIndicator" : "BECOMING",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--31T00:"
         },
-        "endTime": {
-          "partialTime": "--31T03:"
+        "endTime" : {
+          "partialTime" : "--31T03:"
         }
       },
-      "surfaceWind": {
+      "surfaceWind" : {
 	    "variableDirection": false,
-	    "meanWindDirection": {
+	    "meanWindDirection" : {
 	      "value": 170.0,
-	      "uom": "deg"
+	      "uom" : "deg"
 	    },
-	    "meanWindSpeed": {
+	    "meanWindSpeed" : {
 	      "value": 8.0,
-	      "uom": "[kn_i]"
+	      "uom" : "[kn_i]"
 	    }
 	  }
     },
     {
-      "changeIndicator": "BECOMING",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "--31T07:"
+      "changeIndicator" : "BECOMING",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--31T07:"
         },
-        "endTime": {
-          "partialTime": "--31T10:"
+        "endTime" : {
+          "partialTime" : "--31T10:"
         }
       },
-      "surfaceWind": {
+      "surfaceWind" : {
 	    "variableDirection": false,
-	    "meanWindDirection": {
+	    "meanWindDirection" : {
 	      "value": 230.0,
-	      "uom": "deg"
+	      "uom" : "deg"
 	    },
-	    "meanWindSpeed": {
+	    "meanWindSpeed" : {
 	      "value": 15.0,
-	      "uom": "[kn_i]"
+	      "uom" : "[kn_i]"
 	    }
 	  }
     }
   ],
-  "translatedTAC": "ENOA 301100Z 3012/3112 29028KT 9999 -SHRA FEW015TCU SCT025\nTEMPO 3012/3024 4000 SHRAGS BKN012CB\nBECMG 3017/3020 25018KT\nBECMG 3100/3103 17008KT\nBECMG 3107/3110 23015KT="
+  "translatedTAC" : "ENOA 301100Z 3012/3112 29028KT 9999 -SHRA FEW015TCU SCT025\nTEMPO 3012/3024 4000 SHRAGS BKN012CB\nBECMG 3017/3020 25018KT\nBECMG 3100/3103 17008KT\nBECMG 3107/3110 23015KT="
 }

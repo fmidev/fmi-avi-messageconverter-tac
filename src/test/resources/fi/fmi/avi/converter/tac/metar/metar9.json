@@ -1,128 +1,128 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "--11T11:11Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--11T11:11Z"
   },
-  "aerodrome": {
+  "aerodrome" : {
     "designator":"EFHK"
   },
-  "surfaceWind": {
-    "meanWindDirection": {
+  "surfaceWind" : {
+    "meanWindDirection" : {
       "value": 150.0,
-      "uom": "deg"
+      "uom" : "deg"
     },
-    "meanWindSpeed": {
+    "meanWindSpeed" : {
       "value": 8.0,
-      "uom": "[kn_i]"
+      "uom" : "[kn_i]"
     }
   },
-  "visibility": {
-    "prevailingVisibility": {
+  "visibility" : {
+    "prevailingVisibility" : {
       "value": 700.0,
-      "uom": "m"
+      "uom" : "m"
     }
   },
   "runwayVisualRanges": [
     {
-      "runwayDirection": {
-        "associatedAirportHeliport": {
-          "designator": "EFHK"
+      "runwayDirection" : {
+        "associatedAirportHeliport" : {
+          "designator" : "EFHK"
         },
-        "designator": "04R"
+        "designator" : "04R"
       },
-      "pastTendency": "NO_CHANGE",
-      "meanRVR": {
+      "pastTendency" : "NO_CHANGE",
+      "meanRVR" : {
         "value": 1500.0,
-        "uom": "m"
+        "uom" : "m"
       }
     },
     {
-      "runwayDirection": {
-        "associatedAirportHeliport": {
-          "designator": "EFHK"
+      "runwayDirection" : {
+        "associatedAirportHeliport" : {
+          "designator" : "EFHK"
         },
-        "designator": "15"
+        "designator" : "15"
       },
-      "pastTendency": "UPWARD",
-      "meanRVR": {
+      "pastTendency" : "UPWARD",
+      "meanRVR" : {
         "value": 1000.0,
-        "uom": "m"
+        "uom" : "m"
       }
     },
     {
-      "runwayDirection": {
-        "associatedAirportHeliport": {
-          "designator": "EFHK"
+      "runwayDirection" : {
+        "associatedAirportHeliport" : {
+          "designator" : "EFHK"
         },
-        "designator": "22L"
+        "designator" : "22L"
       },
-      "pastTendency": "NO_CHANGE",
-      "meanRVR": {
+      "pastTendency" : "NO_CHANGE",
+      "meanRVR" : {
         "value": 1200.0,
-        "uom": "m"
+        "uom" : "m"
       }
     },
     {
-      "runwayDirection": {
-        "associatedAirportHeliport": {
-          "designator": "EFHK"
+      "runwayDirection" : {
+        "associatedAirportHeliport" : {
+          "designator" : "EFHK"
         },
-        "designator": "04L"
+        "designator" : "04L"
       },
-      "pastTendency": "UPWARD",
-      "varyingRVRMaximumOperator": "ABOVE",
-      "varyingRVRMinimum": {
+      "pastTendency" : "UPWARD",
+      "varyingRVRMaximumOperator" : "ABOVE",
+      "varyingRVRMinimum" : {
         "value": 1000.0,
-        "uom": "m"
+        "uom" : "m"
       },
-      "varyingRVRMaximum": {
+      "varyingRVRMaximum" : {
         "value": 1500.0,
-        "uom": "m"
+        "uom" : "m"
       }
     }
   ],
   "presentWeather": [
     {
-      "code": "SN",
-      "description": "Precipitation of snow"
+      "code" : "SN",
+      "description" : "Precipitation of snow"
     }
   ],
-  "clouds": {
-    "verticalVisibility": {
+  "clouds" : {
+    "verticalVisibility" : {
       "value": 600.0,
-      "uom": "[ft_i]"
+      "uom" : "[ft_i]"
     }
   },
-  "altimeterSettingQNH": {
+  "altimeterSettingQNH" : {
     "value": 1023.0,
-    "uom": "hPa"
+    "uom" : "hPa"
   },
-  "airTemperature": {
+  "airTemperature" : {
     "value": -8.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "dewpointTemperature": {
+  "dewpointTemperature" : {
     "value": -10.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
   "recentWeather": [
     {
-      "code": "SN",
-      "description": "Precipitation of snow"
+      "code" : "SN",
+      "description" : "Precipitation of snow"
     }
   ],
-  "windShear": {
+  "windShear" : {
     "appliedToAllRunways": true
   },
   "trends": [
     {
-      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "prevailingVisibility": {
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
+      "prevailingVisibility" : {
         "value": 900.0,
-        "uom": "m"
+        "uom" : "m"
       }
     }
   ],
-  "translatedTAC": "METAR EFHK 111111Z 15008KT 0700 R04R/1500N R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 RESN WS ALL RWY TEMPO 0900=",
+  "translatedTAC" : "METAR EFHK 111111Z 15008KT 0700 R04R/1500N R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 RESN WS ALL RWY TEMPO 0900=",
   "translated": true
 }

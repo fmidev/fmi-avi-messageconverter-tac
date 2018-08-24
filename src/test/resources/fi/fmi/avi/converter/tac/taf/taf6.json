@@ -1,29 +1,29 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "--19T08:30Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--19T08:30Z"
   },
-  "aerodrome": {
-     "designator": "EFKU"
+  "aerodrome" : {
+     "designator" : "EFKU"
   },
-  "validityTime": {
-    "startTime": {
-      "partialTime": "--19T09:"
+  "validityTime" : {
+    "startTime" : {
+      "partialTime" : "--19T09:"
     },
-    "endTime": {
-      "partialTime": "--20T09:"
+    "endTime" : {
+      "partialTime" : "--20T09:"
     }
   },
-  "baseForecast": {
-    "surfaceWind": {
+  "baseForecast" : {
+    "surfaceWind" : {
 	  "variableDirection": false,
-	  "meanWindDirection": {
+	  "meanWindDirection" : {
 	    "value": 230.0,
-	    "uom": "deg"
+	    "uom" : "deg"
 	  },
-	  "meanWindSpeed": {
+	  "meanWindSpeed" : {
 	    "value": 10.0,
-	    "uom": "[kn_i]"
+	    "uom" : "[kn_i]"
 	  }
 	},
 	"ceilingAndVisibilityOk": true
@@ -31,69 +31,69 @@
   
   "changeForecasts": [
     {
-      "changeIndicator": "PROBABILITY_30_TEMPORARY_FLUCTUATIONS",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "--19T15:"
+      "changeIndicator" : "PROBABILITY_30_TEMPORARY_FLUCTUATIONS",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--19T15:"
         },
-        "endTime": {
-          "partialTime": "--19T19:"
+        "endTime" : {
+          "partialTime" : "--19T19:"
         }
       },
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
 	    "value": 7000.0,
-	    "uom": "m"
+	    "uom" : "m"
 	  },
 	  
 	  "forecastWeather": [
 	    {
-          "code": "SHRA",
-          "description": "Showery precipitation of rain"
+          "code" : "SHRA",
+          "description" : "Showery precipitation of rain"
 	    }
 	  ],
 	  
-      "cloud": {
+      "cloud" : {
         "layers": [
           {
-            "amount": "SCT",
-            "base": {
+            "amount" : "SCT",
+            "base" : {
               "value": 3000.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             },
-            "cloudType": "CB"
+            "cloudType" : "CB"
           },
           {
-            "amount": "BKN",
-            "base": {
+            "amount" : "BKN",
+            "base" : {
               "value": 4500.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             }
           }
         ]
       }
 	},
 	{
-      "changeIndicator": "BECOMING",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "--19T23:"
+      "changeIndicator" : "BECOMING",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--19T23:"
         },
-        "endTime": {
-          "partialTime": "--20T01:"
+        "endTime" : {
+          "partialTime" : "--20T01:"
         }
       },
-      "surfaceWind": {
+      "surfaceWind" : {
 	    "variableDirection": false,
-	    "meanWindDirection": {
+	    "meanWindDirection" : {
 	      "value": 300.0,
-	      "uom": "deg"
+	      "uom" : "deg"
 	    },
-	    "meanWindSpeed": {
+	    "meanWindSpeed" : {
 	      "value": 10.0,
-	      "uom": "[kn_i]"
+	      "uom" : "[kn_i]"
 	    }
 	  }
     }
   ],
-  "translatedTAC": "TAF EFKU 190830Z 1909/2009 23010KT CAVOK\nPROB30 TEMPO 1915/1919 7000 SHRA SCT030CB BKN045\nBECMG 1923/2001 30010KT="
+  "translatedTAC" : "TAF EFKU 190830Z 1909/2009 23010KT CAVOK\nPROB30 TEMPO 1915/1919 7000 SHRA SCT030CB BKN045\nBECMG 1923/2001 30010KT="
 }

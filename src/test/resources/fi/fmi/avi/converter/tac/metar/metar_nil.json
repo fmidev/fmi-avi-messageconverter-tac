@@ -1,11 +1,11 @@
 {
-  "status": "MISSING",
-  "issueTime": {
-    "partialTime": "--22T13:20Z"
+  "status" : "MISSING",
+  "issueTime" : {
+    "partialTime" : "--22T13:20Z"
   },
-  "aerodrome": {
+  "aerodrome" : {
     "designator":"EFIV"
   },
-  "translatedTAC": "METAR EFIV 221320Z NIL=",
+  "translatedTAC" : "METAR EFIV 221320Z NIL=",
   "translated": true
 }

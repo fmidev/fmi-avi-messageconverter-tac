@@ -1,56 +1,56 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "--20T10:04Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--20T10:04Z"
   },
-  "aerodrome": {
-    "designator": "KORD"
+  "aerodrome" : {
+    "designator" : "KORD"
   },
   "presentWeather": [
   	{
-      "code": "-DZ",
-      "description": "Light precipitation of drizzle"
+      "code" : "-DZ",
+      "description" : "Light precipitation of drizzle"
     },
   	{
-      "code": "BR",
-      "description": "Mist"
+      "code" : "BR",
+      "description" : "Mist"
   	}
   ],
-  "airTemperature": {
+  "airTemperature" : {
     "value": 3.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "dewpointTemperature": {
+  "dewpointTemperature" : {
     "value": 3.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "altimeterSettingQNH": {
+  "altimeterSettingQNH" : {
     "value": 2964.0,
-    "uom": "in Hg"
+    "uom" : "in Hg"
   },
-  "surfaceWind": {
-    "meanWindDirection": {
+  "surfaceWind" : {
+    "meanWindDirection" : {
       "value": 50.0,
-      "uom": "deg"
+      "uom" : "deg"
     },
-    "meanWindSpeed": {
+    "meanWindSpeed" : {
       "value": 8.0,
-      "uom": "[kn_i]"
+      "uom" : "[kn_i]"
     }
   },
-  "visibility": {
-    "prevailingVisibility": {
+  "visibility" : {
+    "prevailingVisibility" : {
       "value": 0.3333333333333333,
-      "uom": "sm"
+      "uom" : "sm"
     },
-    "prevailingVisibilityOperator": "ABOVE"
+    "prevailingVisibilityOperator" : "ABOVE"
   },
-  "clouds": {
+  "clouds" : {
     "noSignificantCloud": true
   },
   "remarks": [
   	"AO2", "DZB04", "P0000", "T00330028"
   ],
-  "translatedTAC": "METAR KORD 201004Z 05008KT P1/3SM -DZ BR NSC 03/03 A2964 RMK AO2 DZB04 P0000 T00330028=",
+  "translatedTAC" : "METAR KORD 201004Z 05008KT P1/3SM -DZ BR NSC 03/03 A2964 RMK AO2 DZB04 P0000 T00330028=",
   "translated": true
 }

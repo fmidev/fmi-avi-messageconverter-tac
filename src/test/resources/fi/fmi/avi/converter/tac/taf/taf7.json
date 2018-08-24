@@ -1,10 +1,10 @@
 {
-  "status": "MISSING",
-  "issueTime": {
-    "partialTime": "--01T23:50Z"
+  "status" : "MISSING",
+  "issueTime" : {
+    "partialTime" : "--01T23:50Z"
   },
-  "aerodrome": {
-     "designator": "EFHK"
+  "aerodrome" : {
+     "designator" : "EFHK"
   },
-  "translatedTAC": "TAF EFHK 012350Z NIL="
+  "translatedTAC" : "TAF EFHK 012350Z NIL="
 }
