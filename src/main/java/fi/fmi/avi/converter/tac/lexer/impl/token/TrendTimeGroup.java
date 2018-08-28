@@ -14,40 +14,18 @@ import java.util.regex.Matcher;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.PartialOrCompleteTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
-import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.TrendForecast;
 
 /**
  * Trend time group token parser (FM, AT or TL).
  */
 public class TrendTimeGroup extends TimeHandlingRegex {
-    public enum TrendTimePeriodType {
-        FROM("FM"), AT("AT"), UNTIL("TL");
-
-        private String code;
-
-        TrendTimePeriodType(final String code) {
-            this.code = code;
-        }
-
-        public static TrendTimePeriodType forCode(final String code) {
-            for (TrendTimePeriodType w : values()) {
-                if (w.code.equals(code)) {
-                    return w;
-                }
-            }
-            return null;
-        }
-
-    }
-
     public TrendTimeGroup(final Priority prio) {
         super("^(FM|TL|AT)([0-9]{2})([0-9]{2})$", prio);
     }
@@ -68,11 +46,30 @@ public class TrendTimeGroup extends TimeHandlingRegex {
         }
     }
 
+    public enum TrendTimePeriodType {
+        FROM("FM"), AT("AT"), UNTIL("TL");
+
+        private final String code;
+
+        TrendTimePeriodType(final String code) {
+            this.code = code;
+        }
+
+        public static TrendTimePeriodType forCode(final String code) {
+            for (TrendTimePeriodType w : values()) {
+                if (w.code.equals(code)) {
+                    return w;
+                }
+            }
+            return null;
+        }
+
+    }
+
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
-                throws SerializingException {
+        public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
             if (trend.isPresent()) {
                 PartialOrCompleteTime validity = null;
@@ -99,18 +96,18 @@ public class TrendTimeGroup extends TimeHandlingRegex {
             List<Lexeme> retval = new ArrayList<>();
             if (time instanceof PartialOrCompleteTimeInstant) {
                 PartialOrCompleteTimeInstant instant = (PartialOrCompleteTimeInstant) time;
-                retval.add(this.createLexeme(String.format("AT%02d%02d", instant.getHour(), instant.getMinute()), TREND_TIME_GROUP));
+                retval.add(this.createLexeme(String.format("AT%02d%02d", instant.getHour().orElse(-1), instant.getMinute().orElse(-1)), TREND_TIME_GROUP));
             } else if (time instanceof PartialOrCompleteTimePeriod) {
                 PartialOrCompleteTimePeriod period = (PartialOrCompleteTimePeriod) time;
                 if (period.getStartTime().isPresent()) {
                     PartialOrCompleteTimeInstant start = period.getStartTime().get();
-                    retval.add(this.createLexeme(String.format("FM%02d%02d", start.getHour(), start.getMinute()), TREND_TIME_GROUP));
-                    }
+                    retval.add(this.createLexeme(String.format("FM%02d%02d", start.getHour().orElse(-1), start.getMinute().orElse(-1)), TREND_TIME_GROUP));
+                }
                 if (period.getEndTime().isPresent()) {
                     PartialOrCompleteTimeInstant end = period.getEndTime().get();
-                    retval.add(this.createLexeme(String.format("TL%02d%02d", end.getHour(), end.getMinute()), TREND_TIME_GROUP));
-                    }
+                    retval.add(this.createLexeme(String.format("TL%02d%02d", end.getHour().orElse(-1), end.getMinute().orElse(-1)), TREND_TIME_GROUP));
                 }
+            }
             return retval;
         }
 

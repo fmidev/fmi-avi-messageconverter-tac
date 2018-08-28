@@ -31,15 +31,15 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
     }
 
     @Override
-	public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
+    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         if (token.hasPrevious() && token.getPrevious().getIdentity() == Identity.TAF_FORECAST_CHANGE_INDICATOR) {
             if (match.group(1) != null) {
                 //old 24h TAF: HHHH
-            	double certainty = 0.5; //could also be horizontal visibility
-            	Lexeme l = token.getNext();
-            	if (l != null && (Identity.SURFACE_WIND == l.getIdentity() || Identity.HORIZONTAL_VISIBILITY == l.getIdentity())) {
-            		certainty = 1.0;
-            	}
+                double certainty = 0.5; //could also be horizontal visibility
+                Lexeme l = token.getNext();
+                if (l != null && (Identity.SURFACE_WIND == l.getIdentity() || Identity.HORIZONTAL_VISIBILITY == l.getIdentity())) {
+                    certainty = 1.0;
+                }
                 int fromHour = Integer.parseInt(match.group(2));
                 int toHour = Integer.parseInt(match.group(3));
                 if (timeOkHour(fromHour) && timeOkHour(toHour)) {
@@ -71,11 +71,11 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
 
     public static class Reconstructor extends FactoryBasedReconstructor {
 
-		@Override
+        @Override
         public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
 
-			if (TAF.class.isAssignableFrom(clz)) {
+            if (TAF.class.isAssignableFrom(clz)) {
                 Optional<TAFChangeForecast> forecast = ctx.getParameter("forecast", TAFChangeForecast.class);
                 if (forecast.isPresent() && forecast.get().getChangeIndicator() != TAFChangeIndicator.FROM) {
                     PartialOrCompleteTimePeriod time = forecast.get().getPeriodOfChange();
@@ -83,11 +83,11 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
                     Optional<PartialOrCompleteTimeInstant> end = time.getEndTime();
                     if (start.isPresent() && end.isPresent()) {
                         String timeStr;
-                        if (start.get().getDay() < 0 && end.get().getDay() < 0) {
-                            timeStr = String.format("%02d%02d", start.get().getHour(), end.get().getHour());
+                        if (!start.get().getDay().isPresent() && !end.get().getDay().isPresent()) {
+                            timeStr = String.format("%02d%02d", start.get().getHour().orElse(-1), end.get().getHour().orElse(-1));
                         } else {
-                             timeStr = String.format("%02d%02d/%02d%02d", start.get().getDay(), start.get().getHour(), end.get().getDay(),
-                                    end.get().getHour());
+                            timeStr = String.format("%02d%02d/%02d%02d", start.get().getDay().orElse(-1), start.get().getHour().orElse(-1),
+                                    end.get().getDay().orElse(-1), end.get().getHour().orElse(-1));
                         }
                         return Optional.of(this.createLexeme(timeStr, Identity.TAF_CHANGE_FORECAST_TIME_GROUP));
                     } else {
@@ -95,10 +95,10 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
                                 + "available when group type is not " + TAFChangeIndicator.FROM);
                     }
                 }
-			}
+            }
             return Optional.empty();
         }
-    	
+
     }
-   
+
 }

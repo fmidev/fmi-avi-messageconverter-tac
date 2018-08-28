@@ -26,35 +26,8 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
  */
 public class TAFForecastChangeIndicator extends TimeHandlingRegex {
 
-	public enum ForecastChangeIndicatorType {
-        TEMPORARY_FLUCTUATIONS("TEMPO"),
-        BECOMING("BECMG"),
-        WITH_40_PCT_PROBABILITY("PROB40"),
-        WITH_30_PCT_PROBABILITY("PROB30"),
-        TEMPO_WITH_40_PCT_PROBABILITY("PROB40 TEMPO"),
-        TEMPO_WITH_30_PCT_PROBABILITY("PROB30 TEMPO"),
-        FROM("FM");
-
-        private String code;
-
-        ForecastChangeIndicatorType(final String code) {
-            this.code = code;
-        }
-
-        public static ForecastChangeIndicatorType forCode(final String code) {
-            for (ForecastChangeIndicatorType w : values()) {
-                if (w.code.equals(code)) {
-                    return w;
-                }
-            }
-            return null;
-        }
-
-    }
-
     public TAFForecastChangeIndicator(final Priority prio) {
-        super("^(TEMPO|BECMG|PROB40|PROB30|PROB30 TEMPO|PROB40 TEMPO)|(FM([0-9]{2})?([0-9]{2})([0-9]{2}))$",
-                prio);
+        super("^(TEMPO|BECMG|PROB40|PROB30|PROB30 TEMPO|PROB40 TEMPO)|(FM([0-9]{2})?([0-9]{2})([0-9]{2}))$", prio);
     }
 
     @Override
@@ -85,7 +58,32 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
             }
         }
     }
-    
+
+    public enum ForecastChangeIndicatorType {
+        TEMPORARY_FLUCTUATIONS("TEMPO"),
+        BECOMING("BECMG"),
+        WITH_40_PCT_PROBABILITY("PROB40"),
+        WITH_30_PCT_PROBABILITY("PROB30"),
+        TEMPO_WITH_40_PCT_PROBABILITY("PROB40 TEMPO"),
+        TEMPO_WITH_30_PCT_PROBABILITY("PROB30 TEMPO"),
+        FROM("FM");
+
+        private final String code;
+
+        ForecastChangeIndicatorType(final String code) {
+            this.code = code;
+        }
+
+        public static ForecastChangeIndicatorType forCode(final String code) {
+            for (ForecastChangeIndicatorType w : values()) {
+                if (w.code.equals(code)) {
+                    return w;
+                }
+            }
+            return null;
+        }
+
+    }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
 
@@ -99,16 +97,16 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
                 }
             }
 
-            if (instant.getDay() < 0 || useShortFormat) {
-                retval = String.format("%02d%02d", instant.getHour(), instant.getMinute());
+            if (!instant.getDay().isPresent() || useShortFormat) {
+                retval = String.format("%02d%02d", instant.getHour().orElse(-1), instant.getMinute().orElse(-1));
             } else {
                 // Otherwise produce validity in the long format
-                retval = String.format("%02d%02d%02d", instant.getDay(), instant.getHour(), instant.getMinute());
+                retval = String.format("%02d%02d%02d", instant.getDay().orElse(-1), instant.getHour().orElse(-1), instant.getMinute().orElse(-1));
             }
             return retval;
         }
 
-		@Override
+        @Override
         public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             List<Lexeme> retval = new ArrayList<>();

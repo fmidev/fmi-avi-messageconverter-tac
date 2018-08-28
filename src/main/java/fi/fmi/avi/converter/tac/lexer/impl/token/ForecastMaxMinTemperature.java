@@ -104,8 +104,8 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
         }
         sb.append(String.format("%02d", Math.round(Math.abs(temp.getValue()))));
         sb.append('/');
-        sb.append(String.format("%02d", time.getDay()));
-        sb.append(String.format("%02d", time.getHour()));
+        sb.append(String.format("%02d", time.getDay().orElse(-1)));
+        sb.append(String.format("%02d", time.getHour().orElse(-1)));
         sb.append('Z');
         return sb.toString();
     }
