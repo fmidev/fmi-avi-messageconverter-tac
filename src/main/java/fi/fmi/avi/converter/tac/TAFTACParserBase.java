@@ -516,6 +516,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         result.addAll(withForecastSurfaceWind(from, new Lexeme.Identity[] { Lexeme.Identity.CAVOK, Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD },
                 hints, builder::setSurfaceWind));
 
+
         findNext(Lexeme.Identity.CAVOK, from, (match) -> {
             Lexeme.Identity[] before = new Lexeme.Identity[] { Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD };
             ConversionIssue issue = checkBeforeAnyOf(match, before);
@@ -525,12 +526,14 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 builder.setCeilingAndVisibilityOk(true);
             }
         });
+
         result.addAll(
                 withVisibility(from, new Lexeme.Identity[] { Lexeme.Identity.WEATHER, Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD }, hints, (measureWithOperator -> {
                     builder.setPrevailingVisibility(measureWithOperator.getMeasure());
                     builder.setPrevailingVisibilityOperator(measureWithOperator.getOperator());
 
                 })));
+
         result.addAll(withWeather(from, new Lexeme.Identity[] { Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD }, hints, builder::setForecastWeather));
 
         findNext(Lexeme.Identity.NO_SIGNIFICANT_WEATHER, from, (match) -> {
@@ -548,6 +551,20 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
         result.addAll(withClouds(from, new Lexeme.Identity[] {}, hints, builder::setCloud));
 
+        //Check that all mandatory properties are given in the FM case:
+        if (TAFForecastChangeIndicator.ForecastChangeIndicatorType.FROM == type) {
+            if (!builder.getSurfaceWind().isPresent()) {
+                result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Surface wind is missing from TAF FM change forecast"));
+            }
+
+            if (!builder.getPrevailingVisibility().isPresent()) {
+                result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Visibility is missing from TAF FM change forecast"));
+            }
+
+            if (!builder.getCloud().isPresent()) {
+                result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Cloud is missing from TAF FM change forecast"));
+            }
+        }
         return result;
     }
 
