@@ -287,6 +287,11 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
         result.addAll(withWeather(baseFctToken, new Lexeme.Identity[] { Lexeme.Identity.CLOUD, Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE }, hints,
                 baseFct::setForecastWeather));
+        //Ensure that forecastWeather is always non-empty for base forecast unless CAVOK:
+        if (!baseFct.getForecastWeather().isPresent() && !baseFct.isCeilingAndVisibilityOk()) {
+            baseFct.setForecastWeather(new ArrayList<>());
+        }
+
         result.addAll(withClouds(baseFctToken, new Lexeme.Identity[] { Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE }, hints, baseFct::setCloud));
 
         if (!baseFct.getCloud().isPresent() && !baseFct.isCeilingAndVisibilityOk()) {
