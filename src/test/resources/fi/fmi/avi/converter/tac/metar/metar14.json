@@ -1,53 +1,53 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "181750Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--18T17:50Z"
   },
-  "aerodrome": {
-    "designator": "EFOU"
+  "aerodrome" : {
+    "designator" : "EFOU"
   },
   "automatedStation": true,
-  "surfaceWind": {
-    "meanWindDirection": {
+  "surfaceWind" : {
+    "meanWindDirection" : {
       "value": 180.0,
-      "uom": "deg"
+      "uom" : "deg"
     },
-    "meanWindSpeed": {
+    "meanWindSpeed" : {
       "value": 7.0,
-      "uom": "[kn_i]"
+      "uom" : "[kn_i]"
     }
   },
-  "visibility": {
-    "prevailingVisibility": {
+  "visibility" : {
+    "prevailingVisibility" : {
       "value": 10000.0,
-      "uom": "m"
+      "uom" : "m"
     },
-    "prevailingVisibilityOperator": "ABOVE"
+    "prevailingVisibilityOperator" : "ABOVE"
   },
-  "clouds": {
+  "clouds" : {
     "layers": [
       {
-        "amount": "OVC",
-        "base": {
+        "amount" : "OVC",
+        "base" : {
           "value": 1000.0,
-          "uom": "[ft_i]"
+          "uom" : "[ft_i]"
         }
       }
     ]
   },
-  "airTemperature": {
+  "airTemperature" : {
     "value": 2.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "dewpointTemperature": {
+  "dewpointTemperature" : {
     "value": 1.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "altimeterSettingQNH": {
+  "altimeterSettingQNH" : {
     "value": 1015.0,
-    "uom": "hPa"
+    "uom" : "hPa"
   },
   "snowClosure": true,
-  "translatedTAC": "METAR EFOU 181750Z AUTO 18007KT 9999 OVC010 02/01 Q1015 R/SNOCLO=",
+  "translatedTAC" : "METAR EFOU 181750Z AUTO 18007KT 9999 OVC010 02/01 Q1015 R/SNOCLO=",
   "translated": true
 }

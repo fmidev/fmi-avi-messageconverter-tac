@@ -1,44 +1,42 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "190840Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--19T08:40Z"
   },
-  "aerodrome": {
-     "designator": "EFKU"
+  "aerodrome" : {
+     "designator" : "EFKU"
   },
-  "validityTime": {
-    "startTime": {
-      "partialTime": "1916",
-      "partialTimePattern": "DayHour"
+  "validityTime" : {
+    "startTime" : {
+      "partialTime" : "--19T16:"
     },
-    "endTime": {
-      "partialTime": "18",
-      "partialTimePattern": "Hour"
+    "endTime" : {
+      "partialTime" : "--T18:"
     }
   },
-  "baseForecast": {
+  "baseForecast" : {
     "ceilingAndVisibilityOk": true,
-    "surfaceWind": {
+    "surfaceWind" : {
 	  "variableDirection": false,
-	  "meanWindDirection": {
+	  "meanWindDirection" : {
 	    "value": 180.0,
-	    "uom": "deg"
+	    "uom" : "deg"
 	  },
-	  "meanWindSpeed": {
+	  "meanWindSpeed" : {
 	    "value": 20.0,
-	    "uom": "[kn_i]"
+	    "uom" : "[kn_i]"
 	  }
 	},
 	
-    "prevailingVisibility": {
+    "prevailingVisibility" : {
 	  "value": 7500.0,
-	  "uom": "m"
+	  "uom" : "m"
 	}
   },
   
   "remarks": [
     "HELLO", "WORLD", "WIND", "700FT", "13010KT"
   ],
-  "translatedTAC": "TAF EFKU 190840Z 191618 18020KT CAVOK 7500 RMK HELLO WORLD WIND 700FT 13010KT="
+  "translatedTAC" : "TAF EFKU 190840Z 191618 18020KT CAVOK 7500 RMK HELLO WORLD WIND 700FT 13010KT="
   
 }

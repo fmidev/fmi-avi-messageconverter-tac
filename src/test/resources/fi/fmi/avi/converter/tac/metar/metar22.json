@@ -1,82 +1,81 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "011350Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--01T13:50Z"
   },
-  "aerodrome": {
+  "aerodrome" : {
     "designator":"EFTU"
   },
-  "surfaceWind": {
+  "surfaceWind" : {
     "variableDirection": true,
-    "meanWindSpeed": {
+    "meanWindSpeed" : {
       "value": 2.0,
-      "uom": "[kn_i]"
+      "uom" : "[kn_i]"
     }
   },
-  "visibility": {
-  	"prevailingVisibility": {
+  "visibility" : {
+  	"prevailingVisibility" : {
     	"value": 50.0,
-    	"uom": "m"
+    	"uom" : "m"
     },
-    "prevailingVisibilityOperator": "BELOW"
+    "prevailingVisibilityOperator" : "BELOW"
   },
-  "airTemperature": {
+  "airTemperature" : {
     "value": 22.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "dewpointTemperature": {
+  "dewpointTemperature" : {
     "value": 12.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "altimeterSettingQNH": {
+  "altimeterSettingQNH" : {
     "value": 1008.0,
-    "uom": "hPa"
+    "uom" : "hPa"
   },
   "runwayStates": [
     {
-     "runwayDirection": {
-        "associatedAirportHeliport": {
-          "designator": "EFTU"
+     "runwayDirection" : {
+        "associatedAirportHeliport" : {
+          "designator" : "EFTU"
         },
-        "designator": "15L"
+        "designator" : "15L"
       },
-      "deposit": "DRY_SNOW",
-      "contamination": "PCT_COVERED_LESS_THAN_10",
-      "depthOfDeposit": {
+      "deposit" : "DRY_SNOW",
+      "contamination" : "PCT_COVERED_LESS_THAN_10",
+      "depthOfDeposit" : {
         "value": 1.0,
-        "uom": "mm"
+        "uom" : "mm"
       },
-      "depthOperator": "BELOW",
+      "depthOperator" : "BELOW",
       "estimatedSurfaceFriction": 0.38
     },
     {
-     "runwayDirection": {
-        "associatedAirportHeliport": {
-          "designator": "EFTU"
+     "runwayDirection" : {
+        "associatedAirportHeliport" : {
+          "designator" : "EFTU"
         },
-        "designator": "64R"
+        "designator" : "64R"
       },
-      "deposit": "DRY_SNOW",
-      "contamination": "PCT_COVERED_LESS_THAN_10",
-      "depthOfDeposit": {
+      "deposit" : "DRY_SNOW",
+      "contamination" : "PCT_COVERED_LESS_THAN_10",
+      "depthOfDeposit" : {
         "value": 83.0,
-        "uom": "mm"
+        "uom" : "mm"
       },
       "estimatedSurfaceFriction": 0.38
     }
   ],
   "trends": [
     {
-      "periodOfChange": {
-        "endTime": {
-          "partialTime": "1530",
-          "partialTimePattern": "HourMinute"
+      "periodOfChange" : {
+        "endTime" : {
+          "partialTime" : "--T15:30"
         }
       },
-      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
       "noSignificantWeather": true
     }
   ],
-  "translatedTAC": "METAR EFTU 011350Z VRB02KT 0000 22/12 Q1008 R15L/410038 R64R/418338 TEMPO TL1530 NSW=",
+  "translatedTAC" : "METAR EFTU 011350Z VRB02KT 0000 22/12 Q1008 R15L/410038 R64R/418338 TEMPO TL1530 NSW=",
   "translated": true
 }

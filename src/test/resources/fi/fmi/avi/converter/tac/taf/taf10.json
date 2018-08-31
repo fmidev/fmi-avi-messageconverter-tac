@@ -1,47 +1,45 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "301130Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--30T11:30Z"
   },
-  "aerodrome": {
-    "designator": "ESNS"
+  "aerodrome" : {
+    "designator" : "ESNS"
   },
-  "validityTime": {
-    "startTime": {
-      "partialTime": "3012",
-      "partialTimePattern": "DayHour"
+  "validityTime" : {
+    "startTime" : {
+      "partialTime" : "--30T12:"
     },
-    "endTime": {
-      "partialTime": "3021",
-      "partialTimePattern": "DayHour"
+    "endTime" : {
+      "partialTime" : "--30T21:"
     }
   },
-  "baseForecast": {
-    "surfaceWind": {
+  "baseForecast" : {
+    "surfaceWind" : {
 	  "variableDirection": false,
-	  "meanWindDirection": {
+	  "meanWindDirection" : {
 	    "value": 150.0,
-	    "uom": "deg"
+	    "uom" : "deg"
 	  },
-	  "meanWindSpeed": {
+	  "meanWindSpeed" : {
 	    "value": 8.0,
-	    "uom": "[kn_i]"
+	    "uom" : "[kn_i]"
 	  }
 	},
 	
-    "prevailingVisibility": {
+    "prevailingVisibility" : {
 	  "value": 10000.0,
-	  "uom": "m"
+	  "uom" : "m"
 	},
-	"prevailingVisibilityOperator": "ABOVE",
+	"prevailingVisibilityOperator" : "ABOVE",
 	
-	"cloud": {
+	"cloud" : {
 	  "layers": [
 	    {
-	      "amount": "OVC",
-          "base": {
+	      "amount" : "OVC",
+          "base" : {
             "value": 800.0,
-            "uom": "[ft_i]"
+            "uom" : "[ft_i]"
           }
 	    }
 	  ]
@@ -51,128 +49,120 @@
   
   "changeForecasts": [
     {
-      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "3012",
-          "partialTimePattern": "DayHour"
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--30T12:"
         },
-        "endTime": {
-          "partialTime": "3013",
-          "partialTimePattern": "DayHour"
+        "endTime" : {
+          "partialTime" : "--30T13:"
         }
       },
-      "cloud": {
+      "cloud" : {
         "layers": [
           {
-            "amount": "BKN",
-            "base": {
+            "amount" : "BKN",
+            "base" : {
               "value": 400.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             }
           }
         ]
       }
     },
     {
-      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "3013",
-          "partialTimePattern": "DayHour"
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--30T13:"
         },
-        "endTime": {
-          "partialTime": "3016",
-          "partialTimePattern": "DayHour"
+        "endTime" : {
+          "partialTime" : "--30T16:"
         }
       },
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
 	    "value": 4000.0,
-	    "uom": "m"
+	    "uom" : "m"
 	  },
 	  "forecastWeather": [
 	    {
-          "code": "-RA",
-          "description": "Light precipitation of rain"
+          "code" : "-RA",
+          "description" : "Light precipitation of rain"
 	    }
 	  ],
 	  
-      "cloud": {
+      "cloud" : {
         "layers": [
           {
-            "amount": "BKN",
-            "base": {
+            "amount" : "BKN",
+            "base" : {
               "value": 400.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             }
           }
         ]
       }
     },
     {
-      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "3016",
-          "partialTimePattern": "DayHour"
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--30T16:"
         },
-        "endTime": {
-          "partialTime": "3018",
-          "partialTimePattern": "DayHour"
+        "endTime" : {
+          "partialTime" : "--30T18:"
         }
       },
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
 	    "value": 2400.0,
-	    "uom": "m"
+	    "uom" : "m"
 	  },
 	  "forecastWeather": [
 	    {
-          "code": "RASN",
-          "description": "Precipitation of rain and snow"
+          "code" : "RASN",
+          "description" : "Precipitation of rain and snow"
 	    }
 	  ],
 	  
-      "cloud": {
+      "cloud" : {
         "layers": [
           {
-            "amount": "BKN",
-            "base": {
+            "amount" : "BKN",
+            "base" : {
               "value": 400.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             }
           }
         ]
       }
     },
     {
-      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "3018",
-          "partialTimePattern": "DayHour"
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--30T18:"
         },
-        "endTime": {
-          "partialTime": "3021",
-          "partialTimePattern": "DayHour"
+        "endTime" : {
+          "partialTime" : "--30T21:"
         }
       },
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
 	    "value": 900.0,
-	    "uom": "m"
+	    "uom" : "m"
 	  },
 	  "forecastWeather": [
 	    {
-          "code": "SNRA",
-          "description": "Precipitation of snow and rain"
+          "code" : "SNRA",
+          "description" : "Precipitation of snow and rain"
 	    }
 	  ],
-      "cloud": {
-        "verticalVisibility": {
+      "cloud" : {
+        "verticalVisibility" : {
           "value": 200.0,
-          "uom": "[ft_i]"
+          "uom" : "[ft_i]"
         }
       }
     }
   ],
-  "translatedTAC": "ESNS 301130Z 3012/3021 15008KT 9999 OVC008\nTEMPO 3012/3013 BKN004\nTEMPO 3013/3016 4000 -RA BKN004\nTEMPO 3016/3018 2400 RASN BKN004\nTEMPO 3018/3021 0900 SNRA VV002="
+  "translatedTAC" : "ESNS 301130Z 3012/3021 15008KT 9999 OVC008\nTEMPO 3012/3013 BKN004\nTEMPO 3013/3016 4000 -RA BKN004\nTEMPO 3016/3018 2400 RASN BKN004\nTEMPO 3018/3021 0900 SNRA VV002="
 }

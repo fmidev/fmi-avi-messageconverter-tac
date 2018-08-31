@@ -9,7 +9,6 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +17,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
@@ -35,10 +35,10 @@ public class ValidTime extends TimeHandlingRegex {
 
     static int calculateNumberOfHours(final PartialOrCompleteTimePeriod period) {
         if (period.getStartTime().isPresent() && period.getEndTime().isPresent()) {
-            PartialOrCompleteTimeInstant start = period.getStartTime().get();
-            PartialOrCompleteTimeInstant end = period.getEndTime().get();
+            final PartialOrCompleteTimeInstant start = period.getStartTime().get();
+            final PartialOrCompleteTimeInstant end = period.getEndTime().get();
             if (start.getCompleteTime().isPresent() && end.getCompleteTime().isPresent()) {
-                long hours = Duration.between(start.getCompleteTime().get(), end.getCompleteTime().get()).toHours();
+                final long hours = Duration.between(start.getCompleteTime().get(), end.getCompleteTime().get()).toHours();
                 if (hours < Integer.MAX_VALUE) {
                     return (int) hours;
                 } else {
@@ -55,17 +55,13 @@ public class ValidTime extends TimeHandlingRegex {
                  * startDay + 1 unless startDay < 28. If startDay < 28 => throw an exception as we cannot
                  * make assumptions on the length of month.
                  */
-                int startDay = start.getDay();
-                int startHour = start.getHour();
-                int endDay = end.getDay();
-                int endHour = end.getHour();
-
-                if (endDay == -1) {
-                    endDay = startDay;
-                }
+                final int startDay = start.getDay().orElse(-1);
+                final int startHour = start.getHour().orElse(-1);
+                int endDay = end.getDay().orElse(startDay);
+                int endHour = end.getHour().orElse(-1);
 
                 // Store original parameters for exception texts
-                String dateStr = String.format("%02d%02d/%02d%02d", startDay, startHour, endDay, endHour);
+                final String dateStr = String.format("%02d%02d/%02d%02d", startDay, startHour, endDay, endHour);
 
                 if (endHour == 24) {
                     endHour = 0;
@@ -82,8 +78,8 @@ public class ValidTime extends TimeHandlingRegex {
                     endDay += startDay;
                 }
 
-                int startN = startDay * 24 + startHour;
-                int endN = endDay * 24 + endHour;
+                final int startN = startDay * 24 + startHour;
+                final int endN = endDay * 24 + endHour;
 
                 return endN - startN;
 
@@ -98,9 +94,9 @@ public class ValidTime extends TimeHandlingRegex {
         if (token.hasPrevious() && token.getPrevious().getIdentity() == Identity.ISSUE_TIME) {
             if (match.group(1) != null) {
                 //old 24h TAF, just one day field
-                int day = Integer.parseInt(match.group(2));
-                int fromHour = Integer.parseInt(match.group(3));
-                int toHour = Integer.parseInt(match.group(4));
+                final int day = Integer.parseInt(match.group(2));
+                final int fromHour = Integer.parseInt(match.group(3));
+                final int toHour = Integer.parseInt(match.group(4));
                 if (timeOkDayHour(day, fromHour) && timeOkDayHour(day, toHour)) {
                     token.identify(Identity.VALID_TIME);
                     token.setParsedValue(DAY1, day);
@@ -112,10 +108,10 @@ public class ValidTime extends TimeHandlingRegex {
 
             } else {
                 //30h TAF
-                int fromDay = Integer.parseInt(match.group(6));
-                int fromHour = Integer.parseInt(match.group(7));
-                int toDay = Integer.parseInt(match.group(8));
-                int toHour = Integer.parseInt(match.group(9));
+                final int fromDay = Integer.parseInt(match.group(6));
+                final int fromHour = Integer.parseInt(match.group(7));
+                final int toDay = Integer.parseInt(match.group(8));
+                final int toHour = Integer.parseInt(match.group(9));
                 if (timeOkDayHour(fromDay, fromHour) && timeOkDayHour(toDay, toHour)) {
                     token.identify(Identity.VALID_TIME);
                     token.setParsedValue(DAY1, fromDay);
@@ -136,36 +132,37 @@ public class ValidTime extends TimeHandlingRegex {
             boolean useShortFormat = false;
             try {
                 if (hints != null) {
-                    Object hint = hints.get(ConversionHints.KEY_VALIDTIME_FORMAT);
+                    final Object hint = hints.get(ConversionHints.KEY_VALIDTIME_FORMAT);
                     if (ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT.equals(hint)) {
-                        int numberOfHours = calculateNumberOfHours(period);
+                        final int numberOfHours = calculateNumberOfHours(period);
                         if (numberOfHours < 24) {
                             useShortFormat = true;
                         }
                     }
                 }
-            } catch (IllegalArgumentException iae) {
+            } catch (final IllegalArgumentException iae) {
                 LOG.info("Unable to determine whether to use long format or not", iae);
             }
             if (period.getStartTime().isPresent() && period.getEndTime().isPresent()) {
-                PartialOrCompleteTimeInstant start = period.getStartTime().get();
-                PartialOrCompleteTimeInstant end = period.getEndTime().get();
-                if (end.getDay() < 0 || useShortFormat) {
-                    retval = String.format("%02d%02d%02d", start.getDay(), start.getHour(), end.getHour());
+                final PartialOrCompleteTimeInstant start = period.getStartTime().get();
+                final PartialOrCompleteTimeInstant end = period.getEndTime().get();
+                if (!end.getDay().isPresent() || useShortFormat) {
+                    retval = String.format("%02d%02d%02d", start.getDay().orElse(-1), start.getHour().orElse(-1), end.getHour().orElse(-1));
                 } else {
-                    retval = String.format("%02d%02d/%02d%02d", start.getDay(), start.getHour(), end.getDay(), end.getHour());
+                    retval = String.format("%02d%02d/%02d%02d", start.getDay().orElse(-1), start.getHour().orElse(-1), end.getDay().orElse(-1),
+                            end.getHour().orElse(-1));
                 }
             }
             return retval;
         }
 
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (TAF.class.isAssignableFrom(clz)) {
-                TAF taf = (TAF) msg;
+                final TAF taf = (TAF) msg;
                 if (taf.getValidityTime().isPresent()) {
-                    String period = encodeValidityTimePeriod(taf.getValidityTime().get(), ctx.getHints());
+                    final String period = encodeValidityTimePeriod(taf.getValidityTime().get(), ctx.getHints());
                     return Optional.of(this.createLexeme(period, Lexeme.Identity.VALID_TIME));
                 } else {
                     throw new SerializingException("Validity time not available in TAF");

@@ -1,45 +1,43 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "301130Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--30T11:30Z"
   },
-  "aerodrome": {
-    "designator": "ESNS"
+  "aerodrome" : {
+    "designator" : "ESNS"
   },
-  "validityTime": {
-    "startTime": {
-      "partialTime": "3012",
-      "partialTimePattern": "DayHour"
+  "validityTime" : {
+    "startTime" : {
+      "partialTime" : "--30T12:"
     },
-    "endTime": {
-      "partialTime": "3021",
-      "partialTimePattern": "DayHour"
+    "endTime" : {
+      "partialTime" : "--30T21:"
     }
   },
-  "baseForecast": {
-    "surfaceWind": {
+  "baseForecast" : {
+    "surfaceWind" : {
       "variableDirection": false,
-      "meanWindDirection": {
+      "meanWindDirection" : {
         "value": 150.0,
-        "uom": "deg"
+        "uom" : "deg"
       },
-      "meanWindSpeed": {
+      "meanWindSpeed" : {
         "value": 8.0,
-        "uom": "[kn_i]"
+        "uom" : "[kn_i]"
       }
     },
-    "prevailingVisibility": {
+    "prevailingVisibility" : {
       "value": 10000.0,
-      "uom": "m"
+      "uom" : "m"
     },
-    "prevailingVisibilityOperator": "ABOVE",
-    "cloud": {
+    "prevailingVisibilityOperator" : "ABOVE",
+    "cloud" : {
       "layers": [
         {
-          "amount": "OVC",
-          "base": {
+          "amount" : "OVC",
+          "base" : {
             "value": 800.0,
-            "uom": "[ft_i]"
+            "uom" : "[ft_i]"
           }
         }
       ]
@@ -47,28 +45,26 @@
   },
   "changeForecasts": [
     {
-      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "3018",
-          "partialTimePattern": "DayHour"
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--30T18:"
         },
-        "endTime": {
-          "partialTime": "3021",
-          "partialTimePattern": "DayHour"
+        "endTime" : {
+          "partialTime" : "--30T21:"
         }
       },
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
         "value": 900.0,
-        "uom": "m"
+        "uom" : "m"
       },
       "forecastWeather": [
         {
-          "code": "SNRA",
-          "description": "Precipitation of snow and rain"
+          "code" : "SNRA",
+          "description" : "Precipitation of snow and rain"
         }
       ]
     }
   ],
-  "translatedTAC": "ESNS 301130Z 3012/3021 15008KT 9999 OVC008\nTEMPO 3018/3021 0900 SNRA VV002TCU="
+  "translatedTAC" : "ESNS 301130Z 3012/3021 15008KT 9999 OVC008\nTEMPO 3018/3021 0900 SNRA VV002TCU="
 }

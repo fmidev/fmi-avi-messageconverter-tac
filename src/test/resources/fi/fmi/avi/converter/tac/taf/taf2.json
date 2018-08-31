@@ -1,60 +1,58 @@
 {
-	"status": "NORMAL",
-	"issueTime": {
-		"partialTime": "190815Z"
+	"status" : "NORMAL",
+	"issueTime" : {
+      "partialTime" : "--19T08:15Z"
 	},
-	"aerodrome": {
-	    "designator": "EFAB"
+	"aerodrome" : {
+	    "designator" : "EFAB"
 	},
-	"validityTime": {
-		"startTime": {
-			"partialTime": "1909",
-			"partialTimePattern": "DayHour"
+	"validityTime" : {
+		"startTime" : {
+          "partialTime" : "--19T09:"
 		},
-		"endTime": {
-			"partialTime": "1915",
-			"partialTimePattern": "DayHour"
+		"endTime" : {
+          "partialTime" : "--19T15:"
 		}
 	},
-	"baseForecast": {
-	  "surfaceWind": {
+	"baseForecast" : {
+	  "surfaceWind" : {
 	  	"variableDirection": false,
-	  	"meanWindDirection": {
+	  	"meanWindDirection" : {
 	  	  "value": 140.0,
-	  	  "uom": "deg"
+	  	  "uom" : "deg"
 	  	},
-	  	"meanWindSpeed": {
+	  	"meanWindSpeed" : {
 	  	  "value": 8.0,
-	  	  "uom": "mps"
+	  	  "uom" : "mps"
 	  	},
-	  	"windGust": {
+	  	"windGust" : {
 	  	  "value": 15.0,
-	  	  "uom": "mps"
+	  	  "uom" : "mps"
 	  	}
 	  },
-	  "prevailingVisibility": {
+	  "prevailingVisibility" : {
 	  	"value": 10000.0,
-	  	"uom": "m"
+	  	"uom" : "m"
 	  },
-	  "prevailingVisibilityOperator": "ABOVE",
-	  "cloud": {
+	  "prevailingVisibilityOperator" : "ABOVE",
+	  "cloud" : {
 	    "layers": [
 	      {
-	        "amount": "BKN",
-	      	"base": {
+	        "amount" : "BKN",
+	      	"base" : {
 	      	  "value": 1000,
-	      	  "uom": "[ft_i]"
+	      	  "uom" : "[ft_i]"
 	      	}
 	      },
 	      {
-	        "amount": "BKN",
-	      	"base": {
+	        "amount" : "BKN",
+	      	"base" : {
 	      	  "value": 1500,
-	      	  "uom": "[ft_i]"
+	      	  "uom" : "[ft_i]"
 	      	}
 	      }
 	    ]
 	  }
 	},
-    "translatedTAC": "TAF EFAB 190815Z 1909/1915 14008G15MPS 9999 BKN010 BKN015="
+    "translatedTAC" : "TAF EFAB 190815Z 1909/1915 14008G15MPS 9999 BKN010 BKN015="
 }

@@ -1,74 +1,74 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "240620Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--24T06:20Z"
   },
-  "aerodrome": {
-    "designator": "EFHK"
+  "aerodrome" : {
+    "designator" : "EFHK"
   },
   "presentWeather": [
     {
-      "code": "-SHSN",
-      "description": "Light showery precipitation of snow"
+      "code" : "-SHSN",
+      "description" : "Light showery precipitation of snow"
     }
   ],
-  "airTemperature": {
+  "airTemperature" : {
     "value": -2.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "dewpointTemperature": {
+  "dewpointTemperature" : {
     "value": -3.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "altimeterSettingQNH": {
+  "altimeterSettingQNH" : {
     "value": 1032.0,
-    "uom": "hPa"
+    "uom" : "hPa"
   },
-  "surfaceWind": {
-    "meanWindDirection": {
+  "surfaceWind" : {
+    "meanWindDirection" : {
       "value": 360.0,
-      "uom": "deg"
+      "uom" : "deg"
     },
-    "meanWindSpeed": {
+    "meanWindSpeed" : {
       "value": 3.0,
-      "uom": "[kn_i]"
+      "uom" : "[kn_i]"
     },
-    "extremeClockwiseWindDirection": {
+    "extremeClockwiseWindDirection" : {
       "value": 360.0,
-      "uom": "deg"
+      "uom" : "deg"
     },
-    "extremeCounterClockwiseWindDirection": {
+    "extremeCounterClockwiseWindDirection" : {
       "value": 300.0,
-      "uom": "deg"
+      "uom" : "deg"
     }
   },
-  "visibility": {
-    "prevailingVisibility": {
+  "visibility" : {
+    "prevailingVisibility" : {
       "value": 10000,
-      "uom": "m"
+      "uom" : "m"
     },
-    "prevailingVisibilityOperator": "ABOVE"
+    "prevailingVisibilityOperator" : "ABOVE"
   },
-  "clouds": {
+  "clouds" : {
     "layers": [
       {
-        "amount": "FEW",
-        "base": {
+        "amount" : "FEW",
+        "base" : {
           "value": 2000.0,
-          "uom": "[ft_i]"
+          "uom" : "[ft_i]"
         },
-        "cloudType": "CB"
+        "cloudType" : "CB"
       },
       {
-        "amount": "BKN",
-        "base": {
+        "amount" : "BKN",
+        "base" : {
           "value": 3200.0,
-          "uom": "[ft_i]"
+          "uom" : "[ft_i]"
         }
       }
     ]
   },
   "noSignificantChanges": true,
-  "translatedTAC": "METAR EFHK 240620Z 36003KT 300V360 9999 -SHSN FEW020CB BKN032 M02/M03 Q1032 NOSIG=",
+  "translatedTAC" : "METAR EFHK 240620Z 36003KT 300V360 9999 -SHSN FEW020CB BKN032 M02/M03 Q1032 NOSIG=",
   "translated": true
 }

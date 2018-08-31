@@ -1,50 +1,48 @@
 {
-  "status": "NORMAL",
-  "issueTime": {
-    "partialTime": "051130Z"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--05T11:30Z"
   },
-  "aerodrome": {
-     "designator": "KOKC"
+  "aerodrome" : {
+     "designator" : "KOKC"
   },
-  "validityTime": {
-    "startTime": {
-      "partialTime": "0512",
-      "partialTimePattern": "DayHour"
+  "validityTime" : {
+    "startTime" : {
+      "partialTime" : "--05T12:"
     },
-    "endTime": {
-      "partialTime": "12",
-      "partialTimePattern": "Hour"
+    "endTime" : {
+      "partialTime" : "--T12:"
     }
   },
-  "baseForecast": {
-    "surfaceWind": {
-	  "meanWindDirection": {
+  "baseForecast" : {
+    "surfaceWind" : {
+	  "meanWindDirection" : {
 	    "value": 140.0,
-	    "uom": "deg"
+	    "uom" : "deg"
 	  },
-	  "meanWindSpeed": {
+	  "meanWindSpeed" : {
 	    "value": 8.0,
-	    "uom": "[kn_i]"
+	    "uom" : "[kn_i]"
 	  }
 	},
 	
-    "prevailingVisibility": {
+    "prevailingVisibility" : {
 	  "value": 5.0,
-	  "uom": "sm"
+	  "uom" : "sm"
 	},
 	"forecastWeather": [
       {
-        "code": "BR",
-        "description": "Mist"
+        "code" : "BR",
+        "description" : "Mist"
       }
     ],
-    "cloud": {
+    "cloud" : {
       "layers": [
         {
-          "amount": "BKN",
-          "base": {
+          "amount" : "BKN",
+          "base" : {
             "value": 3000.0,
-            "uom": "[ft_i]"
+            "uom" : "[ft_i]"
           }
         }
       ]
@@ -52,190 +50,180 @@
   },
    "changeForecasts": [
     {
-      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "13",
-          "partialTimePattern": "Hour"
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--T13:"
         },
-        "endTime": {
-          "partialTime": "16",
-          "partialTimePattern": "Hour"
+        "endTime" : {
+          "partialTime" : "--T16:"
         }
       },
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
         "value": 1.5,
-        "uom": "sm"
+        "uom" : "sm"
       },
       "forecastWeather": [
         {
-          "code": "BR",
-          "description": "Mist"
+          "code" : "BR",
+          "description" : "Mist"
         }
       ]
     },
     {
-      "changeIndicator": "FROM",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "1600",
-          "partialTimePattern": "HourMinute"
+      "changeIndicator" : "FROM",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--T16:00"
         },
-        "endTime": {
-          "partialTime": "12",
-          "partialTimePattern": "Hour"
+        "endTime" : {
+          "partialTime" : "--T12:"
         }
       },
-      "surfaceWind": {
-        "meanWindDirection": {
+      "surfaceWind" : {
+        "meanWindDirection" : {
           "value": 160.0,
-          "uom": "deg"
+          "uom" : "deg"
         },
-        "meanWindSpeed": {
+        "meanWindSpeed" : {
           "value": 10.0,
-          "uom": "[kn_i]"
+          "uom" : "[kn_i]"
         }
       },
       
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
         "value": 6.0,
-        "uom": "sm"
+        "uom" : "sm"
       },
-      "prevailingVisibilityOperator": "ABOVE",
-      "cloud": {
+      "prevailingVisibilityOperator" : "ABOVE",
+      "cloud" : {
         "layers": [
           {
-            "amount": "SKC"
+            "amount" : "SKC"
           }
         ]
       }
     },
     {
-      "changeIndicator": "BECOMING",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "22",
-          "partialTimePattern": "Hour"
+      "changeIndicator" : "BECOMING",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--T22:"
         },
-        "endTime": {
-          "partialTime": "24",
-          "partialTimePattern": "Hour"
+        "endTime" : {
+          "partialTime" : "--T24:"
         }
       },
-      "surfaceWind": {
-        "meanWindDirection": {
+      "surfaceWind" : {
+        "meanWindDirection" : {
           "value": 200.0,
-          "uom": "deg"
+          "uom" : "deg"
         },
-        "meanWindSpeed": {
+        "meanWindSpeed" : {
           "value": 13.0,
-          "uom": "[kn_i]"
+          "uom" : "[kn_i]"
         },
-        "windGust": {
+        "windGust" : {
           "value": 20.0,
-          "uom": "[kn_i]"
+          "uom" : "[kn_i]"
         }
       },
       
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
         "value": 4.0,
-        "uom": "sm"
+        "uom" : "sm"
       },
       "forecastWeather": [
         {
-          "code": "SHRA",
-          "description": "Showery precipitation of rain"
+          "code" : "SHRA",
+          "description" : "Showery precipitation of rain"
         }
       ],
     
-      "cloud": {
+      "cloud" : {
         "layers": [
           {
-            "amount": "OVC",
-            "base": {
+            "amount" : "OVC",
+            "base" : {
               "value": 2000.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             }
           }
         ]
       }
     },
     {
-      "changeIndicator": "PROBABILITY_40",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "00",
-          "partialTimePattern": "Hour"
+      "changeIndicator" : "PROBABILITY_40",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--T00:"
         },
-        "endTime": {
-          "partialTime": "06",
-          "partialTimePattern": "Hour"
+        "endTime" : {
+          "partialTime" : "--T06:"
         }
       },
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
         "value": 2.0,
-        "uom": "sm"
+        "uom" : "sm"
       },
       "forecastWeather": [
         {
-          "code": "TSRA",
-          "description": "Thunderstorm with precipitation of rain"
+          "code" : "TSRA",
+          "description" : "Thunderstorm with precipitation of rain"
         }
       ],
-      "cloud": {
+      "cloud" : {
         "layers": [
           {
-            "amount": "OVC",
-            "base": {
+            "amount" : "OVC",
+            "base" : {
               "value": 800.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             },
-            "cloudType": "CB"
+            "cloudType" : "CB"
           }
         ]
       }
     },
     {
-      "changeIndicator": "BECOMING",
-      "periodOfChange": {
-        "startTime": {
-          "partialTime": "06",
-          "partialTimePattern": "Hour"
+      "changeIndicator" : "BECOMING",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--T06:"
         },
-        "endTime": {
-          "partialTime": "08",
-          "partialTimePattern": "Hour"
+        "endTime" : {
+          "partialTime" : "--T08:"
         }
       },
-      "surfaceWind": {
-        "meanWindDirection": {
+      "surfaceWind" : {
+        "meanWindDirection" : {
           "value": 210.0,
-          "uom": "deg"
+          "uom" : "deg"
         },
-        "meanWindSpeed": {
+        "meanWindSpeed" : {
           "value": 15.0,
-          "uom": "[kn_i]"
+          "uom" : "[kn_i]"
         }
       },
       
-      "prevailingVisibility": {
+      "prevailingVisibility" : {
         "value": 6.0,
-        "uom": "sm"
+        "uom" : "sm"
       },
-      "prevailingVisibilityOperator": "ABOVE",
+      "prevailingVisibilityOperator" : "ABOVE",
       "noSignificantWeather": true,
-      "cloud": {
+      "cloud" : {
         "layers": [
           {
-            "amount": "SCT",
-            "base": {
+            "amount" : "SCT",
+            "base" : {
               "value": 4000.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             }
           }
         ]
       }
     }
   ],
-  "translatedTAC": "TAF KOKC 051130Z 051212 14008KT 5SM BR BKN030\nTEMPO 1316 1 1/2SM BR\nFM1600 16010KT P6SM SKC\nBECMG 2224 20013G20KT 4SM SHRA OVC020\nPROB40 0006 2SM TSRA OVC008CB\nBECMG 0608 21015KT P6SM NSW SCT040="
+  "translatedTAC" : "TAF KOKC 051130Z 051212 14008KT 5SM BR BKN030\nTEMPO 1316 1 1/2SM BR\nFM1600 16010KT P6SM SKC\nBECMG 2224 20013G20KT 4SM SHRA OVC020\nPROB40 0006 2SM TSRA OVC008CB\nBECMG 0608 21015KT P6SM NSW SCT040="
 }
