@@ -277,11 +277,14 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         }
 
-        result.addAll(
-                withWeather(baseFctToken, new Lexeme.Identity[] { Lexeme.Identity.CLOUD, Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE },
-                        hints, baseFct::setForecastWeather));
-        result.addAll(
-                withClouds(baseFctToken, new Lexeme.Identity[] { Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE }, hints, baseFct::setCloud));
+        result.addAll(withWeather(baseFctToken, new Lexeme.Identity[] { Lexeme.Identity.CLOUD, Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE }, hints,
+                baseFct::setForecastWeather));
+        //Ensure that forecastWeather is always non-empty for base forecast unless CAVOK:
+        if (!baseFct.getForecastWeather().isPresent() && !baseFct.isCeilingAndVisibilityOk()) {
+            baseFct.setForecastWeather(new ArrayList<>());
+        }
+
+        result.addAll(withClouds(baseFctToken, new Lexeme.Identity[] { Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE }, hints, baseFct::setCloud));
 
         if (!baseFct.getCloud().isPresent() && !baseFct.isCeilingAndVisibilityOk()) {
             result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Cloud or CAVOK is missing from TAF base forecast"));
@@ -478,6 +481,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 new Lexeme.Identity[] { Lexeme.Identity.CAVOK, Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD }, hints,
                 builder::setSurfaceWind));
 
+
         findNext(Lexeme.Identity.CAVOK, from, (match) -> {
             final Lexeme.Identity[] before = new Lexeme.Identity[] { Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER,
                     Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD };
@@ -488,15 +492,16 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 builder.setCeilingAndVisibilityOk(true);
             }
         });
+
         result.addAll(
                 withVisibility(from, new Lexeme.Identity[] { Lexeme.Identity.WEATHER, Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD }, hints,
                         (measureWithOperator -> {
                             builder.setPrevailingVisibility(measureWithOperator.getMeasure());
                             builder.setPrevailingVisibilityOperator(measureWithOperator.getOperator());
 
-                        })));
-        result.addAll(
-                withWeather(from, new Lexeme.Identity[] { Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD }, hints, builder::setForecastWeather));
+                })));
+
+        result.addAll(withWeather(from, new Lexeme.Identity[] { Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD }, hints, builder::setForecastWeather));
 
         findNext(Lexeme.Identity.NO_SIGNIFICANT_WEATHER, from, (match) -> {
             final ConversionIssue issue = checkBeforeAnyOf(match, new Lexeme.Identity[] { Lexeme.Identity.CLOUD });
@@ -513,6 +518,20 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
         result.addAll(withClouds(from, new Lexeme.Identity[] {}, hints, builder::setCloud));
 
+        //Check that all mandatory properties are given in the FM case:
+        if (TAFForecastChangeIndicator.ForecastChangeIndicatorType.FROM == type) {
+            if (!builder.getSurfaceWind().isPresent()) {
+                result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Surface wind is missing from TAF FM change forecast"));
+            }
+
+            if (!builder.getPrevailingVisibility().isPresent()) {
+                result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Visibility is missing from TAF FM change forecast"));
+            }
+
+            if (!builder.getCloud().isPresent()) {
+                result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Cloud is missing from TAF FM change forecast"));
+            }
+        }
         return result;
     }
 
