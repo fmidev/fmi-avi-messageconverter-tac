@@ -37,21 +37,22 @@
     "prevailingVisibilityOperator" : "ABOVE"
   },
   "clouds" : {
-    "cloudTypeUnobservableByAutoSystem" : "true",
     "layers": [
       {
         "amount" : "BKN",
         "base" : {
           "value": 300.0,
           "uom" : "[ft_i]"
-        }
+        },
+        "cloudTypeUnobservableByAutoSystem": "true"
       },
       {
         "amount" : "OVC",
         "base" : {
           "value": 5200.0,
           "uom" : "[ft_i]"
-        }
+        },
+        "cloudTypeUnobservableByAutoSystem": "true"
       }
     ]
   },

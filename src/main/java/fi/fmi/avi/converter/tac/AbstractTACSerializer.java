@@ -54,7 +54,7 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
     }
 
     protected <V extends AviationWeatherMessage> int appendCloudLayers(final LexemeSequenceBuilder builder, final V msg, final Class<V> clz,
-            final List<CloudLayer> layers, final ReconstructorContext<V> ctx) throws SerializingException {
+            final List<? extends CloudLayer> layers, final ReconstructorContext<V> ctx) throws SerializingException {
         int retval = 0;
         if (layers != null) {
             for (CloudLayer layer : layers) {

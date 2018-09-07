@@ -269,10 +269,6 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                     //NOOP
                     break;
             }
-        } else if (CloudLayer.SpecialValue.CLOUD_AMOUNT_UNOBSERVABLE == coverOrMissing) {
-            retval.setAmount(Optional.empty());
-        } else {
-            throw new IllegalArgumentException("Unknown cloud cover (amount): " + coverOrMissing);
         }
         if (CloudLayer.CloudType.TOWERING_CUMULUS == type) {
             retval.setCloudType(fi.fmi.avi.model.AviationCodeListUser.CloudType.TCU);

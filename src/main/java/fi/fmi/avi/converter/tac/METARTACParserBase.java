@@ -43,11 +43,13 @@ import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.RunwayDirectionImpl;
 import fi.fmi.avi.model.immutable.WeatherImpl;
 import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
+import fi.fmi.avi.model.metar.ObservedCloudLayer;
 import fi.fmi.avi.model.metar.RunwayState;
 import fi.fmi.avi.model.metar.RunwayVisualRange;
 import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.metar.immutable.HorizontalVisibilityImpl;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.metar.immutable.ObservedCloudLayerImpl;
 import fi.fmi.avi.model.metar.immutable.ObservedCloudsImpl;
 import fi.fmi.avi.model.metar.immutable.ObservedSurfaceWindImpl;
 import fi.fmi.avi.model.metar.immutable.RunwayStateImpl;
@@ -502,7 +504,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                     Identity.REMARKS_START };
             ObservedCloudsImpl.Builder clouds = new ObservedCloudsImpl.Builder();
             ConversionIssue issue;
-            final List<fi.fmi.avi.model.CloudLayer> layers = new ArrayList<>();
+            final List<ObservedCloudLayer> layers = new ArrayList<>();
             while (match != null) {
                 issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
@@ -512,52 +514,49 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                         retval.add(new ConversionIssue(Type.LOGICAL, "CAVOK cannot co-exist with observed clouds"));
                         break;
                     }
-                    Object cover = match.getParsedValue(Lexeme.ParsedValueName.COVER, Object.class);
-                    Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
-                    Object type = match.getParsedValue(ParsedValueName.TYPE, Object.class);
+                    final Object cover = match.getParsedValue(Lexeme.ParsedValueName.COVER, Object.class);
+                    final Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
+                    final Object type = match.getParsedValue(ParsedValueName.TYPE, Object.class);
                     String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
 
-                    if (CloudLayer.SpecialValue.AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM == value) {
-                        clouds.setAmountUnobservableByAutoSystem(true);
-                        clouds.setHeightUnobservableByAutoSystem(true);
-                    } else {
-                        if (CloudLayer.SpecialValue.CLOUD_AMOUNT_UNOBSERVABLE == cover) {
-                            clouds.setAmountUnobservableByAutoSystem(true);
-                        }
+                    if (CloudCover.NO_SIG_CLOUDS == cover || CloudCover.SKY_CLEAR == cover || CloudCover.NO_LOW_CLOUDS == cover) {
+                        clouds.setNoSignificantCloud(true);
+                    } else if (CloudCover.NO_CLOUD_DETECTED == cover) {
+                        clouds.setNoCloudsDetectedByAutoSystem(true);
+                    } else if (CloudLayer.CloudCover.SKY_OBSCURED == cover) {
                         if (CloudLayer.SpecialValue.CLOUD_BASE_UNOBSERVABLE == value) {
-                            if (CloudLayer.CloudCover.SKY_OBSCURED == cover) {
-                                clouds.setVerticalVisibilityUnobservableByAutoSystem(true);
-                            } else {
-                                clouds.setHeightUnobservableByAutoSystem(true);
+                            clouds.setVerticalVisibilityUnobservableByAutoSystem(true);
+                        } else if (value instanceof Integer) {
+                            int height = ((Integer) value);
+                            if ("hft".equals(unit)) {
+                                height = height * 100;
+                                unit = "[ft_i]";
                             }
+                            clouds.setVerticalVisibility(NumericMeasureImpl.of(height, unit));
                         }
-                        if (CloudLayer.SpecialValue.CLOUD_TYPE_UNOBSERVABLE == type) {
-                            clouds.setCloudTypeUnobservableByAutoSystem(true);
-                        }
-                        if (CloudCover.NO_SIG_CLOUDS == cover || CloudCover.SKY_CLEAR == cover || CloudCover.NO_LOW_CLOUDS == cover) {
-                            clouds.setNoSignificantCloud(true);
-                        } else if (CloudCover.NO_CLOUD_DETECTED == cover) {
-                            clouds.setNoCloudsDetectedByAutoSystem(true);
+                    } else {
+                        fi.fmi.avi.model.CloudLayer plainLayer = getCloudLayer(match);
+                        if (plainLayer != null) {
+                            ObservedCloudLayerImpl.Builder layerBuilder = ObservedCloudLayerImpl.Builder.from(plainLayer);
+                            if (CloudLayer.SpecialValue.AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM == value) {
+                                layerBuilder.setAmountUnobservableByAutoSystem(true);
+                                layerBuilder.setHeightUnobservableByAutoSystem(true);
+                            }
+                            if (CloudLayer.SpecialValue.CLOUD_AMOUNT_UNOBSERVABLE == cover) {
+                                layerBuilder.setAmountUnobservableByAutoSystem(true);
+                            }
+                            if (CloudLayer.SpecialValue.CLOUD_BASE_UNOBSERVABLE == value) {
+                                layerBuilder.setHeightUnobservableByAutoSystem(true);
+                            }
+                            if (CloudLayer.SpecialValue.CLOUD_TYPE_UNOBSERVABLE == type) {
+                                layerBuilder.setCloudTypeUnobservableByAutoSystem(true);
+                            }
+                            layers.add(layerBuilder.build());
                         } else {
-                            if (CloudLayer.CloudCover.SKY_OBSCURED == cover) {
-                                if (value instanceof Integer) {
-                                    int height = ((Integer) value);
-                                    if ("hft".equals(unit)) {
-                                        height = height * 100;
-                                        unit = "[ft_i]";
-                                    }
-                                    clouds.setVerticalVisibility(NumericMeasureImpl.of(height, unit));
-                                }
-                            } else {
-                                fi.fmi.avi.model.CloudLayer layer = getCloudLayer(match);
-                                if (layer != null) {
-                                    layers.add(layer);
-                                } else {
-                                    retval.add(new ConversionIssue(Type.SYNTAX, "Could not parse token " + match.getTACToken() + " as cloud layer"));
-                                }
-                            }
+                            retval.add(new ConversionIssue(Type.SYNTAX, "Could not parse token " + match.getTACToken() + " as cloud layer"));
                         }
                     }
+
                 }
                 match = findNext(Identity.CLOUD, match);
             }

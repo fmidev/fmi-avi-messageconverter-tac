@@ -110,9 +110,7 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
                 appendWhitespace(retval, ' ');
             } else if (obsClouds.get().getLayers().isPresent()){
                 this.appendCloudLayers(retval, input, getMessageClass(), obsClouds.get().getLayers().get(), baseCtx);
-            } else if (obsClouds.get().isNoCloudsDetectedByAutoSystem()
-                    || obsClouds.get().isNoSignificantCloud()
-                    || (obsClouds.get().isAmountUnobservableByAutoSystem() || obsClouds.get().isAmountNotDetectedCloudsDetectedByAutoSystem()) && (obsClouds.get().isHeightNotDetectedCloudsDetectedByAutoSystem() || obsClouds.get().isHeightUnobservableByAutoSystem())) {
+            } else if (obsClouds.get().isNoCloudsDetectedByAutoSystem() || obsClouds.get().isNoSignificantCloud()) {
                 this.appendToken(retval, Lexeme.Identity.CLOUD, input, getMessageClass(), baseCtx);
                 appendWhitespace(retval, ' ');
             }
