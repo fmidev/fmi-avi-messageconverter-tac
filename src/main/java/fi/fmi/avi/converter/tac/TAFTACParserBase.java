@@ -1,10 +1,5 @@
 package fi.fmi.avi.converter.tac;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
@@ -15,13 +10,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
-import fi.fmi.avi.model.AviationCodeListUser;
-import fi.fmi.avi.model.CloudForecast;
-import fi.fmi.avi.model.CloudLayer;
-import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.PartialDateTime;
-import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
+import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.immutable.AerodromeImpl;
 import fi.fmi.avi.model.immutable.CloudForecastImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
@@ -29,11 +18,12 @@ import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 import fi.fmi.avi.model.taf.TAFSurfaceWind;
-import fi.fmi.avi.model.taf.immutable.TAFAirTemperatureForecastImpl;
-import fi.fmi.avi.model.taf.immutable.TAFBaseForecastImpl;
-import fi.fmi.avi.model.taf.immutable.TAFChangeForecastImpl;
-import fi.fmi.avi.model.taf.immutable.TAFImpl;
-import fi.fmi.avi.model.taf.immutable.TAFSurfaceWindImpl;
+import fi.fmi.avi.model.taf.immutable.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<T> {
 
@@ -523,13 +513,14 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (!builder.getSurfaceWind().isPresent()) {
                 result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Surface wind is missing from TAF FM change forecast"));
             }
+            if (!builder.isCeilingAndVisibilityOk()) {
+                if (!builder.getPrevailingVisibility().isPresent()) {
+                    result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Visibility is missing from TAF FM change forecast"));
+                }
 
-            if (!builder.getPrevailingVisibility().isPresent()) {
-                result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Visibility is missing from TAF FM change forecast"));
-            }
-
-            if (!builder.getCloud().isPresent()) {
-                result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Cloud is missing from TAF FM change forecast"));
+                if (!builder.getCloud().isPresent()) {
+                    result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Cloud is missing from TAF FM change forecast"));
+                }
             }
         }
         return result;
