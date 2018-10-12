@@ -2,6 +2,8 @@ package fi.fmi.avi.converter.tac;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 
+import java.util.Optional;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionIssue.Type;
@@ -12,7 +14,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationCodeListUser;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.Weather;
 import fi.fmi.avi.model.taf.TAF;
@@ -20,12 +22,25 @@ import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 
-import java.util.Optional;
-
 /**
  * Serializes TAF POJO to TAC format
  */
 public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
+
+    private EncodingVariant variant = EncodingVariant.NORMAL;
+
+    public EncodingVariant getVariant() {
+        return this.variant;
+    }
+
+    public void setVariant(final EncodingVariant variant) {
+        this.variant = variant;
+    }
+
+    @Override
+    public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {
+        return tokenizeMessage(msg, null);
+    }
 
 	@Override
     public ConversionResult<String> convertMessage(final TAF input, final ConversionHints hints) {
@@ -40,12 +55,7 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
     }
 
     @Override
-    public LexemeSequence tokenizeMessage(final AviationWeatherMessage msg) throws SerializingException {
-        return tokenizeMessage(msg, null);
-    }
-
-    @Override
-    public LexemeSequence tokenizeMessage(final AviationWeatherMessage msg, final ConversionHints hints) throws SerializingException {
+    public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException {
         if (!(msg instanceof TAF)) {
             throw new SerializingException("I can only tokenize TAFs!");
         }
@@ -162,6 +172,8 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
         appendToken(retval, Identity.END_TOKEN, input, TAF.class, baseCtx);
         return retval.build();
     }
+
+    enum EncodingVariant {NORMAL, BULLETIN}
 
     private void appendClouds(final LexemeSequenceBuilder builder, final CloudForecast clouds, final TAF input, final ReconstructorContext<TAF> ctx) throws SerializingException {
         if (clouds != null) {

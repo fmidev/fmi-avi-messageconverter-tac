@@ -15,12 +15,14 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.TACTokenReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CloudLayer;
 
 /**
  * Created by rinne on 07/06/17.
  */
-public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> implements AviMessageSpecificConverter<S, String>, AviMessageTACTokenizer {
+public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCollection>
+        implements AviMessageSpecificConverter<S, String>, AviMessageTACTokenizer {
 
     private Map<Lexeme.Identity, TACTokenReconstructor> reconstructors = new HashMap<>();
 
@@ -44,10 +46,10 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
     }
 
     @Override
-    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessage msg) throws SerializingException;
+    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException;
 
     @Override
-    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessage msg, final ConversionHints hints) throws SerializingException;
+    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException;
 
     public TACTokenReconstructor getReconstructor(final Lexeme.Identity id) {
         return this.reconstructors.get(id);

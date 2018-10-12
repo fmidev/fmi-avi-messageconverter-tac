@@ -2,14 +2,13 @@ package fi.fmi.avi.converter.tac;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.metar.SPECI;
 
 public class SPECITACSerializer extends METARTACSerializerBase<SPECI> {
 
     @Override
-    protected SPECI narrow(AviationWeatherMessage msg, ConversionHints hints) {
+    protected SPECI narrow(AviationWeatherMessageOrCollection msg, ConversionHints hints) {
         if (msg instanceof SPECI) {
             return (SPECI) msg;
         } else {

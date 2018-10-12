@@ -13,7 +13,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.Weather;
 import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
@@ -40,18 +40,18 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
     }
 
     @Override
-    public LexemeSequence tokenizeMessage(final AviationWeatherMessage msg) throws SerializingException {
+    public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {
         return tokenizeMessage(msg, null);
     }
 
-    protected abstract T narrow(final AviationWeatherMessage msg, final ConversionHints hints);
+    protected abstract T narrow(final AviationWeatherMessageOrCollection msg, final ConversionHints hints);
 
     protected abstract Lexeme.Identity getStartTokenIdentity();
 
     protected abstract Class<T> getMessageClass();
 
     @Override
-    public LexemeSequence tokenizeMessage(final AviationWeatherMessage msg, final ConversionHints hints) throws SerializingException {
+    public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException {
         T input = narrow(msg, hints);
         ReconstructorContext<T> baseCtx = new ReconstructorContext<>(input, hints);
         LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
