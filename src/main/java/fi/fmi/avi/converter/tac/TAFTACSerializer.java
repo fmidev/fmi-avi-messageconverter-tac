@@ -27,16 +27,6 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
  */
 public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
 
-    private EncodingVariant variant = EncodingVariant.NORMAL;
-
-    public EncodingVariant getVariant() {
-        return this.variant;
-    }
-
-    public void setVariant(final EncodingVariant variant) {
-        this.variant = variant;
-    }
-
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {
         return tokenizeMessage(msg, null);
@@ -172,8 +162,6 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
         appendToken(retval, Identity.END_TOKEN, input, TAF.class, baseCtx);
         return retval.build();
     }
-
-    enum EncodingVariant {NORMAL, BULLETIN}
 
     private void appendClouds(final LexemeSequenceBuilder builder, final CloudForecast clouds, final TAF input, final ReconstructorContext<TAF> ctx) throws SerializingException {
         if (clouds != null) {

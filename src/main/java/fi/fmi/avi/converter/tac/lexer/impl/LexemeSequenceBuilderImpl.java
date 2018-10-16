@@ -1,6 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
@@ -40,5 +41,9 @@ class LexemeSequenceBuilderImpl implements LexemeSequenceBuilder {
             this.seq.removeLast();
         }
         return this;
+    }
+
+    public Optional<Lexeme> getLast() {
+        return Optional.ofNullable(this.seq.getLastLexeme());
     }
 }

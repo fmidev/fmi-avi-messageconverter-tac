@@ -68,7 +68,8 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
         return retval;
     }
 
-    protected <V extends AviationWeatherMessage> int appendToken(final LexemeSequenceBuilder builder, final Lexeme.Identity id, final V msg, final Class<V> clz,
+    protected <V extends AviationWeatherMessageOrCollection> int appendToken(final LexemeSequenceBuilder builder, final Lexeme.Identity id, final V msg,
+            final Class<V> clz,
                                                                  final ReconstructorContext<V> ctx) throws SerializingException {
         TACTokenReconstructor rec = this.reconstructors.get(id);
         int retval = 0;
@@ -85,12 +86,26 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
     }
 
     protected int appendWhitespace(final LexemeSequenceBuilder builder, final char toAppend) {
+        return appendWhitespace(builder, toAppend, 1);
+    }
+
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final CharSequence toAppend) {
+        int len = toAppend.length();
+        for (int i = 0; i < len; i++) {
+            appendWhitespace(builder, toAppend.charAt(i), 1);
+        }
+        return len;
+    }
+
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final char toAppend, final int count) {
         if (Character.isWhitespace(toAppend)) {
-            builder.append(factory.createLexeme(String.valueOf(toAppend), Lexeme.Identity.WHITE_SPACE));
+            for (int i = 0; i < count; i++) {
+                builder.append(factory.createLexeme(String.valueOf(toAppend), Lexeme.Identity.WHITE_SPACE));
+            }
+            return count;
         } else {
             throw new IllegalArgumentException("Character '" + toAppend + "' is not whitespace");
         }
-        return 1;
     }
 
 }

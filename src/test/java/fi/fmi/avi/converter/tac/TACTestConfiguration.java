@@ -1,7 +1,5 @@
 package fi.fmi.avi.converter.tac;
-import fi.fmi.avi.model.metar.SPECI;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
-import fi.fmi.avi.model.taf.immutable.TAFImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +9,11 @@ import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.metar.METAR;
+import fi.fmi.avi.model.metar.SPECI;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.taf.TAF;
+import fi.fmi.avi.model.taf.TAFBulletin;
+import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 @Configuration
 @Import(TACConverter.class)
@@ -40,7 +42,10 @@ public class TACTestConfiguration {
 
     @Autowired
     private AviMessageSpecificConverter<SPECI, String> speciTACSerializer;
-    
+
+    @Autowired
+    private AviMessageSpecificConverter<TAFBulletin, String> tafBulletinTACSerializer;
+
     @Bean
     public AviMessageConverter aviMessageConverter() {
         AviMessageConverter p = new AviMessageConverter();
@@ -54,6 +59,8 @@ public class TACTestConfiguration {
 
         p.setMessageSpecificConverter(TACConverter.TAC_TO_SPECI_POJO, speciTACParser);
         p.setMessageSpecificConverter(TACConverter.SPECI_POJO_TO_TAC, speciTACSerializer);
+
+        p.setMessageSpecificConverter(TACConverter.TAF_BULLETIN_POJO_TO_TAC, tafBulletinTACSerializer);
         return p;
     }
   

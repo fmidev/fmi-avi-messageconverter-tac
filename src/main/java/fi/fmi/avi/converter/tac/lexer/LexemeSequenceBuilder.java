@@ -1,6 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Used for constructing {@link LexemeSequence}s one or more {@link Lexeme} at a time.
@@ -34,6 +35,13 @@ public interface LexemeSequenceBuilder {
      * @return the builder
      */
     LexemeSequenceBuilder removeLast();
+
+    /**
+     * Returns the last lexeme in the sequence to build if one exists.
+     *
+     * @return
+     */
+    Optional<Lexeme> getLast();
 
     /**
      * Returns the complete {@link LexemeSequence}.
