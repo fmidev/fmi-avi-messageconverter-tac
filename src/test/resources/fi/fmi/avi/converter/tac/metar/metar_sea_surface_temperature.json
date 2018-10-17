@@ -49,7 +49,6 @@
     ]
   },
   "seaState": {
-    "seaSurfaceTemperatureUnobservableByAutoSystem": true,
     "seaSurfaceState": "ROUGH"
   },
   "translatedTAC": "METAR ENFB 171150Z AUTO 22025KT 9999NDV FEW026/// 11/06 Q1009 W///S5=",

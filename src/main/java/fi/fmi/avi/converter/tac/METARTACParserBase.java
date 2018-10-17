@@ -28,7 +28,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateContamin
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateDeposit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateReportSpecialValue;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState.RunwayStateReportType;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator.TrendChangeIndicatorType;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup.TrendTimePeriodType;
@@ -511,8 +510,6 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 if (values[0] instanceof Integer) {
                     final String tempUnit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
                     ss.setSeaSurfaceTemperature(NumericMeasureImpl.of((Integer) values[0], tempUnit));
-                } else if (values[0] instanceof SeaState.SpecialValue) {
-                    ss.setSeaSurfaceTemperatureUnobservableByAutoSystem(true);
                 }
                 if (values[1] instanceof fi.fmi.avi.converter.tac.lexer.impl.token.SeaState.SeaSurfaceState) {
                     if (values[2] != null) {
