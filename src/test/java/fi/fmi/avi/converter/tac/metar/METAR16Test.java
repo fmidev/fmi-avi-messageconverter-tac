@@ -30,13 +30,6 @@ public class METAR16Test extends AbstractAviMessageTest<String, METAR> {
         return "METAR EFTU 011350Z AUTO VRB02KT 9999 ////// 22/12 Q1008=";
     }
 
-    /*
-    @Override
-	public String getCanonicalMessage() {
-        return "METAR EFTU 011350Z AUTO VRB02KT 9999 ////// 22/12 Q1008=";
-    }
-	*/
-
 	@Override
 	public String getTokenizedMessagePrefix() {
 		return "";
