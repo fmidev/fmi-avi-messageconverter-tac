@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+
+;
 
 /**
  * Created by rinne on 01/03/17.
@@ -42,7 +43,7 @@ public abstract class FactoryBasedReconstructor implements TACTokenReconstructor
 	}
 
     @Override
-	public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ReconstructorContext<T> ctx)
+    public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ReconstructorContext<T> ctx)
 			throws SerializingException {
 		List<Lexeme> retval = new ArrayList<>();
         Optional<Lexeme> lexeme = getAsLexeme(msg, clz, ctx);
@@ -60,7 +61,7 @@ public abstract class FactoryBasedReconstructor implements TACTokenReconstructor
      * @return the reconstructed Lexeme, if one could be created
      * @throws SerializingException when the Lexeme cannot be constructed
 	 */
-    public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ReconstructorContext<T> ctx)
+    public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ReconstructorContext<T> ctx)
             throws SerializingException {
 		throw new RuntimeException("Reconstructor does not implement getAsLexeme");
 	}

@@ -5,7 +5,8 @@ import java.util.List;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+
 /**
  *
  * Created by rinne on 15/02/17.
@@ -32,5 +33,5 @@ public interface TACTokenReconstructor {
      *
      * @throws SerializingException when the Lexeme cannot be reconstructed from the contents of the <code>msg</code>
      */
-    <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ReconstructorContext<T> ctx) throws SerializingException;
+    <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ReconstructorContext<T> ctx) throws SerializingException;
 }

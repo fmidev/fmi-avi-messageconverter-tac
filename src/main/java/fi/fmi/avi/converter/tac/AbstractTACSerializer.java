@@ -15,12 +15,14 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.TACTokenReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CloudLayer;
 
 /**
  * Created by rinne on 07/06/17.
  */
-public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> implements AviMessageSpecificConverter<S, String>, AviMessageTACTokenizer {
+public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCollection>
+        implements AviMessageSpecificConverter<S, String>, AviMessageTACTokenizer {
 
     private Map<Lexeme.Identity, TACTokenReconstructor> reconstructors = new HashMap<>();
 
@@ -44,10 +46,10 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
     }
 
     @Override
-    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessage msg) throws SerializingException;
+    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException;
 
     @Override
-    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessage msg, final ConversionHints hints) throws SerializingException;
+    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException;
 
     public TACTokenReconstructor getReconstructor(final Lexeme.Identity id) {
         return this.reconstructors.get(id);
@@ -66,7 +68,8 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
         return retval;
     }
 
-    protected <V extends AviationWeatherMessage> int appendToken(final LexemeSequenceBuilder builder, final Lexeme.Identity id, final V msg, final Class<V> clz,
+    protected <V extends AviationWeatherMessageOrCollection> int appendToken(final LexemeSequenceBuilder builder, final Lexeme.Identity id, final V msg,
+            final Class<V> clz,
                                                                  final ReconstructorContext<V> ctx) throws SerializingException {
         TACTokenReconstructor rec = this.reconstructors.get(id);
         int retval = 0;
@@ -83,12 +86,26 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
     }
 
     protected int appendWhitespace(final LexemeSequenceBuilder builder, final char toAppend) {
+        return appendWhitespace(builder, toAppend, 1);
+    }
+
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final CharSequence toAppend) {
+        int len = toAppend.length();
+        for (int i = 0; i < len; i++) {
+            appendWhitespace(builder, toAppend.charAt(i), 1);
+        }
+        return len;
+    }
+
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final char toAppend, final int count) {
         if (Character.isWhitespace(toAppend)) {
-            builder.append(factory.createLexeme(String.valueOf(toAppend), Lexeme.Identity.WHITE_SPACE));
+            for (int i = 0; i < count; i++) {
+                builder.append(factory.createLexeme(String.valueOf(toAppend), Lexeme.Identity.WHITE_SPACE));
+            }
+            return count;
         } else {
             throw new IllegalArgumentException("Character '" + toAppend + "' is not whitespace");
         }
-        return 1;
     }
 
 }

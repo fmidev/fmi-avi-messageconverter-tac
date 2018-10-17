@@ -1,15 +1,16 @@
 package fi.fmi.avi.converter.tac.lexer.impl;
 
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Optional.*;
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
-public class ReconstructorContext<T extends AviationWeatherMessage> {
+public class ReconstructorContext<T extends AviationWeatherMessageOrCollection> {
 
     private Map<String, Object> parameters;
     private ConversionHints hints;

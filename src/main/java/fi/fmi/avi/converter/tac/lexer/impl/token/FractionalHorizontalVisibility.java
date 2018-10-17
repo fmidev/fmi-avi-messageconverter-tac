@@ -43,7 +43,7 @@ public class FractionalHorizontalVisibility extends RegexMatchingLexemeVisitor {
         	fractionNumenator = Integer.parseInt(match.group(10));
             fractionDenumenator = Integer.parseInt(match.group(11));
         }
-        if (fractionDenumenator > -1 && fractionDenumenator > -1) {
+        if (fractionNumenator > -1 && fractionDenumenator > -1) {
         	if (fractionDenumenator != 0) {
         		token.identify(HORIZONTAL_VISIBILITY);
         		token.setParsedValue(VALUE, Double.valueOf(wholePart + (double) fractionNumenator / (double) fractionDenumenator));

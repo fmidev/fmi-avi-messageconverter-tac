@@ -18,7 +18,7 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
 /**
  * Token parser for weather codes
@@ -93,7 +93,7 @@ public class Weather extends RegexMatchingLexemeVisitor {
 		}
     	
         @Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             Optional<fi.fmi.avi.model.Weather> weather = ctx.getParameter("weather", fi.fmi.avi.model.Weather.class);
             if (weather.isPresent() && isCodeAllowed(weather.get(), ctx.getHints())) {

@@ -16,6 +16,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SEQUENCE_NUMBER;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TENDENCY_OPERATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
@@ -113,7 +114,10 @@ public interface Lexeme {
         REMARK(VALUE),
         COLOR_CODE(VALUE),
         WHITE_SPACE(VALUE),
-        END_TOKEN;
+        END_TOKEN,
+        BULLETIN_HEADING_DATA_DESIGNATORS(TYPE, COUNTRY, SEQUENCE_NUMBER),
+        BULLETIN_HEADING_LOCATION_INDICATOR(VALUE),
+        BULLETIN_HEADING_BBB_INDICATOR(VALUE, SEQUENCE_NUMBER);
 
         private final Set<ParsedValueName> possibleParameters = new HashSet<>();
         
@@ -148,9 +152,7 @@ public interface Lexeme {
         MIN_DIRECTION,
         MAX_DIRECTION,
         RELATIONAL_OPERATOR,
-        RELATIONAL_OPERATOR2,
-        TENDENCY_OPERATOR,
-        RUNWAY
+        RELATIONAL_OPERATOR2, TENDENCY_OPERATOR, RUNWAY, SEQUENCE_NUMBER
     }
 
     /**

@@ -19,7 +19,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationCodeListUser.RunwayContamination;
 import fi.fmi.avi.model.AviationCodeListUser.RunwayDeposit;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.RunwayDirection;
 
@@ -356,7 +356,8 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     
     public static class Reconstructor extends FactoryBasedReconstructor {
     	@Override
-        public <T extends AviationWeatherMessage> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) throws SerializingException {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
+                throws SerializingException {
             Optional<fi.fmi.avi.model.metar.RunwayState> state = ctx.getParameter("state", fi.fmi.avi.model.metar.RunwayState.class);
             if (state.isPresent()) {
                 boolean annex3_16th = ctx.getHints().containsValue(ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);

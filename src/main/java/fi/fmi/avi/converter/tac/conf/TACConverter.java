@@ -2,6 +2,7 @@ package fi.fmi.avi.converter.tac.conf;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.ConversionSpecification;
@@ -13,6 +14,7 @@ import fi.fmi.avi.converter.tac.METARTACSerializer;
 import fi.fmi.avi.converter.tac.SPECITACParser;
 import fi.fmi.avi.converter.tac.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.TACParser;
+import fi.fmi.avi.converter.tac.TAFBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.TAFTACParser;
 import fi.fmi.avi.converter.tac.TAFTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
@@ -28,6 +30,9 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Amendment;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AutoMetar;
+import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeaderDataDesignators;
+import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeadingBBBIndicator;
+import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinLocationIndicator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CAVOK;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Cancellation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
@@ -66,6 +71,7 @@ import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.taf.TAF;
+import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 /**
@@ -121,6 +127,11 @@ public class TACConverter {
      */
     public static final ConversionSpecification<String, TAFImpl> TAC_TO_IMMUTABLE_TAF_POJO = new ConversionSpecification<>(String.class, TAFImpl.class, "ICAO Annex 3 TAC", null);
 
+    /**
+     * Pre-configured spec for {@link fi.fmi.avi.model.taf.TAFBulletin} to TAC encoded TAF bulletin
+     */
+    public static final ConversionSpecification<TAFBulletin, String> TAF_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(TAFBulletin.class, String.class,
+            null, "WMO GTS TAF Bulletin");
 
     @Bean
     AviMessageSpecificConverter<String, METAR> metarTACParser() {
@@ -208,6 +219,16 @@ public class TACConverter {
 
     @Bean
     AviMessageSpecificConverter<TAF, String> tafTACSerializer() {
+        return spawnTAFTACSerializer();
+    }
+
+    @Bean
+    @Scope("prototype")
+    AviMessageSpecificConverter<TAF, String> bulletinTAFTACSerializer() {
+        return spawnTAFTACSerializer();
+    }
+
+    private TAFTACSerializer spawnTAFTACSerializer() {
         TAFTACSerializer s = new TAFTACSerializer();
         s.setLexingFactory(lexingFactory());
         s.addReconstructor(Lexeme.Identity.TAF_START, new TAFStart.Reconstructor());
@@ -233,6 +254,20 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.END_TOKEN,new EndToken.Reconstructor());
         return s;
     }
+
+    @Bean
+    AviMessageSpecificConverter<TAFBulletin, String> tafBulletinTACSerializer() {
+        TAFBulletinTACSerializer s = new TAFBulletinTACSerializer();
+        s.setLexingFactory(lexingFactory());
+        TAFTACSerializer tafSerializer = (TAFTACSerializer) bulletinTAFTACSerializer();
+
+        s.setTafSerializer(tafSerializer);
+        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, new BulletinHeaderDataDesignators.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, new BulletinLocationIndicator.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.ISSUE_TIME, new IssueTime.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, new BulletinHeadingBBBIndicator.Reconstructor());
+        return s;
+    }
     
     @Bean
     public AviMessageLexer aviMessageLexer() {
@@ -250,6 +285,7 @@ public class TACConverter {
         tokenizer.setMETARSerializer((METARTACSerializer) metarTACSerializer());
         tokenizer.setSPECISerializer((SPECITACSerializer) speciTACSerializer());
         tokenizer.setTAFSerializer((TAFTACSerializer)tafTACSerializer());
+        tokenizer.setTAFBUlletinSerializer((TAFBulletinTACSerializer) tafBulletinTACSerializer());
         return tokenizer;
     }
     
