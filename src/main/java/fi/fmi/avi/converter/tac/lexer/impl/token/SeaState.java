@@ -54,25 +54,29 @@ public class SeaState extends RegexMatchingLexemeVisitor {
     }
 
     public SeaState(final Priority prio) {
-        super("^W(M?)([0-9]{2}|//)/(S([0-9]|/)|H([0-9]{1,3}))$", prio);
+        super("^W(?<minus>M?)(?<temp>[0-9]{2}|//)/(S(?<state>[0-9]|/)|H(?<height>[0-9]{1,3}))$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        Integer seaSurfaceTemperature = null;
-        if (!"//".equals(match.group(2))) {
-            seaSurfaceTemperature = Integer.valueOf(match.group(2));
-        }
-        if (seaSurfaceTemperature != null && match.group(1) != null) {
-            seaSurfaceTemperature *= -1;
+        Object seaSurfaceTemperature = null;
+        int temp = -1;
+        if ("//".equals(match.group("temp"))) {
+            seaSurfaceTemperature = SpecialValue.UNOBSERVABLE_BY_AUTO_SYSTEM;
+        } else {
+            temp = Integer.valueOf(match.group("temp"));
+            if (match.group("minus") != null) {
+                temp *= -1;
+            }
+            seaSurfaceTemperature = Integer.valueOf(temp);
         }
         SeaSurfaceState state = null;
-        if (match.group(4) != null) {
-            state = SeaSurfaceState.forCode(match.group(4).charAt(0));
+        if (match.group("state") != null) {
+            state = SeaSurfaceState.forCode(match.group("state").charAt(0));
         }
         Integer waveHeight = null;
-        if (match.group(5) != null) {
-            waveHeight = Integer.valueOf(match.group(5));
+        if (match.group("height") != null) {
+            waveHeight = Integer.valueOf(match.group("height"));
         }
         token.identify(SEA_STATE);
         Object[] values = new Object[3];
@@ -87,8 +91,10 @@ public class SeaState extends RegexMatchingLexemeVisitor {
             values[2] = (double)waveHeight.intValue() * 0.1;
             token.setParsedValue(Lexeme.ParsedValueName.UNIT2, "m");
         }
-        token.setParsedValue(Lexeme.ParsedValueName.VALUE, values);     
+        token.setParsedValue(Lexeme.ParsedValueName.VALUE, values);
     }
+
+    public enum SpecialValue {UNOBSERVABLE_BY_AUTO_SYSTEM}
     
     public static class Reconstructor extends FactoryBasedReconstructor {
 
@@ -100,22 +106,22 @@ public class SeaState extends RegexMatchingLexemeVisitor {
                 if (state.isPresent()) {
                     StringBuilder builder = new StringBuilder("W");
 
-                    NumericMeasure temp = state.get().getSeaSurfaceTemperature();
-                    if (temp == null) {
+                    Optional<NumericMeasure> temp = state.get().getSeaSurfaceTemperature();
+                    if (!temp.isPresent()) {
                         builder.append("//");
                     } else {
-                        if ("degC".equals(temp.getUom())) {
-                            int value = temp.getValue().intValue();
+                        if ("degC".equals(temp.get().getUom())) {
+                            int value = temp.get().getValue().intValue();
                             if (value < 0) {
                                 builder.append("M");
                                 value *= -1;
                             }
-                            builder.append(String.format("%02d/", value));
-
+                            builder.append(String.format("%02d", value));
                         } else {
                             throw new SerializingException("Sea state temperature must be in degC, cannot serialize");
                         }
                     }
+                    builder.append('/');
 
                     Optional<NumericMeasure> waveHeight = state.get().getSignificantWaveHeight();
 
