@@ -8,7 +8,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 
 class LexemeSequenceBuilderImpl implements LexemeSequenceBuilder {
-    private LexemeSequenceImpl seq;
+    private final LexemeSequenceImpl seq;
 
     LexemeSequenceBuilderImpl() {
         seq = new LexemeSequenceImpl();
@@ -26,9 +26,9 @@ class LexemeSequenceBuilderImpl implements LexemeSequenceBuilder {
     }
 
     @Override
-    public LexemeSequenceBuilder appendAll(List<Lexeme> lexemes) {
+    public LexemeSequenceBuilder appendAll(final List<Lexeme> lexemes) {
         if (lexemes != null) {
-            for (Lexeme l : lexemes) {
+            for (final Lexeme l : lexemes) {
                 this.seq.addAsLast(new LexemeImpl(l));
             }
         }
@@ -43,6 +43,7 @@ class LexemeSequenceBuilderImpl implements LexemeSequenceBuilder {
         return this;
     }
 
+    @Override
     public Optional<Lexeme> getLast() {
         return Optional.ofNullable(this.seq.getLastLexeme());
     }

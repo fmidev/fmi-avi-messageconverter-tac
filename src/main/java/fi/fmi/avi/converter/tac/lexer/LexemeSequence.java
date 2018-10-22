@@ -3,12 +3,12 @@ package fi.fmi.avi.converter.tac.lexer;
 import java.util.List;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
 /**
  * A sequence of {@link Lexeme}s corresponding to a message or part of it.
  * Typically produced as the result of the {@link AviMessageLexer#lexMessage(String)}
- * or {@link AviMessageTACTokenizer#tokenizeMessage(AviationWeatherMessage)}.
+ * or {@link AviMessageTACTokenizer#tokenizeMessage(AviationWeatherMessageOrCollection)}.
  *
  * To create a new instance from a String,
  * use {@link LexingFactory#createLexemeSequence(String, ConversionHints)}
@@ -16,7 +16,6 @@ import fi.fmi.avi.model.AviationWeatherMessage;
  * available from {@link LexingFactory#createLexemeSequenceBuilder()}.
  *
  * @author Ilkka Rinne / Spatineo 2017
- *
  */
 public interface LexemeSequence {
 
@@ -88,9 +87,11 @@ public interface LexemeSequence {
      * If not matches are found, the original {@link LexemeSequence} is returned as the
      * only list item.
      *
-     * @param ids the IDs if the tokens to use for splitting
+     * @param ids
+     *         the IDs if the tokens to use for splitting
+     *
      * @return the list of split-up sequences
      */
-    List<LexemeSequence> splitBy(Lexeme.Identity...ids);
+    List<LexemeSequence> splitBy(Lexeme.Identity... ids);
 
 }
