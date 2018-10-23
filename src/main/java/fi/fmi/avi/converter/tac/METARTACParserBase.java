@@ -1,5 +1,15 @@
 package fi.fmi.avi.converter.tac;
 
+import static fi.fmi.avi.converter.tac.TACParsingUtils.appendWeatherCodes;
+import static fi.fmi.avi.converter.tac.TACParsingUtils.checkAndReportLexingResult;
+import static fi.fmi.avi.converter.tac.TACParsingUtils.checkBeforeAnyOf;
+import static fi.fmi.avi.converter.tac.TACParsingUtils.checkZeroOrOne;
+import static fi.fmi.avi.converter.tac.TACParsingUtils.endsInEndToken;
+import static fi.fmi.avi.converter.tac.TACParsingUtils.findNext;
+import static fi.fmi.avi.converter.tac.TACParsingUtils.getCloudLayer;
+import static fi.fmi.avi.converter.tac.TACParsingUtils.getRemarks;
+import static fi.fmi.avi.converter.tac.TACParsingUtils.withFoundIssueTime;
+import static fi.fmi.avi.converter.tac.TACParsingUtils.withTimeForTranslation;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.RelationalOperator;
 import static fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer.TendencyOperator;
@@ -58,7 +68,6 @@ import fi.fmi.avi.model.metar.immutable.SeaStateImpl;
 import fi.fmi.avi.model.metar.immutable.TrendForecastImpl;
 import fi.fmi.avi.model.metar.immutable.TrendForecastSurfaceWindImpl;
 import fi.fmi.avi.model.metar.immutable.WindShearImpl;
-
 /**
  * @author Ilkka Rinne / Spatineo Oy 2017
  */
