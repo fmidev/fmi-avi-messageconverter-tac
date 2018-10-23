@@ -12,11 +12,25 @@ import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 
 public class LexingFactoryImpl implements LexingFactory {
 
-    @Override
-    public LexemeSequence createLexemeSequence(final String input, final ConversionHints hints) {
-        LexemeSequenceImpl result = new LexemeSequenceImpl(input);
-        appendArtifialStartTokenIfNecessary(input, result, hints);
-        return result;
+    private static void appendArtifialStartTokenIfNecessary(final LexemeSequenceImpl result, final ConversionHints hints) {
+        if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
+            LexemeImpl artificialStartToken = null;
+            if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_METAR && !"METAR".equals(
+                    result.getFirstLexeme().getTACToken())) {
+                artificialStartToken = new LexemeImpl("METAR", Lexeme.Identity.METAR_START);
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_SPECI && !"SPECI".equals(
+                    result.getFirstLexeme().getTACToken())) {
+                artificialStartToken = new LexemeImpl("SPECI", Lexeme.Identity.SPECI_START);
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_TAF && !"TAF".equals(
+                    result.getFirstLexeme().getTACToken())) {
+                artificialStartToken = new LexemeImpl("TAF", Lexeme.Identity.TAF_START);
+            }
+            if (artificialStartToken != null) {
+                artificialStartToken.setSynthetic(true);
+                result.addAsFirst(new LexemeImpl(" ", Lexeme.Identity.WHITE_SPACE));
+                result.addAsFirst(artificialStartToken);
+            }
+        }
     }
 
     @Override
@@ -39,22 +53,10 @@ public class LexingFactoryImpl implements LexingFactory {
         return new LexemeImpl(token, identity, status);
     }
 
-    private static void appendArtifialStartTokenIfNecessary(final String input, final LexemeSequenceImpl result, final ConversionHints hints) {
-        if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
-            LexemeImpl artificialStartToken = null;
-            if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_METAR && !input.startsWith("METAR ")) {
-                artificialStartToken = new LexemeImpl("METAR", Lexeme.Identity.METAR_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_SPECI && !input.startsWith("SPECI ")) {
-                artificialStartToken = new LexemeImpl("SPECI", Lexeme.Identity.SPECI_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_TAF && !input.startsWith("TAF ")) {
-                artificialStartToken = new LexemeImpl("TAF", Lexeme.Identity.TAF_START);
-            }
-            if (artificialStartToken != null) {
-                artificialStartToken.setSynthetic(true);
-                result.addAsFirst(new LexemeImpl(" ", Lexeme.Identity.WHITE_SPACE));
-                result.addAsFirst(artificialStartToken);
-            }
-        }
+    @Override
+    public LexemeSequence createLexemeSequence(final String input, final ConversionHints hints) {
+        LexemeSequenceImpl result = new LexemeSequenceImpl(input);
+        appendArtifialStartTokenIfNecessary(result, hints);
+        return result;
     }
-
 }

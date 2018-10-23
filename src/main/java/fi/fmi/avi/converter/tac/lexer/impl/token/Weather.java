@@ -38,15 +38,27 @@ public class Weather extends RegexMatchingLexemeVisitor {
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         boolean isPreceededWithAerodromeCode = false;
         boolean isPreceededWithRemarkStart = false;
+        Lexeme.Identity[] messageStartTokens = { Lexeme.Identity.METAR_START, Lexeme.Identity.TAF_START, Lexeme.Identity.SPECI_START };
         Lexeme l = token.getPrevious();
+        boolean startTokenFound = false;
         while (l != null) {
-            if (!isPreceededWithAerodromeCode && AERODROME_DESIGNATOR == l.getIdentityIfAcceptable()) {
-                isPreceededWithAerodromeCode = true;
+            for (Lexeme.Identity id : messageStartTokens) {
+                if (id == l.getIdentityIfAcceptable()) {
+                    startTokenFound = true;
+                }
             }
-            if (!isPreceededWithRemarkStart && REMARKS_START == l.getIdentityIfAcceptable()) {
-                isPreceededWithRemarkStart = true;
+            if (startTokenFound) {
+                l = null;
+            } else {
+                if (!isPreceededWithAerodromeCode && AERODROME_DESIGNATOR == l.getIdentityIfAcceptable()) {
+                    isPreceededWithAerodromeCode = true;
+                }
+                if (!isPreceededWithRemarkStart && REMARKS_START == l.getIdentityIfAcceptable()) {
+                    isPreceededWithRemarkStart = true;
+                }
+                l = l.getPrevious();
             }
-            l = l.getPrevious();
+
         }
         if (isPreceededWithRemarkStart) {
             return;

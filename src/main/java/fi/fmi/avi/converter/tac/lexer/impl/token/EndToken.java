@@ -21,7 +21,7 @@ public class EndToken extends PrioritizedLexemeVisitor {
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if (token.getNext() == null && "=".equalsIgnoreCase(token.getTACToken())) {
+        if ("=".equalsIgnoreCase(token.getTACToken())) {
             token.identify(END_TOKEN);
         }
     }

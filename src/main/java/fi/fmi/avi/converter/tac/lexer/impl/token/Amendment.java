@@ -24,7 +24,7 @@ public class Amendment extends PrioritizedLexemeVisitor {
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if (token.getPrevious() == token.getFirst() && "AMD".equalsIgnoreCase(token.getTACToken())) {
+        if (token.getPrevious() != null && Lexeme.Identity.TAF_START == token.getPrevious().getIdentity() && "AMD".equalsIgnoreCase(token.getTACToken())) {
             token.identify(AMENDMENT);
         }
     }

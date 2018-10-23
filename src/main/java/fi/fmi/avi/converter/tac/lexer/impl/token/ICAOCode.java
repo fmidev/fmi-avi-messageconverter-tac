@@ -4,6 +4,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATO
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COUNTRY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -260,17 +261,27 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        //Must be second or third token:
-        if (token.getPrevious() == token.getFirst() || (token.hasPrevious() && token.getPrevious().getPrevious() == token.getFirst())) {
-            for (String s : codeToCountryMap.keySet()) {
-                if (token.getTACToken().startsWith(s)) {
-                	token.identify(AERODROME_DESIGNATOR);
-                	token.setParsedValue(COUNTRY, codeToCountryMap.get(s));
-                    token.setParsedValue(VALUE,token.getTACToken());
-                    return;
+        //Must follow a METAR, SPECI, TAF, COR or AMD token:
+        Lexeme.Identity[] toMatch = {//
+                Lexeme.Identity.METAR_START,//
+                Lexeme.Identity.SPECI_START,//
+                Lexeme.Identity.TAF_START,//
+                Lexeme.Identity.CORRECTION,//
+                Lexeme.Identity.AMENDMENT };
+
+        Optional<Lexeme> prev = Optional.ofNullable(token.getPrevious());
+        if (prev.isPresent()) {
+            if (Arrays.stream(toMatch).anyMatch(identity -> prev.get().getIdentity() == identity)) {
+                for (String s : codeToCountryMap.keySet()) {
+                    if (token.getTACToken().startsWith(s)) {
+                        token.identify(AERODROME_DESIGNATOR);
+                        token.setParsedValue(COUNTRY, codeToCountryMap.get(s));
+                        token.setParsedValue(VALUE, token.getTACToken());
+                        return;
+                    }
                 }
+                token.identify(AERODROME_DESIGNATOR, Lexeme.Status.SYNTAX_ERROR, "Invalid ICAO code country prefix");
             }
-            token.identify(AERODROME_DESIGNATOR, Lexeme.Status.SYNTAX_ERROR, "Invalid ICAO code country prefix");
         }
     }
 

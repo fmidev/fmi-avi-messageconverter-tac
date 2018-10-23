@@ -22,8 +22,11 @@ public class TAFStart extends PrioritizedLexemeVisitor {
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if (token.getFirst().equals(token) && "TAF".equalsIgnoreCase(token.getTACToken())) {
-            token.identify(TAF_START);
+        if ("TAF".equalsIgnoreCase(token.getTACToken())) {
+            if (token.getFirst() != null && (token.getFirst().equals(token) || Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS == token.getFirst()
+                    .getIdentity())) {
+                token.identify(TAF_START);
+            }
         }
     }
 

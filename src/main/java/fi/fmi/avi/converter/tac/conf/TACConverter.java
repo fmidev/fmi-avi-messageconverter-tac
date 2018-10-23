@@ -24,15 +24,19 @@ import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageTACTokenizerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
+import fi.fmi.avi.converter.tac.lexer.impl.METARDetector;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.Priority;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
+import fi.fmi.avi.converter.tac.lexer.impl.SPECIDetector;
+import fi.fmi.avi.converter.tac.lexer.impl.TAFBulletinDetector;
+import fi.fmi.avi.converter.tac.lexer.impl.TAFDetector;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Amendment;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AutoMetar;
-import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeaderDataDesignators;
 import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeadingBBBIndicator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinLocationIndicator;
+import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeadingDataDesignators;
+import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeadingLocationIndicator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CAVOK;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Cancellation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
@@ -262,8 +266,8 @@ public class TACConverter {
         TAFTACSerializer tafSerializer = (TAFTACSerializer) bulletinTAFTACSerializer();
 
         s.setTafSerializer(tafSerializer);
-        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, new BulletinHeaderDataDesignators.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, new BulletinLocationIndicator.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, new BulletinHeadingDataDesignators.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, new BulletinHeadingLocationIndicator.Reconstructor());
         s.addReconstructor(Lexeme.Identity.ISSUE_TIME, new IssueTime.Reconstructor());
         s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, new BulletinHeadingBBBIndicator.Reconstructor());
         return s;
@@ -273,9 +277,10 @@ public class TACConverter {
     public AviMessageLexer aviMessageLexer() {
         AviMessageLexerImpl l = new AviMessageLexerImpl();
         l.setLexingFactory(lexingFactory());
-        l.addTokenLexer("METAR", metarTokenLexer());
-        l.addTokenLexer("SPECI", speciTokenLexer());
-        l.addTokenLexer("TAF", tafTokenLexer());
+        l.addTokenLexer(new METARDetector(), metarTokenLexer());
+        l.addTokenLexer(new SPECIDetector(), speciTokenLexer());
+        l.addTokenLexer(new TAFDetector(), tafTokenLexer());
+        l.addTokenLexer(new TAFBulletinDetector(), tafBulletinTokenLexer());
         return l;
     }
 
@@ -342,6 +347,20 @@ public class TACConverter {
 
     private RecognizingAviMessageTokenLexer tafTokenLexer() {
         RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        teachTafCommonTokens(l);
+        return l;
+    }
+
+    private RecognizingAviMessageTokenLexer tafBulletinTokenLexer() {
+        RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        l.teach(new BulletinHeadingDataDesignators(Priority.LOW));
+        l.teach(new BulletinHeadingLocationIndicator(Priority.LOW));
+        l.teach(new BulletinHeadingBBBIndicator(Priority.LOW));
+        teachTafCommonTokens(l);
+        return l;
+    }
+
+    private void teachTafCommonTokens(final RecognizingAviMessageTokenLexer l) {
         l.teach(new TAFStart(Priority.HIGH));
         l.teach(new ICAOCode(Priority.LOW));
         l.teach(new ValidTime(Priority.LOW));
@@ -365,9 +384,6 @@ public class TACConverter {
         l.teach(new Remark(Priority.HIGH));
         l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));
-        return l;
     }
-
-    
 
 }

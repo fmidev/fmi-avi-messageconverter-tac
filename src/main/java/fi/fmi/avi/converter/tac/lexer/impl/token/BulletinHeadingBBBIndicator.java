@@ -1,6 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -21,7 +22,17 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        //TODO: identification and property parsing
+        if (token.getPrevious() != null && Lexeme.Identity.ISSUE_TIME == token.getPrevious().getIdentity()) {
+            String type = match.group("type");
+            char seqNo = match.group("seqno").charAt(0);
+            if (seqNo < 'A' || seqNo > 'Z') {
+                token.identify(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, Lexeme.Status.SYNTAX_ERROR, "Illegal BBB sequence '" + type + seqNo + "'");
+            } else {
+                token.identify(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR);
+                token.setParsedValue(Lexeme.ParsedValueName.VALUE, type);
+                token.setParsedValue(Lexeme.ParsedValueName.SEQUENCE_NUMBER, seqNo);
+            }
+        }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -33,12 +44,12 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
             if (TAFBulletin.class.isAssignableFrom(clz)) {
                 TAFBulletinHeading heading = ((TAFBulletin) msg).getHeading();
                 if (heading != null) {
-                    Optional<Integer> augNumber = heading.getBulletinAugmentationNumber();
+                    OptionalInt augNumber = heading.getBulletinAugmentationNumber();
                     if (augNumber.isPresent()) {
-                        int seqNumber = augNumber.get();
+                        int seqNumber = augNumber.getAsInt();
                         if (seqNumber < 1 || seqNumber > ('Z' - 'A' + 1)) {
                             throw new SerializingException(
-                                    "Illegal bulletin augmentation number '" + augNumber.get() + "', the value must be between 1 and  " + ('Z' - 'A' + 1));
+                                    "Illegal bulletin augmentation number '" + augNumber.getAsInt() + "', the value must be between 1 and  " + ('Z' - 'A' + 1));
                         }
                         seqNumber = 'A' + seqNumber - 1;
                         StringBuilder sb = new StringBuilder();

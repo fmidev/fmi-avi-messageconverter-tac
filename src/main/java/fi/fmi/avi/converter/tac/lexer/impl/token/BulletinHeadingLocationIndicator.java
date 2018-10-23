@@ -13,15 +13,18 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.TAFBulletinHeading;
 
-public class BulletinLocationIndicator extends RegexMatchingLexemeVisitor {
+public class BulletinHeadingLocationIndicator extends RegexMatchingLexemeVisitor {
 
-    public BulletinLocationIndicator(final Priority prio) {
+    public BulletinHeadingLocationIndicator(final Priority prio) {
         super("^(?<code>[A-Z]{4})$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        //TODO: identification and property parsing
+        if (token.getPrevious() != null && Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS == token.getPrevious().getIdentity()) {
+            token.identify(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR);
+            token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group("code"));
+        }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {

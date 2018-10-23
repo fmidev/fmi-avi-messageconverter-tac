@@ -1,5 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
 /**
  * Created by rinne on 21/12/16.
@@ -21,7 +23,8 @@ public class AviMessageLexerImpl implements AviMessageLexer {
     private static final Logger LOG = LoggerFactory.getLogger(AviMessageLexerImpl.class);
     private static final int MAX_ITERATIONS = 100;
 
-    private Map<String, RecognizingAviMessageTokenLexer> tokenLexers = new HashMap<String, RecognizingAviMessageTokenLexer>();
+    private List<MessageTypeDetector> detectors = new ArrayList<>();
+    private Map<Class<? extends AviationWeatherMessageOrCollection>, RecognizingAviMessageTokenLexer> tokenLexers = new HashMap<>();
 
     private LexingFactory factory;
 
@@ -33,8 +36,9 @@ public class AviMessageLexerImpl implements AviMessageLexer {
         return this.factory;
     }
 
-    public void addTokenLexer(final String startTokenId, final RecognizingAviMessageTokenLexer l) {
-        this.tokenLexers.put(startTokenId, l);
+    public void addTokenLexer(final MessageTypeDetector detector, final RecognizingAviMessageTokenLexer l) {
+        this.detectors.add(detector);
+        this.tokenLexers.put(detector.getMessageType(), l);
     }
 
     @Override
@@ -48,7 +52,13 @@ public class AviMessageLexerImpl implements AviMessageLexer {
             throw new IllegalStateException("LexingFactory not injected");
         }
         LexemeSequence result = this.factory.createLexemeSequence(input, hints);
-        RecognizingAviMessageTokenLexer tokenLexer = tokenLexers.get(result.getFirstLexeme().getTACToken());
+        RecognizingAviMessageTokenLexer tokenLexer = null;
+
+        for (MessageTypeDetector detector : detectors) {
+            if (detector.detects(result)) {
+                tokenLexer = tokenLexers.get(detector.getMessageType());
+            }
+        }
         if (tokenLexer != null) {
             boolean lexemesChanged = true;
             int iterationCount = 0;
