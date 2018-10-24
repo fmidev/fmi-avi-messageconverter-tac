@@ -8,18 +8,22 @@ import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.ImmutableMETARTACParser;
+import fi.fmi.avi.converter.tac.ImmutableTAFLexemeSequenceParser;
 import fi.fmi.avi.converter.tac.ImmutableTAFTACParser;
+import fi.fmi.avi.converter.tac.LexemeSequenceParser;
 import fi.fmi.avi.converter.tac.METARTACParser;
 import fi.fmi.avi.converter.tac.METARTACSerializer;
 import fi.fmi.avi.converter.tac.SPECITACParser;
 import fi.fmi.avi.converter.tac.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.TACParser;
 import fi.fmi.avi.converter.tac.TAFBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.TAFLexemeSequenceParser;
 import fi.fmi.avi.converter.tac.TAFTACParser;
 import fi.fmi.avi.converter.tac.TAFTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageTACTokenizerImpl;
@@ -137,6 +141,27 @@ public class TACConverter {
     public static final ConversionSpecification<TAFBulletin, String> TAF_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(TAFBulletin.class, String.class,
             null, "WMO GTS TAF Bulletin");
 
+    /**
+     * Pre-configured spec for {@link fi.fmi.avi.model.taf.TAFBulletin} to TAC encoded TAF bulletin
+     */
+    public static final ConversionSpecification<String, TAFBulletin> TAC_TO_TAF_BULLETIN_POJO = new ConversionSpecification<>(String.class, TAFBulletin.class,
+            "WMO GTS TAF Bulletin", null);
+
+    /**
+     * Pre-configured spec for LexemeSequence to {@link TAF} POJO.
+     */
+    public static final ConversionSpecification<LexemeSequence, TAF> LEXEME_SEQUENCE_TO_TAF_POJO = new ConversionSpecification<>(LexemeSequence.class,
+            TAF.class, null, null);
+
+    /**
+     * Pre-configured spec for LexemeSequence to {@link TAFImpl} POJO.
+     */
+    public static final ConversionSpecification<LexemeSequence, TAFImpl> LEXEME_SEQUENCE_TO_IMMUTABLE_TAF_POJO = new ConversionSpecification<>(
+            LexemeSequence.class, TAFImpl.class, null, null);
+
+
+
+
     @Bean
     AviMessageSpecificConverter<String, METAR> metarTACParser() {
         TACParser<METAR> p = new METARTACParser();
@@ -160,16 +185,28 @@ public class TACConverter {
 
     @Bean
     AviMessageSpecificConverter<String, TAF> tafTACParser() {
-        TACParser<TAF> p = new TAFTACParser();
+        TAFTACParser p = new TAFTACParser();
+        p.setLexemeSequenceParser(tafLexemeSequenceParserInternal());
         p.setTACLexer(aviMessageLexer());
         return p;
     }
 
     @Bean
     AviMessageSpecificConverter<String, TAFImpl> immutableTafTACParser() {
-        TACParser<TAFImpl> p = new ImmutableTAFTACParser();
+        ImmutableTAFTACParser p = new ImmutableTAFTACParser();
+        p.setLexemeSequenceParser(immutableTafLexemeSequenceParserInternal());
         p.setTACLexer(aviMessageLexer());
         return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<LexemeSequence, TAFImpl> immutableTafLexemeSequenceParser() {
+        return immutableTafLexemeSequenceParserInternal();
+    }
+
+    @Bean
+    AviMessageSpecificConverter<LexemeSequence, TAF> tafLexemeSequenceParser() {
+        return tafLexemeSequenceParserInternal();
     }
     
     @Bean
@@ -186,6 +223,14 @@ public class TACConverter {
         addMetarAndSpeciCommonReconstructors(s);
         s.addReconstructor(Lexeme.Identity.SPECI_START, new SpeciStart.Reconstructor());
         return s;
+    }
+
+    private LexemeSequenceParser<TAFImpl> immutableTafLexemeSequenceParserInternal() {
+        return new ImmutableTAFLexemeSequenceParser();
+    }
+
+    private LexemeSequenceParser<TAF> tafLexemeSequenceParserInternal() {
+        return new TAFLexemeSequenceParser();
     }
 
     private void addMetarAndSpeciCommonReconstructors(final AbstractTACSerializer<?> s) {
@@ -264,7 +309,6 @@ public class TACConverter {
         TAFBulletinTACSerializer s = new TAFBulletinTACSerializer();
         s.setLexingFactory(lexingFactory());
         TAFTACSerializer tafSerializer = (TAFTACSerializer) bulletinTAFTACSerializer();
-
         s.setTafSerializer(tafSerializer);
         s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, new BulletinHeadingDataDesignators.Reconstructor());
         s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, new BulletinHeadingLocationIndicator.Reconstructor());

@@ -1,8 +1,5 @@
 package fi.fmi.avi.converter.tac;
 
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionResult;
-import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 
@@ -12,9 +9,14 @@ import fi.fmi.avi.model.taf.immutable.TAFImpl;
  */
 public class ImmutableTAFTACParser extends TAFTACParserBase<TAFImpl> {
 
+    private LexemeSequenceParser<TAFImpl> lexemeSequenceParser;
+
     @Override
-    public ConversionResult<TAFImpl> convertMessage(final String input, final ConversionHints hints) {
-        return convertMessageInternal(input, hints);
+    public LexemeSequenceParser<TAFImpl> getLexemeSequenceParser() {
+        return lexemeSequenceParser;
     }
 
+    public void setLexemeSequenceParser(final LexemeSequenceParser<TAFImpl> lexemeSequenceParser) {
+        this.lexemeSequenceParser = lexemeSequenceParser;
+    }
 }

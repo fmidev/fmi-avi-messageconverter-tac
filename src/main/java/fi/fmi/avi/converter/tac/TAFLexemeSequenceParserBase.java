@@ -47,7 +47,7 @@ import fi.fmi.avi.model.taf.immutable.TAFSurfaceWindImpl;
 
 public abstract class TAFLexemeSequenceParserBase<T extends TAF> implements LexemeSequenceParser<T> {
 
-    protected static final Lexeme.Identity[] zeroOrOneAllowed = { Lexeme.Identity.AERODROME_DESIGNATOR, Lexeme.Identity.ISSUE_TIME, Lexeme.Identity.VALID_TIME,
+    private static final Lexeme.Identity[] zeroOrOneAllowed = { Lexeme.Identity.AERODROME_DESIGNATOR, Lexeme.Identity.ISSUE_TIME, Lexeme.Identity.VALID_TIME,
             Lexeme.Identity.CORRECTION, Lexeme.Identity.AMENDMENT, Lexeme.Identity.CANCELLATION, Lexeme.Identity.NIL, Lexeme.Identity.MIN_TEMPERATURE,
             Lexeme.Identity.MAX_TEMPERATURE, Lexeme.Identity.REMARKS_START };
 
@@ -67,6 +67,7 @@ public abstract class TAFLexemeSequenceParserBase<T extends TAF> implements Lexe
             result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Message does not end in end token"));
             return result;
         }
+
         final List<ConversionIssue> issues = checkZeroOrOne(input, zeroOrOneAllowed);
         if (!issues.isEmpty()) {
             result.addIssue(issues);
@@ -203,16 +204,15 @@ public abstract class TAFLexemeSequenceParserBase<T extends TAF> implements Lexe
         return result;
     }
 
-    protected List<ConversionIssue> setTAFIssueTime(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
+    private List<ConversionIssue> setTAFIssueTime(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
         final Lexeme.Identity[] before = new Lexeme.Identity[] { Lexeme.Identity.NIL, Lexeme.Identity.VALID_TIME, Lexeme.Identity.CANCELLATION,
                 Lexeme.Identity.SURFACE_WIND, Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD, Lexeme.Identity.CAVOK,
                 Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE, Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR,
                 Lexeme.Identity.REMARKS_START };
-        final List<ConversionIssue> retval = new ArrayList<>(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
-        return retval;
+        return new ArrayList<>(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
     }
 
-    protected List<ConversionIssue> setTAFValidTime(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
+    private List<ConversionIssue> setTAFValidTime(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> result = new ArrayList<>();
         findNext(Lexeme.Identity.VALID_TIME, lexed.getFirstLexeme(), (match) -> {
             final Lexeme.Identity[] before = new Lexeme.Identity[] { Lexeme.Identity.CANCELLATION, Lexeme.Identity.SURFACE_WIND,
@@ -243,7 +243,7 @@ public abstract class TAFLexemeSequenceParserBase<T extends TAF> implements Lexe
         return result;
     }
 
-    protected List<ConversionIssue> setBaseForecast(final TAFImpl.Builder builder, final Lexeme baseFctToken, final ConversionHints hints) {
+    private List<ConversionIssue> setBaseForecast(final TAFImpl.Builder builder, final Lexeme baseFctToken, final ConversionHints hints) {
         final TAFBaseForecastImpl.Builder baseFct = new TAFBaseForecastImpl.Builder();
 
         //noinspection CollectionAddAllCanBeReplacedWithConstructor
@@ -270,7 +270,7 @@ public abstract class TAFLexemeSequenceParserBase<T extends TAF> implements Lexe
                     baseFct.setPrevailingVisibility(measureAndOperator.getMeasure());
                     baseFct.setPrevailingVisibilityOperator(measureAndOperator.getOperator());
                 }));
-        if (baseFct.getPrevailingVisibility() == null) {
+        if (baseFct.getPrevailingVisibility().isPresent()) {
             if (!baseFct.isCeilingAndVisibilityOk()) {
                 result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Visibility or CAVOK is missing from TAF base forecast"));
                 return result;
@@ -365,7 +365,7 @@ public abstract class TAFLexemeSequenceParserBase<T extends TAF> implements Lexe
         return result;
     }
 
-    protected List<ConversionIssue> addChangeForecast(final TAFImpl.Builder builder, final Lexeme changeFctToken, final ConversionHints hints) {
+    private List<ConversionIssue> addChangeForecast(final TAFImpl.Builder builder, final Lexeme changeFctToken, final ConversionHints hints) {
         final List<ConversionIssue> result = new ArrayList<>();
         final ConversionIssue issue = checkBeforeAnyOf(changeFctToken, new Lexeme.Identity[] { Lexeme.Identity.REMARKS_START });
         if (issue != null) {
@@ -538,17 +538,17 @@ public abstract class TAFLexemeSequenceParserBase<T extends TAF> implements Lexe
         return result;
     }
 
-    protected List<ConversionIssue> setFromChangeForecastEndTimes(final TAFImpl.Builder builder) {
-        final List<ConversionIssue> result = new ArrayList<>();
+    private void setFromChangeForecastEndTimes(final TAFImpl.Builder builder) {
         final Optional<List<TAFChangeForecast>> changeForecasts = builder.getChangeForecasts();
         if (changeForecasts.isPresent()) {
             TAFChangeForecastImpl.Builder toChange = null;
             int indexOfChange = -1;
             for (int i = 0; i < changeForecasts.get().size(); i++) {
                 final TAFChangeForecast fct = changeForecasts.get().get(i);
-                if (AviationCodeListUser.TAFChangeIndicator.FROM == fct.getChangeIndicator() && fct.getPeriodOfChange().getStartTime().isPresent()) {
+                final Optional<PartialOrCompleteTimeInstant> startTime = fct.getPeriodOfChange().getStartTime();
+                if (AviationCodeListUser.TAFChangeIndicator.FROM == fct.getChangeIndicator() && startTime.isPresent()) {
                     if (toChange != null) {
-                        toChange.mutatePeriodOfChange(b -> b.setEndTime(fct.getPeriodOfChange().getStartTime().get()));
+                        toChange.mutatePeriodOfChange(b -> b.setEndTime(startTime.get()));
                         changeForecasts.get().set(indexOfChange, toChange.build());
                     }
                     toChange = TAFChangeForecastImpl.immutableCopyOf(fct).toBuilder();
@@ -556,11 +556,13 @@ public abstract class TAFLexemeSequenceParserBase<T extends TAF> implements Lexe
                 }
             }
             if (toChange != null) {
-                toChange.mutatePeriodOfChange(b -> b.setEndTime(builder.getValidityTime().get().getEndTime()));
-                changeForecasts.get().set(indexOfChange, toChange.build());
+                final Optional<PartialOrCompleteTimePeriod> validityTime = builder.getValidityTime();
+                if (validityTime.isPresent()) {
+                    toChange.mutatePeriodOfChange(b -> b.setEndTime(validityTime.get().getEndTime()));
+                    changeForecasts.get().set(indexOfChange, toChange.build());
+                }
             }
         }
-        return result;
     }
 
     private List<ConversionIssue> withForecastSurfaceWind(final Lexeme from, final Lexeme.Identity[] before, final ConversionHints hints,

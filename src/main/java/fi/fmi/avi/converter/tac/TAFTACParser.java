@@ -1,8 +1,5 @@
 package fi.fmi.avi.converter.tac;
 
-
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.model.taf.TAF;
 
 /**
@@ -11,9 +8,17 @@ import fi.fmi.avi.model.taf.TAF;
  */
 public class TAFTACParser extends TAFTACParserBase<TAF> {
 
+    private LexemeSequenceParser<TAF> lexemeSequenceParser;
+
     @Override
-    public ConversionResult<TAF> convertMessage(final String input, final ConversionHints hints) {
-        return new ConversionResult<>(convertMessageInternal(input, hints));
+    public LexemeSequenceParser<TAF> getLexemeSequenceParser() {
+        return lexemeSequenceParser;
     }
+
+    public void setLexemeSequenceParser(final LexemeSequenceParser<TAF> lexemeSequenceParser) {
+        this.lexemeSequenceParser = lexemeSequenceParser;
+    }
+
+
 
 }

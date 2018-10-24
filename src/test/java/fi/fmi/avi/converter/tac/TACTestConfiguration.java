@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Import;
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
@@ -46,6 +47,12 @@ public class TACTestConfiguration {
     @Autowired
     private AviMessageSpecificConverter<TAFBulletin, String> tafBulletinTACSerializer;
 
+    @Autowired
+    private AviMessageSpecificConverter<LexemeSequence, TAF> tafLexemeSequenceParser;
+
+    @Autowired
+    private AviMessageSpecificConverter<LexemeSequence, TAFImpl> immutableTafLexemeSequenceParser;
+
     @Bean
     public AviMessageConverter aviMessageConverter() {
         AviMessageConverter p = new AviMessageConverter();
@@ -61,6 +68,9 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(TACConverter.SPECI_POJO_TO_TAC, speciTACSerializer);
 
         p.setMessageSpecificConverter(TACConverter.TAF_BULLETIN_POJO_TO_TAC, tafBulletinTACSerializer);
+
+        p.setMessageSpecificConverter(TACConverter.LEXEME_SEQUENCE_TO_TAF_POJO, tafLexemeSequenceParser);
+        p.setMessageSpecificConverter(TACConverter.LEXEME_SEQUENCE_TO_IMMUTABLE_TAF_POJO, immutableTafLexemeSequenceParser);
         return p;
     }
   
