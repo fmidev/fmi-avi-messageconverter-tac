@@ -53,8 +53,8 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
                             case DELAYED:
                                 sb.append("RR");
                                 break;
-                            default:
-                                throw new SerializingException("Bulletin contains augmentation number, but he type is " + heading.getType());
+                            case NORMAL:
+                                throw new SerializingException("Bulletin contains augmentation number, but he type is NORMAL");
                         }
                         sb.append(Character.toChars(seqNumber));
                         return Optional.of(createLexeme(sb.toString(), Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR));
