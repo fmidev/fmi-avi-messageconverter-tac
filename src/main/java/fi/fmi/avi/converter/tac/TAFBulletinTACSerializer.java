@@ -48,6 +48,9 @@ public class TAFBulletinTACSerializer extends AbstractTACSerializer<TAFBulletin>
         if (!(msg instanceof TAFBulletin)) {
             throw new SerializingException("I can only tokenize TAFBulletins!");
         }
+        if (this.tafSerializer == null) {
+            throw new IllegalStateException("No TafSerializer set");
+        }
         TAFBulletin input = (TAFBulletin) msg;
         LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
         ReconstructorContext<TAFBulletin> baseCtx = new ReconstructorContext<>(input, hints);
