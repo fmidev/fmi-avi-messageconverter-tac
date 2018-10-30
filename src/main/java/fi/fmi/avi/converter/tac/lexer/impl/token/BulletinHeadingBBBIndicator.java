@@ -1,6 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -33,21 +34,27 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
             if (TAFBulletin.class.isAssignableFrom(clz)) {
                 TAFBulletinHeading heading = ((TAFBulletin) msg).getHeading();
                 if (heading != null) {
-                    Optional<Integer> augNumber = heading.getBulletinAugmentationNumber();
+                    OptionalInt augNumber = heading.getBulletinAugmentationNumber();
                     if (augNumber.isPresent()) {
-                        int seqNumber = augNumber.get();
+                        int seqNumber = augNumber.getAsInt();
                         if (seqNumber < 1 || seqNumber > ('Z' - 'A' + 1)) {
                             throw new SerializingException(
-                                    "Illegal bulletin augmentation number '" + augNumber.get() + "', the value must be between 1 and  " + ('Z' - 'A' + 1));
+                                    "Illegal bulletin augmentation number '" + augNumber.getAsInt() + "', the value must be between 1 and  " + ('Z' - 'A' + 1));
                         }
                         seqNumber = 'A' + seqNumber - 1;
                         StringBuilder sb = new StringBuilder();
-                        if (heading.isContainingDelayedMessages()) {
-                            sb.append("RR");
-                        } else if (heading.isContainingAmendedMessages()) {
-                            sb.append("AA");
-                        } else if (heading.isContainingCorrectedMessages()) {
-                            sb.append("CC");
+                        switch (heading.getType()) {
+                            case AMENDED:
+                                sb.append("AA");
+                                break;
+                            case CORRECTED:
+                                sb.append("CC");
+                                break;
+                            case DELAYED:
+                                sb.append("RR");
+                                break;
+                            default:
+                                throw new SerializingException("Bulletin contains augmentation number, but he type is " + heading.getType());
                         }
                         sb.append(Character.toChars(seqNumber));
                         return Optional.of(createLexeme(sb.toString(), Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR));

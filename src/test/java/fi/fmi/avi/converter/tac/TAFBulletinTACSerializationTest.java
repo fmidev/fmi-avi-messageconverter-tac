@@ -21,6 +21,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
+import fi.fmi.avi.model.taf.TAFBulletinHeading;
 import fi.fmi.avi.model.taf.immutable.TAFBulletinHeadingImpl;
 import fi.fmi.avi.model.taf.immutable.TAFBulletinImpl;
 
@@ -48,7 +49,7 @@ public class TAFBulletinTACSerializationTest {
                 .setHeading(new TAFBulletinHeadingImpl.Builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setContainingAmendedMessages(true)//
+                        .setType(TAFBulletinHeading.Type.AMENDED)//
                         .setBulletinAugmentationNumber(1)//
                         .setGeographicalDesignator("FI")//
                         .setValidLessThan12Hours(true)//
@@ -77,7 +78,7 @@ public class TAFBulletinTACSerializationTest {
                 .setHeading(new TAFBulletinHeadingImpl.Builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setContainingDelayedMessages(true)//
+                        .setType(TAFBulletinHeading.Type.DELAYED)//
                         .setBulletinAugmentationNumber(26)//
                         .setGeographicalDesignator("FI")//
                         .setValidLessThan12Hours(true)//
@@ -107,7 +108,7 @@ public class TAFBulletinTACSerializationTest {
                 .setHeading(new TAFBulletinHeadingImpl.Builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setContainingDelayedMessages(true)//
+                        .setType(TAFBulletinHeading.Type.DELAYED)//
                         .setBulletinAugmentationNumber(27)//
                         .setGeographicalDesignator("FI")//
                         .setValidLessThan12Hours(true)//
@@ -130,7 +131,7 @@ public class TAFBulletinTACSerializationTest {
                 .setHeading(new TAFBulletinHeadingImpl.Builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setContainingCorrectedMessages(true)//
+                        .setType(TAFBulletinHeading.Type.CORRECTED)//
                         .setBulletinAugmentationNumber(2)//
                         .setGeographicalDesignator("FI")//
                         .setValidLessThan12Hours(true)//
