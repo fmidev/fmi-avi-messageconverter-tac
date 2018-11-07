@@ -87,6 +87,17 @@
           "description": "Thunderstorm with heavy precipitation of rain"
         }
       ],
+      "surfaceWind": {
+        "variableDirection": true,
+        "meanWindSpeed": {
+          "value": 10.0,
+          "uom": "m/s"
+        },
+        "windGust": {
+          "value": 16.0,
+          "uom": "m/s"
+        }
+      },
       "cloud": {
         "layers": [
           {

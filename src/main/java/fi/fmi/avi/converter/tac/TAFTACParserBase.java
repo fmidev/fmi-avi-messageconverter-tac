@@ -1,5 +1,10 @@
 package fi.fmi.avi.converter.tac;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
@@ -8,22 +13,26 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
-import fi.fmi.avi.model.*;
+import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.CloudForecast;
+import fi.fmi.avi.model.CloudLayer;
+import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.PartialDateTime;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
+import fi.fmi.avi.model.SurfaceWind;
 import fi.fmi.avi.model.immutable.AerodromeImpl;
 import fi.fmi.avi.model.immutable.CloudForecastImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
+import fi.fmi.avi.model.immutable.SurfaceWindImpl;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
-import fi.fmi.avi.model.taf.TAFSurfaceWind;
-import fi.fmi.avi.model.taf.immutable.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
+import fi.fmi.avi.model.taf.immutable.TAFAirTemperatureForecastImpl;
+import fi.fmi.avi.model.taf.immutable.TAFBaseForecastImpl;
+import fi.fmi.avi.model.taf.immutable.TAFChangeForecastImpl;
+import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<T> {
 
@@ -184,7 +193,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         }
         if (builder.getValidityTime().isPresent()) {
-            setFromChangeForecastEndTimes(builder);
+            result.addIssue(setFromChangeForecastEndTimes(builder));
         } else {
             result.addIssue(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Validity time period must be set before amending FM end times"));
         }
@@ -198,8 +207,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 Lexeme.Identity.SURFACE_WIND, Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD, Lexeme.Identity.CAVOK,
                 Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE, Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR,
                 Lexeme.Identity.REMARKS_START };
-        final List<ConversionIssue> retval = new ArrayList<>(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
-        return retval;
+        return new ArrayList<>(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
     }
 
     protected List<ConversionIssue> setTAFValidTime(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
@@ -260,7 +268,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                     baseFct.setPrevailingVisibility(measureAndOperator.getMeasure());
                     baseFct.setPrevailingVisibilityOperator(measureAndOperator.getOperator());
                 }));
-        if (baseFct.getPrevailingVisibility() == null) {
+        if (!baseFct.getPrevailingVisibility().isPresent()) {
             if (!baseFct.isCeilingAndVisibilityOk()) {
                 result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Visibility or CAVOK is missing from TAF base forecast"));
                 return result;
@@ -552,14 +560,14 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
     }
 
     private List<ConversionIssue> withForecastSurfaceWind(final Lexeme from, final Lexeme.Identity[] before, final ConversionHints hints,
-            final Consumer<TAFSurfaceWind> consumer) {
+            final Consumer<SurfaceWind> consumer) {
         final List<ConversionIssue> result = new ArrayList<>();
         findNext(Lexeme.Identity.SURFACE_WIND, from, (match) -> {
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.add(issue);
             } else {
-                final TAFSurfaceWindImpl.Builder wind = new TAFSurfaceWindImpl.Builder();
+                final SurfaceWindImpl.Builder wind = new SurfaceWindImpl.Builder();
                 final Object direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION, Object.class);
                 final Integer meanSpeed = match.getParsedValue(Lexeme.ParsedValueName.MEAN_VALUE, Integer.class);
                 final Integer gustSpeed = match.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
@@ -569,7 +577,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 final AviationCodeListUser.RelationalOperator gustOperator = match.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR2,
                         AviationCodeListUser.RelationalOperator.class);
 
-                if (direction == SurfaceWind.WindDirection.VARIABLE) {
+                if (direction == fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind.WindDirection.VARIABLE) {
                     wind.setVariableDirection(true);
                 } else if (direction instanceof Integer) {
                     wind.setMeanWindDirection(NumericMeasureImpl.of((Integer) direction, "deg"));

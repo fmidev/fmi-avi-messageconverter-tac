@@ -41,6 +41,7 @@ import fi.fmi.avi.model.immutable.AerodromeImpl;
 import fi.fmi.avi.model.immutable.CloudForecastImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.RunwayDirectionImpl;
+import fi.fmi.avi.model.immutable.SurfaceWindImpl;
 import fi.fmi.avi.model.immutable.WeatherImpl;
 import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 import fi.fmi.avi.model.metar.ObservedCloudLayer;
@@ -56,7 +57,6 @@ import fi.fmi.avi.model.metar.immutable.RunwayStateImpl;
 import fi.fmi.avi.model.metar.immutable.RunwayVisualRangeImpl;
 import fi.fmi.avi.model.metar.immutable.SeaStateImpl;
 import fi.fmi.avi.model.metar.immutable.TrendForecastImpl;
-import fi.fmi.avi.model.metar.immutable.TrendForecastSurfaceWindImpl;
 import fi.fmi.avi.model.metar.immutable.WindShearImpl;
 
 /**
@@ -1212,7 +1212,7 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
     private static List<ConversionIssue> setForecastWind(final TrendForecastImpl.Builder fctBuilder, final Lexeme token, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
-        final TrendForecastSurfaceWindImpl.Builder wind = new TrendForecastSurfaceWindImpl.Builder();
+        final SurfaceWindImpl.Builder wind = new SurfaceWindImpl.Builder();
         final Object direction = token.getParsedValue(Lexeme.ParsedValueName.DIRECTION, Object.class);
         final Integer meanSpeed = token.getParsedValue(Lexeme.ParsedValueName.MEAN_VALUE, Integer.class);
         final Integer gust = token.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
@@ -1223,13 +1223,14 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
                 AviationCodeListUser.RelationalOperator.class);
 
         if (direction == SurfaceWind.WindDirection.VARIABLE) {
-            retval.add(new ConversionIssue(Type.SYNTAX, "Wind cannot be variable in trend: " + token.getTACToken()));
-            return retval; //Bail out, cannot construct a surface wind without the mean wind direction:
-        } else if (direction instanceof Integer) {
-            wind.setMeanWindDirection(NumericMeasureImpl.of((Integer) direction, "deg"));
+            wind.setVariableDirection(true);
         } else {
-            retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Direction missing for surface wind:" + token.getTACToken()));
-            return retval;
+            if (direction instanceof Integer) {
+                wind.setMeanWindDirection(NumericMeasureImpl.of((Integer) direction, "deg"));
+            } else {
+                retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Direction missing for surface wind:" + token.getTACToken()));
+                return retval;
+            }
         }
 
         if (meanSpeed != null) {

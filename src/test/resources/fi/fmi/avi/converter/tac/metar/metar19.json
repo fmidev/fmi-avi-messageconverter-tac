@@ -153,11 +153,11 @@
         },
         "meanWindSpeed" : {
           "value": 18.0,
-          "uom" : "mps"
+          "uom": "m/s"
         },
         "windGust" : {
           "value": 25.0,
-          "uom" : "mps"
+          "uom": "m/s"
         }
       },
       "ceilingAndVisibilityOk": true

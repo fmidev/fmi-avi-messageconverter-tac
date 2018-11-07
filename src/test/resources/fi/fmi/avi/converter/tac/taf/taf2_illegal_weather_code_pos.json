@@ -23,11 +23,11 @@
 	  	},
 	  	"meanWindSpeed" : {
 	  	  "value": 8.0,
-	  	  "uom" : "mps"
+          "uom": "m/s"
 	  	},
 	  	"windGust" : {
 	  	  "value": 15.0,
-	  	  "uom" : "mps"
+          "uom": "m/s"
 	  	}
 	  },
 	  "prevailingVisibility" : {
