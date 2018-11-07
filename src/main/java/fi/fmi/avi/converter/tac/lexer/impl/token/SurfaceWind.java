@@ -114,6 +114,8 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
             }
             if ("KT".equalsIgnoreCase(unit)) {
                 unit = "[kn_i]";
+            } else if ("MPS".equalsIgnoreCase(unit)) {
+                unit = "m/s";
             }
             token.setParsedValue(UNIT, unit.toLowerCase());
         } else {
@@ -221,6 +223,8 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
             String uom = meanSpeed.getUom();
             if ("[kn_i]".equals(uom)) {
                 uom = "KT";
+            } else if ("m/s".equals(uom)) {
+                uom = "MPS";
             } else {
                 uom = uom.toUpperCase();
             }
