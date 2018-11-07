@@ -1224,10 +1224,12 @@ public abstract class METARTACParserBase<T extends MeteorologicalTerminalAirRepo
 
         if (direction == SurfaceWind.WindDirection.VARIABLE) {
             retval.add(new ConversionIssue(Type.SYNTAX, "Wind cannot be variable in trend: " + token.getTACToken()));
+            return retval; //Bail out, cannot construct a surface wind without the mean wind direction:
         } else if (direction instanceof Integer) {
             wind.setMeanWindDirection(NumericMeasureImpl.of((Integer) direction, "deg"));
         } else {
             retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Direction missing for surface wind:" + token.getTACToken()));
+            return retval;
         }
 
         if (meanSpeed != null) {
