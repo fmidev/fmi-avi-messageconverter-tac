@@ -11,8 +11,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.taf.TAFBulletin;
-import fi.fmi.avi.model.taf.TAFBulletinHeading;
+import fi.fmi.avi.model.BulletinHeading;
+import fi.fmi.avi.model.MeteorologicalBulletin;
 
 public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
 
@@ -31,8 +31,8 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ReconstructorContext<T> ctx)
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
-            if (TAFBulletin.class.isAssignableFrom(clz)) {
-                TAFBulletinHeading heading = ((TAFBulletin) msg).getHeading();
+            if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
+                BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
                 if (heading != null) {
                     OptionalInt augNumber = heading.getBulletinAugmentationNumber();
                     if (augNumber.isPresent()) {
