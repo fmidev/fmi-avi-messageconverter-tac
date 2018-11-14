@@ -18,6 +18,7 @@ import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
+import fi.fmi.avi.converter.tac.taf.TAFBulletinTACSerializer;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;

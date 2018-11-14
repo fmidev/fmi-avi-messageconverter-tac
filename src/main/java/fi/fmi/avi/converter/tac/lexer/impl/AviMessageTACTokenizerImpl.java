@@ -1,13 +1,13 @@
 package fi.fmi.avi.converter.tac.lexer.impl;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.METARTACSerializer;
-import fi.fmi.avi.converter.tac.SPECITACSerializer;
-import fi.fmi.avi.converter.tac.TAFBulletinTACSerializer;
-import fi.fmi.avi.converter.tac.TAFTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.metar.METARTACSerializer;
+import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
+import fi.fmi.avi.converter.tac.taf.TAFBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;

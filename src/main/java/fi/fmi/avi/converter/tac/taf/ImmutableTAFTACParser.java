@@ -1,8 +1,7 @@
-package fi.fmi.avi.converter.tac;
+package fi.fmi.avi.converter.tac.taf;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionResult;
-import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 

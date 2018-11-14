@@ -14,6 +14,7 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.model.AerodromeWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.MeteorologicalBulletin;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
@@ -49,7 +50,14 @@ public class IssueTime extends TimeHandlingRegex {
 
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
-            PartialOrCompleteTimeInstant time = msg.getIssueTime();
+            PartialOrCompleteTimeInstant time;
+            if (AerodromeWeatherMessage.class.isAssignableFrom(clz)) {
+                time = ((AerodromeWeatherMessage) msg).getIssueTime();
+            } else if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
+                time = ((MeteorologicalBulletin) msg).getIssueTime();
+            } else {
+                return Optional.empty();
+            }
             String format;
             if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
                 format = "%02d%02d%02d";
