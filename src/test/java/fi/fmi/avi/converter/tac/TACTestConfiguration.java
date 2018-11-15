@@ -11,6 +11,7 @@ import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.sigmet.SIGMETBulletin;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
@@ -46,6 +47,9 @@ public class TACTestConfiguration {
     @Autowired
     private AviMessageSpecificConverter<TAFBulletin, String> tafBulletinTACSerializer;
 
+    @Autowired
+    private AviMessageSpecificConverter<SIGMETBulletin, String> sigmetBulletinTACSerializer;
+
     @Bean
     public AviMessageConverter aviMessageConverter() {
         AviMessageConverter p = new AviMessageConverter();
@@ -61,6 +65,7 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(TACConverter.SPECI_POJO_TO_TAC, speciTACSerializer);
 
         p.setMessageSpecificConverter(TACConverter.TAF_BULLETIN_POJO_TO_TAC, tafBulletinTACSerializer);
+        p.setMessageSpecificConverter(TACConverter.SIGMET_BULLETIN_POJO_TO_TAC, sigmetBulletinTACSerializer);
         return p;
     }
   

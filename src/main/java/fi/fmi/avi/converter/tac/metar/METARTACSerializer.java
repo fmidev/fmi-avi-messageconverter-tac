@@ -1,4 +1,4 @@
-package fi.fmi.avi.converter.tac;
+package fi.fmi.avi.converter.tac.metar;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;

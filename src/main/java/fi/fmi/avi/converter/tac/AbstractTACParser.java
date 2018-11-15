@@ -334,7 +334,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
      * {@link #findNext(Identity, Lexeme, Consumer, LexemeParsingNotifyer)}.
      */
     @FunctionalInterface
-    interface LexemeParsingNotifyer {
+    public interface LexemeParsingNotifyer {
         void ping();
     }
 }

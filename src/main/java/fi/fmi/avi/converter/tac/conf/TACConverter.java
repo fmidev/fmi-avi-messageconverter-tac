@@ -7,16 +7,7 @@ import org.springframework.context.annotation.Scope;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
-import fi.fmi.avi.converter.tac.ImmutableMETARTACParser;
-import fi.fmi.avi.converter.tac.ImmutableTAFTACParser;
-import fi.fmi.avi.converter.tac.METARTACParser;
-import fi.fmi.avi.converter.tac.METARTACSerializer;
-import fi.fmi.avi.converter.tac.SPECITACParser;
-import fi.fmi.avi.converter.tac.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.TACParser;
-import fi.fmi.avi.converter.tac.TAFBulletinTACSerializer;
-import fi.fmi.avi.converter.tac.TAFTACParser;
-import fi.fmi.avi.converter.tac.TAFTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -67,9 +58,20 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
+import fi.fmi.avi.converter.tac.metar.ImmutableMETARTACParser;
+import fi.fmi.avi.converter.tac.metar.METARTACParser;
+import fi.fmi.avi.converter.tac.metar.METARTACSerializer;
+import fi.fmi.avi.converter.tac.metar.SPECITACParser;
+import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.taf.ImmutableTAFTACParser;
+import fi.fmi.avi.converter.tac.taf.TAFBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.taf.TAFTACParser;
+import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.sigmet.SIGMETBulletin;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
@@ -132,6 +134,12 @@ public class TACConverter {
      */
     public static final ConversionSpecification<TAFBulletin, String> TAF_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(TAFBulletin.class, String.class,
             null, "WMO GTS TAF Bulletin");
+
+    /**
+     * Pre-configured spec for {@link SIGMETBulletin} to TAC encoded TAF bulletin
+     */
+    public static final ConversionSpecification<SIGMETBulletin, String> SIGMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(SIGMETBulletin.class,
+            String.class, null, "WMO GTS SIGMET Bulletin");
 
     @Bean
     AviMessageSpecificConverter<String, METAR> metarTACParser() {
@@ -258,17 +266,19 @@ public class TACConverter {
     @Bean
     AviMessageSpecificConverter<TAFBulletin, String> tafBulletinTACSerializer() {
         TAFBulletinTACSerializer s = new TAFBulletinTACSerializer();
-        s.setLexingFactory(lexingFactory());
+        addCommonBulletinReconstructors(s);
         TAFTACSerializer tafSerializer = (TAFTACSerializer) bulletinTAFTACSerializer();
-
         s.setTafSerializer(tafSerializer);
-        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, new BulletinHeaderDataDesignators.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, new BulletinLocationIndicator.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.ISSUE_TIME, new IssueTime.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, new BulletinHeadingBBBIndicator.Reconstructor());
         return s;
     }
-    
+
+    @Bean
+    AviMessageSpecificConverter<SIGMETBulletin, String> sigmetBulletinTACSerializer() {
+        SIGMETBulletinTACSerializer s = new SIGMETBulletinTACSerializer();
+        addCommonBulletinReconstructors(s);
+        return s;
+    }
+
     @Bean
     public AviMessageLexer aviMessageLexer() {
         AviMessageLexerImpl l = new AviMessageLexerImpl();
@@ -292,6 +302,14 @@ public class TACConverter {
     @Bean
     public LexingFactory lexingFactory() {
         return new LexingFactoryImpl();
+    }
+
+    private void addCommonBulletinReconstructors(final AbstractTACSerializer<?> s) {
+        s.setLexingFactory(lexingFactory());
+        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, new BulletinHeaderDataDesignators.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, new BulletinLocationIndicator.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.ISSUE_TIME, new IssueTime.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, new BulletinHeadingBBBIndicator.Reconstructor());
     }
 
     private RecognizingAviMessageTokenLexer metarTokenLexer() {

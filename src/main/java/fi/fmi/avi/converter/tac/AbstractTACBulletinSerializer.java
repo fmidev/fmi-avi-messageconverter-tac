@@ -10,24 +10,20 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.taf.TAF;
-import fi.fmi.avi.model.taf.TAFBulletin;
+import fi.fmi.avi.model.BulletinHeading;
+import fi.fmi.avi.model.MeteorologicalBulletin;
 
-public class TAFBulletinTACSerializer extends AbstractTACSerializer<TAFBulletin> {
+public abstract class AbstractTACBulletinSerializer<U extends BulletinHeading, S extends AviationWeatherMessage, T extends MeteorologicalBulletin<S, U>>
+        extends AbstractTACSerializer<T> {
 
     public static final int MAX_ROW_LENGTH = 60;
     public static final int WRAPPED_LINE_INDENT = 5;
     public static final CharSequence NEW_LINE = "\r\n";
 
-    private TAFTACSerializer tafSerializer;
-
-    public void setTafSerializer(final TAFTACSerializer serializer) {
-        this.tafSerializer = serializer;
-    }
-
     @Override
-    public ConversionResult<String> convertMessage(final TAFBulletin input, final ConversionHints hints) {
+    public ConversionResult<String> convertMessage(final T input, final ConversionHints hints) {
         ConversionResult<String> result = new ConversionResult<>();
         try {
             LexemeSequence seq = tokenizeMessage(input, hints);
@@ -43,33 +39,33 @@ public class TAFBulletinTACSerializer extends AbstractTACSerializer<TAFBulletin>
         return tokenizeMessage(msg, null);
     }
 
+    protected abstract T accepts(final AviationWeatherMessageOrCollection message) throws SerializingException;
+
+    protected abstract Class<T> getBulletinClass();
+
+    protected abstract LexemeSequence tokenizeSingleMessage(final S message, final ConversionHints hints) throws SerializingException;
+
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException {
-        if (!(msg instanceof TAFBulletin)) {
-            throw new SerializingException("I can only tokenize TAFBulletins!");
-        }
-        if (this.tafSerializer == null) {
-            throw new IllegalStateException("No TafSerializer set");
-        }
-        TAFBulletin input = (TAFBulletin) msg;
+        T input = accepts(msg);
         LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
-        ReconstructorContext<TAFBulletin> baseCtx = new ReconstructorContext<>(input, hints);
-        appendToken(retval, Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, input, TAFBulletin.class, baseCtx);
+        ReconstructorContext<T> baseCtx = new ReconstructorContext<>(input, hints);
+        appendToken(retval, Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, input, getBulletinClass(), baseCtx);
         appendWhitespace(retval, ' ');
-        appendToken(retval, Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, input, TAFBulletin.class, baseCtx);
+        appendToken(retval, Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, input, getBulletinClass(), baseCtx);
         appendWhitespace(retval, ' ');
-        appendToken(retval, Lexeme.Identity.ISSUE_TIME, input, TAFBulletin.class, baseCtx);
+        appendToken(retval, Lexeme.Identity.ISSUE_TIME, input, getBulletinClass(), baseCtx);
         appendWhitespace(retval, ' ');
-        if (appendToken(retval, Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, input, TAFBulletin.class, baseCtx) == 0) {
+        if (appendToken(retval, Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, input, getBulletinClass(), baseCtx) == 0) {
             retval.removeLast();
         }
-        List<TAF> messages = input.getMessages();
-        LexemeSequence tafSequence;
-        for (TAF message : messages) {
+        List<S> messages = input.getMessages();
+        LexemeSequence messageSequence;
+        for (S message : messages) {
             appendWhitespace(retval, NEW_LINE);
-            tafSequence = tafSerializer.tokenizeMessage(message, hints);
+            messageSequence = tokenizeSingleMessage(message, hints);
             int charsOnRow = 0;
-            List<Lexeme> lexemes = tafSequence.getLexemes();
+            List<Lexeme> lexemes = messageSequence.getLexemes();
             for (Lexeme l : lexemes) {
                 if (l.getIdentity() != Lexeme.Identity.WHITE_SPACE && l.getIdentity() != Lexeme.Identity.END_TOKEN) {
                     int length = l.getTACToken().length();
@@ -89,9 +85,9 @@ public class TAFBulletinTACSerializer extends AbstractTACSerializer<TAFBulletin>
             while (retval.getLast().isPresent() && retval.getLast().get().getIdentity() == Lexeme.Identity.WHITE_SPACE) {
                 retval.removeLast();
             }
-            Lexeme endToken = tafSequence.getLastLexeme();
+            Lexeme endToken = messageSequence.getLastLexeme();
             if (endToken.getIdentity() != Lexeme.Identity.END_TOKEN) {
-                throw new SerializingException("TAF does not end in end token '='");
+                throw new SerializingException("Contained message does not end in end token '='");
             }
             retval.append(endToken);
         }
