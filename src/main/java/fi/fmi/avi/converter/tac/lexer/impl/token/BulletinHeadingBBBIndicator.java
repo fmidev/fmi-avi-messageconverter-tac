@@ -1,7 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -34,12 +33,12 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
             if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
                 BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
                 if (heading != null) {
-                    OptionalInt augNumber = heading.getBulletinAugmentationNumber();
+                    Optional<Integer> augNumber = heading.getBulletinAugmentationNumber();
                     if (augNumber.isPresent()) {
-                        int seqNumber = augNumber.getAsInt();
+                        int seqNumber = augNumber.get().intValue();
                         if (seqNumber < 1 || seqNumber > ('Z' - 'A' + 1)) {
                             throw new SerializingException(
-                                    "Illegal bulletin augmentation number '" + augNumber.getAsInt() + "', the value must be between 1 and  " + ('Z' - 'A' + 1));
+                                    "Illegal bulletin augmentation number '" + augNumber.get() + "', the value must be between 1 and  " + ('Z' - 'A' + 1));
                         }
                         seqNumber = 'A' + seqNumber - 1;
                         StringBuilder sb = new StringBuilder();
