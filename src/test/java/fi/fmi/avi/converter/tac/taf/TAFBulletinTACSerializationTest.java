@@ -19,6 +19,7 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
+import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
@@ -53,7 +54,7 @@ public class TAFBulletinTACSerializationTest {
                         .setType(TAFBulletinHeading.Type.AMENDED)//
                         .setBulletinAugmentationNumber(1)//
                         .setGeographicalDesignator("FI")//
-                        .setValidLessThan12Hours(true)//
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_SHORT)
                         .build())//
                 .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
@@ -82,7 +83,7 @@ public class TAFBulletinTACSerializationTest {
                         .setType(TAFBulletinHeading.Type.DELAYED)//
                         .setBulletinAugmentationNumber(26)//
                         .setGeographicalDesignator("FI")//
-                        .setValidLessThan12Hours(true)//
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_SHORT)
                         .build())//
                 .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
@@ -112,7 +113,7 @@ public class TAFBulletinTACSerializationTest {
                         .setType(TAFBulletinHeading.Type.DELAYED)//
                         .setBulletinAugmentationNumber(27)//
                         .setGeographicalDesignator("FI")//
-                        .setValidLessThan12Hours(true)//
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_SHORT)
                         .build())//
                 .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
@@ -135,7 +136,7 @@ public class TAFBulletinTACSerializationTest {
                         .setType(TAFBulletinHeading.Type.CORRECTED)//
                         .setBulletinAugmentationNumber(2)//
                         .setGeographicalDesignator("FI")//
-                        .setValidLessThan12Hours(true)//
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_SHORT)
                         .build())//
                 .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
@@ -162,7 +163,7 @@ public class TAFBulletinTACSerializationTest {
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setGeographicalDesignator("FI")//
-                        .setValidLessThan12Hours(true)//
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_SHORT)
                         .build())//
                 .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
@@ -192,7 +193,7 @@ public class TAFBulletinTACSerializationTest {
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setGeographicalDesignator("FI")//
-                        .setValidLessThan12Hours(false)//
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_LONG)
                         .build())//
                 .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//

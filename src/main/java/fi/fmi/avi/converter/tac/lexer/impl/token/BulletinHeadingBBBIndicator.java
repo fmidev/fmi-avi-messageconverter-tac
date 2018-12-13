@@ -35,28 +35,17 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
                 if (heading != null) {
                     Optional<Integer> augNumber = heading.getBulletinAugmentationNumber();
                     if (augNumber.isPresent()) {
+                        if (heading.getType() == BulletinHeading.Type.NORMAL) {
+                            throw new SerializingException("Bulletin contains augmentation number, but the type is " + BulletinHeading.Type.NORMAL);
+                        }
                         int seqNumber = augNumber.get().intValue();
                         if (seqNumber < 1 || seqNumber > ('Z' - 'A' + 1)) {
                             throw new SerializingException(
                                     "Illegal bulletin augmentation number '" + augNumber.get() + "', the value must be between 1 and  " + ('Z' - 'A' + 1));
                         }
                         seqNumber = 'A' + seqNumber - 1;
-                        StringBuilder sb = new StringBuilder();
-                        switch (heading.getType()) {
-                            case AMENDED:
-                                sb.append("AA");
-                                break;
-                            case CORRECTED:
-                                sb.append("CC");
-                                break;
-                            case DELAYED:
-                                sb.append("RR");
-                                break;
-                            case NORMAL:
-                                throw new SerializingException("Bulletin contains augmentation number, but he type is NORMAL");
-                        }
-                        sb.append(Character.toChars(seqNumber));
-                        return Optional.of(createLexeme(sb.toString(), Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR));
+                        return Optional.of(createLexeme(heading.getType().getPrefix() + String.valueOf(Character.toChars(seqNumber)),
+                                Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR));
                     }
                 }
             }

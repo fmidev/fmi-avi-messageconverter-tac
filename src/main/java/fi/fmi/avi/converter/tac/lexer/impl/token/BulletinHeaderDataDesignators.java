@@ -12,8 +12,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.MeteorologicalBulletin;
-import fi.fmi.avi.model.sigmet.SIGMETBulletinHeading;
-import fi.fmi.avi.model.taf.TAFBulletinHeading;
 
 public class BulletinHeaderDataDesignators extends RegexMatchingLexemeVisitor {
 
@@ -36,29 +34,7 @@ public class BulletinHeaderDataDesignators extends RegexMatchingLexemeVisitor {
                 BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
                 if (heading != null) {
                     StringBuilder sb = new StringBuilder();
-                    if (heading instanceof TAFBulletinHeading) {
-                        TAFBulletinHeading tbh = (TAFBulletinHeading) heading;
-                        sb.append('F');
-                        if (tbh.isValidLessThan12Hours()) {
-                            sb.append('C');
-                        } else {
-                            sb.append('T');
-                        }
-                    } else if (heading instanceof SIGMETBulletinHeading) {
-                        sb.append('W');
-                        SIGMETBulletinHeading sbh = (SIGMETBulletinHeading) heading;
-                        switch (sbh.getSIGMETType()) {
-                            case SEVERE_WEATHER:
-                                sb.append('S');
-                                break;
-                            case TROPICAL_CYCLONE:
-                                sb.append('Y');
-                                break;
-                            case VOLCANIC_ASH:
-                                sb.append('V');
-                                break;
-                        }
-                    }
+                    sb.append(heading.getDataTypeDesignatorsForTAC());
 
                     if (heading.getGeographicalDesignator() == null || heading.getGeographicalDesignator().length() != 2) {
                         throw new SerializingException("Invalid geographical location code '" + heading.getGeographicalDesignator() + "' in TAF bulletin");
