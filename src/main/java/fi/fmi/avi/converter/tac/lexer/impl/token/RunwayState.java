@@ -462,11 +462,13 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 				throw new SerializingException("Unit of measure for depth of deposit can only be mm or cm");
 			}
 
+			//TODO: should probably allow other depth values than the exact integers.
+            //But: round to the nearest (12.0 => 10, 13.0 => 15), use ceiling values (12.0 => 15) or floor values (14.0 => 10)?
             int value = measure.get().getValue().intValue();
             if (!operator.isPresent()) {
                 if (millimeters) {
 					if (value < 0 || value > 90) {
-						throw new SerializingException("Depth of deposit mm depth "+value+" is out of bounds. It should be between 0 and 90");
+						throw new SerializingException("Depth of deposit mm depth " + value + " is out of bounds. It should be between 0 and 90");
 					}
 					return String.format("%02d", value);
 				} else {
@@ -497,7 +499,7 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 				return "98";
 			} else {
 				
-				throw new SerializingException("Unknown depth of deposit operator "+operator);
+				throw new SerializingException("Unknown depth of deposit operator " + operator);
 			}
 		}
 
