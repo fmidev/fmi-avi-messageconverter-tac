@@ -2,9 +2,9 @@ package fi.fmi.avi.converter.tac.metar;
 
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.model.metar.SPECI;
-import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.metar.immutable.SPECIImpl;
 
-public class SPECITACParser extends METARTACParserBase<SPECI> {
+public class SPECITACParser extends METARAndSPECITACParserBase<SPECI, SPECIImpl.Builder> {
 
     @Override
     protected Lexeme.Identity getExpectedFirstTokenIdentity() {
@@ -12,7 +12,12 @@ public class SPECITACParser extends METARTACParserBase<SPECI> {
     }
 
     @Override
-    protected SPECI buildUsing(METARImpl.Builder builder) {
-        return builder.buildAsSPECI();
+    protected SPECI buildUsing(final SPECIImpl.Builder builder) {
+        return builder.build();
+    }
+
+    @Override
+    protected SPECIImpl.Builder getBuilder() {
+        return new SPECIImpl.Builder();
     }
 }

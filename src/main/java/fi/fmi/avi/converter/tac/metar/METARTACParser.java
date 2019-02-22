@@ -4,7 +4,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METARTACParser extends METARTACParserBase<METAR>{
+public class METARTACParser extends METARAndSPECITACParserBase<METAR, METARImpl.Builder> {
 
     @Override
     protected Lexeme.Identity getExpectedFirstTokenIdentity() {
@@ -12,7 +12,12 @@ public class METARTACParser extends METARTACParserBase<METAR>{
     }
 
     @Override
-    protected METAR buildUsing(METARImpl.Builder builder) {
+    protected METAR buildUsing(final METARImpl.Builder builder) {
         return builder.build();
+    }
+
+    @Override
+    protected METARImpl.Builder getBuilder() {
+        return new METARImpl.Builder();
     }
 }
