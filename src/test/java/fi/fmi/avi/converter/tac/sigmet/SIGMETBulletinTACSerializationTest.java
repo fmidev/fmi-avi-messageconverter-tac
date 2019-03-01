@@ -15,14 +15,14 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionResult;
-import fi.fmi.avi.converter.tac.AbstractTACBulletinSerializer;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
+import fi.fmi.avi.converter.tac.lexer.bulletin.AbstractTACBulletinSerializer;
 import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
-import fi.fmi.avi.model.sigmet.immutable.SIGMETBulletinHeadingImpl;
 import fi.fmi.avi.model.sigmet.immutable.SIGMETBulletinImpl;
 import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import junit.framework.TestCase;
@@ -37,12 +37,13 @@ public class SIGMETBulletinTACSerializationTest {
     @Test
     public void testSerialization() throws Exception {
         SIGMETBulletinImpl.Builder builder = new SIGMETBulletinImpl.Builder()//
-                .setIssueTime(new PartialOrCompleteTimeInstant.Builder()//
-                        .setPartialTime(PartialDateTime.ofDayHourMinute(17, 7, 0))).setHeading(new SIGMETBulletinHeadingImpl.Builder()//
+                .setHeading(new BulletinHeadingImpl.Builder()//
                         .setGeographicalDesignator("FI")//
                         .setLocationIndicator("EFKL")//
                         .setBulletinNumber(31)//
-                        .setDataTypeDesignatorT2(BulletinHeading.WarningsDataTypeDesignatorT2.SIGMET)//
+                        .setDataTypeDesignatorT2(BulletinHeading.WarningsDataTypeDesignatorT2.WRN_SIGMET)//
+                        .setIssueTime(new PartialOrCompleteTimeInstant.Builder()//
+                                .setPartialTime(PartialDateTime.ofDayHourMinute(17, 7, 0)))//
                         .build());
 
         builder.addMessages(new SIGMETImpl.Builder()//

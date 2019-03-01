@@ -19,12 +19,12 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
+import fi.fmi.avi.converter.tac.lexer.bulletin.TAFBulletinTACSerializer;
 import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
-import fi.fmi.avi.model.taf.TAFBulletinHeading;
-import fi.fmi.avi.model.taf.immutable.TAFBulletinHeadingImpl;
 import fi.fmi.avi.model.taf.immutable.TAFBulletinImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -48,15 +48,15 @@ public class TAFBulletinTACSerializationTest {
         Optional<TAF> taf = result.getConvertedMessage();
         assertTrue(taf.isPresent());
         TAFBulletin bulletin = new TAFBulletinImpl.Builder()//
-                .setHeading(new TAFBulletinHeadingImpl.Builder()//
+                .setHeading(new BulletinHeadingImpl.Builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setType(TAFBulletinHeading.Type.AMENDED)//
+                        .setType(BulletinHeading.Type.AMENDED)//
                         .setBulletinAugmentationNumber(1)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_SHORT)
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
+                        .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
-                .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
                 .build();
 
@@ -77,15 +77,15 @@ public class TAFBulletinTACSerializationTest {
         Optional<TAF> taf = result.getConvertedMessage();
         assertTrue(taf.isPresent());
         TAFBulletin bulletin = new TAFBulletinImpl.Builder()//
-                .setHeading(new TAFBulletinHeadingImpl.Builder()//
+                .setHeading(new BulletinHeadingImpl.Builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setType(TAFBulletinHeading.Type.DELAYED)//
+                        .setType(BulletinHeading.Type.DELAYED)//
                         .setBulletinAugmentationNumber(26)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_SHORT)
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
+                        .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
-                .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
                 .build();
 
@@ -107,15 +107,15 @@ public class TAFBulletinTACSerializationTest {
         Optional<TAF> taf = result.getConvertedMessage();
         assertTrue(taf.isPresent());
         new TAFBulletinImpl.Builder()//
-                .setHeading(new TAFBulletinHeadingImpl.Builder()//
+                .setHeading(new BulletinHeadingImpl.Builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setType(TAFBulletinHeading.Type.DELAYED)//
+                        .setType(BulletinHeading.Type.DELAYED)//
                         .setBulletinAugmentationNumber(27)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_SHORT)
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
+                        .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
-                .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
                 .build();
     }
@@ -130,15 +130,15 @@ public class TAFBulletinTACSerializationTest {
         Optional<TAF> taf = result.getConvertedMessage();
         assertTrue(taf.isPresent());
         TAFBulletin bulletin = new TAFBulletinImpl.Builder()//
-                .setHeading(new TAFBulletinHeadingImpl.Builder()//
+                .setHeading(new BulletinHeadingImpl.Builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setType(TAFBulletinHeading.Type.CORRECTED)//
+                        .setType(BulletinHeading.Type.CORRECTED)//
                         .setBulletinAugmentationNumber(2)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_SHORT)
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
+                        .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
-                .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
                 .build();
 
@@ -159,13 +159,13 @@ public class TAFBulletinTACSerializationTest {
         Optional<TAF> taf = pojoResult.getConvertedMessage();
         assertTrue(taf.isPresent());
         TAFBulletin bulletin = new TAFBulletinImpl.Builder()//
-                .setHeading(new TAFBulletinHeadingImpl.Builder()//
+                .setHeading(new BulletinHeadingImpl.Builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_SHORT)
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
+                        .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
-                .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
                 .build();
 
@@ -189,13 +189,13 @@ public class TAFBulletinTACSerializationTest {
         Optional<TAF> taf = pojoResult.getConvertedMessage();
         assertTrue(taf.isPresent());
         TAFBulletin bulletin = new TAFBulletinImpl.Builder()//
-                .setHeading(new TAFBulletinHeadingImpl.Builder()//
+                .setHeading(new BulletinHeadingImpl.Builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.AERODROME_VT_LONG)
+                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG)
+                        .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
-                .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                 .addMessages(taf.get())//
                 .build();
 

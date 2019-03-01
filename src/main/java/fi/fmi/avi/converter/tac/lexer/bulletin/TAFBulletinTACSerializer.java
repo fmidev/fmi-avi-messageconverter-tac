@@ -1,15 +1,14 @@
-package fi.fmi.avi.converter.tac.taf;
+package fi.fmi.avi.converter.tac.lexer.bulletin;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.AbstractTACBulletinSerializer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
-import fi.fmi.avi.model.taf.TAFBulletinHeading;
 
-public class TAFBulletinTACSerializer extends AbstractTACBulletinSerializer<TAFBulletinHeading, TAF, TAFBulletin> {
+public class TAFBulletinTACSerializer extends AbstractTACBulletinSerializer<TAF, TAFBulletin> {
 
     private TAFTACSerializer tafSerializer;
 

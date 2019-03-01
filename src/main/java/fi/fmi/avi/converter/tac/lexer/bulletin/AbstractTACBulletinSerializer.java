@@ -1,10 +1,11 @@
-package fi.fmi.avi.converter.tac;
+package fi.fmi.avi.converter.tac.lexer.bulletin;
 
 import java.util.List;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
+import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
@@ -12,10 +13,9 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.MeteorologicalBulletin;
 
-public abstract class AbstractTACBulletinSerializer<U extends BulletinHeading, S extends AviationWeatherMessage, T extends MeteorologicalBulletin<S, U>>
+public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMessage, T extends MeteorologicalBulletin<S>>
         extends AbstractTACSerializer<T> {
 
     public static final int MAX_ROW_LENGTH = 60;

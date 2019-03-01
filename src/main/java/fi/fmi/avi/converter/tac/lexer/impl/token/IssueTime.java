@@ -54,7 +54,7 @@ public class IssueTime extends TimeHandlingRegex {
             if (AerodromeWeatherMessage.class.isAssignableFrom(clz)) {
                 time = ((AerodromeWeatherMessage) msg).getIssueTime();
             } else if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
-                time = ((MeteorologicalBulletin) msg).getIssueTime();
+                time = ((MeteorologicalBulletin) msg).getHeading().getIssueTime();
             } else {
                 return Optional.empty();
             }
