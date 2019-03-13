@@ -15,6 +15,7 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.LexemeUtils;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
@@ -32,25 +33,6 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
  */
 public class SurfaceWind extends RegexMatchingLexemeVisitor {
 
-    public enum WindDirection {
-        VARIABLE("VRB");
-
-        private String code;
-
-        WindDirection(final String code) {
-            this.code = code;
-        }
-
-        public static WindDirection forCode(final String code) {
-            for (WindDirection w : values()) {
-                if (w.code.equals(code)) {
-                    return w;
-                }
-            }
-            return null;
-        }
-    }
-
     public SurfaceWind(final Priority prio) {
         super("^(VRB|[0-9]{3})(P?[0-9]{2,3})(GP?[0-9]{2,3})?(KT|MPS|KMH)$", prio);
     }
@@ -58,7 +40,9 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         boolean formatOk = true;
-        int direction = -1, mean, gustValue = -1;
+        int direction = -1;
+        final int mean;
+        int gustValue = -1;
         boolean meanWindAbove = false;
         boolean gustAbove = false;
 
@@ -72,7 +56,7 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
         } else {
             mean = Integer.parseInt(match.group(2));
         }
-        String gust = match.group(3);
+        final String gust = match.group(3);
         if (gust != null && 'G' == gust.charAt(0)) {
             try {
                 if (gust.charAt(1) == 'P') {
@@ -84,13 +68,18 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                 if (gustValue < 0) {
                     formatOk = false;
                 }
-            } catch (NumberFormatException nfe) {
+            } catch (final NumberFormatException nfe) {
                 formatOk = false;
             }
         }
         unit = match.group(4);
         if (direction > 360 || mean < 0 || unit == null) {
             formatOk = false;
+        }
+
+        if (LexemeUtils.existsPreviousLexemesWithinSameGroup(token, SURFACE_WIND)) {
+            token.identify(SURFACE_WIND, Lexeme.Status.SYNTAX_ERROR, "Surface wind already given");
+            return;
         }
 
         if (formatOk) {
@@ -121,14 +110,33 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
         }
     }
 
+    public enum WindDirection {
+        VARIABLE("VRB");
+
+        private final String code;
+
+        WindDirection(final String code) {
+            this.code = code;
+        }
+
+        public static WindDirection forCode(final String code) {
+            for (final WindDirection w : values()) {
+                if (w.code.equals(code)) {
+                    return w;
+                }
+            }
+            return null;
+        }
+    }
+
 	public static class Reconstructor extends FactoryBasedReconstructor {
 
 		@Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (TAF.class.isAssignableFrom(clz)) {
-                Optional<TAFBaseForecast> base = ctx.getParameter("forecast", TAFBaseForecast.class);
-                Optional<TAFChangeForecast> change = ctx.getParameter("forecast", TAFChangeForecast.class);
+                final Optional<TAFBaseForecast> base = ctx.getParameter("forecast", TAFBaseForecast.class);
+                final Optional<TAFChangeForecast> change = ctx.getParameter("forecast", TAFChangeForecast.class);
                 Optional<fi.fmi.avi.model.SurfaceWind> wind = Optional.empty();
                 if (base.isPresent()) {
                      wind = base.get().getSurfaceWind();
@@ -143,14 +151,14 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                 }
 
             } else if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
-                Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
+                final Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
                 if (trend.isPresent()) {
-                    Optional<fi.fmi.avi.model.SurfaceWind> wind = trend.get().getSurfaceWind();
+                    final Optional<fi.fmi.avi.model.SurfaceWind> wind = trend.get().getSurfaceWind();
                     if (wind.isPresent()) {
                         return getForecastSurfaceWindLexeme(wind.get());
                     }
                 } else {
-                    Optional<ObservedSurfaceWind> wind = ((MeteorologicalTerminalAirReport)msg).getSurfaceWind();
+                    final Optional<ObservedSurfaceWind> wind = ((MeteorologicalTerminalAirReport) msg).getSurfaceWind();
                     if (wind.isPresent()) {
                         return getForecastSurfaceWindLexeme(wind.get());
                     }
@@ -160,7 +168,7 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
         }
 
         private <S extends fi.fmi.avi.model.SurfaceWind> Optional<Lexeme> getForecastSurfaceWindLexeme(final S wind) throws SerializingException {
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
             if (wind.isVariableDirection()) {
                 builder.append("VRB");
             } else if (wind.getMeanWindDirection().isPresent()) {
@@ -177,10 +185,11 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
             return Optional.of(this.createLexeme(builder.toString(), Lexeme.Identity.SURFACE_WIND));
         }
 
-        private void appendCommonWindParameters(StringBuilder builder, NumericMeasure meanSpeed, AviationCodeListUser.RelationalOperator meanSpeedOperator,
-                NumericMeasure gustSpeed, AviationCodeListUser.RelationalOperator gustOperator)
+        private void appendCommonWindParameters(final StringBuilder builder, final NumericMeasure meanSpeed,
+                final AviationCodeListUser.RelationalOperator meanSpeedOperator, final NumericMeasure gustSpeed,
+                final AviationCodeListUser.RelationalOperator gustOperator)
                 throws SerializingException {
-            int speed = meanSpeed.getValue().intValue();
+            final int speed = meanSpeed.getValue().intValue();
             if (meanSpeedOperator != null && AviationCodeListUser.RelationalOperator.ABOVE == meanSpeedOperator) {
                 builder.append('P');
             }
@@ -209,7 +218,7 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
             builder.append(uom);
         }
 
-        private void appendSpeed(StringBuilder builder, int speed) throws SerializingException {
+        private void appendSpeed(final StringBuilder builder, final int speed) throws SerializingException {
             if (speed < 0 || speed >= 1000) {
                 throw new SerializingException("Wind speed value " + speed + " is not withing acceptable range [0,1000]");
             }
