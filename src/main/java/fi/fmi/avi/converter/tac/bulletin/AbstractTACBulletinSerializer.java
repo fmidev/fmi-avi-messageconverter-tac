@@ -1,4 +1,4 @@
-package fi.fmi.avi.converter.tac.lexer.bulletin;
+package fi.fmi.avi.converter.tac.bulletin;
 
 import java.util.List;
 
