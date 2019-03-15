@@ -18,6 +18,6 @@ public class METARTACParser extends METARAndSPECITACParserBase<METAR, METARImpl.
 
     @Override
     protected METARImpl.Builder getBuilder() {
-        return new METARImpl.Builder();
+        return METARImpl.builder();
     }
 }

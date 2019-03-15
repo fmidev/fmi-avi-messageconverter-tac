@@ -224,7 +224,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
                 if (issue != null) {
                     issues.add(issue);
                 } else {
-                    final WeatherImpl.Builder weather = new WeatherImpl.Builder();
+                    final WeatherImpl.Builder weather = WeatherImpl.builder();
                     weather.setCode(code);
                     if (WEATHER_CODES.containsKey(code)) {
                         weather.setDescription(WEATHER_CODES.get(code));
@@ -239,7 +239,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessage> implem
     }
 
     protected static fi.fmi.avi.model.CloudLayer getCloudLayer(final Lexeme match) throws IllegalArgumentException {
-        CloudLayerImpl.Builder retval = new CloudLayerImpl.Builder();
+        CloudLayerImpl.Builder retval = CloudLayerImpl.builder();
         Object coverOrMissing = match.getParsedValue(Lexeme.ParsedValueName.COVER, Object.class);
         Object type = match.getParsedValue(Lexeme.ParsedValueName.TYPE, Object.class);
         Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);

@@ -39,7 +39,7 @@ public class TimePeriodSerialisationTest {
 
     @Test
     public void testMidnightEndingPeriodSerialization() throws Exception {
-        TAF msg = new TAFImpl.Builder()//
+        TAF msg = TAFImpl.builder()//
                 .setValidityTime(PartialOrCompleteTimePeriod.createValidityTimeDHDH("0100/0124"))//
                 .buildPartial();
 
@@ -51,7 +51,7 @@ public class TimePeriodSerialisationTest {
         assertTrue(l.isPresent());
         assertEquals("0100/0124", l.get().getTACToken());
 
-        msg = new TAFImpl.Builder()//
+        msg = TAFImpl.builder()//
                 .setValidityTime(PartialOrCompleteTimePeriod.createValidityTimeDHDH("0100/0124"))//
                 .withCompleteForecastTimes(YearMonth.of(2017, Month.DECEMBER), 31, 22, ZoneId.of("Z"))//
                 .buildPartial();
@@ -62,8 +62,8 @@ public class TimePeriodSerialisationTest {
 
         final ZonedDateTime completeStartTime = ZonedDateTime.parse("2018-01-01T00:00:00Z", DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         final ZonedDateTime completeEndTime = ZonedDateTime.parse("2018-01-02T00:00:00Z", DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        msg = new TAFImpl.Builder()//
-                .setValidityTime(new PartialOrCompleteTimePeriod.Builder()//
+        msg = TAFImpl.builder()//
+                .setValidityTime(PartialOrCompleteTimePeriod.builder()//
                         .setStartTime(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHour(completeStartTime, false), completeStartTime))//
                         .setEndTime(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHour(completeEndTime, true), completeEndTime))//
                         .build()).buildPartial();

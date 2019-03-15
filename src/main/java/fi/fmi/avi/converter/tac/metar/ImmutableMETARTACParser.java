@@ -17,6 +17,6 @@ public class ImmutableMETARTACParser extends METARAndSPECITACParserBase<METARImp
 
     @Override
     protected METARImpl.Builder getBuilder() {
-        return new METARImpl.Builder();
+        return METARImpl.builder();
     }
 }

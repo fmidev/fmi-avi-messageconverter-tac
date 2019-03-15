@@ -83,7 +83,7 @@ public class ValidTimeReconstructorTest {
     }
 
     private void injectValidity(final TAF msg, final int startDay, final int startHour, final int endDay, final int endHour) {
-        final Optional<PartialOrCompleteTimePeriod> p = Optional.of(new PartialOrCompleteTimePeriod.Builder()//
+        final Optional<PartialOrCompleteTimePeriod> p = Optional.of(PartialOrCompleteTimePeriod.builder()//
                 .setStartTime(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHour(startDay, startHour)))//
                 .setEndTime(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHour(endDay, endHour)))//
                 .build());

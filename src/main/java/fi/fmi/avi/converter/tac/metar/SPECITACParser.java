@@ -18,6 +18,6 @@ public class SPECITACParser extends METARAndSPECITACParserBase<SPECI, SPECIImpl.
 
     @Override
     protected SPECIImpl.Builder getBuilder() {
-        return new SPECIImpl.Builder();
+        return SPECIImpl.builder();
     }
 }

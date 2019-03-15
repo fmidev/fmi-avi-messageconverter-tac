@@ -72,7 +72,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             result.addIssue(issues);
             return result;
         }
-        final TAFImpl.Builder builder = new TAFImpl.Builder();
+        final TAFImpl.Builder builder = TAFImpl.builder();
 
         if (lexed.getTAC() != null) {
             builder.setTranslatedTAC(lexed.getTAC());
@@ -118,7 +118,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                builder.setAerodrome(new AerodromeImpl.Builder().setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build());
+                builder.setAerodrome(AerodromeImpl.builder().setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build());
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Aerodrome designator not given in " + input)));
 
@@ -229,7 +229,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 if (startDay != null && startHour != null && endHour != null) {
                     final PartialDateTime startTime = PartialDateTime.ofDayHour(startDay, startHour);
                     final PartialDateTime endTime = endDay == null ? PartialDateTime.ofHour(endHour) : PartialDateTime.ofDayHour(endDay, endHour);
-                    builder.setValidityTime(new PartialOrCompleteTimePeriod.Builder()//
+                    builder.setValidityTime(PartialOrCompleteTimePeriod.builder()//
                             .setStartTime(PartialOrCompleteTimeInstant.of(startTime))//
                             .setEndTime(PartialOrCompleteTimeInstant.of(endTime))//
                             .build());
@@ -243,7 +243,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
     }
 
     protected List<ConversionIssue> setBaseForecast(final TAFImpl.Builder builder, final Lexeme baseFctToken, final ConversionHints hints) {
-        final TAFBaseForecastImpl.Builder baseFct = new TAFBaseForecastImpl.Builder();
+        final TAFBaseForecastImpl.Builder baseFct = TAFBaseForecastImpl.builder();
 
         //noinspection CollectionAddAllCanBeReplacedWithConstructor
         final List<ConversionIssue> result = new ArrayList<>(withForecastSurfaceWind(baseFctToken,
@@ -311,7 +311,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             } else {
                 minTempToken = findNext(Lexeme.Identity.MIN_TEMPERATURE, maxTempToken);
                 if (minTempToken != null) {
-                    airTemperatureForecast = new TAFAirTemperatureForecastImpl.Builder();
+                    airTemperatureForecast = TAFAirTemperatureForecastImpl.builder();
                     Integer day = minTempToken.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
                     Integer hour = minTempToken.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
                     Double value = minTempToken.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class);
@@ -382,7 +382,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         if (changeFctToken.hasNext()) {
             final Lexeme next = changeFctToken.getNext();
             if (Lexeme.Identity.REMARKS_START != next.getIdentityIfAcceptable() && Lexeme.Identity.END_TOKEN != next.getIdentityIfAcceptable()) {
-                final TAFChangeForecastImpl.Builder changeFct = new TAFChangeForecastImpl.Builder();
+                final TAFChangeForecastImpl.Builder changeFct = TAFChangeForecastImpl.builder();
                 switch (type) {
                     case TEMPORARY_FLUCTUATIONS:
                         changeFct.setChangeIndicator(AviationCodeListUser.TAFChangeIndicator.TEMPORARY_FLUCTUATIONS);
@@ -400,7 +400,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                         if (hour != null && minute != null) {
                             final PartialDateTime partialDateTime =
                                     day == null ? PartialDateTime.ofHourMinute(hour, minute) : PartialDateTime.ofDayHourMinute(day, hour, minute);
-                            changeFct.setPeriodOfChange(new PartialOrCompleteTimePeriod.Builder()//
+                            changeFct.setPeriodOfChange(PartialOrCompleteTimePeriod.builder()//
                                     .setStartTime(PartialOrCompleteTimeInstant.of(partialDateTime))//
                                     .build());
                         } else {
@@ -462,7 +462,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                     if (startHour != null && endHour != null) {
                         final PartialDateTime startTime = startDay == null ? PartialDateTime.ofHour(startHour) : PartialDateTime.ofDayHour(startDay, startHour);
                         final PartialDateTime endTime = endDay == null ? PartialDateTime.ofHour(endHour) : PartialDateTime.ofDayHour(endDay, endHour);
-                        builder.setPeriodOfChange(new PartialOrCompleteTimePeriod.Builder()//
+                        builder.setPeriodOfChange(PartialOrCompleteTimePeriod.builder()//
                                 .setStartTime(PartialOrCompleteTimeInstant.of(startTime))//
                                 .setEndTime(PartialOrCompleteTimeInstant.of(endTime))//
                                 .build());
@@ -568,7 +568,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (issue != null) {
                 result.add(issue);
             } else {
-                final SurfaceWindImpl.Builder wind = new SurfaceWindImpl.Builder();
+                final SurfaceWindImpl.Builder wind = SurfaceWindImpl.builder();
                 final Object direction = match.getParsedValue(Lexeme.ParsedValueName.DIRECTION, Object.class);
                 final Integer meanSpeed = match.getParsedValue(Lexeme.ParsedValueName.MEAN_VALUE, Integer.class);
                 final Integer gustSpeed = match.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
@@ -665,7 +665,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         final List<ConversionIssue> result = new ArrayList<>();
         findNext(Lexeme.Identity.CLOUD, from, (match) -> {
             ConversionIssue issue;
-            final CloudForecastImpl.Builder cloud = new CloudForecastImpl.Builder();
+            final CloudForecastImpl.Builder cloud = CloudForecastImpl.builder();
             final List<CloudLayer> layers = new ArrayList<>();
             while (match != null) {
                 issue = checkBeforeAnyOf(match, before);

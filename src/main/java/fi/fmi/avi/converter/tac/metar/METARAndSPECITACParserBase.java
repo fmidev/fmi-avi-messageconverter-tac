@@ -94,7 +94,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                         AviationCodeListUser.RelationalOperator.class);
                 final String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
 
-                final ObservedSurfaceWindImpl.Builder wind = new ObservedSurfaceWindImpl.Builder();
+                final ObservedSurfaceWindImpl.Builder wind = ObservedSurfaceWindImpl.builder();
 
                 if (direction == SurfaceWind.WindDirection.VARIABLE) {
                     wind.setVariableDirection(true);
@@ -155,7 +155,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                     Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE,
                     Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             ConversionIssue issue;
-            final HorizontalVisibilityImpl.Builder vis = new HorizontalVisibilityImpl.Builder();
+            final HorizontalVisibilityImpl.Builder vis = HorizontalVisibilityImpl.builder();
             while (match != null) {
                 issue = checkBeforeAnyOf(match, before);
                 if (issue != null) {
@@ -226,7 +226,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                     if (rwCode == null) {
                         retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Missing runway code for RVR in " + match.getTACToken()));
                     } else {
-                        final RunwayDirectionImpl.Builder runway = new RunwayDirectionImpl.Builder();
+                        final RunwayDirectionImpl.Builder runway = RunwayDirectionImpl.builder();
                         runway.setDesignator(rwCode);
                         runway.setAssociatedAirportHeliport(builder.getAerodrome());
 
@@ -240,7 +240,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                         if (minValue == null) {
                             retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Missing visibility value for RVR in " + match.getTACToken()));
                         }
-                        final RunwayVisualRangeImpl.Builder rvr = new RunwayVisualRangeImpl.Builder();
+                        final RunwayVisualRangeImpl.Builder rvr = RunwayVisualRangeImpl.builder();
                         rvr.setRunwayDirection(runway.build());
                         if (maxValue != null && minValue != null) {
                             rvr.setVaryingRVRMinimum(NumericMeasureImpl.of(minValue, unit));
@@ -316,7 +316,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             final Identity[] before = { Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR,
                     Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
                     Identity.REMARKS_START };
-            final ObservedCloudsImpl.Builder clouds = new ObservedCloudsImpl.Builder();
+            final ObservedCloudsImpl.Builder clouds = ObservedCloudsImpl.builder();
             ConversionIssue issue;
             final List<ObservedCloudLayer> layers = new ArrayList<>();
             while (match != null) {
@@ -469,7 +469,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             final Identity[] before = { Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR,
                     Identity.REMARKS_START };
             ConversionIssue issue;
-            final WindShearImpl.Builder ws = new WindShearImpl.Builder();
+            final WindShearImpl.Builder ws = WindShearImpl.builder();
             final List<RunwayDirection> runways = new ArrayList<>();
             while (match != null) {
                 issue = checkBeforeAnyOf(match, before);
@@ -489,7 +489,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                             retval.add(new ConversionIssue(Type.LOGICAL,
                                     "Wind shear reported both to all runways and at least one specific runway:" + match.getTACToken()));
                         } else {
-                            runways.add(new RunwayDirectionImpl.Builder().setDesignator(rw).setAssociatedAirportHeliport(builder.getAerodrome()).build());
+                            runways.add(RunwayDirectionImpl.builder().setDesignator(rw).setAssociatedAirportHeliport(builder.getAerodrome()).build());
                         }
                     }
                 }
@@ -513,7 +513,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             if (issue != null) {
                 retval.add(issue);
             } else {
-                final SeaStateImpl.Builder ss = new SeaStateImpl.Builder();
+                final SeaStateImpl.Builder ss = SeaStateImpl.builder();
                 final Object[] values = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object[].class);
                 if (values[0] instanceof Integer) {
                     final String tempUnit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
@@ -591,7 +591,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                     match = findNext(Identity.RUNWAY_STATE, match);
                     continue;
                 }
-                final RunwayStateImpl.Builder rws = new RunwayStateImpl.Builder();
+                final RunwayStateImpl.Builder rws = RunwayStateImpl.builder();
                 @SuppressWarnings("unchecked")
                 final Map<RunwayStateReportType, Object> values = match.getParsedValue(ParsedValueName.VALUE, Map.class);
 
@@ -617,7 +617,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                     rws.setAppliedToAllRunways(true);
                 } else if (runwayDesignator != null) {
                     rws.setRunwayDirection(
-                            new RunwayDirectionImpl.Builder().setDesignator(runwayDesignator).setAssociatedAirportHeliport(builder.getAerodrome()).build());
+                            RunwayDirectionImpl.builder().setDesignator(runwayDesignator).setAssociatedAirportHeliport(builder.getAerodrome()).build());
                 } else {
                     retval.add(new ConversionIssue(Type.SYNTAX, "No runway specified for runway state report: " + match.getTACToken()));
                 }
@@ -786,7 +786,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                         }
                         final String code = token.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class);
                         if (code != null) {
-                            forecastWeather.add(new WeatherImpl.Builder().setCode(code).setDescription(WEATHER_CODES.get(code)).build());
+                            forecastWeather.add(WeatherImpl.builder().setCode(code).setDescription(WEATHER_CODES.get(code)).build());
                             fctBuilder.setForecastWeather(forecastWeather);
                         } else {
                             retval.add(new ConversionIssue(Type.MISSING_DATA, "Weather code not found"));
@@ -882,7 +882,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                                 }
                                 pBuilder = period.get().toBuilder();
                             } else {
-                                pBuilder = new PartialOrCompleteTimePeriod.Builder();
+                                pBuilder = PartialOrCompleteTimePeriod.builder();
                             }
                             pBuilder.setStartTime(PartialOrCompleteTimeInstant.of(PartialDateTime.ofHourMinute(fromHour, fromMinute)));
                             builder.setPeriodOfChange(pBuilder.build());
@@ -908,7 +908,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                                 }
                                 pBuilder = period.get().toBuilder();
                             } else {
-                                pBuilder = new PartialOrCompleteTimePeriod.Builder();
+                                pBuilder = PartialOrCompleteTimePeriod.builder();
                             }
                             pBuilder.setEndTime(PartialOrCompleteTimeInstant.of(PartialDateTime.ofHourMinute(toHour, toMinute)));
                             builder.setPeriodOfChange(pBuilder.build());
@@ -935,7 +935,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         if (fctBuilder.getCloud().isPresent()) {
             cloudBuilder = CloudForecastImpl.Builder.from(fctBuilder.getCloud().get());
         } else {
-            cloudBuilder = new CloudForecastImpl.Builder();
+            cloudBuilder = CloudForecastImpl.builder();
         }
 
         final List<fi.fmi.avi.model.CloudLayer> cloudLayers;
@@ -994,7 +994,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
 
     private static List<ConversionIssue> setForecastWind(final TrendForecastImpl.Builder fctBuilder, final Lexeme token, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
-        final SurfaceWindImpl.Builder wind = new SurfaceWindImpl.Builder();
+        final SurfaceWindImpl.Builder wind = SurfaceWindImpl.builder();
         final Object direction = token.getParsedValue(Lexeme.ParsedValueName.DIRECTION, Object.class);
         final Integer meanSpeed = token.getParsedValue(Lexeme.ParsedValueName.MEAN_VALUE, Integer.class);
         final Integer gust = token.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
@@ -1108,7 +1108,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                builder.setAerodrome(new AerodromeImpl.Builder().setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build());
+                builder.setAerodrome(AerodromeImpl.builder().setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build());
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Aerodrome designator not given in " + input)));
 
@@ -1251,7 +1251,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             trends = new ArrayList<>();
         }
 
-        final TrendForecastImpl.Builder fct = new TrendForecastImpl.Builder();
+        final TrendForecastImpl.Builder fct = TrendForecastImpl.builder();
         final TrendChangeIndicatorType type = changeFctToken.getParsedValue(ParsedValueName.TYPE, TrendChangeIndicatorType.class);
         switch (type) {
             case BECOMING:
