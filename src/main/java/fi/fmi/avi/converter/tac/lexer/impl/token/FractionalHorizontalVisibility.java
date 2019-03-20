@@ -19,7 +19,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 public class FractionalHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
     public FractionalHorizontalVisibility(final Priority prio) {
-        super("^([PM])?((([0-9]{1,3}\\s)(([1-9]{1})/([1-9]{1,2})))|([0-9]{1,3})|(([0-9]{1})/([0-9]{1,2})))([A-Z]{1,2})$", prio);
+        super("^([PM])?((([0-9]{1,3}\\s)(([1-9]{1})/([1-9]{1,2})))|([0-9]{1,3})|(([0-9]{1})/([0-9]{1,2})))(?!KT)([A-Z]{1,2})$", prio);
     }
 
     @Override
