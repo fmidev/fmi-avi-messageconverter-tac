@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Import;
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
+import fi.fmi.avi.model.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
@@ -50,6 +51,10 @@ public class TACTestConfiguration {
     @Autowired
     private AviMessageSpecificConverter<SIGMETBulletin, String> sigmetBulletinTACSerializer;
 
+
+    @Autowired
+    private AviMessageSpecificConverter<String, GenericMeteorologicalBulletin> genericBulletinTACParser;
+
     @Bean
     public AviMessageConverter aviMessageConverter() {
         AviMessageConverter p = new AviMessageConverter();
@@ -64,8 +69,10 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(TACConverter.TAC_TO_SPECI_POJO, speciTACParser);
         p.setMessageSpecificConverter(TACConverter.SPECI_POJO_TO_TAC, speciTACSerializer);
 
+        p.setMessageSpecificConverter(TACConverter.TAC_TO_GENERIC_BULLETIN_POJO, genericBulletinTACParser);
         p.setMessageSpecificConverter(TACConverter.TAF_BULLETIN_POJO_TO_TAC, tafBulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.SIGMET_BULLETIN_POJO_TO_TAC, sigmetBulletinTACSerializer);
+
         return p;
     }
   

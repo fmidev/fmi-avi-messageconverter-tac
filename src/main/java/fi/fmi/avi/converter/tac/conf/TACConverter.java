@@ -1,5 +1,7 @@
 package fi.fmi.avi.converter.tac.conf;
 
+import java.util.regex.Pattern;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -8,11 +10,13 @@ import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.TACParser;
+import fi.fmi.avi.converter.tac.bulletin.GenericMeteorologicalBulletinParser;
 import fi.fmi.avi.converter.tac.bulletin.SIGMETBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.bulletin.TAFBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageTACTokenizerImpl;
@@ -68,6 +72,8 @@ import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.taf.ImmutableTAFTACParser;
 import fi.fmi.avi.converter.tac.taf.TAFTACParser;
 import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
+import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
@@ -141,44 +147,62 @@ public class TACConverter {
     public static final ConversionSpecification<SIGMETBulletin, String> SIGMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(SIGMETBulletin.class,
             String.class, null, "WMO GTS SIGMET Bulletin");
 
+
+    /**
+     * Pre-configured spec for WMO GTS text bulletin format to {@link fi.fmi.avi.model.GenericMeteorologicalBulletin} POJO.
+     */
+    public static final ConversionSpecification<String, GenericMeteorologicalBulletin> TAC_TO_GENERIC_BULLETIN_POJO = new ConversionSpecification<>(String.class,
+            GenericMeteorologicalBulletin.class,
+            "WMO GTS bulletin", null);
+
+
+    private static final Pattern BULLETIN_START_PATTERN = Pattern.compile("^[A-Z]{4}[0-9]{2}$");
+
     @Bean
     AviMessageSpecificConverter<String, METAR> metarTACParser() {
-        TACParser<METAR> p = new METARTACParser();
+        final TACParser<METAR> p = new METARTACParser();
         p.setTACLexer(aviMessageLexer());
         return p;
     }
 
     @Bean
     AviMessageSpecificConverter<String, METARImpl> immutableMetarTACParser() {
-        TACParser<METARImpl> p = new ImmutableMETARTACParser();
+        final TACParser<METARImpl> p = new ImmutableMETARTACParser();
         p.setTACLexer(aviMessageLexer());
         return p;
     }
 
     @Bean
     AviMessageSpecificConverter<String, SPECI> speciTACParser() {
-        TACParser<SPECI> p = new SPECITACParser();
+        final TACParser<SPECI> p = new SPECITACParser();
         p.setTACLexer(aviMessageLexer());
         return p;
     }
 
     @Bean
     AviMessageSpecificConverter<String, TAF> tafTACParser() {
-        TACParser<TAF> p = new TAFTACParser();
+        final TACParser<TAF> p = new TAFTACParser();
         p.setTACLexer(aviMessageLexer());
         return p;
     }
 
     @Bean
     AviMessageSpecificConverter<String, TAFImpl> immutableTafTACParser() {
-        TACParser<TAFImpl> p = new ImmutableTAFTACParser();
+        final TACParser<TAFImpl> p = new ImmutableTAFTACParser();
+        p.setTACLexer(aviMessageLexer());
+        return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<String, GenericMeteorologicalBulletin> genericBulletinTACParser() {
+        final TACParser<GenericMeteorologicalBulletin> p = new GenericMeteorologicalBulletinParser();
         p.setTACLexer(aviMessageLexer());
         return p;
     }
     
     @Bean
     AviMessageSpecificConverter<METAR, String> metarTACSerializer() {
-        METARTACSerializer s = new METARTACSerializer();
+        final METARTACSerializer s = new METARTACSerializer();
         addMetarAndSpeciCommonReconstructors(s);
         s.addReconstructor(Lexeme.Identity.METAR_START, new MetarStart.Reconstructor());
         return s;
@@ -186,7 +210,7 @@ public class TACConverter {
 
     @Bean
     AviMessageSpecificConverter<SPECI, String> speciTACSerializer() {
-        SPECITACSerializer s = new SPECITACSerializer();
+        final SPECITACSerializer s = new SPECITACSerializer();
         addMetarAndSpeciCommonReconstructors(s);
         s.addReconstructor(Lexeme.Identity.SPECI_START, new SpeciStart.Reconstructor());
         return s;
@@ -237,7 +261,7 @@ public class TACConverter {
     }
 
     private TAFTACSerializer spawnTAFTACSerializer() {
-        TAFTACSerializer s = new TAFTACSerializer();
+        final TAFTACSerializer s = new TAFTACSerializer();
         s.setLexingFactory(lexingFactory());
         s.addReconstructor(Lexeme.Identity.TAF_START, new TAFStart.Reconstructor());
         s.addReconstructor(Lexeme.Identity.AMENDMENT, new Amendment.Reconstructor());
@@ -259,43 +283,44 @@ public class TACConverter {
         s.addReconstructor(Lexeme.Identity.TAF_CHANGE_FORECAST_TIME_GROUP, new TAFChangeForecastTimeGroup.Reconstructor());
         s.addReconstructor(Lexeme.Identity.REMARKS_START, new RemarkStart.Reconstructor());
         s.addReconstructor(Lexeme.Identity.REMARK, new Remark.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.END_TOKEN,new EndToken.Reconstructor());
+        s.addReconstructor(Lexeme.Identity.END_TOKEN, new EndToken.Reconstructor());
         return s;
     }
 
     @Bean
     AviMessageSpecificConverter<TAFBulletin, String> tafBulletinTACSerializer() {
-        TAFBulletinTACSerializer s = new TAFBulletinTACSerializer();
+        final TAFBulletinTACSerializer s = new TAFBulletinTACSerializer();
         addCommonBulletinReconstructors(s);
-        TAFTACSerializer tafSerializer = (TAFTACSerializer) bulletinTAFTACSerializer();
+        final TAFTACSerializer tafSerializer = (TAFTACSerializer) bulletinTAFTACSerializer();
         s.setTafSerializer(tafSerializer);
         return s;
     }
 
     @Bean
     AviMessageSpecificConverter<SIGMETBulletin, String> sigmetBulletinTACSerializer() {
-        SIGMETBulletinTACSerializer s = new SIGMETBulletinTACSerializer();
+        final SIGMETBulletinTACSerializer s = new SIGMETBulletinTACSerializer();
         addCommonBulletinReconstructors(s);
         return s;
     }
 
     @Bean
     public AviMessageLexer aviMessageLexer() {
-        AviMessageLexerImpl l = new AviMessageLexerImpl();
+        final AviMessageLexerImpl l = new AviMessageLexerImpl();
         l.setLexingFactory(lexingFactory());
-        l.addTokenLexer("METAR", metarTokenLexer());
-        l.addTokenLexer("SPECI", speciTokenLexer());
-        l.addTokenLexer("TAF", tafTokenLexer());
+        l.addTokenLexer(metarTokenLexer());
+        l.addTokenLexer(speciTokenLexer());
+        l.addTokenLexer(tafTokenLexer());
+        l.addTokenLexer(genericMeteorologicalBulletinTokenLexer());
         return l;
     }
 
     @Bean
     public AviMessageTACTokenizer tacTokenizer() {
-        AviMessageTACTokenizerImpl tokenizer = new AviMessageTACTokenizerImpl();
+        final AviMessageTACTokenizerImpl tokenizer = new AviMessageTACTokenizerImpl();
         tokenizer.setMETARSerializer((METARTACSerializer) metarTACSerializer());
         tokenizer.setSPECISerializer((SPECITACSerializer) speciTACSerializer());
-        tokenizer.setTAFSerializer((TAFTACSerializer)tafTACSerializer());
-        tokenizer.setTAFBUlletinSerializer((TAFBulletinTACSerializer) tafBulletinTACSerializer());
+        tokenizer.setTAFSerializer((TAFTACSerializer) tafTACSerializer());
+        tokenizer.setTAFBulletinSerializer((TAFBulletinTACSerializer) tafBulletinTACSerializer());
         return tokenizer;
     }
     
@@ -313,14 +338,35 @@ public class TACConverter {
     }
 
     private RecognizingAviMessageTokenLexer metarTokenLexer() {
-        RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                return sequence.getFirstLexeme().getTACToken().equals("METAR");
+            }
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.METAR;
+            }
+        });
         l.teach(new MetarStart(Priority.HIGH));
         teachMetarAndSpeciCommonTokens(l);
         return l;
     }
 
     private RecognizingAviMessageTokenLexer speciTokenLexer() {
-        RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                return sequence.getFirstLexeme().getTACToken().equals("SPECI");
+            }
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.SPECI;
+            }
+        });
         l.teach(new SpeciStart(Priority.HIGH));
         teachMetarAndSpeciCommonTokens(l);
         return l;
@@ -359,7 +405,18 @@ public class TACConverter {
     }
 
     private RecognizingAviMessageTokenLexer tafTokenLexer() {
-        RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                return sequence.getFirstLexeme().getTACToken().equals("TAF");
+            }
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.TAF;
+            }
+        });
         l.teach(new TAFStart(Priority.HIGH));
         l.teach(new ICAOCode(Priority.LOW));
         l.teach(new ValidTime(Priority.LOW));
@@ -386,6 +443,33 @@ public class TACConverter {
         return l;
     }
 
-    
+    private RecognizingAviMessageTokenLexer genericMeteorologicalBulletinTokenLexer() {
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                //Just check the first Lexeme for now, add checks for further Lexemes if
+                // collisions arise with other token lexers:
+                if (sequence.getFirstLexeme() != null) {
+                    return BULLETIN_START_PATTERN.matcher(sequence.getFirstLexeme().getTACToken()).matches();
+                }
+                return false;
+            }
+
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.BULLETIN;
+            }
+
+        });
+        l.teach(new BulletinHeaderDataDesignators(Priority.NORMAL));
+        l.teach(new BulletinLocationIndicator(Priority.NORMAL));
+        l.teach(new IssueTime(Priority.HIGH));
+        l.teach(new BulletinHeadingBBBIndicator(Priority.NORMAL));
+        l.teach(new EndToken(Priority.HIGH));
+        l.teach(new Whitespace(Priority.HIGH));
+        return l;
+    }
 
 }
