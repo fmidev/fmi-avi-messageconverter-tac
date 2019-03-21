@@ -47,6 +47,8 @@ public interface LexemeSequenceBuilder {
      */
     Optional<Lexeme> getLast();
 
+    boolean isEmpty();
+
     /**
      * Returns the complete {@link LexemeSequence}.
      *
