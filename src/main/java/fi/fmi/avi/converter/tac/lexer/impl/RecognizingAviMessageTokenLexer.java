@@ -6,7 +6,9 @@ import java.util.List;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeVisitor;
+import fi.fmi.avi.model.AviationCodeListUser;
 
 /**
  * Created by rinne on 01/02/17.
@@ -51,9 +53,25 @@ public class RecognizingAviMessageTokenLexer implements LexemeVisitor {
         }
     }
 
-    private List<PrioritizedLexemeVisitor> visitors = new ArrayList<PrioritizedLexemeVisitor>();
+    //Unfortunately lambda expressions are not allowed in Spring 3.x Java configurations, so unable to use Predicate here:
+    //private Predicate<LexemeSequence> matcher;
+    private SuitabilityTester matcher;
 
-    public void teach(PrioritizedLexemeVisitor lexer) {
+    private final List<PrioritizedLexemeVisitor> visitors = new ArrayList<PrioritizedLexemeVisitor>();
+
+    public AviationCodeListUser.MessageType getMessageType() {
+        return this.matcher.getMessageType();
+    }
+
+    public SuitabilityTester getSuitablityTester() {
+        return this.matcher;
+    }
+
+    public void setSuitabilityTester(final SuitabilityTester matcher) {
+        this.matcher = matcher;
+    }
+
+    public void teach(final PrioritizedLexemeVisitor lexer) {
         this.visitors.add(lexer);
         Collections.sort(this.visitors);
     }
@@ -69,6 +87,11 @@ public class RecognizingAviMessageTokenLexer implements LexemeVisitor {
             	}
             }
         }
+    }
+
+    public interface SuitabilityTester {
+        boolean test(LexemeSequence sequence);
+        AviationCodeListUser.MessageType getMessageType();
     }
 
 }
