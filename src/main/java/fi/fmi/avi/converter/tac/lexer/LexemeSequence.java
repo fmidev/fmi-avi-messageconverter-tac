@@ -79,7 +79,7 @@ public interface LexemeSequence {
     /**
      * Returns a list of sub-sequences cut from the sequence split by given {@link Lexeme.Identity} set.
      * A new sub-sequence starts at each found {@link Lexeme} identified as any of the given
-     * <code>ids</code>. Zero-length sub-sequences will be not returned, so if the first
+     * <code>ids</code>. Zero-length sub-sequences are discarded silently so if the first
      * {@link Lexeme} matches, the first returned {@link LexemeSequence} starts at the
      * first {@link Lexeme}. If the last {@link Lexeme} matches, the last returned
      * {@link LexemeSequence} contains only the last Lexeme.
@@ -93,5 +93,28 @@ public interface LexemeSequence {
      * @return the list of split-up sequences
      */
     List<LexemeSequence> splitBy(Lexeme.Identity... ids);
+
+    /**
+     * Returns a list of sub-sequences cut from the sequence split by given {@link Lexeme.Identity} set.
+     * A new sub-sequence starts at or after each found {@link Lexeme} identified as any of the given
+     * <code>ids</code>, depending on the value of <code>separatorStartsSequence</code>.
+     * Zero-length sub-sequences are discarded silently.
+     *
+     * If not matches are found, the original {@link LexemeSequence} is returned as the
+     * only list item.
+     *
+     * @param ids
+     *         the IDs if the tokens to use for splitting
+     *
+     * @return the list of split-up sequences
+     */
+    List<LexemeSequence> splitBy(boolean separatorStartsSequence, Lexeme.Identity... ids);
+
+    /**
+     * Trims any white space from the beginning and end of this sequence.
+     *
+     * @return the same sequence trimmed
+     */
+    LexemeSequence trimWhiteSpace();
 
 }
