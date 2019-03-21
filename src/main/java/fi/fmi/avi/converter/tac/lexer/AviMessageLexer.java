@@ -1,6 +1,9 @@
 package fi.fmi.avi.converter.tac.lexer;
 
+import java.util.Optional;
+
 import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.model.AviationCodeListUser;
 
 /**
  *
@@ -29,7 +32,7 @@ public interface AviMessageLexer {
      * @see LexemeSequence
      * s
      */
-    LexemeSequence lexMessage(final String input);
+    LexemeSequence lexMessage(String input);
 
     /**
      * Lexes the input String with the given parsing settings.
@@ -41,6 +44,17 @@ public interface AviMessageLexer {
      * @param hints parsing hints to be passed to the lexer implementation
      * @return sequence of recognized or unrecognized {@link Lexeme}s
      */
-    LexemeSequence lexMessage(final String input, ConversionHints hints);
+    LexemeSequence lexMessage(String input, ConversionHints hints);
+
+    /**
+     * Tries to recognize the given String as one of the aviation message types in
+     * {@link AviationCodeListUser.MessageType}. Must use the same
+     * logic as {@link #lexMessage(String, ConversionHints)} does internally.
+     *
+     * @param input the TAC encoded message
+     * @param hints parsing hints to be passed to the lexer implementation
+     * @return the type if recognized
+     */
+    Optional<AviationCodeListUser.MessageType> recognizeMessageType(String input, ConversionHints hints);
 
 }
