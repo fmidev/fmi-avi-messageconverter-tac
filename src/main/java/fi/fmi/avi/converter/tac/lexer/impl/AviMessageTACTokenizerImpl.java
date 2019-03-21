@@ -32,7 +32,7 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
 		this.tafSerializer = serializer;
 	}
 
-    public void setTAFBUlletinSerializer(TAFBulletinTACSerializer serializer) {
+    public void setTAFBulletinSerializer(TAFBulletinTACSerializer serializer) {
         this.tafBulletinSerializer = serializer;
     }
 
