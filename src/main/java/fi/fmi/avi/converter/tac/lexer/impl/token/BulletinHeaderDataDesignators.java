@@ -16,12 +16,15 @@ import fi.fmi.avi.model.MeteorologicalBulletin;
 public class BulletinHeaderDataDesignators extends RegexMatchingLexemeVisitor {
 
     public BulletinHeaderDataDesignators(final Priority prio) {
-        super("^(?<TT>[A-Z]{2})(?<AA>[A-Z]{2})(?<ii>[0-9]{2})$", prio);
+        super("^(?<designators>[A-Z]{2}[A-Z]{2}[0-9]{2})$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        //TODO: identification and property parsing
+        if (token.getFirst().equals(token)) {
+            token.identify(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS);
+            token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group("designators"));
+        }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {

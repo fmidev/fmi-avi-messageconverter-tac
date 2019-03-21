@@ -21,7 +21,12 @@ public class BulletinLocationIndicator extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        //TODO: identification and property parsing
+        if (token.hasPrevious() && token.getPrevious().getIdentityIfAcceptable() != null && token.getPrevious()
+                .getIdentityIfAcceptable()
+                .equals(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS)) {
+            token.identify(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR);
+            token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group("code"));
+        }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {

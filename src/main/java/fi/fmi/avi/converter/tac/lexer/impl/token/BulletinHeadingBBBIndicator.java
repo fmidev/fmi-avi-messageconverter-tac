@@ -16,34 +16,40 @@ import fi.fmi.avi.model.MeteorologicalBulletin;
 public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
 
     public BulletinHeadingBBBIndicator(final Priority prio) {
-        super("^(?<type>RR|AA|CC)(?<seqno>[A-Z])$", prio);
+        super("^(?<bbb>RR|AA|CC[A-Z])$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        //TODO: identification and property parsing
+        if (token.getFirst().getIdentityIfAcceptable() != null && token.getFirst()
+                .getIdentityIfAcceptable()
+                .equals(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS) && token.hasPrevious() && token.getPrevious().getIdentityIfAcceptable() != null
+                && token.getPrevious().getIdentityIfAcceptable().equals(Lexeme.Identity.ISSUE_TIME)) {
+            token.identify(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR);
+            token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group("bbb"));
+        }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            Optional<Lexeme> retval = Optional.empty();
+            final Optional<Lexeme> retval = Optional.empty();
             if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
-                BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
+                final BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
                 if (heading != null) {
-                    Optional<Integer> augNumber = heading.getBulletinAugmentationNumber();
+                    final Optional<Integer> augNumber = heading.getBulletinAugmentationNumber();
                     if (augNumber.isPresent()) {
                         if (heading.getType() == BulletinHeading.Type.NORMAL) {
                             throw new SerializingException("Bulletin contains augmentation number, but the type is " + BulletinHeading.Type.NORMAL);
                         }
-                        int seqNumber = augNumber.get().intValue();
-                        if (seqNumber < 1 || seqNumber > ('Z' - 'A' + 1)) {
+                        final int seqNumber = Character.codePointAt("A", 0) + augNumber.get().intValue() - 1;
+                        //Using Character.codePointAt here is a bit overdo here since we know that we are always operating with single char ASCII codes
+                        if (seqNumber < Character.codePointAt("A", 0) || seqNumber > Character.codePointAt("Z", 0)) {
                             throw new SerializingException(
                                     "Illegal bulletin augmentation number '" + augNumber.get() + "', the value must be between 1 and  " + ('Z' - 'A' + 1));
                         }
-                        seqNumber = 'A' + seqNumber - 1;
                         return Optional.of(createLexeme(heading.getType().getPrefix() + String.valueOf(Character.toChars(seqNumber)),
                                 Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR));
                     }
