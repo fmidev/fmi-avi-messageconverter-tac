@@ -47,8 +47,8 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(result.getConversionIssues().isEmpty());
         Optional<TAF> taf = result.getConvertedMessage();
         assertTrue(taf.isPresent());
-        TAFBulletin bulletin = new TAFBulletinImpl.Builder()//
-                .setHeading(new BulletinHeadingImpl.Builder()//
+        TAFBulletin bulletin = TAFBulletinImpl.builder()//
+                .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setType(BulletinHeading.Type.AMENDED)//
@@ -76,8 +76,8 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(result.getConversionIssues().isEmpty());
         Optional<TAF> taf = result.getConvertedMessage();
         assertTrue(taf.isPresent());
-        TAFBulletin bulletin = new TAFBulletinImpl.Builder()//
-                .setHeading(new BulletinHeadingImpl.Builder()//
+        TAFBulletin bulletin = TAFBulletinImpl.builder()//
+                .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setType(BulletinHeading.Type.DELAYED)//
@@ -106,8 +106,8 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(result.getConversionIssues().isEmpty());
         Optional<TAF> taf = result.getConvertedMessage();
         assertTrue(taf.isPresent());
-        new TAFBulletinImpl.Builder()//
-                .setHeading(new BulletinHeadingImpl.Builder()//
+        TAFBulletinImpl.builder()//
+                .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setType(BulletinHeading.Type.DELAYED)//
@@ -129,8 +129,8 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(result.getConversionIssues().isEmpty());
         Optional<TAF> taf = result.getConvertedMessage();
         assertTrue(taf.isPresent());
-        TAFBulletin bulletin = new TAFBulletinImpl.Builder()//
-                .setHeading(new BulletinHeadingImpl.Builder()//
+        TAFBulletin bulletin = TAFBulletinImpl.builder()//
+                .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setType(BulletinHeading.Type.CORRECTED)//
@@ -158,8 +158,8 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(pojoResult.getConversionIssues().isEmpty());
         Optional<TAF> taf = pojoResult.getConvertedMessage();
         assertTrue(taf.isPresent());
-        TAFBulletin bulletin = new TAFBulletinImpl.Builder()//
-                .setHeading(new BulletinHeadingImpl.Builder()//
+        TAFBulletin bulletin = TAFBulletinImpl.builder()//
+                .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setGeographicalDesignator("FI")//
@@ -188,8 +188,8 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(pojoResult.getConversionIssues().isEmpty());
         Optional<TAF> taf = pojoResult.getConvertedMessage();
         assertTrue(taf.isPresent());
-        TAFBulletin bulletin = new TAFBulletinImpl.Builder()//
-                .setHeading(new BulletinHeadingImpl.Builder()//
+        TAFBulletin bulletin = TAFBulletinImpl.builder()//
+                .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setGeographicalDesignator("FI")//

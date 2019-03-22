@@ -36,17 +36,17 @@ public class SIGMETBulletinTACSerializationTest {
 
     @Test
     public void testSerialization() throws Exception {
-        SIGMETBulletinImpl.Builder builder = new SIGMETBulletinImpl.Builder()//
-                .setHeading(new BulletinHeadingImpl.Builder()//
+        SIGMETBulletinImpl.Builder builder = SIGMETBulletinImpl.builder()//
+                .setHeading(BulletinHeadingImpl.builder()//
                         .setGeographicalDesignator("FI")//
                         .setLocationIndicator("EFKL")//
                         .setBulletinNumber(31)//
                         .setDataTypeDesignatorT2(BulletinHeading.WarningsDataTypeDesignatorT2.WRN_SIGMET)//
-                        .setIssueTime(new PartialOrCompleteTimeInstant.Builder()//
+                        .setIssueTime(PartialOrCompleteTimeInstant.builder()//
                                 .setPartialTime(PartialDateTime.ofDayHourMinute(17, 7, 0)))//
                         .build());
 
-        builder.addMessages(new SIGMETImpl.Builder()//
+        builder.addMessages(SIGMETImpl.builder()//
                 .setTranslatedTAC("EFIN SIGMET 1 VALID 170750/170950 EFKL-\n"//
                         + "EFIN FINLAND FIR SEV TURB FCST AT 0740Z\n"//
                         + "S OF LINE N5953 E01931 -\n"//
