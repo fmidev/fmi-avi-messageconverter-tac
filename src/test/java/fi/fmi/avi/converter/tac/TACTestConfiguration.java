@@ -1,12 +1,14 @@
 package fi.fmi.avi.converter.tac;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
+import fi.fmi.avi.converter.json.conf.JSONConverter;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
@@ -18,7 +20,7 @@ import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 @Configuration
-@Import(TACConverter.class)
+@Import({TACConverter.class, JSONConverter.class })
 public class TACTestConfiguration {
     
     @Autowired
@@ -55,9 +57,16 @@ public class TACTestConfiguration {
     @Autowired
     private AviMessageSpecificConverter<String, GenericMeteorologicalBulletin> genericBulletinTACParser;
 
+    @Autowired
+    private AviMessageSpecificConverter<GenericMeteorologicalBulletin, String> genericBulletinTACSerializer;
+
+    @Autowired
+    @Qualifier("genericBulletinJSONSerializer")
+    private AviMessageSpecificConverter<GenericMeteorologicalBulletin, String> genericBulletinJSONSerializer;
+
     @Bean
     public AviMessageConverter aviMessageConverter() {
-        AviMessageConverter p = new AviMessageConverter();
+        final AviMessageConverter p = new AviMessageConverter();
         p.setMessageSpecificConverter(TACConverter.TAC_TO_METAR_POJO, metarTACParser);
         p.setMessageSpecificConverter(TACConverter.TAC_TO_IMMUTABLE_METAR_POJO, immutableMetarTACParser);
         p.setMessageSpecificConverter(TACConverter.METAR_POJO_TO_TAC, metarTACSerializer);
@@ -72,6 +81,9 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(TACConverter.TAC_TO_GENERIC_BULLETIN_POJO, genericBulletinTACParser);
         p.setMessageSpecificConverter(TACConverter.TAF_BULLETIN_POJO_TO_TAC, tafBulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.SIGMET_BULLETIN_POJO_TO_TAC, sigmetBulletinTACSerializer);
+        p.setMessageSpecificConverter(TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, genericBulletinTACSerializer);
+
+        p.setMessageSpecificConverter(JSONConverter.GENERIC_METEOROLOGICAL_BULLETIN_POJO_TO_JSON_STRING, genericBulletinJSONSerializer);
 
         return p;
     }

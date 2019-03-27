@@ -1,7 +1,6 @@
 package fi.fmi.avi.converter.tac.bulletin;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -61,7 +60,7 @@ public class GenericMeteorologicalBulletinParserTest {
 
     @Test
     public void testParsing() {
-        BulletinHeading heading = new BulletinHeadingImpl.Builder()//
+        BulletinHeading heading = BulletinHeadingImpl.builder()//
                 .setDataTypeDesignatorT1ForTAC(BulletinHeading.DataTypeDesignatorT1.FORECASTS)
                 .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG)
                 .setBulletinNumber(33)
@@ -96,6 +95,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(AviationCodeListUser.MessageType.TAF,msg.getMessageType().get());
 
         msg = bulletin.get().getMessages().get(1);
-        assertFalse(msg.getMessageType().isPresent());
+        assertTrue(msg.getMessageType().isPresent());
+        assertEquals(AviationCodeListUser.MessageType.GENERIC,msg.getMessageType().get());
+
     }
 }

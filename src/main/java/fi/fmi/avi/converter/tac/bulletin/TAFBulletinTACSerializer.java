@@ -37,7 +37,7 @@ public class TAFBulletinTACSerializer extends AbstractTACBulletinSerializer<TAF,
                 return tafSerializer.tokenizeMessage(message, hints);
             }
         }
-        throw new SerializingException("Unabled to serialize null TAF");
+        throw new SerializingException("Unable to serialize null TAF");
     }
 
 }
