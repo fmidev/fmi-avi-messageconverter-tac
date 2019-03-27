@@ -33,7 +33,11 @@ public class GenericMeteorologicalBulletinTACSerializer extends AbstractTACBulle
     @Override
     protected LexemeSequence tokenizeSingleMessage(final GenericAviationWeatherMessage message, final ConversionHints hints) throws SerializingException {
         if (message != null) {
-            return this.lexer.lexMessage(message.getOriginalMessage(), hints);
+            if (GenericAviationWeatherMessage.Format.TAC == message.getMessageFormat()) {
+                return this.lexer.lexMessage(message.getOriginalMessage(), hints);
+            } else {
+                throw new SerializingException("The originalMessage content is not in TAC format, automatic conversion from IWXXM not supported");
+            }
         }
         throw new SerializingException("Unable to serialize null message");
     }
