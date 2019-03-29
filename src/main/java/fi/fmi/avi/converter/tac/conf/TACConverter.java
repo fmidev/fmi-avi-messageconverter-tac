@@ -269,7 +269,7 @@ public class TACConverter {
         l.addTokenLexer(speciTokenLexer());
         l.addTokenLexer(tafTokenLexer());
         l.addTokenLexer(genericMeteorologicalBulletinTokenLexer());
-        l.addTokenLexer(genericAviationWeathermessageTokenLexer()); //Keep this last, matches anything
+        l.addTokenLexer(genericAviationWeatherMessageTokenLexer()); //Keep this last, matches anything
         return l;
     }
 
@@ -493,7 +493,7 @@ public class TACConverter {
         return l;
     }
 
-    private RecognizingAviMessageTokenLexer genericAviationWeathermessageTokenLexer() {
+    private RecognizingAviMessageTokenLexer genericAviationWeatherMessageTokenLexer() {
         final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
         //Lambdas not allowed in Spring 3.x Java config files:
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
