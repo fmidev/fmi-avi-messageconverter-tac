@@ -196,7 +196,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         if (builder.getValidityTime().isPresent()) {
             result.addIssue(setFromChangeForecastEndTimes(builder));
         } else {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Validity time period must be set before amending FM end times"));
+            result.addIssue(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Validity time period must be set before amending possible FM end times"));
         }
 
         result.setConvertedMessage(builder.build());

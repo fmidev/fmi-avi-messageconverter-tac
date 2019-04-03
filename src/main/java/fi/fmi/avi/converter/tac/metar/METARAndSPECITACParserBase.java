@@ -1091,7 +1091,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         final List<LexemeSequence> subSequences = lexed.splitBy(Identity.TREND_CHANGE_INDICATOR, Identity.NO_SIGNIFICANT_CHANGES, Identity.REMARKS_START);
         final LexemeSequence obs = subSequences.get(0);
 
-        findNext(Identity.CORRECTION, obs.getFirstLexeme(), (match) -> {
+        obs.getFirstLexeme().findNext(Identity.CORRECTION, (match) -> {
             final Identity[] before = { Identity.AERODROME_DESIGNATOR, Identity.ISSUE_TIME, Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL,
                     Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
                     Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE,
@@ -1104,7 +1104,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             }
         }, () -> builder.setStatus(AviationCodeListUser.MetarStatus.NORMAL));
 
-        findNext(Identity.AERODROME_DESIGNATOR, obs.getFirstLexeme(), (match) -> {
+        obs.getFirstLexeme().findNext(Identity.AERODROME_DESIGNATOR, (match) -> {
             final Identity[] before = new Identity[] { Identity.ISSUE_TIME, Identity.ROUTINE_DELAYED_OBSERVATION, Identity.NIL, Identity.SURFACE_WIND,
                     Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH,
                     Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE,
@@ -1119,7 +1119,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
 
         result.addIssue(setMETARIssueTime(builder, lexed, hints));
 
-        findNext(Identity.AUTOMATED, obs.getFirstLexeme(), (match) -> {
+        obs.getFirstLexeme().findNext(Identity.AUTOMATED, (match) -> {
             final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
                     Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
                     Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
@@ -1131,7 +1131,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             }
         });
 
-        findNext(Identity.ROUTINE_DELAYED_OBSERVATION, obs.getFirstLexeme(), (match) -> {
+        obs.getFirstLexeme().findNext(Identity.ROUTINE_DELAYED_OBSERVATION,  (match) -> {
             final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
                     Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
                     Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
@@ -1149,7 +1149,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             }
         });
 
-        findNext(Identity.NIL, obs.getFirstLexeme(), (match) -> {
+        obs.getFirstLexeme().findNext(Identity.NIL, (match) -> {
             final Identity[] before = new Identity[] { Identity.SURFACE_WIND, Identity.CAVOK, Identity.HORIZONTAL_VISIBILITY, Identity.CLOUD,
                     Identity.AIR_DEWPOINT_TEMPERATURE, Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE,
                     Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE, Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
@@ -1174,7 +1174,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
 
         result.addIssue(setObservedSurfaceWind(builder, obs, hints));
 
-        findNext(Identity.CAVOK, obs.getFirstLexeme(), (match) -> {
+        obs.getFirstLexeme().findNext(Identity.CAVOK, (match) -> {
             final Identity[] before = new Identity[] { Identity.RUNWAY_VISUAL_RANGE, Identity.CLOUD, Identity.AIR_DEWPOINT_TEMPERATURE,
                     Identity.AIR_PRESSURE_QNH, Identity.RECENT_WEATHER, Identity.WIND_SHEAR, Identity.SEA_STATE, Identity.RUNWAY_STATE, Identity.SNOW_CLOSURE,
                     Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
@@ -1197,7 +1197,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         result.addIssue(setSeaState(builder, obs, hints));
         result.addIssue(setRunwayStates(builder, obs, hints));
 
-        findNext(Identity.SNOW_CLOSURE, obs.getFirstLexeme(), (match) -> {
+        obs.getFirstLexeme().findNext(Identity.SNOW_CLOSURE, (match) -> {
             final Identity[] before = new Identity[] { Identity.COLOR_CODE, Identity.TREND_CHANGE_INDICATOR, Identity.REMARKS_START };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {

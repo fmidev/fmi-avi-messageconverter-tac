@@ -52,7 +52,11 @@ public class IssueTime extends TimeHandlingRegex {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             PartialOrCompleteTimeInstant time;
             if (AerodromeWeatherMessage.class.isAssignableFrom(clz)) {
-                time = ((AerodromeWeatherMessage) msg).getIssueTime();
+                if (((AerodromeWeatherMessage) msg).getIssueTime().isPresent()) {
+                    time = ((AerodromeWeatherMessage) msg).getIssueTime().get();
+                } else {
+                    return Optional.empty();
+                }
             } else if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
                 time = ((MeteorologicalBulletin) msg).getHeading().getIssueTime();
             } else {

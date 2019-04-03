@@ -105,7 +105,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                 lm = messageSequence.getFirstLexeme();
 
                 lm.findNext(Lexeme.Identity.AERODROME_DESIGNATOR, designator -> msgBuilder.setTargetAerodrome(
-                        new AerodromeImpl.Builder().setDesignator(designator.getTACToken()).build()));
+                        AerodromeImpl.builder().setDesignator(designator.getTACToken()).build()));
                 lm.findNext(Lexeme.Identity.ISSUE_TIME, time -> msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.createIssueTime(time.getTACToken())));
                 lm.findNext(Lexeme.Identity.VALID_TIME, time -> msgBuilder.setValidityTime(PartialOrCompleteTimePeriod.createValidityTime(time.getTACToken())));
                 msgBuilder.setOriginalMessage(messageSequence.getTAC());
