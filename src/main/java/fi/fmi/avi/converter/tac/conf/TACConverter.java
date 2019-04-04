@@ -41,6 +41,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.ForecastMaxMinTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.FractionalHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ICAOCode;
 import fi.fmi.avi.converter.tac.lexer.impl.token.IssueTime;
+import fi.fmi.avi.converter.tac.lexer.impl.token.LowWindStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetarStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
@@ -269,6 +270,7 @@ public class TACConverter {
         l.addTokenLexer(speciTokenLexer());
         l.addTokenLexer(tafTokenLexer());
         l.addTokenLexer(genericMeteorologicalBulletinTokenLexer());
+        l.addTokenLexer(lowWindTokenLexer());
         l.addTokenLexer(genericAviationWeatherMessageTokenLexer()); //Keep this last, matches anything
         return l;
     }
@@ -509,6 +511,27 @@ public class TACConverter {
 
         });
         l.teach(new EndToken(Priority.HIGH));
+        l.teach(new Whitespace(Priority.HIGH));
+        return l;
+    }
+
+    private RecognizingAviMessageTokenLexer lowWindTokenLexer() {
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                return sequence.getFirstLexeme().getTACToken().equals("LOW WIND");
+            }
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.LOW_WIND;
+            }
+        });
+        l.teach(new LowWindStart(Priority.HIGH));
+        l.teach(new ICAOCode(Priority.LOW));
+        l.teach(new IssueTime(Priority.LOW));
+        l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));
         return l;
     }

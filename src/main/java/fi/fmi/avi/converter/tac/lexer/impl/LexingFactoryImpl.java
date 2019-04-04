@@ -74,10 +74,7 @@ public class LexingFactoryImpl implements LexingFactory {
         private LexemeImpl head;
         private LexemeImpl tail;
 
-        //private final LinkedList<LexemeImpl> lexemes;
-
         LexemeSequenceImpl(final String originalTac) {
-            //this.lexemes = new LinkedList<>();
             if (originalTac != null) {
                 this.constructFromTAC(originalTac);
             }
@@ -231,7 +228,13 @@ public class LexingFactoryImpl implements LexingFactory {
             final LexemeImpl oldLast = this.tail;
             final LexemeImpl prev = this.tail.getPreviousImpl(true, true);
             this.tail = replacement;
-            this.tail.setFirst(oldLast.first);
+            if (oldLast == this.head) {
+                //Replacing the only token
+                this.head = replacement;
+                this.tail.setFirst(this.head);
+            } else {
+                this.tail.setFirst(oldLast.first);
+            }
             if (prev != null) {
                 this.tail.setPrevious(prev);
                 prev.setNext(this.tail);
@@ -374,12 +377,7 @@ public class LexingFactoryImpl implements LexingFactory {
                         } else if (lastToken != null && horVisFractionNumberPart2Pattern.matcher(s).matches() && horVisFractionNumberPart1Pattern.matcher(lastToken)
                                 .matches()) {
                             // cases like "1 1/8SM", combine the two tokens:
-                            l = new LexemeImpl(lastToken + " " + s);
-                            //last is a whitespace now, so need to remove it first:
-                            this.removeLast();
-                            l.setStartIndex(this.getLastLexeme().getStartIndex());
-                            l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
-                            this.replaceLastWith(l);
+                            l = combineThisAndPrevToken(lastToken, s);
 
                         } else if ("WS".equals(lastLastToken) && "ALL".equals(lastToken) && windShearRunwayPattern.matcher(s).matches()) {
                             // "WS ALL RWY" case: concat all three parts as the last token:
@@ -400,12 +398,9 @@ public class LexingFactoryImpl implements LexingFactory {
                             l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
                             this.replaceLastWith(l);
                         } else if (("PROB30".equals(lastToken) || "PROB40".equals(lastToken)) && ("TEMPO".equals(s))) {
-                            l = new LexemeImpl(lastToken + " " + s);
-                            //last is a whitespace now, so need to remove it first:
-                            this.removeLast();
-                            l.setStartIndex(this.getLastLexeme().getStartIndex());
-                            l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
-                            this.replaceLastWith(l);
+                            l = combineThisAndPrevToken(lastToken, s);
+                        } else if ("LOW".equals(lastToken) && "WIND".equals(s)) {
+                            l = combineThisAndPrevToken(lastToken, s);
                         } else {
                             l = new LexemeImpl(s);
                             l.setStartIndex(start);
@@ -423,6 +418,15 @@ public class LexingFactoryImpl implements LexingFactory {
                 }
                 this.originalTac = tac;
             }
+        }
+
+        private LexemeImpl combineThisAndPrevToken(final String lastToken, final String currentToken) {
+            LexemeImpl l = new LexemeImpl(lastToken + " " + currentToken);
+            this.removeLast();
+            l.setStartIndex(this.getLastLexeme().getStartIndex());
+            l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
+            this.replaceLastWith(l);
+            return l;
         }
 
         private String getAsTAC() {
