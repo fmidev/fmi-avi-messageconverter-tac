@@ -2,6 +2,7 @@ package fi.fmi.avi.converter.tac.bulletin;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
@@ -10,6 +11,8 @@ import fi.fmi.avi.converter.tac.AbstractTACParser;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
+import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.GenericAviationWeatherMessage;
 import fi.fmi.avi.model.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
@@ -18,6 +21,7 @@ import fi.fmi.avi.model.immutable.AerodromeImpl;
 import fi.fmi.avi.model.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.model.immutable.GenericAviationWeatherMessageImpl;
 import fi.fmi.avi.model.immutable.GenericMeteorologicalBulletinImpl;
+import fi.fmi.avi.util.GTSExchangeFileInfo;
 
 public class GenericMeteorologicalBulletinParser extends AbstractTACParser<GenericMeteorologicalBulletin> {
     private static final Lexeme.Identity[] ZERO_OR_ONE_ALLOWED = {Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS,
@@ -41,6 +45,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
      * @return the {@link ConversionResult} with the converter message and the possible conversion issues
      */
     @Override
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     public ConversionResult<GenericMeteorologicalBulletin> convertMessage(final String input, final ConversionHints hints) {
         final ConversionResult<GenericMeteorologicalBulletin> result = new ConversionResult<>();
         if (this.lexer == null) {
@@ -82,15 +87,23 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             if (lastHeadingToken == null) {
                 lastHeadingToken = l;
             }
-            bulletinBuilder.setHeading(BulletinHeadingImpl.Builder.from(abbrHeading.toString()).build());
+            BulletinHeading bulletinHeading = BulletinHeadingImpl.Builder.from(abbrHeading.toString()).build();
+            bulletinBuilder.setHeading(bulletinHeading);
 
             //Lex each the contained message again individually to collect more info:
             String msg;
             LexemeSequence messageSequence;
             Lexeme lm;
             String bulletinID = null;
+            GTSExchangeFileInfo bulletinMetadata = null;
             if (hints != null && hints.containsKey(ConversionHints.KEY_BULLETIN_ID)) {
                 bulletinID = hints.get(ConversionHints.KEY_BULLETIN_ID, String.class);
+                try {
+                    bulletinMetadata = GTSExchangeFileInfo.Builder.from(bulletinID).build();
+                } catch (IllegalArgumentException iae) {
+                    result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX, "Could not parse bulletin metadata "
+                            + "from bulletinID '" + bulletinID + "'"));
+                }
             }
             for (int i = 0; i < subSequences.size(); i++) {
                 if (i == 0) {
@@ -99,14 +112,16 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                     msg = subSequences.get(i).trimWhiteSpace().getTAC();
                 }
                 final GenericAviationWeatherMessageImpl.Builder msgBuilder = new GenericAviationWeatherMessageImpl.Builder();
-                this.lexer.recognizeMessageType(msg, hints).ifPresent(msgBuilder::setMessageType);
+                Optional<AviationCodeListUser.MessageType> messageType = this.lexer.recognizeMessageType(msg, hints);
+                messageType.ifPresent(msgBuilder::setMessageType);
                 msgBuilder.setMessageFormat(GenericAviationWeatherMessage.Format.TAC);
                 messageSequence = this.lexer.lexMessage(msg, hints);
                 lm = messageSequence.getFirstLexeme();
 
                 lm.findNext(Lexeme.Identity.AERODROME_DESIGNATOR, designator -> msgBuilder.setTargetAerodrome(
                         AerodromeImpl.builder().setDesignator(designator.getTACToken()).build()));
-                lm.findNext(Lexeme.Identity.ISSUE_TIME, time -> msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.createIssueTime(time.getTACToken())));
+                lm.findNext(Lexeme.Identity.ISSUE_TIME,
+                        time -> msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.createIssueTime(time.getTACToken())));
                 lm.findNext(Lexeme.Identity.VALID_TIME, time -> msgBuilder.setValidityTime(PartialOrCompleteTimePeriod.createValidityTime(time.getTACToken())));
                 msgBuilder.setOriginalMessage(messageSequence.getTAC());
                 msgBuilder.setTranslated(true);

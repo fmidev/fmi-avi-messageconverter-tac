@@ -401,6 +401,8 @@ public class LexingFactoryImpl implements LexingFactory {
                             l = combineThisAndPrevToken(lastToken, s);
                         } else if ("LOW".equals(lastToken) && "WIND".equals(s)) {
                             l = combineThisAndPrevToken(lastToken, s);
+                        } else if ("WX".equals(lastToken) && "WRNG".equals(s)) {
+                            l = combineThisAndPrevToken(lastToken, s);
                         } else {
                             l = new LexemeImpl(s);
                             l.setStartIndex(start);

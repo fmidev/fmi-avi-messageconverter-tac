@@ -47,6 +47,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
+import fi.fmi.avi.converter.tac.lexer.impl.token.REP;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
@@ -63,6 +64,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
+import fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
@@ -271,6 +274,8 @@ public class TACConverter {
         l.addTokenLexer(tafTokenLexer());
         l.addTokenLexer(genericMeteorologicalBulletinTokenLexer());
         l.addTokenLexer(lowWindTokenLexer());
+        l.addTokenLexer(wxWarningTokenLexer());
+        l.addTokenLexer(wxRepTokenLexer());
         l.addTokenLexer(genericAviationWeatherMessageTokenLexer()); //Keep this last, matches anything
         return l;
     }
@@ -530,6 +535,48 @@ public class TACConverter {
         });
         l.teach(new LowWindStart(Priority.HIGH));
         l.teach(new ICAOCode(Priority.LOW));
+        l.teach(new IssueTime(Priority.LOW));
+        l.teach(new EndToken(Priority.LOW));
+        l.teach(new Whitespace(Priority.HIGH));
+        return l;
+    }
+
+    private RecognizingAviMessageTokenLexer wxWarningTokenLexer() {
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                return sequence.getFirstLexeme().getTACToken().equals("WX WRNG");
+            }
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.WX_WARNING;
+            }
+        });
+        l.teach(new WXWarningStart(Priority.HIGH));
+        l.teach(new ICAOCode(Priority.LOW));
+        l.teach(new IssueTime(Priority.LOW));
+        l.teach(new EndToken(Priority.LOW));
+        l.teach(new Whitespace(Priority.HIGH));
+        return l;
+    }
+
+    private RecognizingAviMessageTokenLexer wxRepTokenLexer() {
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                return sequence.getFirstLexeme().getTACToken().equals("WXREP");
+            }
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.WXREP;
+            }
+        });
+        l.teach(new WXREPStart(Priority.HIGH));
+        l.teach(new REP(Priority.HIGH));
         l.teach(new IssueTime(Priority.LOW));
         l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));
