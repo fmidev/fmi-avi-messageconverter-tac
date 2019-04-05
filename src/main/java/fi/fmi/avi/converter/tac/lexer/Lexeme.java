@@ -11,6 +11,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_DIRECTIO
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MEAN_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_DIRECTION;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
@@ -517,6 +518,8 @@ public interface Lexeme {
         ARS_START,
         WXREP_START,
         AIREP_START,
+        SIGMET,
+        US_SIGMET_START,
         REP,
         SPACE_WEATHER_START,
         CORRECTION,
@@ -547,7 +550,7 @@ public interface Lexeme {
         SEA_STATE(UNIT, UNIT2, VALUE),
         RUNWAY_STATE(RUNWAY, VALUE),
         SNOW_CLOSURE,
-        VALID_TIME(DAY1, DAY2, HOUR1, HOUR2),
+        VALID_TIME(DAY1, DAY2, HOUR1, HOUR2, MINUTE1, MINUTE2),
         MIN_TEMPERATURE(DAY1, HOUR1, VALUE),
         MAX_TEMPERATURE(DAY1, HOUR1, VALUE),
         REMARKS_START,

@@ -1,5 +1,6 @@
 package fi.fmi.avi.converter.tac.bulletin;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +16,8 @@ import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.GenericAviationWeatherMessage;
 import fi.fmi.avi.model.GenericMeteorologicalBulletin;
+import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
 import fi.fmi.avi.model.immutable.AerodromeImpl;
 import fi.fmi.avi.model.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.model.immutable.GenericAviationWeatherMessageImpl;
@@ -119,10 +120,32 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                 lm = messageSequence.getFirstLexeme();
 
                 lm.findNext(Lexeme.Identity.AERODROME_DESIGNATOR, designator -> msgBuilder.setTargetAerodrome(
-                        AerodromeImpl.builder().setDesignator(designator.getTACToken()).build()));
-                lm.findNext(Lexeme.Identity.ISSUE_TIME,
-                        time -> msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.createIssueTime(time.getTACToken())));
-                lm.findNext(Lexeme.Identity.VALID_TIME, time -> msgBuilder.setValidityTime(PartialOrCompleteTimePeriod.createValidityTime(time.getTACToken())));
+                        AerodromeImpl.builder().setDesignator(designator.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build()));
+                lm.findNext(Lexeme.Identity.ISSUE_TIME, (time) -> {
+                    Integer day = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+                    Integer hour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                    Integer minute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+                    PartialDateTime issueTime = null;
+                    if (hour != null && minute != null) {
+                        if (day == null) {
+                            issueTime = PartialDateTime.ofHourMinute(hour, minute);
+                        } else {
+                            issueTime = PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"));
+                        }
+                    }
+                    msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.of(issueTime));
+
+                });
+                lm.findNext(Lexeme.Identity.VALID_TIME, (time) -> {
+                    Integer fromDay = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+                    Integer fromHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                    Integer fromMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+                    Integer toDay = time.getParsedValue(Lexeme.ParsedValueName.DAY2, Integer.class);
+                    Integer toHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR2, Integer.class);
+                    Integer toMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE2, Integer.class);
+                    //TODO: parse into PartialOrCompleteTimePeriod and set to builder
+
+                });
                 msgBuilder.setOriginalMessage(messageSequence.getTAC());
                 msgBuilder.setTranslated(true);
                 msgBuilder.setTranslationTime(ZonedDateTime.now());

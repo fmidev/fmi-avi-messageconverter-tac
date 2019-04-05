@@ -330,6 +330,7 @@ public class LexingFactoryImpl implements LexingFactory {
                 //  16th = "WS RWYnn[LRC]"
                 //  19th = "WS Rnn[LRC]"
                 final Pattern windShearRunwayPattern = Pattern.compile("^R(?:WY)?([0-9]{2})?[LRC]?$");
+                final Pattern sigmetValidTimePattern = Pattern.compile("^[0-9]{6}[/-][0-9]{6}$");
                 final StringTokenizer st = new StringTokenizer(tac, " \n\t\r\f", true);
                 String lastToken = null;
                 String lastLastToken = null;
@@ -402,6 +403,8 @@ public class LexingFactoryImpl implements LexingFactory {
                         } else if ("LOW".equals(lastToken) && "WIND".equals(s)) {
                             l = combineThisAndPrevToken(lastToken, s);
                         } else if ("WX".equals(lastToken) && "WRNG".equals(s)) {
+                            l = combineThisAndPrevToken(lastToken, s);
+                        } else if ("VALID".equals(lastToken) && sigmetValidTimePattern.matcher(s).matches()) {
                             l = combineThisAndPrevToken(lastToken, s);
                         } else {
                             l = new LexemeImpl(s);

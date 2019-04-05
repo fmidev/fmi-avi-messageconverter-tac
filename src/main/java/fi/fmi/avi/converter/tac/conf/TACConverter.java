@@ -54,6 +54,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
+import fi.fmi.avi.converter.tac.lexer.impl.token.Sigmet;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
@@ -62,6 +64,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart;
@@ -276,6 +279,7 @@ public class TACConverter {
         l.addTokenLexer(lowWindTokenLexer());
         l.addTokenLexer(wxWarningTokenLexer());
         l.addTokenLexer(wxRepTokenLexer());
+        l.addTokenLexer(intlSigmetTokenLexer());
         l.addTokenLexer(genericAviationWeatherMessageTokenLexer()); //Keep this last, matches anything
         return l;
     }
@@ -578,6 +582,47 @@ public class TACConverter {
         l.teach(new WXREPStart(Priority.HIGH));
         l.teach(new REP(Priority.HIGH));
         l.teach(new IssueTime(Priority.LOW));
+        l.teach(new EndToken(Priority.LOW));
+        l.teach(new Whitespace(Priority.HIGH));
+        return l;
+    }
+
+    private RecognizingAviMessageTokenLexer intlSigmetTokenLexer() {
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                return sequence.getFirstLexeme().hasNext() && sequence.getFirstLexeme().getNext().getTACToken().equals("SIGMET");
+            }
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.SIGMET;
+            }
+        });
+        l.teach(new Sigmet(Priority.HIGH));
+        l.teach(new SigmetValidTime(Priority.NORMAL));
+        l.teach(new EndToken(Priority.LOW));
+        l.teach(new Whitespace(Priority.HIGH));
+        return l;
+    }
+
+    private RecognizingAviMessageTokenLexer usSigmetTokenLexer() {
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                return sequence.getFirstLexeme().getTACToken().matches("^SIG[CWE]$");
+            }
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.SIGMET;
+            }
+        });
+
+        l.teach(new USSigmetStart(Priority.HIGH));
+        l.teach(new SigmetValidTime(Priority.NORMAL));
         l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));
         return l;
