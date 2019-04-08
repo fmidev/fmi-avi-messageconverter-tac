@@ -1,20 +1,21 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
+
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
-public class WXWarningStart extends RegexMatchingLexemeVisitor {
-    public WXWarningStart(final Priority prio) {
-        super("^WX\\s+WRNG$", prio);
+public class VolcanicAshAdvisoryStart extends RegexMatchingLexemeVisitor {
+    public VolcanicAshAdvisoryStart(final Priority prio) {
+        super("^VA\\s+ADVISORY$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         if (token.getFirst().equals(token)) {
-            token.identify(Lexeme.Identity.WX_WARNING_START);
+            token.identify(Lexeme.Identity.VOLCANIC_ASH_ADVISORY_START);
         }
     }
 }

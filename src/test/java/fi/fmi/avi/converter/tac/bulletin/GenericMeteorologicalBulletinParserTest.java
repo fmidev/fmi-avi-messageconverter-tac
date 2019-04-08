@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -206,5 +207,43 @@ public class GenericMeteorologicalBulletinParserTest {
         assertTrue(msg.getValidityTime().isPresent());
         assertTrue(msg.getValidityTime().get().getEndTime().isPresent());
         assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(-1,14, 55, ZoneId.of("Z"))), msg.getValidityTime().get().getEndTime().get());
+    }
+
+    @Test
+    public void testSpaceWeatherBulletinParsing() {
+        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FNXX01 EFKL 281200\n"
+                        + "SWX ADVISORY\n" //
+                        + "STATUS: TEST\n"//
+                        + "DTG: 20190128/1200Z\n" //
+                        + "SWXC: PECASUS\n" //
+                        + "ADVISORY NR: 2019/1\n"//
+                        + "SWX EFFECT: SATCOM MOD\n" //
+                        + "OBS SWX: 08/1200Z NO SWX EXP\n"//
+                        + "FCST SWX +6 HR: 08/1800Z NO SWX EXP\n"//
+                        + "FCST SWX +12 HR: 09/0000Z NO SWX EXP\n"//
+                        + "FCST SWX +18 HR: 09/0600Z NO SWX EXP\n"//
+                        + "FCST SWX +24 HR: 09/1200Z NO SWX EXP\n"//
+                        + "RMK: TEST TEST TEST TEST\n"
+                        + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" + "SEE WWW.PECASUS.ORG \n"
+                        + "NXT ADVISORY: NO FURTHER ADVISORIES\n \n",
+                TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
+
+        assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
+        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        assertTrue(bulletin.isPresent());
+        assertEquals(1,bulletin.get().getMessages().size());
+        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+
+        assertTrue(msg.getMessageType().isPresent());
+        assertEquals(AviationCodeListUser.MessageType.SPACE_WEATHER_ADVISORY,msg.getMessageType().get());
+
+        assertTrue(msg.getIssueTime().isPresent());
+        assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
+        assertEquals(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(2019,1,28, 12, 0, 0, 0, ZoneId.of("Z"))), msg.getIssueTime().get());
+
+        assertTrue(msg.getValidityTime().isPresent());
+        PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(8,12,00, ZoneId.of("Z")));
+        PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(9,12,00, ZoneId.of("Z")));
+        assertEquals(PartialOrCompleteTimePeriod.builder().setStartTime(start).setEndTime(end).build(), msg.getValidityTime().get());
     }
 }

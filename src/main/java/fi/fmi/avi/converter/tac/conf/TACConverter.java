@@ -24,6 +24,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.AviMessageTACTokenizerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.Priority;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Amendment;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
@@ -36,6 +37,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.Cancellation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ColorCode;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Correction;
+import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.EndToken;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ForecastMaxMinTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.FractionalHorizontalVisibility;
@@ -53,10 +55,12 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Sigmet;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherAdvisoryStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFChangeForecastTimeGroup;
@@ -68,6 +72,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.UsSigmetValidUntil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
+import fi.fmi.avi.converter.tac.lexer.impl.token.VolcanicAshAdvisoryStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
@@ -282,6 +287,8 @@ public class TACConverter {
         l.addTokenLexer(wxRepTokenLexer());
         l.addTokenLexer(intlSigmetTokenLexer());
         l.addTokenLexer(usSigmetTokenLexer());
+        l.addTokenLexer(spaceWeatherAdvisoryTokenLexer());
+        l.addTokenLexer(volcanicAshAdvisoryTokenLexer());
         l.addTokenLexer(genericAviationWeatherMessageTokenLexer()); //Keep this last, matches anything
         return l;
     }
@@ -624,8 +631,52 @@ public class TACConverter {
         });
 
         l.teach(new USSigmetStart(Priority.HIGH));
-        //l.teach(new SigmetValidTime(Priority.NORMAL)); //Wrongly picks up valid time from "OUTLOOK VALID 041155-041555"
         l.teach(new UsSigmetValidUntil(Priority.NORMAL));
+        l.teach(new EndToken(Priority.LOW));
+        l.teach(new Whitespace(Priority.HIGH));
+        return l;
+    }
+
+    private RecognizingAviMessageTokenLexer spaceWeatherAdvisoryTokenLexer() {
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                return sequence.getFirstLexeme().getTACToken().matches("^SWX\\s+ADVISORY$");
+            }
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.SPACE_WEATHER_ADVISORY;
+            }
+        });
+
+        l.teach(new SpaceWeatherAdvisoryStart(Priority.LOW));
+        l.teach(new DTGIssueTime(Priority.LOW));
+        l.teach(new SWXPhenomena(Priority.NORMAL));
+        l.teach(new AdvisoryPhenomenaTimeGroup(Priority.NORMAL));
+        l.teach(new EndToken(Priority.LOW));
+        l.teach(new Whitespace(Priority.HIGH));
+        return l;
+    }
+
+    private RecognizingAviMessageTokenLexer volcanicAshAdvisoryTokenLexer() {
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                return sequence.getFirstLexeme().getTACToken().matches("^VA\\s+ADVISORY$");
+            }
+            @Override
+            public AviationCodeListUser.MessageType getMessageType() {
+                return AviationCodeListUser.MessageType.VOLCANIC_ASH_ADVISORY;
+            }
+        });
+
+        l.teach(new VolcanicAshAdvisoryStart(Priority.LOW));
+        l.teach(new DTGIssueTime(Priority.LOW));
+        //TODO: valid time parser
         l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));
         return l;

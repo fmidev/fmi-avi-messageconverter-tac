@@ -521,7 +521,10 @@ public interface Lexeme {
         SIGMET,
         US_SIGMET_START,
         REP,
-        SPACE_WEATHER_START,
+        SPACE_WEATHER_ADVISORY_START,
+        SPACE_WEATHER_PHENOMENA_LABEL,
+        ADVISORY_PHENOMENA_TIME_GROUP(DAY1, HOUR1, MINUTE1),
+        VOLCANIC_ASH_ADVISORY_START,
         CORRECTION,
         AMENDMENT,
         CANCELLATION,
@@ -585,6 +588,8 @@ public interface Lexeme {
      */
     enum ParsedValueName {
         COUNTRY,
+        YEAR,
+        MONTH,
         DAY1,
         DAY2,
         HOUR1,
