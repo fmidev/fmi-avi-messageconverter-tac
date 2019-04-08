@@ -165,7 +165,7 @@ public class GenericMeteorologicalBulletinParserTest {
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
-        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.ofHourMinute(5,55)), msg.getIssueTime().get());
+        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(-1,5, 55, ZoneId.of("Z"))), msg.getIssueTime().get());
     }
 
     @Test
@@ -185,12 +185,14 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(AviationCodeListUser.MessageType.SIGMET,msg.getMessageType().get());
 
         assertTrue(msg.getValidityTime().isPresent());
-        assertEquals(PartialOrCompleteTimePeriod.createValidityTimeDHDH("300830/301030"), msg.getValidityTime().get());
+        PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(30,8,30, ZoneId.of("Z")));
+        PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(30,10,30, ZoneId.of("Z")));
+        assertEquals(PartialOrCompleteTimePeriod.builder().setStartTime(start).setEndTime(end).build(), msg.getValidityTime().get());
 
         result = this.converter.convertMessage("WSUS31 KKCI 051255 \n" + "SIGE  \n" + "CONVECTIVE SIGMET 11E \n" + "VALID UNTIL 1455Z \n" + "FL CSTL WTRS \n"
                         + "FROM 140SSW TLH-120W PIE-210S CEW-160S CEW-140SSW TLH \n" + "AREA EMBD TS MOV FROM 27010KT. TOPS TO FL440. \n" + " \n"
                         + "OUTLOOK VALID 051455-051855 \n" + "FROM 40WSW GSO-80ESE ILM-80NE TRV-TRV-210WSW PIE-LEV-50NW \n" + "SJI-AMG-40WSW GSO \n"
-                        + "WST ISSUANCES EXPD. REFER TO MOST RECENT ACUS01 KWNS FROM STORM \n" + "PREDICTION CENTER FOR SYNOPSIS AND METEOROLOGICAL DETAILS.",
+                        + "WST ISSUANCES EXPD. REFER TO MOST RECENT ACUS01 KWNS FROM STORM \n" + "PREDICTION CENTER FOR SYNOPSIS AND METEOROLOGICAL DETAILS.=",
                 TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         bulletin = result.getConvertedMessage();
@@ -203,6 +205,6 @@ public class GenericMeteorologicalBulletinParserTest {
 
         assertTrue(msg.getValidityTime().isPresent());
         assertTrue(msg.getValidityTime().get().getEndTime().isPresent());
-        assertEquals(PartialOrCompleteTimeInstant.createHourMinuteInstant("1455"), msg.getValidityTime().get().getEndTime().get());
+        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(-1,14, 55, ZoneId.of("Z"))), msg.getValidityTime().get().getEndTime().get());
     }
 }

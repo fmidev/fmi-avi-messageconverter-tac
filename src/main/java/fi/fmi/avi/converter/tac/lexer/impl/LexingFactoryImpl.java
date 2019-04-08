@@ -331,6 +331,7 @@ public class LexingFactoryImpl implements LexingFactory {
                 //  19th = "WS Rnn[LRC]"
                 final Pattern windShearRunwayPattern = Pattern.compile("^R(?:WY)?([0-9]{2})?[LRC]?$");
                 final Pattern sigmetValidTimePattern = Pattern.compile("^[0-9]{6}[/-][0-9]{6}$");
+                final Pattern usSigmetValidUntilTimePattern = Pattern.compile("^[0-9]{2}[0-9]{2}Z$");
                 final StringTokenizer st = new StringTokenizer(tac, " \n\t\r\f", true);
                 String lastToken = null;
                 String lastLastToken = null;
@@ -379,24 +380,11 @@ public class LexingFactoryImpl implements LexingFactory {
                                 .matches()) {
                             // cases like "1 1/8SM", combine the two tokens:
                             l = combineThisAndPrevToken(lastToken, s);
-
                         } else if ("WS".equals(lastLastToken) && "ALL".equals(lastToken) && windShearRunwayPattern.matcher(s).matches()) {
-                            // "WS ALL RWY" case: concat all three parts as the last token:
-                            //last is a whitespace now, so need to remove it first:
-                            this.removeLast(); // space
-                            this.removeLast(); // ALL
-                            this.removeLast(); // space
-                            l = new LexemeImpl("WS ALL RWY");
-                            l.setStartIndex(this.getLastLexeme().getStartIndex());
-                            l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
+                            l = combineThisAndTwoPrevTokens(lastLastToken, lastToken, s);
                             this.replaceLastWith(l);
                         } else if ("WS".equals(lastToken) && windShearRunwayPattern.matcher(s).matches()) {
-                            // "WS RWY22L" case, concat the two parts as the last token:
-                            l = new LexemeImpl("WS " + s);
-                            //last is a whitespace now, so need to remove it first:
-                            this.removeLast();
-                            l.setStartIndex(this.getLastLexeme().getStartIndex());
-                            l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
+                            l = combineThisAndPrevToken(lastToken, s);
                             this.replaceLastWith(l);
                         } else if (("PROB30".equals(lastToken) || "PROB40".equals(lastToken)) && ("TEMPO".equals(s))) {
                             l = combineThisAndPrevToken(lastToken, s);
@@ -406,6 +394,9 @@ public class LexingFactoryImpl implements LexingFactory {
                             l = combineThisAndPrevToken(lastToken, s);
                         } else if ("VALID".equals(lastToken) && sigmetValidTimePattern.matcher(s).matches()) {
                             l = combineThisAndPrevToken(lastToken, s);
+                        } else if ("VALID".equals(lastLastToken) && "UNTIL".equals(lastToken) && usSigmetValidUntilTimePattern.matcher(s).matches()) {
+                            // "US SIGMET VALID UNTIL" case: concat all three parts as the last token:
+                            l = combineThisAndTwoPrevTokens(lastLastToken, lastToken, s);
                         } else {
                             l = new LexemeImpl(s);
                             l.setStartIndex(start);
@@ -427,10 +418,21 @@ public class LexingFactoryImpl implements LexingFactory {
 
         private LexemeImpl combineThisAndPrevToken(final String lastToken, final String currentToken) {
             LexemeImpl l = new LexemeImpl(lastToken + " " + currentToken);
-            this.removeLast();
+            this.removeLast(); // space
             l.setStartIndex(this.getLastLexeme().getStartIndex());
             l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
             this.replaceLastWith(l);
+            return l;
+        }
+
+        private LexemeImpl combineThisAndTwoPrevTokens(final String lastLastToken, final String lastToken, final String currentToken) {
+            LexemeImpl l = new LexemeImpl(lastLastToken + " " + lastToken + " " + currentToken);
+            this.removeLast(); // space
+            this.removeLast(); // lastToken
+            this.removeLast(); // space
+            l.setStartIndex(this.getLastLexeme().getStartIndex());
+            l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
+            this.replaceLastWith(l); //lastLast replaced with the combination
             return l;
         }
 
@@ -914,6 +916,9 @@ public class LexingFactoryImpl implements LexingFactory {
             if (status != lexeme.status) {
                 return false;
             }
+            if (parsedValues.equals(lexeme.parsedValues)) {
+                return false;
+            }
             return lexerMessage != null ? lexerMessage.equals(lexeme.lexerMessage) : lexeme.lexerMessage == null;
         }
 
@@ -923,6 +928,7 @@ public class LexingFactoryImpl implements LexingFactory {
             result = 31 * result + (status != null ? status.hashCode() : 0);
             result = 31 * result + (lexerMessage != null ? lexerMessage.hashCode() : 0);
             result = 31 * result + (isSynthetic ? 1 : 0);
+            result = 31 * result + parsedValues.hashCode();
             return result;
         }
     }

@@ -65,6 +65,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.TAFStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup;
 import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.UsSigmetValidUntil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart;
@@ -280,6 +281,7 @@ public class TACConverter {
         l.addTokenLexer(wxWarningTokenLexer());
         l.addTokenLexer(wxRepTokenLexer());
         l.addTokenLexer(intlSigmetTokenLexer());
+        l.addTokenLexer(usSigmetTokenLexer());
         l.addTokenLexer(genericAviationWeatherMessageTokenLexer()); //Keep this last, matches anything
         return l;
     }
@@ -622,7 +624,8 @@ public class TACConverter {
         });
 
         l.teach(new USSigmetStart(Priority.HIGH));
-        l.teach(new SigmetValidTime(Priority.NORMAL));
+        //l.teach(new SigmetValidTime(Priority.NORMAL)); //Wrongly picks up valid time from "OUTLOOK VALID 041155-041555"
+        l.teach(new UsSigmetValidUntil(Priority.NORMAL));
         l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));
         return l;

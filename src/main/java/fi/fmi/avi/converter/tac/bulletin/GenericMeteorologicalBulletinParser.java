@@ -18,6 +18,7 @@ import fi.fmi.avi.model.GenericAviationWeatherMessage;
 import fi.fmi.avi.model.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
 import fi.fmi.avi.model.immutable.AerodromeImpl;
 import fi.fmi.avi.model.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.model.immutable.GenericAviationWeatherMessageImpl;
@@ -127,11 +128,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                     Integer minute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
                     PartialDateTime issueTime = null;
                     if (hour != null && minute != null) {
-                        if (day == null) {
-                            issueTime = PartialDateTime.ofHourMinute(hour, minute);
-                        } else {
-                            issueTime = PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"));
-                        }
+                        issueTime = PartialDateTime.of(day != null?day:-1, hour, minute, ZoneId.of("Z"));
                     }
                     msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.of(issueTime));
 
@@ -143,7 +140,28 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                     Integer toDay = time.getParsedValue(Lexeme.ParsedValueName.DAY2, Integer.class);
                     Integer toHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR2, Integer.class);
                     Integer toMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE2, Integer.class);
-                    //TODO: parse into PartialOrCompleteTimePeriod and set to builder
+
+                    //If there are different VALID_TIME lexemes in the same message, discard the entire valid time info with warning
+                    boolean conflict = false;
+                    Lexeme next = time.findNext(Lexeme.Identity.VALID_TIME);
+                    while (next != null) {
+                        if (!next.equals(time)) {
+                            conflict = true;
+                        }
+                        next = next.findNext(Lexeme.Identity.VALID_TIME);
+                    }
+                    if (conflict) {
+                        result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.LOGICAL,
+                                "There are different valid time tokens in the message, discarding valid time info"));
+                    } else {
+                        PartialOrCompleteTimePeriod.Builder validTime = PartialOrCompleteTimePeriod.builder()
+                                .setStartTime(PartialOrCompleteTimeInstant.of(
+                                        PartialDateTime.of(fromDay != null ? fromDay : -1, fromHour != null ? fromHour : -1, fromMinute != null ? fromMinute : -1,
+                                                ZoneId.of("Z"))))
+                                .setEndTime(PartialOrCompleteTimeInstant.of(
+                                        PartialDateTime.of(toDay != null ? toDay : -1, toHour != null ? toHour : -1, toMinute != null ? toMinute : -1, ZoneId.of("Z"))));
+                        msgBuilder.setValidityTime(validTime.build());
+                    }
 
                 });
                 msgBuilder.setOriginalMessage(messageSequence.getTAC());

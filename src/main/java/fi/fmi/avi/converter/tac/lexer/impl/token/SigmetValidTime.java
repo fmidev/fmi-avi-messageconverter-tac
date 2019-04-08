@@ -33,8 +33,8 @@ public class SigmetValidTime extends TimeHandlingRegex {
             token.setParsedValue(DAY2, toDay);
             token.setParsedValue(HOUR1, fromHour);
             token.setParsedValue(HOUR2, toHour);
-            token.setParsedValue(MINUTE1, fromHour);
-            token.setParsedValue(MINUTE2, toHour);
+            token.setParsedValue(MINUTE1, fromMinute);
+            token.setParsedValue(MINUTE2, toMinute);
         } else {
             token.identify(Lexeme.Identity.VALID_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid date and/or time");
         }
