@@ -12,7 +12,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 public class AdvisoryPhenomenaTimeGroup extends TimeHandlingRegex {
 
     public AdvisoryPhenomenaTimeGroup(final Priority prio) {
-        super("^((?<day>[0-9]{2})/(?<hour>[0-9]{2})(?<minute>[0-9]{2})$", prio);
+        super("^(?<day>[0-9]{2})/(?<hour>[0-9]{2})(?<minute>[0-9]{2})$", prio);
     }
 
     @Override
