@@ -1,5 +1,8 @@
 package fi.fmi.avi.converter.tac.conf;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import org.springframework.context.annotation.Bean;
@@ -307,9 +310,325 @@ public class TACConverter {
     
     @Bean
     public LexingFactory lexingFactory() {
-        return new LexingFactoryImpl();
+        LexingFactoryImpl f = new LexingFactoryImpl();
+        f.addTokenCombiningRule(fractionalHorizontalVisibilityCombinationRule());
+        f.addTokenCombiningRule(windShearAllCombinationRule());
+        f.addTokenCombiningRule(windShearCombinationRule());
+        f.addTokenCombiningRule(probTempoCombinationRule());
+        f.addTokenCombiningRule(lowWindCombinationRule());
+        f.addTokenCombiningRule(wxWarningCombinationRule());
+        f.addTokenCombiningRule(sigmetValidTimeCombinationRule());
+        f.addTokenCombiningRule(usSigmetValidTimeCombinationRule());
+        f.addTokenCombiningRule(advisoryStartCombinationRule());
+        f.addTokenCombiningRule(dtgCombinationRule());
+        f.addTokenCombiningRule(advisoryFctOffsetCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryPhenomenaCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryForecastTimeCombinationRule());
+        f.addTokenCombiningRule(volcanicAshAdvisoryDtgCombinationRule());
+        f.addTokenCombiningRule(volcanicAshAdvisoryCloudForecastCombinationRule());
+        f.addTokenCombiningRule(volcanicAshAdvisoryForecastTimeCombinationRule());
+        return f;
     }
 
+    private List<Predicate<String>> fractionalHorizontalVisibilityCombinationRule() {
+        // cases like "1 1/8SM",
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[0-9]*$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[0-9]*/[0-9]*[A-Z]{2}$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> windShearAllCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "WS".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "ALL".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "RWY".equals(s);
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> windShearCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "WS".equals(s);
+            }
+        });
+        // Windshear token for a particular runway has changed between 16th and 19th edition of Annex 3
+        //  16th = "WS RWYnn[LRC]"
+        //  19th = "WS Rnn[LRC]"
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^R(?:WY)?[0-9]{2}[LRC]?$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> probTempoCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^PROB[34]0$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "TEMPO".equals(s);
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> lowWindCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "LOW".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "WIND".equals(s);
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> wxWarningCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "WX".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "WRNG".equals(s);
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> sigmetValidTimeCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "VALID".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[0-9]{6}[/-][0-9]{6}$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> usSigmetValidTimeCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "VALID".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "UNTIL".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[0-9]{2}[0-9]{2}Z$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> advisoryStartCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(?:SWX)|(?:VAA)$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "ADVISORY".equals(s);
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> dtgCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "DTG:".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[0-9]{8}/[0-9]{4}Z$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> advisoryFctOffsetCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^\\+[0-9]{1,2}$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("HR:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryPhenomenaCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(?:OBS|FCST)$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SWX:?$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryForecastTimeCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^FCST\\s+SWX");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^\\+[0-9]{1,2}\\s+HR:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> volcanicAshAdvisoryDtgCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "OBS".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "VA".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "DTG:".equals(s);
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> volcanicAshAdvisoryCloudForecastCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "FCTS".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "VA".equals(s);
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return "CLD".equals(s);
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> volcanicAshAdvisoryForecastTimeCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^FCST\\s+VA\\s+CLD");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^\\+[0-9]{1,2}\\s+HR:$");
+            }
+        });
+        return retval;
+    }
 
     private void addMetarAndSpeciCommonReconstructors(final AbstractTACSerializer<?> s) {
         s.setLexingFactory(lexingFactory());

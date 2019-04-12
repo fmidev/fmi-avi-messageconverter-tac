@@ -238,8 +238,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(AviationCodeListUser.MessageType.SPACE_WEATHER_ADVISORY,msg.getMessageType().get());
 
         assertTrue(msg.getIssueTime().isPresent());
-        assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
-        assertEquals(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(2019,1,28, 12, 0, 0, 0, ZoneId.of("Z"))), msg.getIssueTime().get());
+        assertTrue(msg.getIssueTime().get().getCompleteTime().isPresent());
+        assertEquals(ZonedDateTime.of(2019,1,28, 12, 0, 0, 0, ZoneId.of("Z")), msg.getIssueTime().get().getCompleteTime().get());
 
         assertTrue(msg.getValidityTime().isPresent());
         PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(8,12,00, ZoneId.of("Z")));

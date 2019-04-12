@@ -1,5 +1,8 @@
 package fi.fmi.avi.converter.tac.lexer;
 
+import java.util.List;
+import java.util.function.Predicate;
+
 import fi.fmi.avi.converter.ConversionHints;
 
 /**
@@ -69,4 +72,11 @@ public interface LexingFactory {
      */
     Lexeme createLexeme(final String token, final Lexeme.Identity identity, final Lexeme.Status status);
 
+    /**
+     * Returns the rules used by this LexingFactory for combining matching sequences of white-space separated
+     * String tokens into single Lexemes.
+     *
+     * @return the list of combination rules to be used for parsing multi-token Lexemes
+     */
+    List<List<Predicate<String>>> getTokenCombiningRules();
 }

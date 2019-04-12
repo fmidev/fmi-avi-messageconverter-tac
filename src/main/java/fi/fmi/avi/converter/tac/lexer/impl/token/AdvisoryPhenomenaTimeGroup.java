@@ -12,12 +12,12 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 public class AdvisoryPhenomenaTimeGroup extends TimeHandlingRegex {
 
     public AdvisoryPhenomenaTimeGroup(final Priority prio) {
-        super("^(?<day>[0-9]{2})/(?<hour>[0-9]{2})(?<minute>[0-9]{2})$", prio);
+        super("^(?<day>[0-9]{2})/(?<hour>[0-9]{2})(?<minute>[0-9]{2})Z$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious() && token.getPrevious().getIdentity() == Identity.SPACE_WEATHER_PHENOMENA_LABEL) {
+        if (token.hasPrevious() && token.getPrevious().getIdentity() == Identity.ADVISORY_PHENOMENA_LABEL) {
             final int day = Integer.parseInt(match.group("day"));
             final int hour = Integer.parseInt(match.group("hour"));
             final int minute = Integer.parseInt(match.group("minute"));

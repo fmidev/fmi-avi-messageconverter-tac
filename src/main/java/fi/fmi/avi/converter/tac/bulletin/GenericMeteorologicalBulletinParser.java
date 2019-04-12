@@ -91,7 +91,6 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
 
         //Lex each the contained message again individually to collect more info:
         String msg;
-        LexemeSequence messageSequence;
         Lexeme lm;
         String bulletinID = null;
         GTSExchangeFileInfo bulletinMetadata = null;
@@ -114,7 +113,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             Optional<AviationCodeListUser.MessageType> messageType = this.lexer.recognizeMessageType(msg, hints);
             messageType.ifPresent(msgBuilder::setMessageType);
             msgBuilder.setMessageFormat(GenericAviationWeatherMessage.Format.TAC);
-            messageSequence = this.lexer.lexMessage(msg, hints);
+            final LexemeSequence messageSequence = this.lexer.lexMessage(msg, hints);
 
             if (messageType.isPresent() &&
                     (AviationCodeListUser.MessageType.SPACE_WEATHER_ADVISORY != messageType.get()
@@ -131,50 +130,93 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             lm.findNext(Lexeme.Identity.AERODROME_DESIGNATOR, designator -> msgBuilder.setTargetAerodrome(
                     AerodromeImpl.builder().setDesignator(designator.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build()));
             lm.findNext(Lexeme.Identity.ISSUE_TIME, (time) -> {
+                Integer year = time.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
+                Integer month = time.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
                 Integer day = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
                 Integer hour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
                 Integer minute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-                PartialDateTime issueTime = null;
                 if (hour != null && minute != null) {
-                    issueTime = PartialDateTime.of(day != null?day:-1, hour, minute, ZoneId.of("Z"));
-                }
-                msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.of(issueTime));
-
-            });
-            lm.findNext(Lexeme.Identity.VALID_TIME, (time) -> {
-                Integer fromDay = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-                Integer fromHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-                Integer fromMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-                Integer toDay = time.getParsedValue(Lexeme.ParsedValueName.DAY2, Integer.class);
-                Integer toHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR2, Integer.class);
-                Integer toMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE2, Integer.class);
-
-                //If there are different VALID_TIME lexemes in the same message, discard the entire valid time info with warning
-                boolean conflict = false;
-                Lexeme next = time.findNext(Lexeme.Identity.VALID_TIME);
-                while (next != null) {
-                    if (!next.equals(time)) {
-                        conflict = true;
+                    //Do we have enough info for a complete time?
+                    if (year != null && month != null && day != null) {
+                        msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
+                    } else {
+                        if (year == null && month != null) {
+                            result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA, "Month information "
+                                    + "available but ignored for parsing contained message issue time, year info missing"));
+                        } else if (year != null && month == null) {
+                            result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA, "Year information "
+                                    + "available but ignored for parsing contained message issue time, month info missing"));
+                        }
+                        msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.of(PartialDateTime.of(day != null?day:-1, hour, minute, ZoneId.of("Z"))));
                     }
-                    next = next.findNext(Lexeme.Identity.VALID_TIME);
                 }
-                if (conflict) {
-                    result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.LOGICAL,
-                            "There are different valid time tokens in the message, discarding valid time info"));
-                } else {
-                    PartialOrCompleteTimePeriod.Builder validTime = PartialOrCompleteTimePeriod.builder()
-                            .setStartTime(PartialOrCompleteTimeInstant.of(
-                                    PartialDateTime.of(fromDay != null ? fromDay : -1, fromHour != null ? fromHour : -1, fromMinute != null ? fromMinute : -1,
-                                            ZoneId.of("Z"))))
-                            .setEndTime(PartialOrCompleteTimeInstant.of(
-                                    PartialDateTime.of(toDay != null ? toDay : -1, toHour != null ? toHour : -1, toMinute != null ? toMinute : -1, ZoneId.of("Z"))));
-                    msgBuilder.setValidityTime(validTime.build());
-                }
-
             });
+
+            if (messageType.isPresent() &&
+                    (AviationCodeListUser.MessageType.SPACE_WEATHER_ADVISORY == messageType.get()
+                            || AviationCodeListUser.MessageType.VOLCANIC_ASH_ADVISORY == messageType.get())) {
+                //Valid time for SWX & VAA is extracted from the included phenomena time offsets:
+                final PartialOrCompleteTimeInstant.Builder start = PartialOrCompleteTimeInstant.builder();
+                final PartialOrCompleteTimeInstant.Builder end = PartialOrCompleteTimeInstant.builder();
+                lm.findNext(Lexeme.Identity.ADVISORY_PHENOMENA_TIME_GROUP, (time) -> {
+                    Integer day = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+                    Integer hour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                    Integer minute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+                    start.setPartialTime(PartialDateTime.of(day != null ? day : -1, hour != null ? hour : -1, minute != null ? minute : -1, ZoneId.of("Z")));
+
+                    //Valid time end is the last time group value
+                    Lexeme ll = time.findNext(Lexeme.Identity.ADVISORY_PHENOMENA_TIME_GROUP);
+                    while (ll != null) {
+                        day = ll.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+                        hour = ll.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                        minute = ll.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+                        end.setPartialTime(PartialDateTime.of(day != null ? day : -1, hour != null ? hour : -1, minute != null ? minute : -1, ZoneId.of("Z")));
+                        ll = ll.findNext(Lexeme.Identity.ADVISORY_PHENOMENA_TIME_GROUP);
+                    }
+                    msgBuilder.setValidityTime(PartialOrCompleteTimePeriod.builder()//
+                            .setStartTime(start.build())//
+                            .setEndTime(end.build())//
+                            .build());
+                });
+            } else {
+                lm.findNext(Lexeme.Identity.VALID_TIME, (time) -> {
+                    Integer fromDay = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+                    Integer fromHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                    Integer fromMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+                    Integer toDay = time.getParsedValue(Lexeme.ParsedValueName.DAY2, Integer.class);
+                    Integer toHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR2, Integer.class);
+                    Integer toMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE2, Integer.class);
+
+                    //If there are different VALID_TIME lexemes in the same message, discard the entire valid time info with warning
+                    boolean conflict = false;
+                    Lexeme next = time.findNext(Lexeme.Identity.VALID_TIME);
+                    while (next != null) {
+                        if (!next.equals(time)) {
+                            conflict = true;
+                        }
+                        next = next.findNext(Lexeme.Identity.VALID_TIME);
+                    }
+                    if (conflict) {
+                        result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.LOGICAL,
+                                "There are different valid time tokens in the message, discarding valid time info"));
+                    } else {
+                        PartialOrCompleteTimePeriod.Builder validTime = PartialOrCompleteTimePeriod.builder()
+                                .setStartTime(PartialOrCompleteTimeInstant.of(
+                                        PartialDateTime.of(fromDay != null ? fromDay : -1, fromHour != null ? fromHour : -1, fromMinute != null ? fromMinute : -1,
+                                                ZoneId.of("Z"))))
+                                .setEndTime(PartialOrCompleteTimeInstant.of(
+                                        PartialDateTime.of(toDay != null ? toDay : -1, toHour != null ? toHour : -1, toMinute != null ? toMinute : -1, ZoneId.of("Z"))));
+                        msgBuilder.setValidityTime(validTime.build());
+                    }
+
+                });
+            }
             msgBuilder.setOriginalMessage(messageSequence.getTAC());
+            msgBuilder.setTranslatedTAC(messageSequence.getTAC());
             msgBuilder.setTranslated(true);
-            msgBuilder.setTranslationTime(ZonedDateTime.now());
+            withTimeForTranslation(hints, (time) -> {
+                msgBuilder.setTranslationTime(time);
+            });
             msgBuilder.setNullableTranslatedBulletinID(bulletinID);
             bulletinBuilder.addMessages(msgBuilder.build());
         }

@@ -14,6 +14,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_DIRECTION;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_VALUE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MONTH;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
@@ -23,6 +24,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.YEAR;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -522,7 +524,7 @@ public interface Lexeme {
         US_SIGMET_START,
         REP,
         SPACE_WEATHER_ADVISORY_START,
-        SPACE_WEATHER_PHENOMENA_LABEL,
+        ADVISORY_PHENOMENA_LABEL(TYPE),
         ADVISORY_PHENOMENA_TIME_GROUP(DAY1, HOUR1, MINUTE1),
         VOLCANIC_ASH_ADVISORY_START,
         CORRECTION,
@@ -530,7 +532,7 @@ public interface Lexeme {
         CANCELLATION,
         NIL,
         ROUTINE_DELAYED_OBSERVATION,
-        ISSUE_TIME(DAY1, HOUR1, MINUTE1),
+        ISSUE_TIME(YEAR, MONTH, DAY1, HOUR1, MINUTE1),
         AERODROME_DESIGNATOR(VALUE, COUNTRY),
         CAVOK,
         AIR_DEWPOINT_TEMPERATURE(VALUE, UNIT),
