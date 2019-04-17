@@ -283,6 +283,11 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             baseFct.setForecastWeather(new ArrayList<>());
         }
 
+        //NSW is not allowed in base weather
+        if (baseFctToken.findNext(Lexeme.Identity.NO_SIGNIFICANT_WEATHER) != null){
+            result.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX, "NSW not allowed in TAF base weather"));
+        }
+
         result.addAll(withClouds(baseFctToken, new Lexeme.Identity[] { Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE }, hints, baseFct::setCloud));
 
         if (!baseFct.getCloud().isPresent() && !baseFct.isCeilingAndVisibilityOk()) {
