@@ -18,6 +18,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
@@ -161,12 +162,24 @@ public class ValidTime extends TimeHandlingRegex {
                 throws SerializingException {
             if (TAF.class.isAssignableFrom(clz)) {
                 final TAF taf = (TAF) msg;
-                if (taf.getValidityTime().isPresent()) {
-                    final String period = encodeValidityTimePeriod(taf.getValidityTime().get(), ctx.getHints());
-                    return Optional.of(this.createLexeme(period, Lexeme.Identity.VALID_TIME));
+                PartialOrCompleteTimePeriod validityTime;
+                if (AviationCodeListUser.TAFStatus.CANCELLATION == taf.getStatus()
+                        || AviationCodeListUser.TAFStatus.CORRECTION == taf.getStatus()) {
+                    if (taf.getReferredReport().isPresent()) {
+                        validityTime = taf.getReferredReport().get().getValidityTime();
+                    } else {
+                        throw new SerializingException("ReferredReport not available in TAF of status " + taf.getStatus() + ", unable to get validity time "
+                                + "for TAC");
+                    }
                 } else {
-                    throw new SerializingException("Validity time not available in TAF");
+                    if (taf.getValidityTime().isPresent()) {
+                        validityTime = taf.getValidityTime().get();
+                    } else {
+                        throw new SerializingException("Validity time not available in TAF");
+                    }
                 }
+                final String period = encodeValidityTimePeriod(validityTime, ctx.getHints());
+                return Optional.of(this.createLexeme(period, Lexeme.Identity.VALID_TIME));
             }
             return Optional.empty();
         }

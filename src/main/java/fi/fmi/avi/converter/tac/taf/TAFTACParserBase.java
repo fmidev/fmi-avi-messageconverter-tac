@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
+import fi.fmi.avi.converter.IssueList;
 import fi.fmi.avi.converter.tac.AbstractTACParser;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -34,6 +35,7 @@ import fi.fmi.avi.model.taf.immutable.TAFAirTemperatureForecastImpl;
 import fi.fmi.avi.model.taf.immutable.TAFBaseForecastImpl;
 import fi.fmi.avi.model.taf.immutable.TAFChangeForecastImpl;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
+import fi.fmi.avi.model.taf.immutable.TAFReferenceImpl;
 
 public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<T> {
 
@@ -159,7 +161,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             return result;
         }
 
-        result.addIssue(setTAFValidTime(builder, lexed, hints));
 
         lexed.getFirstLexeme().findNext(Lexeme.Identity.CANCELLATION, (match) -> {
             final Lexeme.Identity[] before = new Lexeme.Identity[] { Lexeme.Identity.SURFACE_WIND, Lexeme.Identity.HORIZONTAL_VISIBILITY,
@@ -179,6 +180,13 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         });
 
+        if (AviationCodeListUser.TAFStatus.CANCELLATION == builder.getStatus()
+                || AviationCodeListUser.TAFStatus.CORRECTION == builder.getStatus()) {
+            result.addIssue(setReferredReport(builder, lexed, hints));
+        } else {
+            result.addIssue(setTAFValidTime(builder, lexed, hints));
+        }
+
         //End processing here if CNL:
         if (AviationCodeListUser.TAFStatus.CANCELLATION == builder.getStatus()) {
             result.setConvertedMessage(builder.build());
@@ -193,11 +201,8 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 result.addIssue(addChangeForecast(builder, subSequences.get(i).getFirstLexeme(), hints));
             }
         }
-        if (builder.getValidityTime().isPresent()) {
-            result.addIssue(setFromChangeForecastEndTimes(builder));
-        } else {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Validity time period must be set before amending possible FM end times"));
-        }
+
+        result.addIssue(setFromChangeForecastEndTimes(builder));
 
         result.setConvertedMessage(builder.build());
         return result;
@@ -212,15 +217,45 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
     }
 
     protected List<ConversionIssue> setTAFValidTime(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
-        final List<ConversionIssue> result = new ArrayList<>();
-        lexed.getFirstLexeme().findNext(Lexeme.Identity.VALID_TIME, (match) -> {
+        final IssueList result = new IssueList();
+        Optional<PartialOrCompleteTimePeriod> validityTime = parseValidityTime(lexed,result);
+        if (validityTime.isPresent()) {
+            builder.setValidityTime(validityTime);
+        } else {
+            result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing validity"));
+        }
+        return result;
+    }
+
+    protected List<ConversionIssue> setReferredReport(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
+        IssueList result = new IssueList();
+
+            final TAFReferenceImpl.Builder refBuilder = TAFReferenceImpl.builder();
+            refBuilder.setAerodrome(builder.getAerodrome());
+            Optional<PartialOrCompleteTimePeriod> validityTime = parseValidityTime(lexed,result);
+            if (validityTime.isPresent()) {
+                refBuilder.setValidityTime(validityTime.get());
+            } else {
+                result.add(ConversionIssue.Severity.ERROR, ConversionIssue.Type.MISSING_DATA, "Valid time not available in for TAF, unable to construct "
+                        + "TAFReference");
+            }
+            //Note: Status & issue time of the referred report cannot be parsed from TAC
+            builder.setReferredReport(refBuilder.build());
+
+        return result;
+    }
+
+    private Optional<PartialOrCompleteTimePeriod> parseValidityTime(final LexemeSequence lexed, final IssueList issues) {
+        Optional<PartialOrCompleteTimePeriod> retval = Optional.empty();
+        Lexeme match = lexed.getFirstLexeme().findNext(Lexeme.Identity.VALID_TIME);
+        if (match != null) {
             final Lexeme.Identity[] before = new Lexeme.Identity[] {Lexeme.Identity.CANCELLATION, Lexeme.Identity.SURFACE_WIND,
                     Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD, Lexeme.Identity.CAVOK,
                     Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE, Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR,
                     Lexeme.Identity.REMARKS_START };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
-                result.add(issue);
+                issues.add(issue);
             } else {
                 final Integer startDay = match.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
                 final Integer endDay = match.getParsedValue(Lexeme.ParsedValueName.DAY2, Integer.class);
@@ -229,17 +264,17 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 if (startDay != null && startHour != null && endHour != null) {
                     final PartialDateTime startTime = PartialDateTime.ofDayHour(startDay, startHour);
                     final PartialDateTime endTime = endDay == null ? PartialDateTime.ofHour(endHour) : PartialDateTime.ofDayHour(endDay, endHour);
-                    builder.setValidityTime(PartialOrCompleteTimePeriod.builder()//
+                    retval = Optional.of(PartialOrCompleteTimePeriod.builder()//
                             .setStartTime(PartialOrCompleteTimeInstant.of(startTime))//
                             .setEndTime(PartialOrCompleteTimeInstant.of(endTime))//
                             .build());
                 } else {
-                    result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
+                    issues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
                             "Must have at least startDay, startHour and endHour of validity " + match.getTACToken()));
                 }
             }
-        }, () -> result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing validity")));
-        return result;
+        }
+        return retval;
     }
 
     protected List<ConversionIssue> setBaseForecast(final TAFImpl.Builder builder, final Lexeme baseFctToken, final ConversionHints hints) {
@@ -558,8 +593,12 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 }
             }
             if (toChange != null) {
-                toChange.mutatePeriodOfChange(b -> b.setEndTime(builder.getValidityTime().get().getEndTime()));
-                changeForecasts.get().set(indexOfChange, toChange.build());
+                if (builder.getValidityTime().isPresent()) {
+                    toChange.mutatePeriodOfChange(b -> b.setEndTime(builder.getValidityTime().get().getEndTime()));
+                    changeForecasts.get().set(indexOfChange, toChange.build());
+                } else {
+                    result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Validity time period must be set before amending FM end times"));
+                }
             }
         }
         return result;

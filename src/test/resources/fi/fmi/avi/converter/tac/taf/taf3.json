@@ -7,13 +7,13 @@
 	    "designator" : "EFAB"
 	},
 	"validityTime" : {
-      "startTime" : {
-        "partialTime" : "--19T09:"
-      },
-      "endTime" : {
-        "partialTime" : "--19T15:"
-      }
-    },
+		"startTime" : {
+			"partialTime" : "--19T09:"
+		},
+		"endTime" : {
+			"partialTime" : "--19T15:"
+		}
+	},
 	"baseForecast" : {
 	  "surfaceWind" : {
 	    "variableDirection": false,

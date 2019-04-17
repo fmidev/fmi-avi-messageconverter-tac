@@ -6,12 +6,17 @@
   "aerodrome" : {
      "designator" : "EFAB"
   },
-  "validityTime" : {
-    "startTime" : {
-      "partialTime" : "--19T09:"
+  "referredReport": {
+    "aerodrome" : {
+      "designator" : "EFAB"
     },
-    "endTime" : {
-      "partialTime" : "--19T15:"
+    "validityTime" : {
+      "startTime" : {
+        "partialTime" : "--19T09:"
+      },
+      "endTime" : {
+        "partialTime" : "--19T15:"
+      }
     }
   },
   "translatedTAC" : "TAF AMD EFAB 191100Z 1909/1915 CNL="
