@@ -8,9 +8,9 @@ import java.util.regex.Matcher;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 
-public class UsSigmetValidUntil extends TimeHandlingRegex {
+public class USSigmetValidUntil extends TimeHandlingRegex {
 
-    public UsSigmetValidUntil(final Priority prio) {
+    public USSigmetValidUntil(final Priority prio) {
         super("^VALID\\s+UNTIL\\s+(?<endHour>[0-9]{2})(?<endMinute>[0-9]{2})Z$", prio);
     }
 

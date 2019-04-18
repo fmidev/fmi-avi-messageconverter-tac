@@ -8,18 +8,18 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 /**
  * Created by rinne on 10/02/17.
  */
-public class SWXPhenomena extends TimeHandlingRegex {
+public class AdvisoryPhenomena extends TimeHandlingRegex {
 
     public enum Type { OBS, FCST }
 
-    public SWXPhenomena(final Priority prio) {
+    public AdvisoryPhenomena(final Priority prio) {
         super("^(?<type>OBS|FCST)(?:[a-zA-Z0-9\\+\\s]+)?:$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(Lexeme.Identity.ADVISORY_PHENOMENA_LABEL);
-        token.setParsedValue(Lexeme.ParsedValueName.TYPE, Type.valueOf(match.group("type"))); //define enum for these?
+        token.setParsedValue(Lexeme.ParsedValueName.TYPE, Type.valueOf(match.group("type")));
     }
 
 }

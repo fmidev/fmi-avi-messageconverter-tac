@@ -27,6 +27,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.AviMessageTACTokenizerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.Priority;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomena;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Amendment;
@@ -58,7 +59,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Sigmet;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
@@ -72,7 +72,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.TAFStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup;
 import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.UsSigmetValidUntil;
+import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetValidUntil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.VolcanicAshAdvisoryStart;
@@ -487,7 +487,7 @@ public class TACConverter {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(?:SWX)|(?:VAA)$");
+                return s.matches("^(?:SWX)|(?:VA)$");
             }
         });
         retval.add(new Predicate<String>() {
@@ -595,7 +595,7 @@ public class TACConverter {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return "FCTS".equals(s);
+                return "FCST".equals(s);
             }
         });
         retval.add(new Predicate<String>() {
@@ -950,7 +950,7 @@ public class TACConverter {
         });
 
         l.teach(new USSigmetStart(Priority.HIGH));
-        l.teach(new UsSigmetValidUntil(Priority.NORMAL));
+        l.teach(new USSigmetValidUntil(Priority.NORMAL));
         l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));
         return l;
@@ -972,9 +972,8 @@ public class TACConverter {
 
         l.teach(new SpaceWeatherAdvisoryStart(Priority.LOW));
         l.teach(new DTGIssueTime(Priority.LOW));
-        l.teach(new SWXPhenomena(Priority.NORMAL));
+        l.teach(new AdvisoryPhenomena(Priority.NORMAL));
         l.teach(new AdvisoryPhenomenaTimeGroup(Priority.NORMAL));
-        l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));
         return l;
     }
@@ -995,8 +994,8 @@ public class TACConverter {
 
         l.teach(new VolcanicAshAdvisoryStart(Priority.LOW));
         l.teach(new DTGIssueTime(Priority.LOW));
-        //TODO: valid time parser
-        l.teach(new EndToken(Priority.LOW));
+        l.teach(new AdvisoryPhenomena(Priority.NORMAL));
+        l.teach(new AdvisoryPhenomenaTimeGroup(Priority.NORMAL));
         l.teach(new Whitespace(Priority.HIGH));
         return l;
     }
