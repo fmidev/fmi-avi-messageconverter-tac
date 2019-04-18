@@ -561,7 +561,7 @@ public interface Lexeme {
         REMARKS_START,
         REMARK(VALUE),
         COLOR_CODE(VALUE),
-        WHITE_SPACE(VALUE),
+        WHITE_SPACE(TYPE,VALUE),
         END_TOKEN,
         BULLETIN_HEADING_DATA_DESIGNATORS(VALUE),
         BULLETIN_HEADING_LOCATION_INDICATOR(VALUE),
@@ -616,6 +616,49 @@ public interface Lexeme {
         SEQUENCE_NUMBER
     }
 
+    enum MeteorologicalBulletinSpecialCharacter {
+        START_OF_HEADING('\u0001'),
+        START_OF_TEXT('\u0002'),
+        END_OF_TEXT('\u0003'),
+        END_OF_TRANSMISSION('\u0004'),
+        ACKNOWLEDGE('\u0006'),
+        HORIZONTAL_TAB('\u0009'),
+        LINE_FEED('\n'),
+        VERTICAL_TAB('\u000B'),
+        FORM_FEED('\u000C'),
+        CARRIAGE_RETURN('\r'),
+        DATA_LINK_ESCAPE('\u0010'),
+        DEVICE_LINK_CONTROL_1('\u0011'),
+        DEVICE_LINK_CONTROL_2('\u0012'),
+        NEGATIVE_ACKNOWLEDGE('\u0015'),
+        SYNCHRONOUS_IDLE('\u0016'),
+        END_OF_TRANSMISSION_BLOCK('\u0017'),
+        ESCAPE('\u001B'),
+        FILE_SEPARATOR('\u001C'),
+        GROUP_SEPARATOR('\u001D'),
+        RECORD_SEPARATOR('\u001E'),
+        DELETE('\u007F'),
+        SPACE('\u0020');
+
+        private char content;
+
+        public static MeteorologicalBulletinSpecialCharacter fromChar(final char c) {
+            for (MeteorologicalBulletinSpecialCharacter m:MeteorologicalBulletinSpecialCharacter.values()) {
+                if (m.getContent().equals(Character.toString(c))) {
+                    return m;
+                }
+            }
+            return null;
+        }
+
+        MeteorologicalBulletinSpecialCharacter(final char content) {
+            this.content = content;
+        }
+
+        public String getContent() {
+            return String.valueOf(this.content);
+        }
+    }
     /**
      * Lambda function interface to use with
      * {@link #findNext(Identity, Consumer, LexemeParsingNotifyer)}

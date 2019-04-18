@@ -16,9 +16,9 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
-import fi.fmi.avi.converter.tac.bulletin.TAFBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
@@ -61,10 +61,15 @@ public class TAFBulletinTACSerializationTest {
                 .build();
 
         LexemeSequence lexemeSequence = tokenizer.tokenizeMessage(bulletin);
-        assertEquals("FCFI33 EFPP 020500 AAA" + TAFBulletinTACSerializer.NEW_LINE//
-                + "TAF AMD EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + TAFBulletinTACSerializer.NEW_LINE//
-                + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000" + TAFBulletinTACSerializer.NEW_LINE//
-                + "     SHRA BKN010 SCT030CB=", lexemeSequence.getTAC());
+        assertEquals(Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "FCFI33 EFPP 020500 AAA" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "TAF AMD EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()//
+                + "BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()//
+                + "BKN010 SCT030CB=" + Lexeme.MeteorologicalBulletinSpecialCharacter.GROUP_SEPARATOR.getContent(), lexemeSequence.getTAC());
     }
 
     @Test
@@ -90,10 +95,15 @@ public class TAFBulletinTACSerializationTest {
                 .build();
 
         LexemeSequence lexemeSequence = tokenizer.tokenizeMessage(bulletin);
-        assertEquals("FCFI33 EFPP 020500 RRZ" + TAFBulletinTACSerializer.NEW_LINE//
-                + "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004 BECMG" + TAFBulletinTACSerializer.NEW_LINE//
-                + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + TAFBulletinTACSerializer.NEW_LINE//
-                + "     BKN010 SCT030CB=", lexemeSequence.getTAC());
+        assertEquals(Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "FCFI33 EFPP 020500 RRZ" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004 BECMG" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()//
+                + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA BKN010" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()//
+                + "SCT030CB=" + Lexeme.MeteorologicalBulletinSpecialCharacter.GROUP_SEPARATOR.getContent(), lexemeSequence.getTAC());
     }
 
     //TODO: move to fmi-avi-messageconverter project
@@ -143,10 +153,15 @@ public class TAFBulletinTACSerializationTest {
                 .build();
 
         LexemeSequence lexemeSequence = tokenizer.tokenizeMessage(bulletin);
-        assertEquals("FCFI33 EFPP 020500 CCB" + TAFBulletinTACSerializer.NEW_LINE//
-                + "TAF COR EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + TAFBulletinTACSerializer.NEW_LINE//
-                + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000" + TAFBulletinTACSerializer.NEW_LINE//
-                + "     SHRA BKN010 SCT030CB=", lexemeSequence.getTAC());
+        assertEquals(Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "FCFI33 EFPP 020500 CCB"  + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "TAF COR EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()//
+                + "BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()//
+                + "BKN010 SCT030CB=" + Lexeme.MeteorologicalBulletinSpecialCharacter.GROUP_SEPARATOR.getContent(), lexemeSequence.getTAC());
     }
 
     @Test
@@ -173,10 +188,15 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(tacResult.getConversionIssues().isEmpty());
         Optional<String> tacBulletin = tacResult.getConvertedMessage();
         assertTrue(tacBulletin.isPresent());
-        assertEquals("FCFI33 EFPP 020500" + TAFBulletinTACSerializer.NEW_LINE//
-                + "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004 BECMG" + TAFBulletinTACSerializer.NEW_LINE//
-                + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + TAFBulletinTACSerializer.NEW_LINE//
-                + "     BKN010 SCT030CB=", tacBulletin.get());
+        assertEquals(Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "FCFI33 EFPP 020500" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004 BECMG" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()//
+                + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA BKN010" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()//
+                + "SCT030CB=" + Lexeme.MeteorologicalBulletinSpecialCharacter.GROUP_SEPARATOR.getContent(), tacBulletin.get());
     }
 
     @Test
@@ -203,9 +223,14 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(tacResult.getConversionIssues().isEmpty());
         Optional<String> tacBulletin = tacResult.getConvertedMessage();
         assertTrue(tacBulletin.isPresent());
-        assertEquals("FTFI33 EFPP 020500" + TAFBulletinTACSerializer.NEW_LINE//
-                + "TAF EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG" + TAFBulletinTACSerializer.NEW_LINE//
-                + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + TAFBulletinTACSerializer.NEW_LINE//
-                + "     BKN010 SCT030CB=", tacBulletin.get());
+        assertEquals(Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "FTFI33 EFPP 020500" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "TAF EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()//
+                + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA BKN010" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()//
+                + "SCT030CB=" + Lexeme.MeteorologicalBulletinSpecialCharacter.GROUP_SEPARATOR.getContent(), tacBulletin.get());
     }
 }

@@ -62,7 +62,7 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
             for (CloudLayer layer : layers) {
                 ctx.setParameter("layer", layer);
                 retval += appendToken(builder, Lexeme.Identity.CLOUD, msg, clz, ctx);
-                retval += appendWhitespace(builder, ' ');
+                retval += appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
         }
         return retval;
@@ -85,27 +85,17 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
         return retval;
     }
 
-    protected int appendWhitespace(final LexemeSequenceBuilder builder, final char toAppend) {
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final Lexeme.MeteorologicalBulletinSpecialCharacter toAppend) {
         return appendWhitespace(builder, toAppend, 1);
     }
 
-    protected int appendWhitespace(final LexemeSequenceBuilder builder, final CharSequence toAppend) {
-        int len = toAppend.length();
-        for (int i = 0; i < len; i++) {
-            appendWhitespace(builder, toAppend.charAt(i), 1);
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final Lexeme.MeteorologicalBulletinSpecialCharacter toAppend, final int count) {
+        for (int i = 0; i < count; i++) {
+            Lexeme l = factory.createLexeme(toAppend.getContent(), Lexeme.Identity.WHITE_SPACE);
+            l.setParsedValue(Lexeme.ParsedValueName.TYPE, toAppend);
+            builder.append(l);
         }
-        return len;
-    }
-
-    protected int appendWhitespace(final LexemeSequenceBuilder builder, final char toAppend, final int count) {
-        if (Character.isWhitespace(toAppend)) {
-            for (int i = 0; i < count; i++) {
-                builder.append(factory.createLexeme(String.valueOf(toAppend), Lexeme.Identity.WHITE_SPACE));
-            }
-            return count;
-        } else {
-            throw new IllegalArgumentException("Character '" + toAppend + "' is not whitespace");
-        }
+        return count;
     }
 
 }

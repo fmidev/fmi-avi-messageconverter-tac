@@ -16,8 +16,8 @@ import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
-import fi.fmi.avi.converter.tac.bulletin.AbstractTACBulletinSerializer;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
@@ -60,10 +60,16 @@ public class SIGMETBulletinTACSerializationTest {
 
         Optional<String> tacBulletin = tacResult.getConvertedMessage();
         assertTrue(tacBulletin.isPresent());
-        TestCase.assertEquals("WSFI31 EFKL 170700" + AbstractTACBulletinSerializer.NEW_LINE//
-                + "EFIN SIGMET 1 VALID 170750/170950 EFKL- EFIN FINLAND FIR" + AbstractTACBulletinSerializer.NEW_LINE//
-                + "     SEV TURB FCST AT 0740Z S OF LINE N5953 E01931 - N6001" + AbstractTACBulletinSerializer.NEW_LINE//
-                + "     E02312 - N6008 E02606 - N6008 E02628 FL220-340 MOV N" + AbstractTACBulletinSerializer.NEW_LINE//
-                + "     15KT WKN=", tacBulletin.get());
+        TestCase.assertEquals(Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "WSFI31 EFKL 170700" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + "EFIN SIGMET 1 VALID 170750/170950 EFKL- EFIN FINLAND FIR" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()
+                + "SEV TURB FCST AT 0740Z S OF LINE N5953 E01931 - N6001" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()
+                + "E02312 - N6008 E02606 - N6008 E02628 FL220-340 MOV N 15KT" + Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED.getContent()//
+                + Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB.getContent()
+                + "WKN=" + Lexeme.MeteorologicalBulletinSpecialCharacter.GROUP_SEPARATOR.getContent(), tacBulletin.get());
     }
 }

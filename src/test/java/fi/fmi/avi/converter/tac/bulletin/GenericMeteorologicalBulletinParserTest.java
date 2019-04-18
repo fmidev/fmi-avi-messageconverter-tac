@@ -117,6 +117,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
+        assertEquals(BulletinHeading.DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
@@ -136,6 +138,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
+        assertEquals(BulletinHeading.DataTypeDesignatorT1.WARNINGS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(BulletinHeading.WarningsDataTypeDesignatorT2.WRN_SIGMET, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
@@ -158,6 +162,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
+        assertEquals(BulletinHeading.DataTypeDesignatorT1.UPPER_AIR_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(BulletinHeading.UpperAirDataTypeDesignatorT2.UA_AIRCRAFT_REPORT_CODAR_AIREP, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
@@ -179,6 +185,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
+        assertEquals(BulletinHeading.DataTypeDesignatorT1.WARNINGS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(BulletinHeading.WarningsDataTypeDesignatorT2.WRN_SIGMET, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
@@ -231,6 +239,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
+        assertEquals(BulletinHeading.DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_SPACE_WEATHER, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
@@ -242,8 +252,63 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ZonedDateTime.of(2019,1,28, 12, 0, 0, 0, ZoneId.of("Z")), msg.getIssueTime().get().getCompleteTime().get());
 
         assertTrue(msg.getValidityTime().isPresent());
-        PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(8,12,00, ZoneId.of("Z")));
-        PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(9,12,00, ZoneId.of("Z")));
+        PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(8,12,0, ZoneId.of("Z")));
+        PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(9,12,0, ZoneId.of("Z")));
+        assertEquals(PartialOrCompleteTimePeriod.builder().setStartTime(start).setEndTime(end).build(), msg.getValidityTime().get());
+    }
+
+    @Test
+    public void testVolcanicAshBulletinParsing() {
+        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FVXX01 EFKL 281200\n"
+                        + "VA ADVISORY\n"
+                        + "DTG: 20190301/0045Z\n"
+                        + "VAAC: DARWIN\n"
+                        + "VOLCANO: DUKONO 268010\n"
+                        + "PSN: N0141 E12753\n"
+                        + "AREA: INDONESIA\n"
+                        + "SUMMIT ELEV: 1335M\n"
+                        + "ADVISORY NR: 2019/186\n"
+                        + "INFO SOURCE: HIMAWARI-8\n"
+                        + "AVIATION COLOUR CODE: ORANGE\n"
+                        + "ERUPTION DETAILS: CONTINUOUS VA TO FL070\n"
+                        + "OBS VA DTG: 01/0045Z\n"
+                        + "OBS VA CLD: SFC/FL070 N0139 E12756 - N0144 E12756 - N0202\n"
+                        + "E12732 - N0146 E12716 - N0128 E12725 - N0121 E12745 MOV W\n"
+                        + "5KT\n"
+                        + "FCST VA CLD +6 HR: 01/0645Z SFC/FL070 N0140 E12757 - N0118\n"
+                        + "E12738 - N0121 E12710 - N0142 E12709 - N0154 E12733 - N0147\n"
+                        + "E12753\n"
+                        + "FCST VA CLD +12 HR: 01/1245Z SFC/FL070 N0145 E12752 - N0129\\n"
+                        + "E12711 - N0109 E12722 - N0105 E12752 - N0141 E12758\n"
+                        + "FCST VA CLD +18 HR: 01/1845Z SFC/FL070 N0146 E12754 - N0140\n"
+                        + "E12758 - N0106 E12747 - N0116 E12714 - N0147 E12722 - N0147\n"
+                        + "E12753\n"
+                        + "RMK: VA DISCERNIBLE ON SATELLITE IMAGERY EXT FM NW TO SW. VA\n"
+                        + "DIFFUSE DUE TO LIGHT WINDS. HEIGHT AND FCST BASED ON\n"
+                        + "HIMAWARI 8, MENADO 28/1200Z SOUNDING AND MODEL GUIDANCE. LOW\n"
+                        + "CONFIDENCE IN FCST DUE TO LIGHT/VAR WINDS.\n"
+                        + "NXT ADVISORY: NO LATER THAN 20190301/0645Z\n"
+                        + "\u0003\n",
+                TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
+
+        assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
+        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        assertTrue(bulletin.isPresent());
+        assertEquals(BulletinHeading.DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_VOLCANIC_ASH_ADVISORIES, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(1,bulletin.get().getMessages().size());
+        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+
+        assertTrue(msg.getMessageType().isPresent());
+        assertEquals(AviationCodeListUser.MessageType.VOLCANIC_ASH_ADVISORY,msg.getMessageType().get());
+
+        assertTrue(msg.getIssueTime().isPresent());
+        assertTrue(msg.getIssueTime().get().getCompleteTime().isPresent());
+        assertEquals(ZonedDateTime.of(2019,3,1, 0, 45, 0, 0, ZoneId.of("Z")), msg.getIssueTime().get().getCompleteTime().get());
+
+        assertTrue(msg.getValidityTime().isPresent());
+        PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(1,0,45, ZoneId.of("Z")));
+        PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(1,18,45, ZoneId.of("Z")));
         assertEquals(PartialOrCompleteTimePeriod.builder().setStartTime(start).setEndTime(end).build(), msg.getValidityTime().get());
     }
 }

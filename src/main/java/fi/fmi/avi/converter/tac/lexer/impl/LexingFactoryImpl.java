@@ -1,6 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -342,34 +343,24 @@ public class LexingFactoryImpl implements LexingFactory {
 
         private void constructFromTAC(final String tac) {
             if (tac != null && tac.length() > 0) {
-                final StringTokenizer st = new StringTokenizer(tac, " \n\t\r\f", true);
-                boolean inWhitespace = false;
+                String delim = Arrays.stream(Lexeme.MeteorologicalBulletinSpecialCharacter.values())
+                                .map(Lexeme.MeteorologicalBulletinSpecialCharacter::getContent)
+                                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString();
+                final StringTokenizer st = new StringTokenizer(tac, delim, true);
+
                 int start = 0;
                 while (st.hasMoreTokens()) {
                     String s = st.nextToken();
                     start = tac.indexOf(s, start);
-                    //Whitespace only:
-                    if (s.matches("\\s")) {
-                        if (inWhitespace) {
-                            //combine with the preceding whitespace:
-                            //Note: identify already here because Lexeme.getPrevious() and getNext need identified whitespace lexemes:
-                            final int startIndex = this.getLastLexeme().getStartIndex();
-                            final String token = this.getLastLexeme().getTACToken() + s;
-                            final int endIndex = startIndex + token.length() - 1;
-                            LexemeImpl l = new LexemeImpl(this.factory, token, Lexeme.Identity.WHITE_SPACE);
-                            l.setStartIndex(startIndex);
-                            l.setEndIndex(endIndex);
-                            this.replaceLastWith(l);
-                        } else {
-                            //Note: identify already here because Lexeme.getPrevious() and getNext need identified whitespace lexemes:
+                    //Special chars or space:
+                    Lexeme.MeteorologicalBulletinSpecialCharacter specialCharacter = Lexeme.MeteorologicalBulletinSpecialCharacter.fromChar(s.charAt(0));
+                    if (s.length() == 1 && specialCharacter != null) {
                             LexemeImpl l = new LexemeImpl(this.factory, s, Lexeme.Identity.WHITE_SPACE);
                             l.setStartIndex(start);
                             l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
+                            l.setParsedValue(Lexeme.ParsedValueName.TYPE, specialCharacter);
                             this.addAsLast(l);
-                            inWhitespace = true;
-                        }
                     } else {
-                        inWhitespace = false;
                         if (s.endsWith("=")) {
                             //first create the last token before the end:
                             LexemeImpl l = new LexemeImpl(this.factory, s.substring(0, s.length() - 1));
