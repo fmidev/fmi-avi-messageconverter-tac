@@ -1,0 +1,61 @@
+{
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--01T08:25Z"
+  },
+  "aerodrome" : {
+    "designator" : "EFHK"
+  },
+  "validityTime" : {
+    "startTime" : {
+      "partialTime" : "--01T09:"
+    },
+    "endTime" : {
+      "partialTime" : "--02T09:"
+    }
+  },
+  "baseForecast" : {
+    "surfaceWind" : {
+      "meanWindDirection" : {
+        "value" : 250.0,
+        "uom" : "deg"
+      },
+      "meanWindSpeed" : {
+        "value" : 15.0,
+        "uom" : "[kn_i]"
+      }
+    },
+    "prevailingVisibility" : {
+      "value" : 5000.0,
+      "uom" : "m"
+    },
+    "cloud" : {
+      "noSignificantCloud": true
+    }
+  },
+  "changeForecasts" : [
+    {
+      "ceilingAndVisibilityOk" : true,
+      "changeIndicator" : "FROM",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--01T15:30"
+        },
+        "endTime" : {
+          "partialTime" : "--02T09:"
+        }
+      },
+      "surfaceWind" : {
+        "meanWindDirection" : {
+          "value" : 0.0,
+          "uom" : "deg"
+        },
+        "meanWindSpeed" : {
+          "value" : 0.0,
+          "uom" : "[kn_i]"
+        }
+      }
+    }
+  ],
+  "translatedTAC" : "TAF EFHK 010825Z 0109/0209 25015KT 5000 NSW NSC\nFM011530 00000KT CAVOK="
+}
