@@ -110,6 +110,28 @@ public class GenericMeteorologicalBulletinParserTest {
     }
 
     @Test
+    public void testMETARBulletinParsing() {
+        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("SAFI33 EFPP 020500\n"
+                        + "METAR COR EFUT 111115Z 18004KT 150V240 1500 0500N R04R/1500N R15/M0050D R22L/1200N R04L/P1000U SN VV006 M08/M10\n"
+                        + "Q1023 RESN TEMPO 0900=",
+                TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
+        assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
+        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        assertTrue(bulletin.isPresent());
+        assertEquals(BulletinHeading.DataTypeDesignatorT1.SURFACE_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        //assertEquals(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(1,bulletin.get().getMessages().size());
+        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+        assertTrue(msg.getMessageType().isPresent());
+        assertEquals(AviationCodeListUser.MessageType.METAR,msg.getMessageType().get());
+        assertTrue(msg.getTargetAerodrome().isPresent());
+        assertEquals("EFUT", msg.getTargetAerodrome().get().getDesignator());
+        assertTrue(msg.getIssueTime().isPresent());
+        assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
+        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(11,11,15, ZoneId.of("Z"))), msg.getIssueTime().get());
+    }
+
+    @Test
     public void testLowWindBulletinParsing() {
         ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FTFI33 EFPP 020500\n"
                 + "LOW WIND EFHK 040820Z  1000FT     2000FT     FL050      FL100 200/20     200/25     210/30     210/20=",
