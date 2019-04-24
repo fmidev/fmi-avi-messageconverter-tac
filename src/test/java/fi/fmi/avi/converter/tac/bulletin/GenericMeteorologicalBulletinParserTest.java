@@ -119,7 +119,7 @@ public class GenericMeteorologicalBulletinParserTest {
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
         assertEquals(BulletinHeading.DataTypeDesignatorT1.SURFACE_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
-        //assertEquals(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(BulletinHeading.SurfaceDataTypeDesignatorT2.SD_AVIATION_ROUTINE_REPORTS, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());

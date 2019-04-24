@@ -165,8 +165,8 @@ public class ValidTime extends TimeHandlingRegex {
                 PartialOrCompleteTimePeriod validityTime;
                 if (AviationCodeListUser.TAFStatus.CANCELLATION == taf.getStatus()
                         || AviationCodeListUser.TAFStatus.CORRECTION == taf.getStatus()) {
-                    if (taf.getReferredReport().isPresent()) {
-                        validityTime = taf.getReferredReport().get().getValidityTime();
+                    if (taf.getReferredReport().isPresent() && taf.getReferredReport().get().getValidityTime().isPresent()) {
+                        validityTime = taf.getReferredReport().get().getValidityTime().get();
                     } else {
                         throw new SerializingException("ReferredReport not available in TAF of status " + taf.getStatus() + ", unable to get validity time "
                                 + "for TAC");
