@@ -23,7 +23,6 @@ import fi.fmi.avi.model.immutable.AerodromeImpl;
 import fi.fmi.avi.model.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.model.immutable.GenericAviationWeatherMessageImpl;
 import fi.fmi.avi.model.immutable.GenericMeteorologicalBulletinImpl;
-import fi.fmi.avi.util.GTSExchangeFileInfo;
 
 public class GenericMeteorologicalBulletinParser extends AbstractTACParser<GenericMeteorologicalBulletin> {
     private static final Lexeme.Identity[] ZERO_OR_ONE_ALLOWED = {Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS,
@@ -92,17 +91,22 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
         //Lex each the contained message again individually to collect more info:
         String msg;
         Lexeme lm;
+
         String bulletinID = null;
-        GTSExchangeFileInfo bulletinMetadata = null;
+        //GTSExchangeFileInfo bulletinMetadata = null;
         if (hints != null && hints.containsKey(ConversionHints.KEY_BULLETIN_ID)) {
             bulletinID = hints.get(ConversionHints.KEY_BULLETIN_ID, String.class);
+            //the bulletinID could be used to provide full (or more complete message time info:
+            /*
             try {
                 bulletinMetadata = GTSExchangeFileInfo.Builder.from(bulletinID).build();
             } catch (IllegalArgumentException iae) {
                 result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX, "Could not parse bulletin metadata "
                         + "from bulletinID '" + bulletinID + "'"));
             }
+            */
         }
+        ConversionHints messageSpecificHints = new ConversionHints(hints);
         for (int i = 0; i < subSequences.size(); i++) {
             if (i == 0) {
                 msg = lastHeadingToken.getTailSequence().trimWhiteSpace().getTAC();
@@ -111,9 +115,22 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             }
             final GenericAviationWeatherMessageImpl.Builder msgBuilder = new GenericAviationWeatherMessageImpl.Builder();
             Optional<AviationCodeListUser.MessageType> messageType = this.lexer.recognizeMessageType(msg, hints);
+            if (!messageType.isPresent() || AviationCodeListUser.MessageType.GENERIC == messageType.get()) {
+                //Fallback: try to determine message type from the bulletin heading:
+                messageType = bulletinHeading.getExpectedContainedMessageType();
+                if (messageType.isPresent()) {
+                     if (!messageSpecificHints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
+                         messageSpecificHints.put(ConversionHints.KEY_MESSAGE_TYPE, messageType.get());
+                     }
+                } else {
+                    result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                            "Unable to determine contained " + "message type for bulletin data designators " + bulletinHeading.getDataTypeDesignatorT1ForTAC() + " and " + bulletinHeading.getDataTypeDesignatorT2()));
+                }
+            }
+
             messageType.ifPresent(msgBuilder::setMessageType);
             msgBuilder.setMessageFormat(GenericAviationWeatherMessage.Format.TAC);
-            final LexemeSequence messageSequence = this.lexer.lexMessage(msg, hints);
+            final LexemeSequence messageSequence = this.lexer.lexMessage(msg, messageSpecificHints);
 
             if (messageType.isPresent() &&
                     (AviationCodeListUser.MessageType.SPACE_WEATHER_ADVISORY != messageType.get()
