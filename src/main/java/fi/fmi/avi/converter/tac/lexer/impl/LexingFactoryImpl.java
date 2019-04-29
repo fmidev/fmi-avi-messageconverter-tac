@@ -25,6 +25,10 @@ import fi.fmi.avi.model.AviationCodeListUser;
 
 public class LexingFactoryImpl implements LexingFactory {
 
+    private static final String TAC_DELIMS = Arrays.stream(Lexeme.MeteorologicalBulletinSpecialCharacter.values())
+            .map(Lexeme.MeteorologicalBulletinSpecialCharacter::getContent)
+                                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString() + "=";
+
     private List<List<Predicate<String>>> tokenCombiningRules = new ArrayList<>();
 
     public void addTokenCombiningRule(List<Predicate<String>> rule) {
@@ -344,12 +348,7 @@ public class LexingFactoryImpl implements LexingFactory {
 
         private void constructFromTAC(final String tac) {
             if (tac != null && tac.length() > 0) {
-                String delim = Arrays.stream(Lexeme.MeteorologicalBulletinSpecialCharacter.values())
-                                .map(Lexeme.MeteorologicalBulletinSpecialCharacter::getContent)
-                                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString();
-                delim += "=";
-                final StringTokenizer st = new StringTokenizer(tac, delim, true);
-
+                final StringTokenizer st = new StringTokenizer(tac, TAC_DELIMS, true);
                 int start = 0;
                 while (st.hasMoreTokens()) {
                     String s = st.nextToken();
@@ -382,8 +381,8 @@ public class LexingFactoryImpl implements LexingFactory {
                     }
                     start += s.length();
                 }
-                this.originalTac = tac;
             }
+            this.originalTac = tac;
         }
 
         private void combinePrevMatchingTokens(final List<Predicate<String>> toMatch) {
