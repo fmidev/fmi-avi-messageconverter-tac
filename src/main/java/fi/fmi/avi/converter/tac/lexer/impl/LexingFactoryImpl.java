@@ -17,6 +17,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.LexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
+import fi.fmi.avi.model.AviationCodeListUser;
 
 /**
  * Default LexingFactory implementation.
@@ -65,16 +66,16 @@ public class LexingFactoryImpl implements LexingFactory {
     private void appendArtifialStartTokenIfNecessary(final String input, final LexemeSequenceImpl result, final ConversionHints hints) {
         if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
             LexemeImpl artificialStartToken = null;
-            if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_METAR && !input.startsWith("METAR ")) {
+            if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.METAR && !input.startsWith("METAR ")) {
                 artificialStartToken = new LexemeImpl(this, "METAR", Lexeme.Identity.METAR_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_SPECI && !input.startsWith("SPECI ")) {
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.SPECI && !input.startsWith("SPECI ")) {
                 artificialStartToken = new LexemeImpl(this,"SPECI", Lexeme.Identity.SPECI_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == ConversionHints.VALUE_MESSAGE_TYPE_TAF && !input.startsWith("TAF ")) {
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.TAF && !input.startsWith("TAF ")) {
                 artificialStartToken = new LexemeImpl(this, "TAF", Lexeme.Identity.TAF_START);
             }
             if (artificialStartToken != null) {
                 artificialStartToken.setSynthetic(true);
-                result.addAsFirst(new LexemeImpl(this, " ", Lexeme.Identity.WHITE_SPACE));
+                result.addAsFirst(new LexemeImpl(this, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE));
                 result.addAsFirst(artificialStartToken);
             }
         }
@@ -346,6 +347,7 @@ public class LexingFactoryImpl implements LexingFactory {
                 String delim = Arrays.stream(Lexeme.MeteorologicalBulletinSpecialCharacter.values())
                                 .map(Lexeme.MeteorologicalBulletinSpecialCharacter::getContent)
                                 .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString();
+                delim += "=";
                 final StringTokenizer st = new StringTokenizer(tac, delim, true);
 
                 int start = 0;
@@ -361,17 +363,10 @@ public class LexingFactoryImpl implements LexingFactory {
                             l.setParsedValue(Lexeme.ParsedValueName.TYPE, specialCharacter);
                             this.addAsLast(l);
                     } else {
-                        if (s.endsWith("=")) {
-                            //first create the last token before the end:
-                            LexemeImpl l = new LexemeImpl(this.factory, s.substring(0, s.length() - 1));
+                        if ("=".equals(s)) {
+                            LexemeImpl l = new LexemeImpl(this.factory, "=", Lexeme.Identity.END_TOKEN);
                             l.setStartIndex(start);
-                            l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
-                            this.addAsLast(l);
-
-                            //..and then the end token:
-                            l = new LexemeImpl(this.factory, "=", Lexeme.Identity.END_TOKEN);
-                            l.setStartIndex(start + s.length() - 1);
-                            l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
+                            l.setEndIndex(start);
                             this.addAsLast(l);
                         } else {
                             LexemeImpl l = new LexemeImpl(this.factory, s);
@@ -527,6 +522,10 @@ public class LexingFactoryImpl implements LexingFactory {
 
         LexemeImpl(final LexingFactory factory, final String token, final Identity identity) {
             this(factory, token, identity, Status.OK);
+        }
+
+        LexemeImpl(final LexingFactory factory, final MeteorologicalBulletinSpecialCharacter value) {
+            this(factory, value.getContent(), Identity.WHITE_SPACE, Status.OK);
         }
 
         LexemeImpl(final LexingFactory factory, final String token, final Identity identity, final Status status) {

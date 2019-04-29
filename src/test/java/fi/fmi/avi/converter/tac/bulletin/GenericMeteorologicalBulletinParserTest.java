@@ -89,12 +89,15 @@ public class GenericMeteorologicalBulletinParserTest {
                 + "BKN010 SCT030CB=\n"
                 + "FAK EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG\n"
                 + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA\n"
+                + "BKN010 SCT030CB="
+                + "EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG\n"
+                + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA\n"
                 + "BKN010 SCT030CB=", TACConverter.TAC_TO_GENERIC_BULLETIN_POJO, hints);
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
         assertEquals(heading, bulletin.get().getHeading());
-        assertEquals(2,bulletin.get().getMessages().size());
+        assertEquals(3,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
         assertEquals(AviationCodeListUser.MessageType.TAF,msg.getMessageType().get());
@@ -103,7 +106,13 @@ public class GenericMeteorologicalBulletinParserTest {
 
         msg = bulletin.get().getMessages().get(1);
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.GENERIC,msg.getMessageType().get());
+        assertEquals(AviationCodeListUser.MessageType.TAF,msg.getMessageType().get());
+        assertTrue(msg.getTranslatedBulletinID().isPresent());
+        assertEquals(info.toGTSExchangeFileName(), msg.getTranslatedBulletinID().get());
+
+        msg = bulletin.get().getMessages().get(2);
+        assertTrue(msg.getMessageType().isPresent());
+        assertEquals(AviationCodeListUser.MessageType.TAF,msg.getMessageType().get());
         assertTrue(msg.getTranslatedBulletinID().isPresent());
         assertEquals(info.toGTSExchangeFileName(), msg.getTranslatedBulletinID().get());
 

@@ -23,6 +23,7 @@ import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
@@ -46,7 +47,7 @@ public class Taf10VVWithTCUTest extends AbstractAviMessageTest<String, TAF> {
     @Override
     public ConversionHints getLexerParsingHints() {
         ConversionHints hints = new ConversionHints();
-        hints.put(ConversionHints.KEY_MESSAGE_TYPE, ConversionHints.VALUE_MESSAGE_TYPE_TAF);
+        hints.put(ConversionHints.KEY_MESSAGE_TYPE, AviationCodeListUser.MessageType.TAF);
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
         return hints;
     }
@@ -54,7 +55,7 @@ public class Taf10VVWithTCUTest extends AbstractAviMessageTest<String, TAF> {
     @Override
     public ConversionHints getParserConversionHints() {
         ConversionHints hints = new ConversionHints();
-        hints.put(ConversionHints.KEY_MESSAGE_TYPE, ConversionHints.VALUE_MESSAGE_TYPE_TAF);
+        hints.put(ConversionHints.KEY_MESSAGE_TYPE, AviationCodeListUser.MessageType.TAF);
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
         return hints;
     }

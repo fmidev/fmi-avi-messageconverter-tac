@@ -24,6 +24,7 @@ import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
@@ -59,7 +60,7 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
     @Override
     public ConversionHints getParserConversionHints() {
         ConversionHints hints = new ConversionHints();
-        hints.put(ConversionHints.KEY_MESSAGE_TYPE, ConversionHints.VALUE_MESSAGE_TYPE_METAR);
+        hints.put(ConversionHints.KEY_MESSAGE_TYPE, AviationCodeListUser.MessageType.METAR);
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
         return hints;
     }
