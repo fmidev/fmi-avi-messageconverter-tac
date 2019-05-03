@@ -67,6 +67,7 @@ public class LexingFactoryImpl implements LexingFactory {
         return new LexemeImpl(this, token, identity, status);
     }
 
+    //TODO: implement a more generic way to add the artificial start tokens
     private void appendArtifialStartTokenIfNecessary(final String input, final LexemeSequenceImpl result, final ConversionHints hints) {
         if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
             LexemeImpl artificialStartToken = null;
@@ -76,6 +77,19 @@ public class LexingFactoryImpl implements LexingFactory {
                 artificialStartToken = new LexemeImpl(this,"SPECI", Lexeme.Identity.SPECI_START);
             } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.TAF && !input.startsWith("TAF ")) {
                 artificialStartToken = new LexemeImpl(this, "TAF", Lexeme.Identity.TAF_START);
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.WXREP && !input.startsWith("WXREP ")) {
+                artificialStartToken = new LexemeImpl(this, "WXREP", Lexeme.Identity.WXREP_START);
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.SPECIAL_AIR_REPORT && !input.startsWith("ARS ")) {
+                artificialStartToken = new LexemeImpl(this, "ARS", Lexeme.Identity.ARS_START);
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.WX_WARNING && !input.startsWith("WX ")) {
+                artificialStartToken = new LexemeImpl(this, "WX", Lexeme.Identity.WX_WARNING_START);
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.VOLCANIC_ASH_ADVISORY && !input.startsWith("VA "
+                    + "ADVISORY ")) {
+                artificialStartToken = new LexemeImpl(this, "VA ADVISORY", Lexeme.Identity.VOLCANIC_ASH_ADVISORY_START);
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.LOW_WIND && !input.startsWith("LOWWIND ")) {
+                artificialStartToken = new LexemeImpl(this, "LOWWIND", Lexeme.Identity.LOW_WIND_START);
+            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.SIGMET && !input.startsWith("SIGMET ")) {
+                artificialStartToken = new LexemeImpl(this, "SIGMET_START", Lexeme.Identity.SIGMET_START);
             }
             if (artificialStartToken != null) {
                 artificialStartToken.setSynthetic(true);

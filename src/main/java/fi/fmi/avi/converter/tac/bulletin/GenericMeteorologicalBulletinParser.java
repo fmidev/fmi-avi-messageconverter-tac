@@ -116,15 +116,21 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             final GenericAviationWeatherMessageImpl.Builder msgBuilder = new GenericAviationWeatherMessageImpl.Builder();
             Optional<AviationCodeListUser.MessageType> messageType = this.lexer.recognizeMessageType(msg, hints);
             if (!messageType.isPresent() || AviationCodeListUser.MessageType.GENERIC == messageType.get()) {
-                //Fallback: try to determine message type from the bulletin heading:
-                messageType = bulletinHeading.getExpectedContainedMessageType();
-                if (messageType.isPresent()) {
-                     if (!messageSpecificHints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
-                         messageSpecificHints.put(ConversionHints.KEY_MESSAGE_TYPE, messageType.get());
-                     }
+                //Fallback: check a hint for contained message type:
+                if (messageSpecificHints.containsKey(ConversionHints.KEY_CONTAINED_MESSAGE_TYPE)) {
+                    messageType = Optional.ofNullable((AviationCodeListUser.MessageType) messageSpecificHints.get(ConversionHints.KEY_CONTAINED_MESSAGE_TYPE));
+                    messageType.ifPresent(mt -> messageSpecificHints.put(ConversionHints.KEY_MESSAGE_TYPE, mt));
                 } else {
-                    result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
-                            "Unable to determine contained " + "message type for bulletin data designators " + bulletinHeading.getDataTypeDesignatorT1ForTAC() + " and " + bulletinHeading.getDataTypeDesignatorT2()));
+                    //Fallback 2: try to determine message type from the bulletin heading:
+                    messageType = bulletinHeading.getExpectedContainedMessageType();
+                    if (messageType.isPresent()) {
+                        if (!messageSpecificHints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
+                            messageSpecificHints.put(ConversionHints.KEY_MESSAGE_TYPE, messageType.get());
+                        }
+                    } else {
+                        result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                                "Unable to determine contained " + "message type for bulletin data designators " + bulletinHeading.getDataTypeDesignatorT1ForTAC() + " and " + bulletinHeading.getDataTypeDesignatorT2()));
+                    }
                 }
             }
 

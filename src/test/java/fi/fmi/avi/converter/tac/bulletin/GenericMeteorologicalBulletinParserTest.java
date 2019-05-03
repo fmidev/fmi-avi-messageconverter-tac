@@ -1,6 +1,7 @@
 package fi.fmi.avi.converter.tac.bulletin;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -187,23 +188,56 @@ public class GenericMeteorologicalBulletinParserTest {
 
     @Test
     public void testWXREPBulletinParsing() {
-        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("UAFI31 EFHK 310555\n"
-                        + "WXREP T01 REP 0555 N6520 E02522 FBL TURB FL230=",
+        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage(
+                "UAFI31 EFHK 310555\n" + "WXREP T01 REP 0555 N6520 E02522 FBL TURB FL230=\n" + "T01 REP 0555 N6520 E02522 FBL TURB FL230=",
                 TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
-        assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
+        assertEquals(ConversionResult.Status.WITH_WARNINGS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
         assertEquals(BulletinHeading.DataTypeDesignatorT1.UPPER_AIR_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
         assertEquals(BulletinHeading.UpperAirDataTypeDesignatorT2.UA_AIRCRAFT_REPORT_CODAR_AIREP, bulletin.get().getHeading().getDataTypeDesignatorT2());
-        assertEquals(1,bulletin.get().getMessages().size());
+        assertEquals(2, bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.WXREP,msg.getMessageType().get());
+        assertEquals(AviationCodeListUser.MessageType.WXREP, msg.getMessageType().get());
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
-        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(-1,5, 55, ZoneId.of("Z"))), msg.getIssueTime().get());
+        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(-1, 5, 55, ZoneId.of("Z"))), msg.getIssueTime().get());
+
+        msg = bulletin.get().getMessages().get(1);
+        assertFalse(msg.getMessageType().isPresent());
+
+
+        ConversionHints hints = new ConversionHints(ConversionHints.KEY_CONTAINED_MESSAGE_TYPE, AviationCodeListUser.MessageType.WXREP);
+        result = this.converter.convertMessage(
+                "UAFI31 EFHK 310555\n" + "WXREP T01 REP 0555 N6520 E02522 FBL TURB FL230=\n" + "T01 REP 0555 N6520 E02522 FBL TURB FL230=",
+                TACConverter.TAC_TO_GENERIC_BULLETIN_POJO, hints);
+        assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
+        bulletin = result.getConvertedMessage();
+        assertTrue(bulletin.isPresent());
+        assertEquals(BulletinHeading.DataTypeDesignatorT1.UPPER_AIR_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(BulletinHeading.UpperAirDataTypeDesignatorT2.UA_AIRCRAFT_REPORT_CODAR_AIREP, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(2, bulletin.get().getMessages().size());
+        msg = bulletin.get().getMessages().get(0);
+
+        assertTrue(msg.getMessageType().isPresent());
+        assertEquals(AviationCodeListUser.MessageType.WXREP, msg.getMessageType().get());
+
+        assertTrue(msg.getIssueTime().isPresent());
+        assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
+        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(-1, 5, 55, ZoneId.of("Z"))), msg.getIssueTime().get());
+
+        msg = bulletin.get().getMessages().get(1);
+
+        assertTrue(msg.getMessageType().isPresent());
+        assertEquals(AviationCodeListUser.MessageType.WXREP, msg.getMessageType().get());
+
+        assertTrue(msg.getIssueTime().isPresent());
+        assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
+        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(-1, 5, 55, ZoneId.of("Z"))), msg.getIssueTime().get());
+
     }
 
     @Test
@@ -229,7 +263,7 @@ public class GenericMeteorologicalBulletinParserTest {
         PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(30,10,30, ZoneId.of("Z")));
         assertEquals(PartialOrCompleteTimePeriod.builder().setStartTime(start).setEndTime(end).build(), msg.getValidityTime().get());
 
-        result = this.converter.convertMessage("WSUS31 KKCI 051255 \n" + "SIGE  \n" + "CONVECTIVE SIGMET 11E \n" + "VALID UNTIL 1455Z \n" + "FL CSTL WTRS \n"
+        result = this.converter.convertMessage("WSUS31 KKCI 051255 \n" + "SIGE  \n" + "CONVECTIVE SIGMET_START 11E \n" + "VALID UNTIL 1455Z \n" + "FL CSTL WTRS \n"
                         + "FROM 140SSW TLH-120W PIE-210S CEW-160S CEW-140SSW TLH \n" + "AREA EMBD TS MOV FROM 27010KT. TOPS TO FL440. \n" + " \n"
                         + "OUTLOOK VALID 051455-051855 \n" + "FROM 40WSW GSO-80ESE ILM-80NE TRV-TRV-210WSW PIE-LEV-50NW \n" + "SJI-AMG-40WSW GSO \n"
                         + "WST ISSUANCES EXPD. REFER TO MOST RECENT ACUS01 KWNS FROM STORM \n" + "PREDICTION CENTER FOR SYNOPSIS AND METEOROLOGICAL DETAILS.=",
