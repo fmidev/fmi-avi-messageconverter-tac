@@ -60,7 +60,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Sigmet;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherAdvisoryStart;
@@ -928,7 +928,7 @@ public class TACConverter {
                 return AviationCodeListUser.MessageType.SIGMET;
             }
         });
-        l.teach(new Sigmet(Priority.HIGH));
+        l.teach(new SigmetStart(Priority.HIGH));
         l.teach(new SigmetValidTime(Priority.NORMAL));
         l.teach(new EndToken(Priority.LOW));
         l.teach(new Whitespace(Priority.HIGH));

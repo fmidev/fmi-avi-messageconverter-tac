@@ -520,7 +520,7 @@ public interface Lexeme {
         ARS_START,
         WXREP_START,
         AIREP_START,
-        SIGMET,
+        SIGMET_START,
         US_SIGMET_START,
         REP,
         SPACE_WEATHER_ADVISORY_START,
