@@ -9,8 +9,6 @@ import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
-;
-
 /**
  * Created by rinne on 01/03/17.
  */
@@ -50,7 +48,7 @@ public abstract class FactoryBasedReconstructor implements TACTokenReconstructor
         lexeme.ifPresent(retval::add);
     	return retval;
     }
-    
+
     /**
      * Override this unless the class overrides getAsLexemes(). The default implementation always throws RuntimeException.
      *
