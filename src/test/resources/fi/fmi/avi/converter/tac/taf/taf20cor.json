@@ -1,0 +1,37 @@
+{
+	"status" : "CORRECTION",
+	"issueTime" : {
+      "partialTime" : "--10T09:12Z"
+	},
+	"aerodrome" : {
+	    "designator" : "EFHK"
+	},
+	"baseForecast" : {
+		"ceilingAndVisibilityOk": true,
+	   	"surfaceWind" : {
+	  		"variableDirection": false,
+	  		"meanWindDirection" : {
+	  	  		"value": 0.0,
+	  	  		"uom" : "deg"
+	  		},
+	  		"meanWindSpeed" : {
+	  	  		"value": 0.0,
+          		"uom": "[kn_i]"
+			}
+	  	}
+	},
+	"referredReport": {
+		"aerodrome": {
+			"designator" : "EFHK"
+		},
+		"validityTime" : {
+			"startTime" : {
+				"partialTime" : "--10T09:"
+			},
+			"endTime" : {
+				"partialTime" : "--11T09:"
+			}
+		}
+	},
+    "translatedTAC" : "TAF COR EFHK 100912Z 1009/1109 00000KT CAVOK="
+}
