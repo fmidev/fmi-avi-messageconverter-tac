@@ -63,6 +63,31 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(Lexeme.Identity.END_TOKEN, l.getIdentityIfAcceptable());
     }
 
+
+    @Test
+    public void testAmendmentBulletinLexing() {
+        LexemeSequence seq = lexer.lexMessage(
+                "FTFI33 EFPP 020500 AAA\n" + "TAF AMD EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG\n" + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 "
+                        + "4000 "
+                        + "SHRA\n"
+                        + "BKN010 SCT030CB=");
+        Lexeme l = seq.getFirstLexeme();
+        assertEquals(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, l.getIdentityIfAcceptable());
+        l = l.getNext();
+        assertNotNull(l);
+        assertEquals(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, l.getIdentityIfAcceptable());
+        l = l.getNext();
+        assertNotNull(l);
+        assertEquals(Lexeme.Identity.ISSUE_TIME, l.getIdentityIfAcceptable());
+        l = l.getNext();
+        assertNotNull(l);
+        assertEquals(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, l.getIdentityIfAcceptable());
+        while (l.hasNext()) {
+            l = l.getNext();
+        }
+        assertEquals(Lexeme.Identity.END_TOKEN, l.getIdentityIfAcceptable());
+    }
+
     @Test
     public void testTAFBulletinParsing() {
         BulletinHeading heading = BulletinHeadingImpl.builder()//
