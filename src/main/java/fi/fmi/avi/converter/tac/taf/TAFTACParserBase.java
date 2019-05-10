@@ -179,12 +179,41 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 }
             }
         });
-
-        if (AviationCodeListUser.TAFStatus.CANCELLATION == builder.getStatus()
-                || AviationCodeListUser.TAFStatus.CORRECTION == builder.getStatus()) {
-            result.addIssue(setReferredReport(builder, lexed, hints));
-        } else {
+        Object referencePolicy = ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD;
+        if (hints != null) {
+            referencePolicy = hints.getOrDefault(ConversionHints.KEY_TAF_REFERENCE_POLICY, ConversionHints
+                    .VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD);
+        }
+        if (builder.getStatus() == null) {
             result.addIssue(setTAFValidTime(builder, lexed, hints));
+        } else {
+            switch (builder.getStatus()) {
+                case AMENDMENT:
+                    if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD)) {
+                        result.addIssue(setReferredReport(builder, lexed, hints));
+                    } else {
+                        result.addIssue(setTAFValidTime(builder, lexed, hints));
+                    }
+                    break;
+                case CORRECTION:
+                    if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD) || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL)) {
+                        result.addIssue(setReferredReport(builder, lexed, hints));
+                    } else {
+                        result.addIssue(setTAFValidTime(builder, lexed, hints));
+                    }
+                    break;
+                case CANCELLATION:
+                    if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD) || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL)
+                            || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_CNL)) {
+                        result.addIssue(setReferredReport(builder, lexed, hints));
+                    } else {
+                        result.addIssue(setTAFValidTime(builder, lexed, hints));
+                    }
+                    break;
+                default:
+                    result.addIssue(setTAFValidTime(builder, lexed, hints));
+
+            }
         }
 
         //End processing here if CNL:
