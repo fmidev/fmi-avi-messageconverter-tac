@@ -90,8 +90,9 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                     }
                     retval.append(endToken);
                 }
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.GROUP_SEPARATOR);
             }
-            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.GROUP_SEPARATOR);
+            retval.removeLast();
         }
         return retval.build();
     }
