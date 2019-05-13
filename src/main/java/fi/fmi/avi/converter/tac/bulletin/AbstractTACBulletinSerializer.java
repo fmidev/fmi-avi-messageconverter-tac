@@ -22,11 +22,11 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
 
     @Override
     public ConversionResult<String> convertMessage(final T input, final ConversionHints hints) {
-        ConversionResult<String> result = new ConversionResult<>();
+        final ConversionResult<String> result = new ConversionResult<>();
         try {
-            LexemeSequence seq = tokenizeMessage(input, hints);
+            final LexemeSequence seq = tokenizeMessage(input, hints);
             result.setConvertedMessage(seq.getTAC());
-        } catch (SerializingException se) {
+        } catch (final SerializingException se) {
             result.addIssue(new ConversionIssue(ConversionIssue.Type.OTHER, se.getMessage()));
         }
         return result;
@@ -45,9 +45,9 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
 
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException {
-        T input = accepts(msg);
-        LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
-        ReconstructorContext<T> baseCtx = new ReconstructorContext<>(input, hints);
+        final T input = accepts(msg);
+        final LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
+        final ReconstructorContext<T> baseCtx = new ReconstructorContext<>(input, hints);
         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN, 2);
         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         appendToken(retval, Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, input, getBulletinClass(), baseCtx);
@@ -59,17 +59,18 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
         if (appendToken(retval, Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, input, getBulletinClass(), baseCtx) == 0) {
             retval.removeLast();
         }
-        List<S> messages = input.getMessages();
+        final List<S> messages = input.getMessages();
         LexemeSequence messageSequence;
         if (messages.size() > 0) {
-            for (S message : messages) {
+            for (final S message : messages) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN, 2);
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
                 messageSequence = tokenizeSingleMessage(message, hints);
                 int charsOnRow = 0;
-                List<Lexeme> lexemes = messageSequence.getLexemes();
-                for (Lexeme l : lexemes) {
+                final List<Lexeme> lexemes = messageSequence.getLexemes();
+                for (final Lexeme l : lexemes) {
                     if (l.getIdentity() != Lexeme.Identity.WHITE_SPACE && l.getIdentity() != Lexeme.Identity.END_TOKEN) {
-                        int length = l.getTACToken().length();
+                        final int length = l.getTACToken().length();
                         if (charsOnRow + length >= MAX_ROW_LENGTH) {
                             if (retval.getLast().isPresent() && retval.getLast().get().getIdentity() == Lexeme.Identity.WHITE_SPACE) {
                                 retval.removeLast();
@@ -83,16 +84,14 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                         charsOnRow += length + 1;
                     }
                 }
-                Lexeme endToken = messageSequence.getLastLexeme();
+                final Lexeme endToken = messageSequence.getLastLexeme();
                 if (endToken.getIdentity() == Lexeme.Identity.END_TOKEN) {
                     while (retval.getLast().isPresent() && retval.getLast().get().getIdentity() == Lexeme.Identity.WHITE_SPACE) {
                         retval.removeLast();
                     }
                     retval.append(endToken);
                 }
-                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.GROUP_SEPARATOR);
             }
-            retval.removeLast();
         }
         return retval.build();
     }
