@@ -89,7 +89,7 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                     retval.removeLast();
                 }
                 //..and make sure '=' is the last character:
-                retval.append(this.getLexingFactory().createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SIGNAL_22.getContent(),
+                retval.append(this.getLexingFactory().createLexeme("=",
                     Lexeme.Identity.END_TOKEN));
             }
         }
