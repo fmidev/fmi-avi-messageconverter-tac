@@ -84,13 +84,13 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                         charsOnRow += length + 1;
                     }
                 }
-                final Lexeme endToken = messageSequence.getLastLexeme();
-                if (endToken.getIdentity() == Lexeme.Identity.END_TOKEN) {
-                    while (retval.getLast().isPresent() && retval.getLast().get().getIdentity() == Lexeme.Identity.WHITE_SPACE) {
-                        retval.removeLast();
-                    }
-                    retval.append(endToken);
+                //Remove trailing whitespace:
+                while (retval.getLast().isPresent() && retval.getLast().get().getIdentity() == Lexeme.Identity.WHITE_SPACE) {
+                    retval.removeLast();
                 }
+                //..and make sure '=' is the last character:
+                retval.append(this.getLexingFactory().createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SIGNAL_22.getContent(),
+                    Lexeme.Identity.END_TOKEN));
             }
         }
         return retval.build();

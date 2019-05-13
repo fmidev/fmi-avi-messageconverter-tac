@@ -638,7 +638,8 @@ public interface Lexeme {
         GROUP_SEPARATOR('\u001D'),
         RECORD_SEPARATOR('\u001E'),
         DELETE('\u007F'),
-        SPACE('\u0020');
+        SPACE('\u0020'),
+        SIGNAL_22('=');
 
         private char content;
 
