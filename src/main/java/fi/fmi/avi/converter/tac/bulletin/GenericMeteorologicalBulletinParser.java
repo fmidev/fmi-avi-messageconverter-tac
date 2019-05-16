@@ -70,7 +70,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             return result;
         }
 
-        final GenericMeteorologicalBulletinImpl.Builder bulletinBuilder = new GenericMeteorologicalBulletinImpl.Builder();
+        final GenericMeteorologicalBulletinImpl.Builder bulletinBuilder = GenericMeteorologicalBulletinImpl.builder();
 
         //Split & filter in the sequences ending with END_TOKEN, will always return at least one sequence (the original), unless the original is empty:
         final List<LexemeSequence> subSequences = lexed.splitBy(false, Lexeme.Identity.END_TOKEN);
@@ -84,7 +84,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
         if (lastHeadingToken == null) {
             lastHeadingToken = l;
         }
-        BulletinHeading bulletinHeading = BulletinHeadingImpl.Builder.from(abbrHeading.toString()).build();
+        final BulletinHeading bulletinHeading = BulletinHeadingImpl.Builder.from(abbrHeading.toString()).build();
         bulletinBuilder.setHeading(bulletinHeading);
 
 
@@ -106,7 +106,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             }
             */
         }
-        ConversionHints messageSpecificHints = new ConversionHints(hints);
+        final ConversionHints messageSpecificHints = new ConversionHints(hints);
         for (int i = 0; i < subSequences.size(); i++) {
             if (i == 0) {
                 msg = lastHeadingToken.getTailSequence().trimWhiteSpace().getTAC();
@@ -153,11 +153,11 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             lm.findNext(Lexeme.Identity.AERODROME_DESIGNATOR, designator -> msgBuilder.setTargetAerodrome(
                     AerodromeImpl.builder().setDesignator(designator.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build()));
             lm.findNext(Lexeme.Identity.ISSUE_TIME, (time) -> {
-                Integer year = time.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
-                Integer month = time.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
-                Integer day = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-                Integer hour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-                Integer minute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+                final Integer year = time.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
+                final Integer month = time.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
+                final Integer day = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+                final Integer hour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                final Integer minute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
                 if (hour != null && minute != null) {
                     //Do we have enough info for a complete time?
                     if (year != null && month != null && day != null) {
@@ -203,12 +203,12 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                 });
             } else {
                 lm.findNext(Lexeme.Identity.VALID_TIME, (time) -> {
-                    Integer fromDay = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-                    Integer fromHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-                    Integer fromMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-                    Integer toDay = time.getParsedValue(Lexeme.ParsedValueName.DAY2, Integer.class);
-                    Integer toHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR2, Integer.class);
-                    Integer toMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE2, Integer.class);
+                    final Integer fromDay = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+                    final Integer fromHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                    final Integer fromMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+                    final Integer toDay = time.getParsedValue(Lexeme.ParsedValueName.DAY2, Integer.class);
+                    final Integer toHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR2, Integer.class);
+                    final Integer toMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE2, Integer.class);
 
                     //If there are different VALID_TIME lexemes in the same message, discard the entire valid time info with warning
                     boolean conflict = false;
@@ -223,7 +223,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                         result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.LOGICAL,
                                 "There are different valid time tokens in the message, discarding valid time info"));
                     } else {
-                        PartialOrCompleteTimePeriod.Builder validTime = PartialOrCompleteTimePeriod.builder()
+                        final PartialOrCompleteTimePeriod.Builder validTime = PartialOrCompleteTimePeriod.builder()
                                 .setStartTime(PartialOrCompleteTimeInstant.of(
                                         PartialDateTime.of(fromDay != null ? fromDay : -1, fromHour != null ? fromHour : -1, fromMinute != null ? fromMinute : -1,
                                                 ZoneId.of("Z"))))
