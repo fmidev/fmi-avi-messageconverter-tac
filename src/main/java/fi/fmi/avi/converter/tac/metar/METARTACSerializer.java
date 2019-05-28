@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac.metar;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.metar.METAR;
 
@@ -17,8 +17,8 @@ public class METARTACSerializer extends METARTACSerializerBase<METAR> {
     }
 
     @Override
-    protected Lexeme.Identity getStartTokenIdentity() {
-        return Lexeme.Identity.METAR_START;
+    protected LexemeIdentity getStartTokenIdentity() {
+        return LexemeIdentity.METAR_START;
     }
 
     @Override

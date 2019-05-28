@@ -1,14 +1,14 @@
 package fi.fmi.avi.converter.tac.metar;
 
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.SPECIImpl;
 
 public class SPECITACParser extends METARAndSPECITACParserBase<SPECI, SPECIImpl.Builder> {
 
     @Override
-    protected Lexeme.Identity getExpectedFirstTokenIdentity() {
-        return Lexeme.Identity.SPECI_START;
+    protected LexemeIdentity getExpectedFirstTokenIdentity() {
+        return LexemeIdentity.SPECI_START;
     }
 
     @Override

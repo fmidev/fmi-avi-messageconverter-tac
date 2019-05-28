@@ -1,11 +1,12 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SNOW_CLOSURE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SNOW_CLOSURE;
 
 import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -33,7 +34,7 @@ public class SnowClosure extends PrioritizedLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
                 if (((MeteorologicalTerminalAirReport) msg).isSnowClosure()) {
-                    return Optional.of(createLexeme("R/SNOCLO", Lexeme.Identity.SNOW_CLOSURE));
+                    return Optional.of(createLexeme("R/SNOCLO", LexemeIdentity.SNOW_CLOSURE));
                 }
             }
             return Optional.empty();

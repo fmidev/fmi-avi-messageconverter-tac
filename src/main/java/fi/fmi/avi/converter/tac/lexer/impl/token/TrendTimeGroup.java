@@ -1,9 +1,9 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TREND_TIME_GROUP;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TREND_TIME_GROUP;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
@@ -37,12 +37,12 @@ public class TrendTimeGroup extends TimeHandlingRegex {
         int hour = Integer.parseInt(match.group(2));
         int minute = Integer.parseInt(match.group(3));
         if (timeOkHourMinute(hour, minute)) {
-            token.identify(Identity.TREND_TIME_GROUP);
+            token.identify(LexemeIdentity.TREND_TIME_GROUP);
             token.setParsedValue(HOUR1, hour);
             token.setParsedValue(MINUTE1, minute);
             token.setParsedValue(TYPE, type);
         } else {
-            token.identify(Identity.TREND_TIME_GROUP, Lexeme.Status.SYNTAX_ERROR, "Invalid time");
+            token.identify(LexemeIdentity.TREND_TIME_GROUP, Lexeme.Status.SYNTAX_ERROR, "Invalid time");
         }
     }
 

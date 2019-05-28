@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -43,7 +43,7 @@ public class ValidTimeReconstructorTest {
 
         final List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, ctx);
 
-        assertOneLexeme(l, Lexeme.Identity.VALID_TIME, "0702/0724");
+        assertOneLexeme(l, LexemeIdentity.VALID_TIME, "0702/0724");
     }
 
     @Test
@@ -55,7 +55,7 @@ public class ValidTimeReconstructorTest {
 
         final List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, ctx);
 
-        assertOneLexeme(l, Lexeme.Identity.VALID_TIME, "070224");
+        assertOneLexeme(l, LexemeIdentity.VALID_TIME, "070224");
     }
 
     @Test
@@ -67,7 +67,7 @@ public class ValidTimeReconstructorTest {
 
         final List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, ctx);
 
-        assertOneLexeme(l, Lexeme.Identity.VALID_TIME, "071810");
+        assertOneLexeme(l, LexemeIdentity.VALID_TIME, "071810");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ValidTimeReconstructorTest {
 
         final List<Lexeme> l = reconstructor.getAsLexemes(msg, TAF.class, ctx);
 
-        assertOneLexeme(l, Lexeme.Identity.VALID_TIME, "0718/0820");
+        assertOneLexeme(l, LexemeIdentity.VALID_TIME, "0718/0820");
     }
 
     private void injectValidity(final TAF msg, final int startDay, final int startHour, final int endDay, final int endHour) {
@@ -91,13 +91,13 @@ public class ValidTimeReconstructorTest {
         when(msg.getValidityTime()).thenReturn(p);
     }
 
-    private void assertOneLexeme(final List<Lexeme> lexemes, final Identity identity, final String token) {
+    private void assertOneLexeme(final List<Lexeme> lexemes, final LexemeIdentity identity, final String token) {
         assertNotNull(lexemes);
         assertEquals(1, lexemes.size());
         assertLexeme(lexemes.get(0), identity, token);
     }
 
-    private void assertLexeme(final Lexeme l, final Identity identity, final String token) {
+    private void assertLexeme(final Lexeme l, final LexemeIdentity identity, final String token) {
         assertNotNull(l);
         assertEquals(identity, l.getIdentity());
         assertEquals(token, l.getTACToken());

@@ -1,6 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SIGMET_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;

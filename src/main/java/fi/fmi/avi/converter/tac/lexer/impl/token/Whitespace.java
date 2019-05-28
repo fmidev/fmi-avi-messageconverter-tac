@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 /**
@@ -18,10 +18,10 @@ public class Whitespace extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (Identity.WHITE_SPACE == token.getIdentityIfAcceptable()) {
+        if (LexemeIdentity.WHITE_SPACE.equals(token.getIdentityIfAcceptable())) {
             return;
         }
-        token.identify(Identity.WHITE_SPACE);
+        token.identify(LexemeIdentity.WHITE_SPACE);
         token.setParsedValue(Lexeme.ParsedValueName.VALUE, token.getTACToken());
     }
 }

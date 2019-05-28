@@ -1,9 +1,9 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.RECENT_WEATHER;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.REMARKS_START;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WEATHER;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AERODROME_DESIGNATOR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.RECENT_WEATHER;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REMARKS_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.WEATHER;
 import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
 
 import java.util.Arrays;
@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -40,10 +41,10 @@ public class Weather extends RegexMatchingLexemeVisitor {
         boolean isPreceededWithRemarkStart = false;
         Lexeme l = token.getPrevious();
         while (l != null) {
-            if (!isPreceededWithAerodromeCode && AERODROME_DESIGNATOR == l.getIdentityIfAcceptable()) {
+            if (!isPreceededWithAerodromeCode && AERODROME_DESIGNATOR.equals(l.getIdentityIfAcceptable())) {
                 isPreceededWithAerodromeCode = true;
             }
-            if (!isPreceededWithRemarkStart && REMARKS_START == l.getIdentityIfAcceptable()) {
+            if (!isPreceededWithRemarkStart && REMARKS_START.equals(l.getIdentityIfAcceptable())) {
                 isPreceededWithRemarkStart = true;
             }
             l = l.getPrevious();
@@ -75,7 +76,7 @@ public class Weather extends RegexMatchingLexemeVisitor {
                             token.setParsedValue(Lexeme.ParsedValueName.VALUE, code);
                         } else {
                             token.setIgnored(true);
-                            if (token.hasNext(true) && Lexeme.Identity.WHITE_SPACE == token.getNext(true).getIdentity()) {
+                            if (token.hasNext(true) && LexemeIdentity.WHITE_SPACE.equals(token.getNext(true).getIdentity())) {
                                 token.getNext(true).setIgnored(true);
                             }
                         }
@@ -98,9 +99,9 @@ public class Weather extends RegexMatchingLexemeVisitor {
             Optional<fi.fmi.avi.model.Weather> weather = ctx.getParameter("weather", fi.fmi.avi.model.Weather.class);
             if (weather.isPresent() && isCodeAllowed(weather.get(), ctx.getHints())) {
                 if (recentWeather) {
-                    return Optional.of(this.createLexeme("RE" + weather.get().getCode(), Lexeme.Identity.RECENT_WEATHER));
+                    return Optional.of(this.createLexeme("RE" + weather.get().getCode(), LexemeIdentity.RECENT_WEATHER));
                 } else {
-                    return Optional.of(this.createLexeme(weather.get().getCode(), Lexeme.Identity.WEATHER));
+                    return Optional.of(this.createLexeme(weather.get().getCode(), LexemeIdentity.WEATHER));
                 }
             }
             return Optional.empty();

@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 
 public class USSigmetValidUntil extends TimeHandlingRegex {
 
@@ -19,11 +20,11 @@ public class USSigmetValidUntil extends TimeHandlingRegex {
         final int toHour = Integer.parseInt(match.group("endHour"));
         final int toMinute = Integer.parseInt(match.group("endMinute"));
         if (timeOkHourMinute(toHour, toMinute)) {
-            token.identify(Lexeme.Identity.VALID_TIME);
+            token.identify(LexemeIdentity.VALID_TIME);
             token.setParsedValue(HOUR2, toHour);
             token.setParsedValue(MINUTE2, toMinute);
         } else {
-            token.identify(Lexeme.Identity.VALID_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid time");
+            token.identify(LexemeIdentity.VALID_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid time");
         }
     }
 }

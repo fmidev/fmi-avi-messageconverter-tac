@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -21,11 +22,10 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.getFirst().getIdentityIfAcceptable() != null && token.getFirst()
-                .getIdentityIfAcceptable()
-                .equals(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS) && token.hasPrevious() && token.getPrevious().getIdentityIfAcceptable() != null
-                && token.getPrevious().getIdentityIfAcceptable().equals(Lexeme.Identity.ISSUE_TIME)) {
-            token.identify(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR);
+        if (LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS.equals(token.getFirst().getIdentityIfAcceptable())
+                && token.hasPrevious() && token.getPrevious().getIdentityIfAcceptable() != null
+                && LexemeIdentity.ISSUE_TIME.equals(token.getPrevious().getIdentityIfAcceptable())) {
+            token.identify(LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR);
             token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group("bbb"));
         }
     }
@@ -51,7 +51,7 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
                                     "Illegal bulletin augmentation number '" + augNumber.get() + "', the value must be between 1 and  " + ('Z' - 'A' + 1));
                         }
                         return Optional.of(createLexeme(heading.getType().getPrefix() + String.valueOf(Character.toChars(seqNumber)),
-                                Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR));
+                                LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR));
                     }
                 }
             }

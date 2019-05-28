@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 
 public class SigmetValidTime extends TimeHandlingRegex {
 
@@ -28,7 +29,7 @@ public class SigmetValidTime extends TimeHandlingRegex {
         final int toHour = Integer.parseInt(match.group("endHour"));
         final int toMinute = Integer.parseInt(match.group("endMinute"));
         if (timeOkDayHourMinute(fromDay, fromHour, fromMinute) && timeOkDayHourMinute(toDay, toHour, toMinute)) {
-            token.identify(Lexeme.Identity.VALID_TIME);
+            token.identify(LexemeIdentity.VALID_TIME);
             token.setParsedValue(DAY1, fromDay);
             token.setParsedValue(DAY2, toDay);
             token.setParsedValue(HOUR1, fromHour);
@@ -36,7 +37,7 @@ public class SigmetValidTime extends TimeHandlingRegex {
             token.setParsedValue(MINUTE1, fromMinute);
             token.setParsedValue(MINUTE2, toMinute);
         } else {
-            token.identify(Lexeme.Identity.VALID_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid date and/or time");
+            token.identify(LexemeIdentity.VALID_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid date and/or time");
         }
     }
 }

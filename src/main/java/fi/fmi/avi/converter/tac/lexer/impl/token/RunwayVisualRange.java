@@ -1,6 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.RUNWAY_VISUAL_RANGE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
@@ -8,13 +7,14 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_O
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TENDENCY_OPERATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.RUNWAY_VISUAL_RANGE;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
@@ -139,7 +139,7 @@ public class RunwayVisualRange extends RegexMatchingLexemeVisitor {
 					builder.append(appendUnit);
 				}
 
-                return Optional.of(this.createLexeme(builder.toString(), Identity.RUNWAY_VISUAL_RANGE));
+                return Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.RUNWAY_VISUAL_RANGE));
             }
 
             return Optional.empty();

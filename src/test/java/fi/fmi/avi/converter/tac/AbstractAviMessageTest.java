@@ -42,7 +42,7 @@ import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
@@ -96,7 +96,7 @@ public abstract class AbstractAviMessageTest<S, T> {
 		return new ConversionHints();
 	}
     
-    public abstract Identity[] getLexerTokenSequenceIdentity();
+    public abstract LexemeIdentity[] getLexerTokenSequenceIdentity();
 
 	protected static void assertAviationWeatherMessageEquals(final AviationWeatherMessage expected, final AviationWeatherMessage actual) {
 		final Difference diff = deepCompareObjects(expected, actual);
@@ -236,20 +236,20 @@ public abstract class AbstractAviMessageTest<S, T> {
         }
 	}
 
-	protected Identity[] spacify(final Identity[] input) {
-		final List<Identity> retval = new ArrayList<>();
+	protected LexemeIdentity[] spacify(final LexemeIdentity[] input) {
+		final List<LexemeIdentity> retval = new ArrayList<>();
 		if (input != null) {
 			for (int i=0; i < input.length; i++) {
 				retval.add(input[i]);
-			    if ((i < input.length - 1) && (Identity.END_TOKEN != input[i + 1])) {
-                    retval.add(Identity.WHITE_SPACE);
+			    if ((i < input.length - 1) && !(LexemeIdentity.END_TOKEN.equals(input[i + 1]))) {
+                    retval.add(LexemeIdentity.WHITE_SPACE);
                 }
 			}
 		}
-		return retval.toArray(new Identity[retval.size()]);
+		return retval.toArray(new LexemeIdentity[retval.size()]);
 	}
 
-	protected void assertTokenSequenceIdentityMatch(final LexemeSequence result, final Lexeme.Identity... identities) {
+	protected void assertTokenSequenceIdentityMatch(final LexemeSequence result, final LexemeIdentity... identities) {
 		final List<Lexeme> lexemes = result.getLexemes();
 		assertTrue("Token sequence size does not match", identities.length == lexemes.size());
 		for (int i = 0; i < identities.length; i++) {

@@ -58,7 +58,7 @@ public interface LexingFactory {
      * @param identity the forced identity
      * @return a recognized Lexeme
      */
-    Lexeme createLexeme(final String token, final Lexeme.Identity identity);
+    Lexeme createLexeme(final String token, final LexemeIdentity identity);
 
     /**
      * Creates a single {@link Lexeme} containing the <code>token</code> as it's
@@ -70,7 +70,7 @@ public interface LexingFactory {
      * @param status the forced status
      * @return a recognized Lexeme with the given status
      */
-    Lexeme createLexeme(final String token, final Lexeme.Identity identity, final Lexeme.Status status);
+    Lexeme createLexeme(final String token, final LexemeIdentity identity, final Lexeme.Status status);
 
     /**
      * Returns the rules used by this LexingFactory for combining matching sequences of white-space separated
@@ -79,4 +79,5 @@ public interface LexingFactory {
      * @return the list of combination rules to be used for parsing multi-token Lexemes
      */
     List<List<Predicate<String>>> getTokenCombiningRules();
+
 }

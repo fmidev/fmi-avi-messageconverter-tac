@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.COLOR_CODE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.COLOR_CODE;
 
 import java.util.Optional;
 import java.util.regex.Matcher;

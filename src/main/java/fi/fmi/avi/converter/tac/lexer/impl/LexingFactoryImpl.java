@@ -13,11 +13,12 @@ import java.util.function.Predicate;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.LexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
-import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.MessageType;
 
 /**
  * Default LexingFactory implementation.
@@ -31,8 +32,14 @@ public class LexingFactoryImpl implements LexingFactory {
 
     private List<List<Predicate<String>>> tokenCombiningRules = new ArrayList<>();
 
-    public void addTokenCombiningRule(List<Predicate<String>> rule) {
+    private Map<MessageType, Lexeme> startTokens = new HashMap<>();
+
+    public void addTokenCombiningRule(final List<Predicate<String>> rule) {
         this.tokenCombiningRules.add(rule);
+    }
+
+    public void setMessageStartToken(final MessageType type, final Lexeme token) {
+        this.startTokens.put(type, token);
     }
 
     @Override
@@ -58,43 +65,29 @@ public class LexingFactoryImpl implements LexingFactory {
     }
 
     @Override
-    public Lexeme createLexeme(final String token, final Lexeme.Identity identity) {
+    public Lexeme createLexeme(final String token, final LexemeIdentity identity) {
         return new LexemeImpl(this, token, identity);
     }
 
     @Override
-    public Lexeme createLexeme(final String token, final Lexeme.Identity identity, final Lexeme.Status status) {
+    public Lexeme createLexeme(final String token, final LexemeIdentity identity, final Lexeme.Status status) {
         return new LexemeImpl(this, token, identity, status);
     }
 
-    //TODO: implement a more generic way to add the artificial start tokens
+    public Lexeme createLexeme(final String token, final LexemeIdentity identity, final Lexeme.Status status, final boolean synthetic) {
+        LexemeImpl l = new LexemeImpl(this, token, identity, status);
+        l.setSynthetic(synthetic);
+        return l;
+    }
+
     private void appendArtifialStartTokenIfNecessary(final String input, final LexemeSequenceImpl result, final ConversionHints hints) {
         if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
-            LexemeImpl artificialStartToken = null;
-            if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.METAR && !input.startsWith("METAR ")) {
-                artificialStartToken = new LexemeImpl(this, "METAR", Lexeme.Identity.METAR_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.SPECI && !input.startsWith("SPECI ")) {
-                artificialStartToken = new LexemeImpl(this,"SPECI", Lexeme.Identity.SPECI_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.TAF && !input.startsWith("TAF ")) {
-                artificialStartToken = new LexemeImpl(this, "TAF", Lexeme.Identity.TAF_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.WXREP && !input.startsWith("WXREP ")) {
-                artificialStartToken = new LexemeImpl(this, "WXREP", Lexeme.Identity.WXREP_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.SPECIAL_AIR_REPORT && !input.startsWith("ARS ")) {
-                artificialStartToken = new LexemeImpl(this, "ARS", Lexeme.Identity.ARS_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.WX_WARNING && !input.startsWith("WX ")) {
-                artificialStartToken = new LexemeImpl(this, "WX", Lexeme.Identity.WX_WARNING_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.VOLCANIC_ASH_ADVISORY && !input.startsWith("VA "
-                    + "ADVISORY ")) {
-                artificialStartToken = new LexemeImpl(this, "VA ADVISORY", Lexeme.Identity.VOLCANIC_ASH_ADVISORY_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.LOW_WIND && !input.startsWith("LOWWIND ")) {
-                artificialStartToken = new LexemeImpl(this, "LOWWIND", Lexeme.Identity.LOW_WIND_START);
-            } else if (hints.get(ConversionHints.KEY_MESSAGE_TYPE) == AviationCodeListUser.MessageType.SIGMET && !input.startsWith("SIGMET ")) {
-                artificialStartToken = new LexemeImpl(this, "SIGMET_START", Lexeme.Identity.SIGMET_START);
-            }
+            Lexeme artificialStartToken = this.startTokens.get(hints.get(ConversionHints.KEY_MESSAGE_TYPE));
             if (artificialStartToken != null) {
-                artificialStartToken.setSynthetic(true);
-                result.addAsFirst(new LexemeImpl(this, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE));
-                result.addAsFirst(artificialStartToken);
+                if (!input.startsWith(artificialStartToken.getTACToken() + " ")) {
+                    result.addAsFirst(new LexemeImpl(this, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE));
+                    result.addAsFirst(artificialStartToken);
+                }
             }
         }
     }
@@ -153,20 +146,20 @@ public class LexingFactoryImpl implements LexingFactory {
         }
 
         @Override
-        public List<LexemeSequence> splitBy(final Lexeme.Identity... ids) {
+        public List<LexemeSequence> splitBy(final LexemeIdentity... ids) {
             return this.splitBy(true, ids);
         }
 
         @Override
-        public List<LexemeSequence> splitBy(final boolean separatorStartsSequence, final Lexeme.Identity... ids) {
+        public List<LexemeSequence> splitBy(final boolean separatorStartsSequence, final LexemeIdentity... ids) {
             final List<LexemeSequence> retval = new ArrayList<>();
             LexemeSequenceBuilder builder = new LexemeSequenceBuilderImpl(this.factory);
             LexemeImpl l = this.head;
             boolean matchFound = false;
             while (l != null) {
                 matchFound = false;
-                for (final Lexeme.Identity toMatch : ids) {
-                    if (toMatch == l.getIdentity()) {
+                for (final LexemeIdentity toMatch : ids) {
+                    if (toMatch.equals(l.getIdentity())) {
                         matchFound = true;
                         if (!separatorStartsSequence) {
                             builder.append(l);
@@ -201,7 +194,7 @@ public class LexingFactoryImpl implements LexingFactory {
         public LexemeSequence trimWhiteSpace() {
             final LexemeSequenceBuilder builder = new LexemeSequenceBuilderImpl(this.factory);
             Lexeme l = this.head;
-            while (l != null && Lexeme.Identity.WHITE_SPACE == l.getIdentity()) {
+            while (l != null && LexemeIdentity.WHITE_SPACE.equals(l.getIdentity())) {
                 l = l.getNext();
             }
             if (l != null) {
@@ -209,7 +202,7 @@ public class LexingFactoryImpl implements LexingFactory {
                         .appendAll(l.getTailSequence().getLexemes());
             }
             Optional<Lexeme> last = builder.getLast();
-            while (last.isPresent() && Lexeme.Identity.WHITE_SPACE == last.get().getIdentity()) {
+            while (last.isPresent() && LexemeIdentity.WHITE_SPACE.equals(last.get().getIdentity())) {
                 builder.removeLast();
                 last = builder.getLast();
             }
@@ -273,6 +266,10 @@ public class LexingFactoryImpl implements LexingFactory {
                 prev.setNext(this.tail);
             }
             return oldLast;
+        }
+
+        void addAsFirst(final Lexeme toAdd) {
+            this.addAsFirst(new LexemeImpl(this.factory, toAdd));
         }
 
         void addAsFirst(final LexemeImpl toAdd) {
@@ -370,14 +367,14 @@ public class LexingFactoryImpl implements LexingFactory {
                     //Special chars or space:
                     Lexeme.MeteorologicalBulletinSpecialCharacter specialCharacter = Lexeme.MeteorologicalBulletinSpecialCharacter.fromChar(s.charAt(0));
                     if (s.length() == 1 && specialCharacter != null) {
-                            LexemeImpl l = new LexemeImpl(this.factory, s, Lexeme.Identity.WHITE_SPACE);
+                            LexemeImpl l = new LexemeImpl(this.factory, s, LexemeIdentity.WHITE_SPACE);
                             l.setStartIndex(start);
                             l.setEndIndex(l.getStartIndex() + l.getTACToken().length() - 1);
                             l.setParsedValue(Lexeme.ParsedValueName.TYPE, specialCharacter);
                             this.addAsLast(l);
                     } else {
                         if ("=".equals(s)) {
-                            LexemeImpl l = new LexemeImpl(this.factory, "=", Lexeme.Identity.END_TOKEN);
+                            LexemeImpl l = new LexemeImpl(this.factory, "=", LexemeIdentity.END_TOKEN);
                             l.setStartIndex(start);
                             l.setEndIndex(start);
                             this.addAsLast(l);
@@ -501,7 +498,7 @@ public class LexingFactoryImpl implements LexingFactory {
 
     static class LexemeImpl implements Lexeme {
         private LexingFactory factory;
-        private Identity id;
+        private LexemeIdentity id;
         private final String tacToken;
         private Status status;
         private String lexerMessage;
@@ -533,15 +530,15 @@ public class LexingFactoryImpl implements LexingFactory {
             this(factory, token, null, Status.UNRECOGNIZED);
         }
 
-        LexemeImpl(final LexingFactory factory, final String token, final Identity identity) {
+        LexemeImpl(final LexingFactory factory, final String token, final LexemeIdentity identity) {
             this(factory, token, identity, Status.OK);
         }
 
         LexemeImpl(final LexingFactory factory, final MeteorologicalBulletinSpecialCharacter value) {
-            this(factory, value.getContent(), Identity.WHITE_SPACE, Status.OK);
+            this(factory, value.getContent(), LexemeIdentity.WHITE_SPACE, Status.OK);
         }
 
-        LexemeImpl(final LexingFactory factory, final String token, final Identity identity, final Status status) {
+        LexemeImpl(final LexingFactory factory, final String token, final LexemeIdentity identity, final Status status) {
             this.factory = factory;
             this.tacToken = token;
             this.id = identity;
@@ -551,12 +548,12 @@ public class LexingFactoryImpl implements LexingFactory {
         }
 
         @Override
-        public Identity getIdentity() {
+        public LexemeIdentity getIdentity() {
             return this.id;
         }
 
         @Override
-        public Identity getIdentityIfAcceptable() throws IllegalStateException {
+        public LexemeIdentity getIdentityIfAcceptable() throws IllegalStateException {
             if (Status.OK == this.status || Status.WARNING == this.status) {
                 return this.id;
             } else {
@@ -620,7 +617,7 @@ public class LexingFactoryImpl implements LexingFactory {
         public Lexeme getFirst(final boolean acceptIgnoredAndWhitespace) {
             Lexeme retval = this.first;
             if (!acceptIgnoredAndWhitespace) {
-                if (retval != null && (Identity.WHITE_SPACE == retval.getIdentity() || retval.isIgnored())) {
+                if (retval != null && (LexemeIdentity.WHITE_SPACE.equals(retval.getIdentity()) || retval.isIgnored())) {
                     retval = retval.getNext();
                 }
             }
@@ -655,7 +652,7 @@ public class LexingFactoryImpl implements LexingFactory {
                     if (!acceptIgnored && retval.isIgnored()) {
                         notAcceptable = true;
                     }
-                    if (!acceptWhitespace && Identity.WHITE_SPACE == retval.getIdentity()) {
+                    if (!acceptWhitespace && LexemeIdentity.WHITE_SPACE.equals(retval.getIdentity())) {
                         notAcceptable = true;
                     }
                     if (notAcceptable) {
@@ -689,7 +686,7 @@ public class LexingFactoryImpl implements LexingFactory {
                     if (!acceptIgnored && retval.isIgnored()) {
                         notAcceptable = true;
                     }
-                    if (!acceptWhitespace && Identity.WHITE_SPACE == retval.getIdentity()) {
+                    if (!acceptWhitespace && LexemeIdentity.WHITE_SPACE.equals(retval.getIdentity())) {
                         notAcceptable = true;
                     }
                     if (notAcceptable) {
@@ -753,17 +750,17 @@ public class LexingFactoryImpl implements LexingFactory {
         }
 
         @Override
-        public void identify(final Identity id, final double certainty) {
+        public void identify(final LexemeIdentity id, final double certainty) {
             identify(id, Status.OK, null, certainty);
         }
 
         @Override
-        public void identify(final Identity id, final Status status, final double certainty) {
+        public void identify(final LexemeIdentity id, final Status status, final double certainty) {
             identify(id, status, null, certainty);
         }
 
         @Override
-        public void identify(final Identity id, final Status status, final String note, final double certainty) {
+        public void identify(final LexemeIdentity id, final Status status, final String note, final double certainty) {
             this.id = id;
             this.status = status;
             this.lexerMessage = note;
@@ -771,17 +768,17 @@ public class LexingFactoryImpl implements LexingFactory {
         }
 
         @Override
-        public void identify(final Identity id) {
+        public void identify(final LexemeIdentity id) {
             identify(id, Status.OK, null, 1.0);
         }
 
         @Override
-        public void identify(final Identity id, final Status status) {
+        public void identify(final LexemeIdentity id, final Status status) {
             identify(id, status, null, 1.0);
         }
 
         @Override
-        public void identify(final Identity id, final Status status, final String note) {
+        public void identify(final LexemeIdentity id, final Status status, final String note) {
             identify(id, status, note, 1.0);
         }
 
@@ -853,25 +850,25 @@ public class LexingFactoryImpl implements LexingFactory {
         }
 
         @Override
-        public Lexeme findNext(final Lexeme.Identity needle) {
+        public Lexeme findNext(final LexemeIdentity needle) {
             return findNext(needle, null, null);
         }
 
         @Override
-        public Lexeme findNext(final Lexeme.Identity needle, final Consumer<Lexeme> found) {
+        public Lexeme findNext(final LexemeIdentity needle, final Consumer<Lexeme> found) {
             return findNext(needle, found, null);
         }
 
         @Override
-        public Lexeme findNext(final Lexeme.Identity needle, final Consumer<Lexeme> found, final LexemeParsingNotifyer notFound) {
+        public Lexeme findNext(final LexemeIdentity needle, final Consumer<Lexeme> found, final LexemeParsingNotifyer notFound) {
             Lexeme retval = null;
             Lexeme current = this.getNext();
             if (current != null) {
                 boolean stop = false;
-                Lexeme.Identity currentId;
+                LexemeIdentity currentId;
                 while (!stop) {
                     currentId = current.getIdentityIfAcceptable();
-                    if (needle == null || currentId == needle) {
+                    if (needle == null || currentId.equals(needle)) {
                         retval = current;
                     }
                     stop = !current.hasNext() || retval != null;

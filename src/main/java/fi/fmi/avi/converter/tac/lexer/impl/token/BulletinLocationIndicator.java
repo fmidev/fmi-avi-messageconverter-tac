@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -23,8 +24,8 @@ public class BulletinLocationIndicator extends RegexMatchingLexemeVisitor {
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         if (token.hasPrevious() && token.getPrevious().getIdentityIfAcceptable() != null && token.getPrevious()
                 .getIdentityIfAcceptable()
-                .equals(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS)) {
-            token.identify(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR);
+                .equals(LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS)) {
+            token.identify(LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR);
             token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group("code"));
         }
     }
@@ -41,7 +42,7 @@ public class BulletinLocationIndicator extends RegexMatchingLexemeVisitor {
                     if (heading.getLocationIndicator() == null || heading.getLocationIndicator().length() != 4) {
                         throw new SerializingException("Invalid location indicator '" + heading.getLocationIndicator() + "' in TAF bulletin");
                     }
-                    return Optional.of(createLexeme(heading.getLocationIndicator(), Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR));
+                    return Optional.of(createLexeme(heading.getLocationIndicator(), LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR));
                 } else {
                     throw new SerializingException("TAF bulletin heading is null");
                 }

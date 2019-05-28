@@ -1,18 +1,19 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DIRECTION;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MEAN_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SURFACE_WIND;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.LexemeUtils;
@@ -182,7 +183,7 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
             }
             this.appendCommonWindParameters(builder, wind.getMeanWindSpeed(), wind.getMeanWindSpeedOperator().orElse(null), wind.getWindGust().orElse(null),
                     wind.getWindGustOperator().orElse(null));
-            return Optional.of(this.createLexeme(builder.toString(), Lexeme.Identity.SURFACE_WIND));
+            return Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SURFACE_WIND));
         }
 
         private void appendCommonWindParameters(final StringBuilder builder, final NumericMeasure meanSpeed,

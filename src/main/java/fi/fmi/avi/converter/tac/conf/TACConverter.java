@@ -1,5 +1,9 @@
 package fi.fmi.avi.converter.tac.conf;
 
+import static fi.fmi.avi.converter.tac.lexer.impl.token.LowWindStart.LOW_WIND_START;
+import static fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart.WXREP_START;
+import static fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart.WX_WARNING_START;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -20,6 +24,7 @@ import fi.fmi.avi.converter.tac.bulletin.TAFBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
@@ -89,8 +94,8 @@ import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.taf.ImmutableTAFTACParser;
 import fi.fmi.avi.converter.tac.taf.TAFTACParser;
 import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
-import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.GenericMeteorologicalBulletin;
+import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
@@ -230,7 +235,7 @@ public class TACConverter {
     AviMessageSpecificConverter<METAR, String> metarTACSerializer() {
         final METARTACSerializer s = new METARTACSerializer();
         addMetarAndSpeciCommonReconstructors(s);
-        s.addReconstructor(Lexeme.Identity.METAR_START, new MetarStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.METAR_START, new MetarStart.Reconstructor());
         return s;
     }
 
@@ -238,7 +243,7 @@ public class TACConverter {
     AviMessageSpecificConverter<SPECI, String> speciTACSerializer() {
         final SPECITACSerializer s = new SPECITACSerializer();
         addMetarAndSpeciCommonReconstructors(s);
-        s.addReconstructor(Lexeme.Identity.SPECI_START, new SpeciStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SPECI_START, new SpeciStart.Reconstructor());
         return s;
     }
 
@@ -327,7 +332,42 @@ public class TACConverter {
         f.addTokenCombiningRule(volcanicAshAdvisoryDtgCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryCloudForecastCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryForecastTimeCombinationRule());
+
+        f.setMessageStartToken(MessageType.METAR,
+                f.createLexeme("METAR", LexemeIdentity.METAR_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.SPECI,
+                f.createLexeme("SPECI", LexemeIdentity.SPECI_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.TAF,
+                f.createLexeme("TAF", LexemeIdentity.TAF_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.SPECIAL_AIR_REPORT,
+                f.createLexeme("ARS", LexemeIdentity.ARS_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.VOLCANIC_ASH_ADVISORY,
+                f.createLexeme("VA ADVISORY", LexemeIdentity.VOLCANIC_ASH_ADVISORY_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.SPACE_WEATHER_ADVISORY,
+                f.createLexeme("SWX ADVISORY", LexemeIdentity.SPACE_WEATHER_ADVISORY_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.SIGMET,
+                f.createLexeme("SIGMET", LexemeIdentity.SIGMET_START, Lexeme.Status.OK, true));
+
+        //Non-standard types:
+        f.setMessageStartToken(lowWind(),
+                f.createLexeme("LOW WIND", LOW_WIND_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(wxRep(),
+                f.createLexeme("WXREP", WXREP_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(wxWarning(),
+                f.createLexeme("WX", WX_WARNING_START, Lexeme.Status.OK, true));
         return f;
+    }
+
+    private MessageType wxRep() {
+        return new MessageType("WXREP");
+    }
+
+    private MessageType wxWarning() {
+        return new MessageType("WX_WARNING");
+    }
+
+    private MessageType lowWind() {
+        return new MessageType("LOW_WIND");
     }
 
     private List<Predicate<String>> fractionalHorizontalVisibilityCombinationRule() {
@@ -632,69 +672,69 @@ public class TACConverter {
 
     private void addMetarAndSpeciCommonReconstructors(final AbstractTACSerializer<?> s) {
         s.setLexingFactory(lexingFactory());
-        s.addReconstructor(Lexeme.Identity.CORRECTION, new Correction.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.AERODROME_DESIGNATOR, new ICAOCode.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.ISSUE_TIME, new IssueTime.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.NIL, new Nil.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.ROUTINE_DELAYED_OBSERVATION, new RoutineDelayedObservation.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.AUTOMATED, new AutoMetar.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.SURFACE_WIND, new SurfaceWind.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.VARIABLE_WIND_DIRECTION, new VariableSurfaceWind.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.CAVOK, new CAVOK.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.HORIZONTAL_VISIBILITY, new MetricHorizontalVisibility.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.WEATHER, new Weather.Reconstructor(false));
-        s.addReconstructor(Lexeme.Identity.NO_SIGNIFICANT_WEATHER, new NoSignificantWeather.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.CLOUD, new CloudLayer.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.TREND_CHANGE_INDICATOR, new TrendChangeIndicator.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.NO_SIGNIFICANT_CHANGES, new NoSignificantChanges.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.TREND_TIME_GROUP, new TrendTimeGroup.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.RUNWAY_VISUAL_RANGE, new RunwayVisualRange.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.AIR_DEWPOINT_TEMPERATURE, new AirDewpointTemperature.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.AIR_PRESSURE_QNH, new AtmosphericPressureQNH.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.RECENT_WEATHER, new Weather.Reconstructor(true));
-        s.addReconstructor(Lexeme.Identity.WIND_SHEAR, new WindShear.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.SEA_STATE, new SeaState.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.RUNWAY_STATE, new RunwayState.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.SNOW_CLOSURE, new SnowClosure.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.COLOR_CODE, new ColorCode.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.REMARKS_START, new RemarkStart.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.REMARK, new Remark.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.END_TOKEN, new EndToken.Reconstructor());
+        s.addReconstructor(LexemeIdentity.CORRECTION, new Correction.Reconstructor());
+        s.addReconstructor(LexemeIdentity.AERODROME_DESIGNATOR, new ICAOCode.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.NIL, new Nil.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ROUTINE_DELAYED_OBSERVATION, new RoutineDelayedObservation.Reconstructor());
+        s.addReconstructor(LexemeIdentity.AUTOMATED, new AutoMetar.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SURFACE_WIND, new SurfaceWind.Reconstructor());
+        s.addReconstructor(LexemeIdentity.VARIABLE_WIND_DIRECTION, new VariableSurfaceWind.Reconstructor());
+        s.addReconstructor(LexemeIdentity.CAVOK, new CAVOK.Reconstructor());
+        s.addReconstructor(LexemeIdentity.HORIZONTAL_VISIBILITY, new MetricHorizontalVisibility.Reconstructor());
+        s.addReconstructor(LexemeIdentity.WEATHER, new Weather.Reconstructor(false));
+        s.addReconstructor(LexemeIdentity.NO_SIGNIFICANT_WEATHER, new NoSignificantWeather.Reconstructor());
+        s.addReconstructor(LexemeIdentity.CLOUD, new CloudLayer.Reconstructor());
+        s.addReconstructor(LexemeIdentity.TREND_CHANGE_INDICATOR, new TrendChangeIndicator.Reconstructor());
+        s.addReconstructor(LexemeIdentity.NO_SIGNIFICANT_CHANGES, new NoSignificantChanges.Reconstructor());
+        s.addReconstructor(LexemeIdentity.TREND_TIME_GROUP, new TrendTimeGroup.Reconstructor());
+        s.addReconstructor(LexemeIdentity.RUNWAY_VISUAL_RANGE, new RunwayVisualRange.Reconstructor());
+        s.addReconstructor(LexemeIdentity.AIR_DEWPOINT_TEMPERATURE, new AirDewpointTemperature.Reconstructor());
+        s.addReconstructor(LexemeIdentity.AIR_PRESSURE_QNH, new AtmosphericPressureQNH.Reconstructor());
+        s.addReconstructor(LexemeIdentity.RECENT_WEATHER, new Weather.Reconstructor(true));
+        s.addReconstructor(LexemeIdentity.WIND_SHEAR, new WindShear.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SEA_STATE, new SeaState.Reconstructor());
+        s.addReconstructor(LexemeIdentity.RUNWAY_STATE, new RunwayState.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SNOW_CLOSURE, new SnowClosure.Reconstructor());
+        s.addReconstructor(LexemeIdentity.COLOR_CODE, new ColorCode.Reconstructor());
+        s.addReconstructor(LexemeIdentity.REMARKS_START, new RemarkStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.REMARK, new Remark.Reconstructor());
+        s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
     }
 
     private TAFTACSerializer spawnTAFTACSerializer() {
         final TAFTACSerializer s = new TAFTACSerializer();
         s.setLexingFactory(lexingFactory());
-        s.addReconstructor(Lexeme.Identity.TAF_START, new TAFStart.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.AMENDMENT, new Amendment.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.CORRECTION, new Correction.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.AERODROME_DESIGNATOR, new ICAOCode.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.ISSUE_TIME, new IssueTime.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.NIL, new Nil.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.VALID_TIME, new ValidTime.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.CANCELLATION, new Cancellation.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.SURFACE_WIND, new SurfaceWind.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.CAVOK, new CAVOK.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.HORIZONTAL_VISIBILITY, new MetricHorizontalVisibility.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.WEATHER, new Weather.Reconstructor(false));
-        s.addReconstructor(Lexeme.Identity.NO_SIGNIFICANT_WEATHER, new NoSignificantWeather.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.CLOUD, new CloudLayer.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.MAX_TEMPERATURE, new ForecastMaxMinTemperature.MaxReconstructor());
-        s.addReconstructor(Lexeme.Identity.MIN_TEMPERATURE, new ForecastMaxMinTemperature.MinReconstructor());
-        s.addReconstructor(Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR, new TAFForecastChangeIndicator.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.TAF_CHANGE_FORECAST_TIME_GROUP, new TAFChangeForecastTimeGroup.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.REMARKS_START, new RemarkStart.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.REMARK, new Remark.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.END_TOKEN, new EndToken.Reconstructor());
+        s.addReconstructor(LexemeIdentity.TAF_START, new TAFStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.AMENDMENT, new Amendment.Reconstructor());
+        s.addReconstructor(LexemeIdentity.CORRECTION, new Correction.Reconstructor());
+        s.addReconstructor(LexemeIdentity.AERODROME_DESIGNATOR, new ICAOCode.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.NIL, new Nil.Reconstructor());
+        s.addReconstructor(LexemeIdentity.VALID_TIME, new ValidTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.CANCELLATION, new Cancellation.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SURFACE_WIND, new SurfaceWind.Reconstructor());
+        s.addReconstructor(LexemeIdentity.CAVOK, new CAVOK.Reconstructor());
+        s.addReconstructor(LexemeIdentity.HORIZONTAL_VISIBILITY, new MetricHorizontalVisibility.Reconstructor());
+        s.addReconstructor(LexemeIdentity.WEATHER, new Weather.Reconstructor(false));
+        s.addReconstructor(LexemeIdentity.NO_SIGNIFICANT_WEATHER, new NoSignificantWeather.Reconstructor());
+        s.addReconstructor(LexemeIdentity.CLOUD, new CloudLayer.Reconstructor());
+        s.addReconstructor(LexemeIdentity.MAX_TEMPERATURE, new ForecastMaxMinTemperature.MaxReconstructor());
+        s.addReconstructor(LexemeIdentity.MIN_TEMPERATURE, new ForecastMaxMinTemperature.MinReconstructor());
+        s.addReconstructor(LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR, new TAFForecastChangeIndicator.Reconstructor());
+        s.addReconstructor(LexemeIdentity.TAF_CHANGE_FORECAST_TIME_GROUP, new TAFChangeForecastTimeGroup.Reconstructor());
+        s.addReconstructor(LexemeIdentity.REMARKS_START, new RemarkStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.REMARK, new Remark.Reconstructor());
+        s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
         return s;
     }
 
     private void addCommonBulletinReconstructors(final AbstractTACSerializer<?> s) {
         s.setLexingFactory(lexingFactory());
-        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, new BulletinHeaderDataDesignators.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, new BulletinLocationIndicator.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.ISSUE_TIME, new IssueTime.Reconstructor());
-        s.addReconstructor(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, new BulletinHeadingBBBIndicator.Reconstructor());
+        s.addReconstructor(LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS, new BulletinHeaderDataDesignators.Reconstructor());
+        s.addReconstructor(LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR, new BulletinLocationIndicator.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR, new BulletinHeadingBBBIndicator.Reconstructor());
     }
 
     private RecognizingAviMessageTokenLexer metarTokenLexer() {
@@ -706,8 +746,8 @@ public class TACConverter {
                 return sequence.getFirstLexeme().getTACToken().equals("METAR");
             }
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.METAR;
+            public MessageType getMessageType() {
+                return MessageType.METAR;
             }
         });
         l.teach(new MetarStart(Priority.HIGH));
@@ -723,8 +763,8 @@ public class TACConverter {
                 return sequence.getFirstLexeme().getTACToken().equals("SPECI");
             }
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.SPECI;
+            public MessageType getMessageType() {
+                return MessageType.SPECI;
             }
         });
         l.teach(new SpeciStart(Priority.HIGH));
@@ -773,8 +813,8 @@ public class TACConverter {
                 return sequence.getFirstLexeme().getTACToken().equals("TAF");
             }
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.TAF;
+            public MessageType getMessageType() {
+                return MessageType.TAF;
             }
         });
         l.teach(new TAFStart(Priority.HIGH));
@@ -803,6 +843,7 @@ public class TACConverter {
         return l;
     }
 
+
     private RecognizingAviMessageTokenLexer genericMeteorologicalBulletinTokenLexer() {
         final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
         //Lambdas not allowed in Spring 3.x Java config files:
@@ -818,8 +859,8 @@ public class TACConverter {
             }
 
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.BULLETIN;
+            public MessageType getMessageType() {
+                return MessageType.BULLETIN;
             }
 
         });
@@ -842,8 +883,8 @@ public class TACConverter {
             }
 
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.GENERIC;
+            public MessageType getMessageType() {
+                return MessageType.GENERIC;
             }
 
         });
@@ -861,8 +902,8 @@ public class TACConverter {
                 return sequence.getFirstLexeme().getTACToken().equals("LOW WIND");
             }
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.LOW_WIND;
+            public MessageType getMessageType() {
+                return lowWind();
             }
         });
         l.teach(new LowWindStart(Priority.HIGH));
@@ -882,8 +923,8 @@ public class TACConverter {
                 return sequence.getFirstLexeme().getTACToken().equals("WX WRNG");
             }
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.WX_WARNING;
+            public MessageType getMessageType() {
+                return wxWarning();
             }
         });
         l.teach(new WXWarningStart(Priority.HIGH));
@@ -903,8 +944,8 @@ public class TACConverter {
                 return sequence.getFirstLexeme().getTACToken().equals("WXREP");
             }
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.WXREP;
+            public MessageType getMessageType() {
+                return wxRep();
             }
         });
         l.teach(new WXREPStart(Priority.HIGH));
@@ -924,8 +965,8 @@ public class TACConverter {
                 return sequence.getFirstLexeme().hasNext() && sequence.getFirstLexeme().getNext().getTACToken().equals("SIGMET");
             }
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.SIGMET;
+            public MessageType getMessageType() {
+                return MessageType.SIGMET;
             }
         });
         l.teach(new SigmetStart(Priority.HIGH));
@@ -944,8 +985,8 @@ public class TACConverter {
                 return sequence.getFirstLexeme().getTACToken().matches("^SIG[CWE]$");
             }
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.SIGMET;
+            public MessageType getMessageType() {
+                return MessageType.SIGMET;
             }
         });
 
@@ -965,8 +1006,8 @@ public class TACConverter {
                 return sequence.getFirstLexeme().getTACToken().matches("^SWX\\s+ADVISORY$");
             }
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.SPACE_WEATHER_ADVISORY;
+            public MessageType getMessageType() {
+                return MessageType.SPACE_WEATHER_ADVISORY;
             }
         });
 
@@ -987,8 +1028,8 @@ public class TACConverter {
                 return sequence.getFirstLexeme().getTACToken().matches("^VA\\s+ADVISORY$");
             }
             @Override
-            public AviationCodeListUser.MessageType getMessageType() {
-                return AviationCodeListUser.MessageType.VOLCANIC_ASH_ADVISORY;
+            public MessageType getMessageType() {
+                return MessageType.VOLCANIC_ASH_ADVISORY;
             }
         });
 

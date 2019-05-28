@@ -1,8 +1,8 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COUNTRY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AERODROME_DESIGNATOR;
 
 import java.util.HashMap;
 import java.util.Map;

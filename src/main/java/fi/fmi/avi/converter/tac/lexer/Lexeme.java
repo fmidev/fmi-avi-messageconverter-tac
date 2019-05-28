@@ -79,7 +79,7 @@ public interface Lexeme {
      *
      * @return Lexeme identity, or null if unrecognized.
      */
-    Identity getIdentity();
+    LexemeIdentity getIdentity();
 
     /**
      * Returns the identity of the Lexeme if the Lexeme has been identified, and
@@ -87,7 +87,7 @@ public interface Lexeme {
      *
      * @return Lexeme identity, or null if status is {@link Status#UNRECOGNIZED} or {@link Status#SYNTAX_ERROR}.
      */
-    Identity getIdentityIfAcceptable();
+    LexemeIdentity getIdentityIfAcceptable();
 
     /**
      * Returns the recognizing status of Lexeme.
@@ -160,7 +160,7 @@ public interface Lexeme {
 
     /**
      * Returns the first Lexeme in the {@link LexemeSequence} containing this Lexeme ignoring
-     * any possible {@link Lexeme.Identity#WHITE_SPACE} and ignored Lexemes.
+     * any possible {@link LexemeIdentity#WHITE_SPACE} and ignored Lexemes.
      * This link is provided mainly as navigation shortcut.
      *
      * @return the first Lexeme of the sequence, if available
@@ -180,7 +180,7 @@ public interface Lexeme {
 
     /**
      * Returns the Lexeme immediately before this one in the {@link LexemeSequence}
-     * containing this Lexeme ignoring any possible {@link Lexeme.Identity#WHITE_SPACE} and ignored Lexemes.
+     * containing this Lexeme ignoring any possible {@link LexemeIdentity#WHITE_SPACE} and ignored Lexemes.
      * For the first Lexeme in sequence this must return
      * {@code null}.
      *
@@ -202,7 +202,7 @@ public interface Lexeme {
 
     /**
      * Returns the Lexeme immediately after this one in the {@link LexemeSequence}
-     * containing this Lexeme ignoring any possible {@link Lexeme.Identity#WHITE_SPACE} and ignored Lexemes.
+     * containing this Lexeme ignoring any possible {@link LexemeIdentity#WHITE_SPACE} and ignored Lexemes.
      * For the last Lexeme in sequence this must return
      * {@code null}.
      *
@@ -306,7 +306,7 @@ public interface Lexeme {
      * @param id
      *         identity to assign
      */
-    void identify(final Identity id);
+    void identify(final LexemeIdentity id);
 
     /**
      * Identifies this Lexeme as {@code id} with {@code status} and no additional message.
@@ -317,7 +317,7 @@ public interface Lexeme {
      * @param status
      *         to set
      */
-    void identify(final Identity id, final Status status);
+    void identify(final LexemeIdentity id, final Status status);
 
     /**
      * Identifies this Lexeme as {@code id} with {@code status} and {@code message}.
@@ -330,7 +330,7 @@ public interface Lexeme {
      * @param note
      *         additional message, such as lexing warning note
      */
-    void identify(final Identity id, final Status status, final String note);
+    void identify(final LexemeIdentity id, final Status status, final String note);
 
     /**
      * Identifies this Lexeme as {@code id} with {@link Status#OK} and no additional message.
@@ -340,7 +340,7 @@ public interface Lexeme {
      * @param certainty
      *         the level of confidence 0.0 - 1.0
      */
-    void identify(final Identity id, double certainty);
+    void identify(final LexemeIdentity id, double certainty);
 
     /**
      * Identifies this Lexeme as {@code id} with {@code status} and no additional message.
@@ -352,7 +352,7 @@ public interface Lexeme {
      * @param certainty
      *         the level of confidence 0.0 - 1.0
      */
-    void identify(final Identity id, final Status status, double certainty);
+    void identify(final LexemeIdentity id, final Status status, double certainty);
 
     /**
      * Identifies this Lexeme as {@code id} with {@code status} and {@code message}.
@@ -366,7 +366,7 @@ public interface Lexeme {
      * @param certainty
      *         the level of confidence 0.0 - 1.0
      */
-    void identify(final Identity id, final Status status, final String note, double certainty);
+    void identify(final LexemeIdentity id, final Status status, final String note, double certainty);
 
     /**
      * Return true when the Lexeme is not in {@link Status#UNRECOGNIZED}
@@ -445,7 +445,7 @@ public interface Lexeme {
      *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
-    Lexeme findNext(Lexeme.Identity needle);
+    Lexeme findNext(LexemeIdentity needle);
 
     /**
      * Finds the next {@link Lexeme} identified as <code>needle</code> in the sequence of Lexemes starting
@@ -478,7 +478,7 @@ public interface Lexeme {
      *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
-    Lexeme findNext(Lexeme.Identity needle, Consumer<Lexeme> found);
+    Lexeme findNext(LexemeIdentity needle, Consumer<Lexeme> found);
 
     /**
      * Finds the next {@link Lexeme} identified as <code>needle</code> in the sequence of Lexemes starting
@@ -497,7 +497,7 @@ public interface Lexeme {
      *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
-    Lexeme findNext(Lexeme.Identity needle, Consumer<Lexeme> found, LexemeParsingNotifyer notFound);
+    Lexeme findNext(LexemeIdentity needle, Consumer<Lexeme> found, LexemeParsingNotifyer notFound);
 
 
     /**
@@ -510,6 +510,8 @@ public interface Lexeme {
     /**
      * Lexeme identity corresponding to the different token
      * types used in aviation weather messages.
+     *
+     * @deprecated please use {@link LexemeIdentity} instead
      */
     enum Identity {
         METAR_START,
@@ -661,7 +663,7 @@ public interface Lexeme {
     }
     /**
      * Lambda function interface to use with
-     * {@link #findNext(Identity, Consumer, LexemeParsingNotifyer)}
+     * {@link #findNext(LexemeIdentity, Consumer, LexemeParsingNotifyer)}
      */
     @FunctionalInterface
     public interface LexemeParsingNotifyer {

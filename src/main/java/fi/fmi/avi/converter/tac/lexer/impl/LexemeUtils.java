@@ -5,17 +5,18 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 
 public final class LexemeUtils {
 
-    private static final List<Lexeme.Identity> TAF_GROUP_DELIMITERS = Arrays.asList(Lexeme.Identity.TAF_START, Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR,
-            Lexeme.Identity.TREND_CHANGE_INDICATOR, Lexeme.Identity.END_TOKEN);
+    private static final List<LexemeIdentity> TAF_GROUP_DELIMITERS = Arrays.asList(LexemeIdentity.TAF_START, LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR,
+            LexemeIdentity.TREND_CHANGE_INDICATOR, LexemeIdentity.END_TOKEN);
 
-    public static boolean existsPreviousLexemesWithinSameGroup(final Lexeme token, final Lexeme.Identity identity) {
+    public static boolean existsPreviousLexemesWithinSameGroup(final Lexeme token, final LexemeIdentity identity) {
         return existsPreviousLexemesWithinSameGroup(token, identity, l -> true);
     }
 
-    public static boolean existsPreviousLexemesWithinSameGroup(final Lexeme token, final Lexeme.Identity identity, final Predicate<Lexeme> extraCondition) {
+    public static boolean existsPreviousLexemesWithinSameGroup(final Lexeme token, final LexemeIdentity identity, final Predicate<Lexeme> extraCondition) {
         // Check if there has been another SurfaceWind in the same group
         Lexeme l = token;
         while ((l = l.getPrevious()) != token.getFirst()) {
@@ -26,7 +27,7 @@ public final class LexemeUtils {
 
         boolean hasAnotherValue = false;
         while ((l = l.getNext()) != null && !TAF_GROUP_DELIMITERS.contains(l.getIdentity()) && l != token) {
-            if (l.getIdentity() == identity && extraCondition.test(l)) {
+            if (l.getIdentity().equals(identity) && extraCondition.test(l)) {
                 hasAnotherValue = true;
             }
         }

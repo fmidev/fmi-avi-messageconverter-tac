@@ -1,10 +1,10 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -130,12 +131,12 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
                             break;
                         case PROBABILITY_30_TEMPORARY_FLUCTUATIONS:
                             retval.add(this.createLexeme("PROB30", TAF_FORECAST_CHANGE_INDICATOR));
-                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
+                            retval.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
                             retval.add(this.createLexeme("TEMPO", TAF_FORECAST_CHANGE_INDICATOR));
                             break;
                         case PROBABILITY_40_TEMPORARY_FLUCTUATIONS:
                             retval.add(this.createLexeme("PROB40", TAF_FORECAST_CHANGE_INDICATOR));
-                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
+                            retval.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
                             retval.add(this.createLexeme("TEMPO", TAF_FORECAST_CHANGE_INDICATOR));
                             break;
                         case FROM:

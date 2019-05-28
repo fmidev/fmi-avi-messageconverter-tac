@@ -1,16 +1,16 @@
 package fi.fmi.avi.converter.tac.metar;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_DEWPOINT_TEMPERATURE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_PRESSURE_QNH;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AUTOMATED;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CLOUD;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SURFACE_WIND;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.VARIABLE_WIND_DIRECTION;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AERODROME_DESIGNATOR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIR_DEWPOINT_TEMPERATURE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIR_PRESSURE_QNH;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AUTOMATED;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.CLOUD;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.END_TOKEN;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.HORIZONTAL_VISIBILITY;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ISSUE_TIME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.METAR_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SURFACE_WIND;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.VARIABLE_WIND_DIRECTION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -23,8 +23,8 @@ import fi.fmi.avi.converter.ConversionResult.Status;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
-import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
@@ -60,7 +60,7 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
     @Override
     public ConversionHints getParserConversionHints() {
         ConversionHints hints = new ConversionHints();
-        hints.put(ConversionHints.KEY_MESSAGE_TYPE, AviationCodeListUser.MessageType.METAR);
+        hints.put(ConversionHints.KEY_MESSAGE_TYPE, MessageType.METAR);
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
         return hints;
     }
@@ -94,8 +94,8 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
     }
 
 	@Override
-	public Identity[] getLexerTokenSequenceIdentity() {
-		return spacify(new Identity[] {
+	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+		return spacify(new LexemeIdentity[] {
 				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, VARIABLE_WIND_DIRECTION,
                 HORIZONTAL_VISIBILITY, CLOUD, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, END_TOKEN
 		});

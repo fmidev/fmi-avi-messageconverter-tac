@@ -1,6 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CAVOK;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.CAVOK;
 
 import java.util.Optional;
 

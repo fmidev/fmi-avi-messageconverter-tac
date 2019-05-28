@@ -1,18 +1,19 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.REP;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AERODROME_DESIGNATOR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ISSUE_TIME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REP;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AerodromeWeatherMessage;
@@ -31,9 +32,9 @@ public class IssueTime extends TimeHandlingRegex {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious() && (token.getPrevious().getIdentity() == AERODROME_DESIGNATOR
-                || token.getPrevious().getIdentity() == BULLETIN_HEADING_LOCATION_INDICATOR
-                || token.getPrevious().getIdentity() == REP)) {
+        if (token.hasPrevious() && (AERODROME_DESIGNATOR.equals(token.getPrevious().getIdentity())
+                || BULLETIN_HEADING_LOCATION_INDICATOR.equals(token.getPrevious().getIdentity())
+                || REP.equals(token.getPrevious().getIdentity()))) {
             int date = -1;
             if (match.group(1) != null) {
                 date = Integer.parseInt(match.group(1));
@@ -85,7 +86,7 @@ public class IssueTime extends TimeHandlingRegex {
                 format = "%02d%02d%02dZ";
             }
             return Optional.of(this.createLexeme(String.format(format, time.getDay().orElse(-1), time.getHour().orElse(-1), time.getMinute().orElse(-1)),
-                            Lexeme.Identity.ISSUE_TIME));
+                            LexemeIdentity.ISSUE_TIME));
         }
     }
 

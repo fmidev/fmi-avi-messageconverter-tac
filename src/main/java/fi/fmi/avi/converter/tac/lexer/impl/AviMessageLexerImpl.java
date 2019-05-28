@@ -13,7 +13,7 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
-import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.MessageType;
 
 /**
  * Created by rinne on 21/12/16.
@@ -78,7 +78,7 @@ public class AviMessageLexerImpl implements AviMessageLexer {
 
     /**
      * Tries to recognize the given String as one of the aviation message types in
-     * {@link AviationCodeListUser.MessageType}. Must use the same
+     * {@link MessageType}. Must use the same
      * logic as {@link #lexMessage(String, ConversionHints)} does internally.
      *
      * @param input
@@ -89,7 +89,7 @@ public class AviMessageLexerImpl implements AviMessageLexer {
      * @return the type if recognized
      */
     @Override
-    public Optional<AviationCodeListUser.MessageType> recognizeMessageType(final String input, final ConversionHints hints) {
+    public Optional<MessageType> recognizeMessageType(final String input, final ConversionHints hints) {
         if (this.factory == null) {
             throw new IllegalStateException("LexingFactory not injected");
         }

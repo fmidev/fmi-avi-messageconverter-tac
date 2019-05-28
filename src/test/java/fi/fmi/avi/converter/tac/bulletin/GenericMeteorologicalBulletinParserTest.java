@@ -23,11 +23,12 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.GenericAviationWeatherMessage;
 import fi.fmi.avi.model.GenericMeteorologicalBulletin;
+import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
@@ -50,17 +51,17 @@ public class GenericMeteorologicalBulletinParserTest {
                 "FTFI33 EFPP 020500\n" + "TAF EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG\n" + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA\n"
                         + "BKN010 SCT030CB=");
         Lexeme l = seq.getFirstLexeme();
-        assertEquals(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, l.getIdentityIfAcceptable());
+        assertEquals(LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS, l.getIdentityIfAcceptable());
         l = l.getNext();
         assertNotNull(l);
-        assertEquals(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, l.getIdentityIfAcceptable());
+        assertEquals(LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR, l.getIdentityIfAcceptable());
         l = l.getNext();
         assertNotNull(l);
-        assertEquals(Lexeme.Identity.ISSUE_TIME, l.getIdentityIfAcceptable());
+        assertEquals(LexemeIdentity.ISSUE_TIME, l.getIdentityIfAcceptable());
         while (l.hasNext()) {
             l = l.getNext();
         }
-        assertEquals(Lexeme.Identity.END_TOKEN, l.getIdentityIfAcceptable());
+        assertEquals(LexemeIdentity.END_TOKEN, l.getIdentityIfAcceptable());
     }
 
 
@@ -72,20 +73,20 @@ public class GenericMeteorologicalBulletinParserTest {
                         + "SHRA\n"
                         + "BKN010 SCT030CB=");
         Lexeme l = seq.getFirstLexeme();
-        assertEquals(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS, l.getIdentityIfAcceptable());
+        assertEquals(LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS, l.getIdentityIfAcceptable());
         l = l.getNext();
         assertNotNull(l);
-        assertEquals(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, l.getIdentityIfAcceptable());
+        assertEquals(LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR, l.getIdentityIfAcceptable());
         l = l.getNext();
         assertNotNull(l);
-        assertEquals(Lexeme.Identity.ISSUE_TIME, l.getIdentityIfAcceptable());
+        assertEquals(LexemeIdentity.ISSUE_TIME, l.getIdentityIfAcceptable());
         l = l.getNext();
         assertNotNull(l);
-        assertEquals(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, l.getIdentityIfAcceptable());
+        assertEquals(LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR, l.getIdentityIfAcceptable());
         while (l.hasNext()) {
             l = l.getNext();
         }
-        assertEquals(Lexeme.Identity.END_TOKEN, l.getIdentityIfAcceptable());
+        assertEquals(LexemeIdentity.END_TOKEN, l.getIdentityIfAcceptable());
     }
 
     @Test
@@ -126,19 +127,19 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(3,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.TAF,msg.getMessageType().get());
+        assertEquals(MessageType.TAF,msg.getMessageType().get());
         assertTrue(msg.getTranslatedBulletinID().isPresent());
         assertEquals(info.toGTSExchangeFileName(), msg.getTranslatedBulletinID().get());
 
         msg = bulletin.get().getMessages().get(1);
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.TAF,msg.getMessageType().get());
+        assertEquals(MessageType.TAF,msg.getMessageType().get());
         assertTrue(msg.getTranslatedBulletinID().isPresent());
         assertEquals(info.toGTSExchangeFileName(), msg.getTranslatedBulletinID().get());
 
         msg = bulletin.get().getMessages().get(2);
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.TAF,msg.getMessageType().get());
+        assertEquals(MessageType.TAF,msg.getMessageType().get());
         assertTrue(msg.getTranslatedBulletinID().isPresent());
         assertEquals(info.toGTSExchangeFileName(), msg.getTranslatedBulletinID().get());
 
@@ -158,7 +159,7 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.METAR,msg.getMessageType().get());
+        assertEquals(MessageType.METAR,msg.getMessageType().get());
         assertTrue(msg.getTargetAerodrome().isPresent());
         assertEquals("EFUT", msg.getTargetAerodrome().get().getDesignator());
         assertTrue(msg.getIssueTime().isPresent());
@@ -179,7 +180,7 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.LOW_WIND,msg.getMessageType().get());
+        assertEquals("LOW_WIND",msg.getMessageType().get().name());
         assertTrue(msg.getTargetAerodrome().isPresent());
         assertEquals("EFHK", msg.getTargetAerodrome().get().getDesignator());
         assertTrue(msg.getIssueTime().isPresent());
@@ -201,7 +202,7 @@ public class GenericMeteorologicalBulletinParserTest {
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.WX_WARNING,msg.getMessageType().get());
+        assertEquals("WX_WARNING",msg.getMessageType().get().name());
 
         assertTrue(msg.getTargetAerodrome().isPresent());
         assertEquals("EFHK", msg.getTargetAerodrome().get().getDesignator());
@@ -225,7 +226,7 @@ public class GenericMeteorologicalBulletinParserTest {
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.WXREP, msg.getMessageType().get());
+        assertEquals("WXREP", msg.getMessageType().get().name());
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
@@ -235,7 +236,7 @@ public class GenericMeteorologicalBulletinParserTest {
         assertFalse(msg.getMessageType().isPresent());
 
 
-        ConversionHints hints = new ConversionHints(ConversionHints.KEY_CONTAINED_MESSAGE_TYPE, AviationCodeListUser.MessageType.WXREP);
+        ConversionHints hints = new ConversionHints(ConversionHints.KEY_CONTAINED_MESSAGE_TYPE, new MessageType("WXREP"));
         result = this.converter.convertMessage(
                 "UAFI31 EFHK 310555\n" + "WXREP T01 REP 0555 N6520 E02522 FBL TURB FL230=\n" + "T01 REP 0555 N6520 E02522 FBL TURB FL230=",
                 TACConverter.TAC_TO_GENERIC_BULLETIN_POJO, hints);
@@ -248,7 +249,7 @@ public class GenericMeteorologicalBulletinParserTest {
         msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.WXREP, msg.getMessageType().get());
+        assertEquals("WXREP", msg.getMessageType().get().name());
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
@@ -257,7 +258,7 @@ public class GenericMeteorologicalBulletinParserTest {
         msg = bulletin.get().getMessages().get(1);
 
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.WXREP, msg.getMessageType().get());
+        assertEquals("WXREP", msg.getMessageType().get().name());
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
@@ -281,7 +282,7 @@ public class GenericMeteorologicalBulletinParserTest {
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.SIGMET,msg.getMessageType().get());
+        assertEquals(MessageType.SIGMET,msg.getMessageType().get());
 
         assertTrue(msg.getValidityTime().isPresent());
         PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(30,8,30, ZoneId.of("Z")));
@@ -300,7 +301,7 @@ public class GenericMeteorologicalBulletinParserTest {
         msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.SIGMET,msg.getMessageType().get());
+        assertEquals(MessageType.SIGMET,msg.getMessageType().get());
 
         assertTrue(msg.getValidityTime().isPresent());
         assertTrue(msg.getValidityTime().get().getEndTime().isPresent());
@@ -335,7 +336,7 @@ public class GenericMeteorologicalBulletinParserTest {
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.SPACE_WEATHER_ADVISORY,msg.getMessageType().get());
+        assertEquals(MessageType.SPACE_WEATHER_ADVISORY,msg.getMessageType().get());
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getCompleteTime().isPresent());
@@ -390,7 +391,7 @@ public class GenericMeteorologicalBulletinParserTest {
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
-        assertEquals(AviationCodeListUser.MessageType.VOLCANIC_ASH_ADVISORY,msg.getMessageType().get());
+        assertEquals(MessageType.VOLCANIC_ASH_ADVISORY,msg.getMessageType().get());
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getCompleteTime().isPresent());

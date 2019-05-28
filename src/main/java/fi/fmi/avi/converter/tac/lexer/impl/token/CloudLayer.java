@@ -1,17 +1,17 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CLOUD;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COVER;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.CLOUD;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -97,20 +97,20 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         if ("///".equals(match.group("amount")) && "///".equals(match.group("height"))) {
             if ("///".equals(match.group("type"))) {
-                token.identify(Lexeme.Identity.CLOUD, Lexeme.Status.SYNTAX_ERROR, "Cloud type cannot be missing '///' if also amount and height are missing");
+                token.identify(LexemeIdentity.CLOUD, Lexeme.Status.SYNTAX_ERROR, "Cloud type cannot be missing '///' if also amount and height are missing");
             } else {
-                token.identify(Lexeme.Identity.CLOUD);
+                token.identify(LexemeIdentity.CLOUD);
                 token.setParsedValue(VALUE, SpecialValue.AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM);
             }
         } else {
             if (match.group("amount") != null) {
                 if ("///".equals(match.group("amount"))) {
-                    token.identify(Lexeme.Identity.CLOUD);
+                    token.identify(LexemeIdentity.CLOUD);
                     token.setParsedValue(COVER, SpecialValue.CLOUD_AMOUNT_UNOBSERVABLE);
                 } else {
                     CloudCover cloudCover = CloudCover.forCode(match.group("amount"));
                     if (cloudCover != null) {
-                        token.identify(Lexeme.Identity.CLOUD);
+                        token.identify(LexemeIdentity.CLOUD);
                         token.setParsedValue(COVER, cloudCover);
                     } else {
                         token.identify(CLOUD, Lexeme.Status.SYNTAX_ERROR, "Unknown cloud cover " + match.group("amount"));
@@ -118,7 +118,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
                 }
             } else if (match.group("nocloud") != null) {
                 CloudCover cloudCover = CloudCover.forCode(match.group("nocloud"));
-                token.identify(Lexeme.Identity.CLOUD);
+                token.identify(LexemeIdentity.CLOUD);
                 token.setParsedValue(COVER, cloudCover);
             }
 
@@ -214,16 +214,16 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
             }
 
             if (noSignificantClouds) {
-                retval = Optional.of(this.createLexeme("NSC", Identity.CLOUD));
+                retval = Optional.of(this.createLexeme("NSC", LexemeIdentity.CLOUD));
             } else if (noCloudsDetected) {
-                retval = Optional.of(this.createLexeme("NCD", Identity.CLOUD));
+                retval = Optional.of(this.createLexeme("NCD", LexemeIdentity.CLOUD));
             } else if (verticalVisibilityNotObservable) {
-                retval = Optional.of(this.createLexeme("VV///", Identity.CLOUD));
+                retval = Optional.of(this.createLexeme("VV///", LexemeIdentity.CLOUD));
             } else {
                 if (layer.isPresent()) {
-                    retval = Optional.of(this.createLexeme(getCloudLayerToken(layer.get()), Identity.CLOUD));
+                    retval = Optional.of(this.createLexeme(getCloudLayerToken(layer.get()), LexemeIdentity.CLOUD));
                 } else if (verVis.isPresent()) {
-                    retval = Optional.of(this.createLexeme(getVerticalVisibilityToken(verVis.get()), Identity.CLOUD));
+                    retval = Optional.of(this.createLexeme(getVerticalVisibilityToken(verVis.get()), LexemeIdentity.CLOUD));
                 }
             }
 

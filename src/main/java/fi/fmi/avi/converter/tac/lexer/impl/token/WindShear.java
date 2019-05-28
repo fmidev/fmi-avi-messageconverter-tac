@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.WIND_SHEAR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.WIND_SHEAR;
 
 import java.util.Optional;
 import java.util.regex.Matcher;

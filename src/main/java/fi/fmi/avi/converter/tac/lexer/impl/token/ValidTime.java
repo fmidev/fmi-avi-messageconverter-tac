@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -91,19 +91,19 @@ public class ValidTime extends TimeHandlingRegex {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious() && token.getPrevious().getIdentity() == Identity.ISSUE_TIME) {
+        if (token.hasPrevious() && LexemeIdentity.ISSUE_TIME.equals(token.getPrevious().getIdentity())) {
             if (match.group(1) != null) {
                 //old 24h TAF, just one day field
                 final int day = Integer.parseInt(match.group(2));
                 final int fromHour = Integer.parseInt(match.group(3));
                 final int toHour = Integer.parseInt(match.group(4));
                 if (timeOkDayHour(day, fromHour) && timeOkDayHour(day, toHour)) {
-                    token.identify(Identity.VALID_TIME);
+                    token.identify(LexemeIdentity.VALID_TIME);
                     token.setParsedValue(DAY1, day);
                     token.setParsedValue(HOUR1, fromHour);
                     token.setParsedValue(HOUR2, toHour);
                 } else {
-                    token.identify(Identity.VALID_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid date and/or time");
+                    token.identify(LexemeIdentity.VALID_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid date and/or time");
                 }
 
             } else {
@@ -113,13 +113,13 @@ public class ValidTime extends TimeHandlingRegex {
                 final int toDay = Integer.parseInt(match.group(8));
                 final int toHour = Integer.parseInt(match.group(9));
                 if (timeOkDayHour(fromDay, fromHour) && timeOkDayHour(toDay, toHour)) {
-                    token.identify(Identity.VALID_TIME);
+                    token.identify(LexemeIdentity.VALID_TIME);
                     token.setParsedValue(DAY1, fromDay);
                     token.setParsedValue(DAY2, toDay);
                     token.setParsedValue(HOUR1, fromHour);
                     token.setParsedValue(HOUR2, toHour);
                 } else {
-                    token.identify(Identity.VALID_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid date and/or time");
+                    token.identify(LexemeIdentity.VALID_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid date and/or time");
                 }
             }
         }
@@ -215,7 +215,7 @@ public class ValidTime extends TimeHandlingRegex {
 
                 if (validityTime.isPresent()) {
                     final String period = encodeValidityTimePeriod(validityTime.get(), ctx.getHints());
-                    return Optional.of(this.createLexeme(period, Lexeme.Identity.VALID_TIME));
+                    return Optional.of(this.createLexeme(period, LexemeIdentity.VALID_TIME));
                 } else {
                     throw new SerializingException("Validity time not available in TAF");
                 }

@@ -2,6 +2,7 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 
 /**
@@ -15,7 +16,7 @@ public class REP extends PrioritizedLexemeVisitor {
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
         if ("REP".equalsIgnoreCase(token.getTACToken())) {
-            token.identify(Lexeme.Identity.REP);
+            token.identify(LexemeIdentity.REP);
         }
     }
 }

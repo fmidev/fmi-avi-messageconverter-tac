@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 
 /**
  * Created by rinne on 10/02/17.
@@ -26,7 +27,7 @@ public class DTGIssueTime extends TimeHandlingRegex {
         try {
             YearMonth yearMonth = YearMonth.of(year, month);
             if (timeOkDayHourMinute(day, hour, minute)) {
-                token.identify(Lexeme.Identity.ISSUE_TIME);
+                token.identify(LexemeIdentity.ISSUE_TIME);
                 token.setParsedValue(Lexeme.ParsedValueName.YEAR, year);
                 token.setParsedValue(Lexeme.ParsedValueName.MONTH, month);
                 token.setParsedValue(Lexeme.ParsedValueName.DAY1, day);

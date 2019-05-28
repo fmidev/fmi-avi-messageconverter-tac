@@ -1,14 +1,14 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TREND_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TREND_CHANGE_INDICATOR;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -48,7 +48,7 @@ public class TrendChangeIndicator extends TimeHandlingRegex {
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         TrendChangeIndicatorType indicator;
         if (match.group(1) != null) {
-            token.identify(Identity.TREND_CHANGE_INDICATOR);
+            token.identify(LexemeIdentity.TREND_CHANGE_INDICATOR);
             indicator = TrendChangeIndicatorType.forCode(match.group(1));
             token.setParsedValue(TYPE, indicator);
         }

@@ -17,6 +17,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -27,7 +28,7 @@ public class TAFSurfaceWindLexemeTest {
     AviMessageLexer aviMessageLexer;
 
     private void assertExtraSurfaceWind(final Lexeme notOkLexeme) {
-        assertEquals(notOkLexeme.getIdentity(), Lexeme.Identity.SURFACE_WIND);
+        assertEquals(notOkLexeme.getIdentity(), LexemeIdentity.SURFACE_WIND);
         assertEquals(notOkLexeme.getLexerMessage(), "Surface wind already given");
         assertEquals(notOkLexeme.getStatus(), Lexeme.Status.SYNTAX_ERROR);
     }

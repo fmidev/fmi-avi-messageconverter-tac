@@ -11,11 +11,12 @@ import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACParser;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.GenericAviationWeatherMessage;
 import fi.fmi.avi.model.GenericMeteorologicalBulletin;
+import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
@@ -25,8 +26,8 @@ import fi.fmi.avi.model.immutable.GenericAviationWeatherMessageImpl;
 import fi.fmi.avi.model.immutable.GenericMeteorologicalBulletinImpl;
 
 public class GenericMeteorologicalBulletinParser extends AbstractTACParser<GenericMeteorologicalBulletin> {
-    private static final Lexeme.Identity[] ZERO_OR_ONE_ALLOWED = {Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS,
-            Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, Lexeme.Identity.ISSUE_TIME, Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR };
+    private static final LexemeIdentity[] ZERO_OR_ONE_ALLOWED = {LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS,
+            LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR, LexemeIdentity.ISSUE_TIME, LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR };
 
     private AviMessageLexer lexer;
 
@@ -54,11 +55,11 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
         }
         final LexemeSequence lexed = this.lexer.lexMessage(input, hints);
 
-        if (Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS != lexed.getFirstLexeme().getIdentityIfAcceptable()//
+        if (LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS != lexed.getFirstLexeme().getIdentityIfAcceptable()//
                 || !lexed.getFirstLexeme().hasNext()//
-                || Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR != lexed.getFirstLexeme().getNext().getIdentityIfAcceptable()//
+                || LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR != lexed.getFirstLexeme().getNext().getIdentityIfAcceptable()//
                 || !lexed.getFirstLexeme().getNext().hasNext()//
-                || Lexeme.Identity.ISSUE_TIME != lexed.getFirstLexeme().getNext().getNext().getIdentityIfAcceptable()) {
+                || LexemeIdentity.ISSUE_TIME != lexed.getFirstLexeme().getNext().getNext().getIdentityIfAcceptable()) {
             result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as Bulletin"));
             return result;
         }
@@ -73,14 +74,14 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
         final GenericMeteorologicalBulletinImpl.Builder bulletinBuilder = GenericMeteorologicalBulletinImpl.builder();
 
         //Split & filter in the sequences ending with END_TOKEN, will always return at least one sequence (the original), unless the original is empty:
-        final List<LexemeSequence> subSequences = lexed.splitBy(false, Lexeme.Identity.END_TOKEN);
+        final List<LexemeSequence> subSequences = lexed.splitBy(false, LexemeIdentity.END_TOKEN);
 
         final StringBuilder abbrHeading = new StringBuilder();
         Lexeme l = subSequences.get(0).getFirstLexeme(); // we have already checked that this is the data designators token
         abbrHeading.append(l.getTACToken());
-        l = l.findNext(Lexeme.Identity.BULLETIN_HEADING_LOCATION_INDICATOR, d -> abbrHeading.append(d.getTACToken()));
-        l = l.findNext(Lexeme.Identity.ISSUE_TIME, time -> abbrHeading.append(time.getTACToken()));
-        Lexeme lastHeadingToken = l.findNext(Lexeme.Identity.BULLETIN_HEADING_BBB_INDICATOR, bbb -> abbrHeading.append(bbb.getTACToken()));
+        l = l.findNext(LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR, d -> abbrHeading.append(d.getTACToken()));
+        l = l.findNext(LexemeIdentity.ISSUE_TIME, time -> abbrHeading.append(time.getTACToken()));
+        Lexeme lastHeadingToken = l.findNext(LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR, bbb -> abbrHeading.append(bbb.getTACToken()));
         if (lastHeadingToken == null) {
             lastHeadingToken = l;
         }
@@ -114,11 +115,11 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                 msg = subSequences.get(i).trimWhiteSpace().getTAC();
             }
             final GenericAviationWeatherMessageImpl.Builder msgBuilder = new GenericAviationWeatherMessageImpl.Builder();
-            Optional<AviationCodeListUser.MessageType> messageType = this.lexer.recognizeMessageType(msg, hints);
-            if (!messageType.isPresent() || AviationCodeListUser.MessageType.GENERIC == messageType.get()) {
+            Optional<MessageType> messageType = this.lexer.recognizeMessageType(msg, hints);
+            if (!messageType.isPresent() || MessageType.GENERIC.equals(messageType.get())) {
                 //Fallback: check a hint for contained message type:
                 if (messageSpecificHints.containsKey(ConversionHints.KEY_CONTAINED_MESSAGE_TYPE)) {
-                    messageType = Optional.ofNullable((AviationCodeListUser.MessageType) messageSpecificHints.get(ConversionHints.KEY_CONTAINED_MESSAGE_TYPE));
+                    messageType = Optional.ofNullable((MessageType) messageSpecificHints.get(ConversionHints.KEY_CONTAINED_MESSAGE_TYPE));
                     messageType.ifPresent(mt -> messageSpecificHints.put(ConversionHints.KEY_MESSAGE_TYPE, mt));
                 } else {
                     //Fallback 2: try to determine message type from the bulletin heading:
@@ -139,8 +140,8 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             final LexemeSequence messageSequence = this.lexer.lexMessage(msg, messageSpecificHints);
 
             if (messageType.isPresent() &&
-                    (AviationCodeListUser.MessageType.SPACE_WEATHER_ADVISORY != messageType.get()
-                            && AviationCodeListUser.MessageType.VOLCANIC_ASH_ADVISORY != messageType.get() )){
+                    (MessageType.SPACE_WEATHER_ADVISORY != messageType.get()
+                            && MessageType.VOLCANIC_ASH_ADVISORY != messageType.get() )){
                 if (!endsInEndToken(messageSequence, hints)) {
                     result.addIssue(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX, "Contained message #" + (i+1) + " does not "
                             + "end in end token"));
@@ -150,9 +151,9 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
 
             lm = messageSequence.getFirstLexeme();
 
-            lm.findNext(Lexeme.Identity.AERODROME_DESIGNATOR, designator -> msgBuilder.setTargetAerodrome(
+            lm.findNext(LexemeIdentity.AERODROME_DESIGNATOR, designator -> msgBuilder.setTargetAerodrome(
                     AerodromeImpl.builder().setDesignator(designator.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build()));
-            lm.findNext(Lexeme.Identity.ISSUE_TIME, (time) -> {
+            lm.findNext(LexemeIdentity.ISSUE_TIME, (time) -> {
                 final Integer year = time.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
                 final Integer month = time.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
                 final Integer day = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
@@ -176,25 +177,25 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             });
 
             if (messageType.isPresent() &&
-                    (AviationCodeListUser.MessageType.SPACE_WEATHER_ADVISORY == messageType.get()
-                            || AviationCodeListUser.MessageType.VOLCANIC_ASH_ADVISORY == messageType.get())) {
+                    (MessageType.SPACE_WEATHER_ADVISORY == messageType.get()
+                            || MessageType.VOLCANIC_ASH_ADVISORY == messageType.get())) {
                 //Valid time for SWX & VAA is extracted from the included phenomena time offsets:
                 final PartialOrCompleteTimeInstant.Builder start = PartialOrCompleteTimeInstant.builder();
                 final PartialOrCompleteTimeInstant.Builder end = PartialOrCompleteTimeInstant.builder();
-                lm.findNext(Lexeme.Identity.ADVISORY_PHENOMENA_TIME_GROUP, (time) -> {
+                lm.findNext(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, (time) -> {
                     Integer day = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
                     Integer hour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
                     Integer minute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
                     start.setPartialTime(PartialDateTime.of(day != null ? day : -1, hour != null ? hour : -1, minute != null ? minute : -1, ZoneId.of("Z")));
 
                     //Valid time end is the last time group value
-                    Lexeme ll = time.findNext(Lexeme.Identity.ADVISORY_PHENOMENA_TIME_GROUP);
+                    Lexeme ll = time.findNext(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP);
                     while (ll != null) {
                         day = ll.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
                         hour = ll.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
                         minute = ll.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
                         end.setPartialTime(PartialDateTime.of(day != null ? day : -1, hour != null ? hour : -1, minute != null ? minute : -1, ZoneId.of("Z")));
-                        ll = ll.findNext(Lexeme.Identity.ADVISORY_PHENOMENA_TIME_GROUP);
+                        ll = ll.findNext(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP);
                     }
                     msgBuilder.setValidityTime(PartialOrCompleteTimePeriod.builder()//
                             .setStartTime(start.build())//
@@ -202,7 +203,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                             .build());
                 });
             } else {
-                lm.findNext(Lexeme.Identity.VALID_TIME, (time) -> {
+                lm.findNext(LexemeIdentity.VALID_TIME, (time) -> {
                     final Integer fromDay = time.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
                     final Integer fromHour = time.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
                     final Integer fromMinute = time.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
@@ -212,12 +213,12 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
 
                     //If there are different VALID_TIME lexemes in the same message, discard the entire valid time info with warning
                     boolean conflict = false;
-                    Lexeme next = time.findNext(Lexeme.Identity.VALID_TIME);
+                    Lexeme next = time.findNext(LexemeIdentity.VALID_TIME);
                     while (next != null) {
                         if (!next.equals(time)) {
                             conflict = true;
                         }
-                        next = next.findNext(Lexeme.Identity.VALID_TIME);
+                        next = next.findNext(LexemeIdentity.VALID_TIME);
                     }
                     if (conflict) {
                         result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.LOGICAL,
