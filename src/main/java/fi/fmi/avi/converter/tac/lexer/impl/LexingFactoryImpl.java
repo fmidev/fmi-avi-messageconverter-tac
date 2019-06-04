@@ -868,7 +868,7 @@ public class LexingFactoryImpl implements LexingFactory {
                 LexemeIdentity currentId;
                 while (!stop) {
                     currentId = current.getIdentityIfAcceptable();
-                    if (needle == null || currentId.equals(needle)) {
+                    if (needle == null || (currentId != null && currentId.equals(needle))) {
                         retval = current;
                     }
                     stop = !current.hasNext() || retval != null;

@@ -17,7 +17,6 @@ public final class LexemeUtils {
     }
 
     public static boolean existsPreviousLexemesWithinSameGroup(final Lexeme token, final LexemeIdentity identity, final Predicate<Lexeme> extraCondition) {
-        // Check if there has been another SurfaceWind in the same group
         Lexeme l = token;
         while ((l = l.getPrevious()) != token.getFirst()) {
             if (TAF_GROUP_DELIMITERS.contains(l.getIdentity())) {
@@ -26,8 +25,10 @@ public final class LexemeUtils {
         }
 
         boolean hasAnotherValue = false;
+        LexemeIdentity i;
         while ((l = l.getNext()) != null && !TAF_GROUP_DELIMITERS.contains(l.getIdentity()) && l != token) {
-            if (l.getIdentity().equals(identity) && extraCondition.test(l)) {
+            i = l.getIdentity();
+            if (i != null && i.equals(identity) && extraCondition.test(l)) {
                 hasAnotherValue = true;
             }
         }
