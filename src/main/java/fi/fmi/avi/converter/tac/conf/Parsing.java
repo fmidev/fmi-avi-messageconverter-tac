@@ -14,7 +14,7 @@ import fi.fmi.avi.converter.tac.metar.METARTACParser;
 import fi.fmi.avi.converter.tac.metar.SPECITACParser;
 import fi.fmi.avi.converter.tac.taf.ImmutableTAFTACParser;
 import fi.fmi.avi.converter.tac.taf.TAFTACParser;
-import fi.fmi.avi.model.GenericMeteorologicalBulletin;
+import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;

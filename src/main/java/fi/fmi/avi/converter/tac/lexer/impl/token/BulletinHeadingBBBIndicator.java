@@ -11,8 +11,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.BulletinHeading;
-import fi.fmi.avi.model.MeteorologicalBulletin;
+import fi.fmi.avi.model.bulletin.BulletinHeading;
+import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
 
 public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
 

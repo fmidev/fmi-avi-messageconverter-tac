@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import fi.fmi.avi.converter.ConversionSpecification;
-import fi.fmi.avi.model.GenericMeteorologicalBulletin;
+import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
@@ -82,14 +82,14 @@ public class TACConverter {
 
 
     /**
-     * Pre-configured spec for WMO GTS text bulletin format to {@link fi.fmi.avi.model.GenericMeteorologicalBulletin} POJO.
+     * Pre-configured spec for WMO GTS text bulletin format to {@link GenericMeteorologicalBulletin} POJO.
      */
     public static final ConversionSpecification<String, GenericMeteorologicalBulletin> TAC_TO_GENERIC_BULLETIN_POJO = new ConversionSpecification<>(String.class,
             GenericMeteorologicalBulletin.class,
             "WMO GTS bulletin", null);
 
     /**
-     * Pre-configured spec for {@link fi.fmi.avi.model.GenericMeteorologicalBulletin} POJO to WMO GTS text bulletin format.
+     * Pre-configured spec for {@link GenericMeteorologicalBulletin} POJO to WMO GTS text bulletin format.
      */
     public static final ConversionSpecification<GenericMeteorologicalBulletin, String> GENERIC_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(GenericMeteorologicalBulletin
             .class,

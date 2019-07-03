@@ -58,7 +58,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
 import fi.fmi.avi.converter.tac.metar.METARTACSerializer;
 import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
-import fi.fmi.avi.model.GenericMeteorologicalBulletin;
+import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;

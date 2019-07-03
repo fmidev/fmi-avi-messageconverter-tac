@@ -13,17 +13,17 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.GenericAviationWeatherMessage;
-import fi.fmi.avi.model.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
+import fi.fmi.avi.model.bulletin.BulletinHeading;
+import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
+import fi.fmi.avi.model.bulletin.immutable.BulletinHeadingImpl;
+import fi.fmi.avi.model.bulletin.immutable.GenericMeteorologicalBulletinImpl;
 import fi.fmi.avi.model.immutable.AerodromeImpl;
-import fi.fmi.avi.model.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.model.immutable.GenericAviationWeatherMessageImpl;
-import fi.fmi.avi.model.immutable.GenericMeteorologicalBulletinImpl;
 
 public class GenericMeteorologicalBulletinParser extends AbstractTACParser<GenericMeteorologicalBulletin> {
     private static final LexemeIdentity[] ZERO_OR_ONE_ALLOWED = {LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS,
