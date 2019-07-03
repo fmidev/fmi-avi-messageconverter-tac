@@ -22,9 +22,10 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.immutable.BulletinHeadingImpl;
+import fi.fmi.avi.model.bulletin.BulletinHeading;
+import fi.fmi.avi.model.bulletin.DataTypeDesignatorT2;
+import fi.fmi.avi.model.bulletin.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFBulletinImpl;
@@ -56,7 +57,7 @@ public class TAFBulletinTACSerializationTest {
                         .setType(BulletinHeading.Type.AMENDED)//
                         .setBulletinAugmentationNumber(1)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
+                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
                         .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
                 .addMessages(taf.get())//
@@ -91,7 +92,7 @@ public class TAFBulletinTACSerializationTest {
                         .setType(BulletinHeading.Type.DELAYED)//
                         .setBulletinAugmentationNumber(26)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
+                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
                         .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
                 .addMessages(taf.get())//
@@ -127,7 +128,7 @@ public class TAFBulletinTACSerializationTest {
                         .setType(BulletinHeading.Type.DELAYED)//
                         .setBulletinAugmentationNumber(27)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
+                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
                         .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
                 .addMessages(taf.get())//
@@ -150,7 +151,7 @@ public class TAFBulletinTACSerializationTest {
                         .setType(BulletinHeading.Type.CORRECTED)//
                         .setBulletinAugmentationNumber(2)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
+                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
                         .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
                 .addMessages(taf.get())//
@@ -183,7 +184,7 @@ public class TAFBulletinTACSerializationTest {
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
+                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
                         .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
                 .addMessages(taf.get())//
@@ -219,7 +220,7 @@ public class TAFBulletinTACSerializationTest {
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
                         .setGeographicalDesignator("FI")//
-                        .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG)
+                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG)
                         .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
                         .build())//
                 .addMessages(taf.get())//

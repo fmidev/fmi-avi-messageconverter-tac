@@ -25,14 +25,16 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.GenericAviationWeatherMessage;
-import fi.fmi.avi.model.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
-import fi.fmi.avi.model.immutable.BulletinHeadingImpl;
+import fi.fmi.avi.model.bulletin.BulletinHeading;
+import fi.fmi.avi.model.bulletin.DataTypeDesignatorT1;
+import fi.fmi.avi.model.bulletin.DataTypeDesignatorT2;
+import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
+import fi.fmi.avi.model.bulletin.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.util.GTSExchangeFileInfo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -92,8 +94,8 @@ public class GenericMeteorologicalBulletinParserTest {
     @Test
     public void testTAFBulletinParsing() {
         BulletinHeading heading = BulletinHeadingImpl.builder()//
-                .setDataTypeDesignatorT1ForTAC(BulletinHeading.DataTypeDesignatorT1.FORECASTS)
-                .setDataTypeDesignatorT2(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG)
+                .setDataTypeDesignatorT1ForTAC(DataTypeDesignatorT1.FORECASTS)
+                .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG)
                 .setBulletinNumber(33)
                 .setGeographicalDesignator("FI")
                 .setLocationIndicator("EFPP")
@@ -154,8 +156,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
-        assertEquals(BulletinHeading.DataTypeDesignatorT1.SURFACE_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
-        assertEquals(BulletinHeading.SurfaceDataTypeDesignatorT2.SD_AVIATION_ROUTINE_REPORTS, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(DataTypeDesignatorT1.SURFACE_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(DataTypeDesignatorT2.SurfaceDataTypeDesignatorT2.SD_AVIATION_ROUTINE_REPORTS, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
@@ -175,8 +177,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
-        assertEquals(BulletinHeading.DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
-        assertEquals(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
@@ -196,8 +198,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
-        assertEquals(BulletinHeading.DataTypeDesignatorT1.WARNINGS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
-        assertEquals(BulletinHeading.WarningsDataTypeDesignatorT2.WRN_SIGMET, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(DataTypeDesignatorT1.WARNINGS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(DataTypeDesignatorT2.WarningsDataTypeDesignatorT2.WRN_SIGMET, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
@@ -220,8 +222,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.WITH_WARNINGS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
-        assertEquals(BulletinHeading.DataTypeDesignatorT1.UPPER_AIR_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
-        assertEquals(BulletinHeading.UpperAirDataTypeDesignatorT2.UA_AIRCRAFT_REPORT_CODAR_AIREP, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(DataTypeDesignatorT1.UPPER_AIR_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(DataTypeDesignatorT2.UpperAirDataTypeDesignatorT2.UA_AIRCRAFT_REPORT_CODAR_AIREP, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(2, bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
@@ -243,8 +245,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
-        assertEquals(BulletinHeading.DataTypeDesignatorT1.UPPER_AIR_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
-        assertEquals(BulletinHeading.UpperAirDataTypeDesignatorT2.UA_AIRCRAFT_REPORT_CODAR_AIREP, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(DataTypeDesignatorT1.UPPER_AIR_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(DataTypeDesignatorT2.UpperAirDataTypeDesignatorT2.UA_AIRCRAFT_REPORT_CODAR_AIREP, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(2, bulletin.get().getMessages().size());
         msg = bulletin.get().getMessages().get(0);
 
@@ -276,8 +278,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
-        assertEquals(BulletinHeading.DataTypeDesignatorT1.WARNINGS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
-        assertEquals(BulletinHeading.WarningsDataTypeDesignatorT2.WRN_SIGMET, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(DataTypeDesignatorT1.WARNINGS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(DataTypeDesignatorT2.WarningsDataTypeDesignatorT2.WRN_SIGMET, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
@@ -330,8 +332,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
-        assertEquals(BulletinHeading.DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
-        assertEquals(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_SPACE_WEATHER, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_SPACE_WEATHER, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
@@ -385,8 +387,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
-        assertEquals(BulletinHeading.DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
-        assertEquals(BulletinHeading.ForecastsDataTypeDesignatorT2.FCT_VOLCANIC_ASH_ADVISORIES, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_VOLCANIC_ASH_ADVISORIES, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
         GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
@@ -401,5 +403,26 @@ public class GenericMeteorologicalBulletinParserTest {
         PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(1,0,45, ZoneId.of("Z")));
         PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(1,18,45, ZoneId.of("Z")));
         assertEquals(PartialOrCompleteTimePeriod.builder().setStartTime(start).setEndTime(end).build(), msg.getValidityTime().get());
+    }
+
+    @Test
+    public void testCustomBulletinParsing() {
+        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("MFFI31 EFHK 310600\n"
+                        + "WX WRNG EFHK 310600Z NIL=",
+                TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
+        assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
+        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        assertTrue(bulletin.isPresent());
+        assertEquals(new DataTypeDesignatorT1('M'), bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(new DataTypeDesignatorT2('F'), bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(1,bulletin.get().getMessages().size());
+        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+
+        assertTrue(msg.getTargetAerodrome().isPresent());
+        assertEquals("EFHK", msg.getTargetAerodrome().get().getDesignator());
+
+        assertTrue(msg.getIssueTime().isPresent());
+        assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
+        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(31,06,0, ZoneId.of("Z"))), msg.getIssueTime().get());
     }
 }

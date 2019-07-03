@@ -20,10 +20,10 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.model.BulletinHeading;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.immutable.BulletinHeadingImpl;
+import fi.fmi.avi.model.bulletin.DataTypeDesignatorT2;
+import fi.fmi.avi.model.bulletin.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
 import fi.fmi.avi.model.sigmet.immutable.SIGMETBulletinImpl;
 import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
@@ -43,7 +43,7 @@ public class SIGMETBulletinTACSerializationTest {
                         .setGeographicalDesignator("FI")//
                         .setLocationIndicator("EFKL")//
                         .setBulletinNumber(31)//
-                        .setDataTypeDesignatorT2(BulletinHeading.WarningsDataTypeDesignatorT2.WRN_SIGMET)//
+                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.WarningsDataTypeDesignatorT2.WRN_SIGMET)//
                         .setIssueTime(PartialOrCompleteTimeInstant.builder()//
                                 .setPartialTime(PartialDateTime.ofDayHourMinute(17, 7, 0)))//
                         .build());
