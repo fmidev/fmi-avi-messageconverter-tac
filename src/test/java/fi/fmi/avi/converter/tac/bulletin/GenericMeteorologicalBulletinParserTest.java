@@ -49,7 +49,7 @@ public class GenericMeteorologicalBulletinParserTest {
 
     @Test
     public void testBulletinLexing() {
-        LexemeSequence seq = lexer.lexMessage(
+        final LexemeSequence seq = lexer.lexMessage(
                 "FTFI33 EFPP 020500\n" + "TAF EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG\n" + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA\n"
                         + "BKN010 SCT030CB=");
         Lexeme l = seq.getFirstLexeme();
@@ -69,7 +69,7 @@ public class GenericMeteorologicalBulletinParserTest {
 
     @Test
     public void testAmendmentBulletinLexing() {
-        LexemeSequence seq = lexer.lexMessage(
+        final LexemeSequence seq = lexer.lexMessage(
                 "FTFI33 EFPP 020500 AAA\n" + "TAF AMD EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG\n" + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 "
                         + "4000 "
                         + "SHRA\n"
@@ -93,7 +93,7 @@ public class GenericMeteorologicalBulletinParserTest {
 
     @Test
     public void testTAFBulletinParsing() {
-        BulletinHeading heading = BulletinHeadingImpl.builder()//
+        final BulletinHeading heading = BulletinHeadingImpl.builder()//
                 .setDataTypeDesignatorT1ForTAC(DataTypeDesignatorT1.FORECASTS)
                 .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG)
                 .setBulletinNumber(33)
@@ -102,7 +102,7 @@ public class GenericMeteorologicalBulletinParserTest {
                 .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))
                 .setType(BulletinHeading.Type.NORMAL)
                 .build();
-        GTSExchangeFileInfo info = new GTSExchangeFileInfo.Builder()
+        final GTSExchangeFileInfo info = new GTSExchangeFileInfo.Builder()
                 .setHeading(heading)
                 .setFileType(GTSExchangeFileInfo.GTSExchangeFileType.TEXT)
                 .setMetadataFile(false)
@@ -111,8 +111,8 @@ public class GenericMeteorologicalBulletinParserTest {
                 .setTimeStampHour(5)
                 .setTimeStampMinute(0)
                 .build();
-        ConversionHints hints = new ConversionHints(ConversionHints.KEY_BULLETIN_ID, info.toGTSExchangeFileName());
-        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FTFI33 EFPP 020500\n"
+        final ConversionHints hints = new ConversionHints(ConversionHints.KEY_BULLETIN_ID, info.toGTSExchangeFileName());
+        final ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FTFI33 EFPP 020500\n"
                 + "TAF EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG\n"
                 + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA\n"
                 + "BKN010 SCT030CB=\n"
@@ -123,7 +123,7 @@ public class GenericMeteorologicalBulletinParserTest {
                 + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA\n"
                 + "BKN010 SCT030CB=", TACConverter.TAC_TO_GENERIC_BULLETIN_POJO, hints);
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
-        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        final Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
         assertEquals(heading, bulletin.get().getHeading());
         assertEquals(3,bulletin.get().getMessages().size());
@@ -149,17 +149,17 @@ public class GenericMeteorologicalBulletinParserTest {
 
     @Test
     public void testMETARBulletinParsing() {
-        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("SAFI33 EFPP 020500\n"
+        final ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("SAFI33 EFPP 020500\n"
                         + "METAR COR EFUT 111115Z 18004KT 150V240 1500 0500N R04R/1500N R15/M0050D R22L/1200N R04L/P1000U SN VV006 M08/M10\n"
                         + "Q1023 RESN TEMPO 0900=",
                 TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
-        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        final Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
         assertEquals(DataTypeDesignatorT1.SURFACE_DATA, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
         assertEquals(DataTypeDesignatorT2.SurfaceDataTypeDesignatorT2.SD_AVIATION_ROUTINE_REPORTS, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
-        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+        final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
         assertEquals(MessageType.METAR,msg.getMessageType().get());
         assertTrue(msg.getTargetAerodrome().isPresent());
@@ -171,16 +171,16 @@ public class GenericMeteorologicalBulletinParserTest {
 
     @Test
     public void testLowWindBulletinParsing() {
-        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FTFI33 EFPP 020500\n"
+        final ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FTFI33 EFPP 020500\n"
                 + "LOW WIND EFHK 040820Z  1000FT     2000FT     FL050      FL100 200/20     200/25     210/30     210/20=",
                 TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
-        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        final Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
         assertEquals(DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
         assertEquals(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_LONG, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
-        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+        final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
         assertEquals("LOW_WIND",msg.getMessageType().get().name());
         assertTrue(msg.getTargetAerodrome().isPresent());
@@ -192,16 +192,16 @@ public class GenericMeteorologicalBulletinParserTest {
 
     @Test
     public void testWXWRNGBulletinParsing() {
-        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("WSFI31 EFHK 310600\n"
+        final ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("WSFI31 EFHK 310600\n"
                         + "WX WRNG EFHK 310600Z NIL=",
                 TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
-        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        final Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
         assertEquals(DataTypeDesignatorT1.WARNINGS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
         assertEquals(DataTypeDesignatorT2.WarningsDataTypeDesignatorT2.WRN_SIGMET, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
-        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+        final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
         assertEquals("WX_WARNING",msg.getMessageType().get().name());
@@ -237,8 +237,7 @@ public class GenericMeteorologicalBulletinParserTest {
         msg = bulletin.get().getMessages().get(1);
         assertFalse(msg.getMessageType().isPresent());
 
-
-        ConversionHints hints = new ConversionHints(ConversionHints.KEY_CONTAINED_MESSAGE_TYPE, new MessageType("WXREP"));
+        final ConversionHints hints = new ConversionHints(ConversionHints.KEY_CONTAINED_MESSAGE_TYPE, new MessageType("WXREP"));
         result = this.converter.convertMessage(
                 "UAFI31 EFHK 310555\n" + "WXREP T01 REP 0555 N6520 E02522 FBL TURB FL230=\n" + "T01 REP 0555 N6520 E02522 FBL TURB FL230=",
                 TACConverter.TAC_TO_GENERIC_BULLETIN_POJO, hints);
@@ -287,8 +286,8 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(MessageType.SIGMET,msg.getMessageType().get());
 
         assertTrue(msg.getValidityTime().isPresent());
-        PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(30,8,30, ZoneId.of("Z")));
-        PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(30,10,30, ZoneId.of("Z")));
+        final PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(30, 8, 30, ZoneId.of("Z")));
+        final PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(30, 10, 30, ZoneId.of("Z")));
         assertEquals(PartialOrCompleteTimePeriod.builder().setStartTime(start).setEndTime(end).build(), msg.getValidityTime().get());
 
         result = this.converter.convertMessage("WSUS31 KKCI 051255 \n" + "SIGE  \n" + "CONVECTIVE SIGMET_START 11E \n" + "VALID UNTIL 1455Z \n" + "FL CSTL WTRS \n"
@@ -312,7 +311,7 @@ public class GenericMeteorologicalBulletinParserTest {
 
     @Test
     public void testSpaceWeatherBulletinParsing() {
-        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FNXX01 EFKL 281200\n"
+        final ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FNXX01 EFKL 281200\n"
                         + "SWX ADVISORY\n" //
                         + "STATUS: TEST\n"//
                         + "DTG: 20190128/1200Z\n" //
@@ -330,12 +329,12 @@ public class GenericMeteorologicalBulletinParserTest {
                 TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
 
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
-        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        final Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
         assertEquals(DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
         assertEquals(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_SPACE_WEATHER, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
-        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+        final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
         assertEquals(MessageType.SPACE_WEATHER_ADVISORY,msg.getMessageType().get());
@@ -345,14 +344,14 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ZonedDateTime.of(2019,1,28, 12, 0, 0, 0, ZoneId.of("Z")), msg.getIssueTime().get().getCompleteTime().get());
 
         assertTrue(msg.getValidityTime().isPresent());
-        PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(8,12,0, ZoneId.of("Z")));
-        PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(9,12,0, ZoneId.of("Z")));
+        final PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(8, 12, 0, ZoneId.of("Z")));
+        final PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(9, 12, 0, ZoneId.of("Z")));
         assertEquals(PartialOrCompleteTimePeriod.builder().setStartTime(start).setEndTime(end).build(), msg.getValidityTime().get());
     }
 
     @Test
     public void testVolcanicAshBulletinParsing() {
-        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FVXX01 EFKL 281200\n"
+        final ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FVXX01 EFKL 281200\n"
                         + "VA ADVISORY\n"
                         + "DTG: 20190301/0045Z\n"
                         + "VAAC: DARWIN\n"
@@ -385,12 +384,12 @@ public class GenericMeteorologicalBulletinParserTest {
                 TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
 
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
-        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        final Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
         assertEquals(DataTypeDesignatorT1.FORECASTS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
         assertEquals(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_VOLCANIC_ASH_ADVISORIES, bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
-        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+        final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getMessageType().isPresent());
         assertEquals(MessageType.VOLCANIC_ASH_ADVISORY,msg.getMessageType().get());
@@ -400,23 +399,23 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(ZonedDateTime.of(2019,3,1, 0, 45, 0, 0, ZoneId.of("Z")), msg.getIssueTime().get().getCompleteTime().get());
 
         assertTrue(msg.getValidityTime().isPresent());
-        PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(1,0,45, ZoneId.of("Z")));
-        PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(1,18,45, ZoneId.of("Z")));
+        final PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(1, 0, 45, ZoneId.of("Z")));
+        final PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(1, 18, 45, ZoneId.of("Z")));
         assertEquals(PartialOrCompleteTimePeriod.builder().setStartTime(start).setEndTime(end).build(), msg.getValidityTime().get());
     }
 
     @Test
     public void testCustomBulletinParsing() {
-        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("MFFI31 EFHK 310600\n"
+        final ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("MFFI31 EFHK 310600\n"
                         + "WX WRNG EFHK 310600Z NIL=",
                 TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
-        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        final Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
         assertTrue(bulletin.isPresent());
-        assertEquals(new DataTypeDesignatorT1('M'), bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
-        assertEquals(new DataTypeDesignatorT2('F'), bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(DataTypeDesignatorT1.fromCode('M'), bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(DataTypeDesignatorT2.fromExtensionCode('F'), bulletin.get().getHeading().getDataTypeDesignatorT2());
         assertEquals(1,bulletin.get().getMessages().size());
-        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+        final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
         assertTrue(msg.getTargetAerodrome().isPresent());
         assertEquals("EFHK", msg.getTargetAerodrome().get().getDesignator());
