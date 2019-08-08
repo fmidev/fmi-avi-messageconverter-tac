@@ -211,7 +211,7 @@ public class GenericMeteorologicalBulletinParserTest {
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
-        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(31,06,0, ZoneId.of("Z"))), msg.getIssueTime().get());
+        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(31, 6, 0, ZoneId.of("Z"))), msg.getIssueTime().get());
     }
 
     @Test
@@ -423,6 +423,6 @@ public class GenericMeteorologicalBulletinParserTest {
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
-        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(31,06,0, ZoneId.of("Z"))), msg.getIssueTime().get());
+        assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(31, 6, 0, ZoneId.of("Z"))), msg.getIssueTime().get());
     }
 }
