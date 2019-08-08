@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.CANCELLATION;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.VALID_TIME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.CANCELLATION;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.VALID_TIME;
 
 import java.util.Optional;
 
@@ -26,7 +26,7 @@ public class Cancellation extends PrioritizedLexemeVisitor {
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if (token.getPrevious() != null && token.getPrevious().getIdentity() == VALID_TIME && "CNL".equalsIgnoreCase(token.getTACToken())) {
+        if (token.getPrevious() != null && VALID_TIME.equals(token.getPrevious().getIdentity()) && "CNL".equalsIgnoreCase(token.getTACToken())) {
             token.identify(CANCELLATION);
         }
     }

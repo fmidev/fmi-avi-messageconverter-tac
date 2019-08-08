@@ -77,7 +77,7 @@ public interface LexemeSequence {
     List<Lexeme> getLexemes(boolean acceptIgnored);
 
     /**
-     * Returns a list of sub-sequences cut from the sequence split by given {@link Lexeme.Identity} set.
+     * Returns a list of sub-sequences cut from the sequence split by given {@link LexemeIdentity} set.
      * A new sub-sequence starts at each found {@link Lexeme} identified as any of the given
      * <code>ids</code>. Zero-length sub-sequences are discarded silently so if the first
      * {@link Lexeme} matches, the first returned {@link LexemeSequence} starts at the
@@ -92,10 +92,10 @@ public interface LexemeSequence {
      *
      * @return the list of split-up sequences
      */
-    List<LexemeSequence> splitBy(Lexeme.Identity... ids);
+    List<LexemeSequence> splitBy(LexemeIdentity... ids);
 
     /**
-     * Returns a list of sub-sequences cut from the sequence split by given {@link Lexeme.Identity} set.
+     * Returns a list of sub-sequences cut from the sequence split by given {@link LexemeIdentity} set.
      * A new sub-sequence starts at or after each found {@link Lexeme} identified as any of the given
      * <code>ids</code>, depending on the value of <code>separatorStartsSequence</code>.
      * Zero-length sub-sequences are discarded silently.
@@ -108,7 +108,7 @@ public interface LexemeSequence {
      *
      * @return the list of split-up sequences
      */
-    List<LexemeSequence> splitBy(boolean separatorStartsSequence, Lexeme.Identity... ids);
+    List<LexemeSequence> splitBy(boolean separatorStartsSequence, LexemeIdentity... ids);
 
     /**
      * Trims any white space from the beginning and end of this sequence.

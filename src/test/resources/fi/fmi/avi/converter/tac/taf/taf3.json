@@ -6,14 +6,6 @@
 	"aerodrome" : {
 	    "designator" : "EFAB"
 	},
-	"validityTime" : {
-      "startTime" : {
-        "partialTime" : "--19T09:"
-      },
-      "endTime" : {
-        "partialTime" : "--19T15:"
-      }
-    },
 	"baseForecast" : {
 	  "surfaceWind" : {
 	    "variableDirection": false,
@@ -27,6 +19,19 @@
 	    }
 	  },
 	  "ceilingAndVisibilityOk": true
+	},
+	"referredReport": {
+		"aerodrome" : {
+			"designator" : "EFAB"
+		},
+		"validityTime" : {
+			"startTime" : {
+				"partialTime" : "--19T09:"
+			},
+			"endTime" : {
+				"partialTime" : "--19T15:"
+			}
+		}
 	},
     "translatedTAC" : "TAF AMD EFAB 191000Z 1909/1915 20008KT CAVOK="
 }

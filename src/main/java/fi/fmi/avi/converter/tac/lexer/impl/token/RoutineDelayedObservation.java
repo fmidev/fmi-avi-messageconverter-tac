@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ROUTINE_DELAYED_OBSERVATION;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ISSUE_TIME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ROUTINE_DELAYED_OBSERVATION;
 
 import java.util.Optional;
 
@@ -24,7 +24,7 @@ public class RoutineDelayedObservation extends PrioritizedLexemeVisitor {
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if (token.getPrevious() != null && token.getPrevious().getIdentity() == ISSUE_TIME && "RTD".equalsIgnoreCase(token.getTACToken())) {
+        if (token.getPrevious() != null && ISSUE_TIME.equals(token.getPrevious().getIdentity()) && "RTD".equalsIgnoreCase(token.getTACToken())) {
             token.identify(ROUTINE_DELAYED_OBSERVATION);
         }
     }

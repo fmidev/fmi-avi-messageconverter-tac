@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.NIL;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ISSUE_TIME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.NIL;
 
 import java.util.Optional;
 
@@ -26,7 +26,7 @@ public class Nil extends PrioritizedLexemeVisitor {
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if (token.getPrevious() != null && token.getPrevious().getIdentity() == ISSUE_TIME && "NIL".equalsIgnoreCase(token.getTACToken())) {
+        if (token.getPrevious() != null && ISSUE_TIME.equals(token.getPrevious().getIdentity()) && "NIL".equalsIgnoreCase(token.getTACToken())) {
             token.identify(NIL);
         }
     }

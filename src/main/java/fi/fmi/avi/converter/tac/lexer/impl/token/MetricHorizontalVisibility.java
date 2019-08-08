@@ -1,10 +1,10 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DIRECTION;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.HORIZONTAL_VISIBILITY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +13,8 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Status;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.LexemeUtils;
@@ -53,7 +53,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
     	}
     	boolean inChangeGroup = false;
     	while (l != null) {
-			if (Identity.TAF_FORECAST_CHANGE_INDICATOR == l.getIdentity()) {
+			if (LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR == l.getIdentity()) {
 				inChangeGroup = true;
 				break;
 			}
@@ -61,12 +61,14 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 		}
 		if (!inChangeGroup) {
             final Lexeme prev = token.getPrevious();
-    		if (Identity.SURFACE_WIND == prev.getIdentity() || Identity.VARIABLE_WIND_DIRECTION == prev.getIdentity() || Identity.HORIZONTAL_VISIBILITY == prev.getIdentity()) {
+    		if (LexemeIdentity.SURFACE_WIND.equals(prev.getIdentity())
+                    || LexemeIdentity.VARIABLE_WIND_DIRECTION.equals(prev.getIdentity())
+                    || LexemeIdentity.HORIZONTAL_VISIBILITY.equals(prev.getIdentity())) {
     			certainty = 1.0;
     		}
         }
     	else {
-    		if (Lexeme.Identity.TAF_START == token.getFirst().getIdentity()) {
+    		if (LexemeIdentity.TAF_START.equals(token.getFirst().getIdentity())) {
 	    		if (direction == null) {
                     final int startHour = Integer.parseInt(match.group(1).substring(0, 2));
                     final int endHour = Integer.parseInt(match.group(1).substring(3, 4));
@@ -239,12 +241,12 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
                     throw new SerializingException("Unknown unit of measure '" + visibility.get().getUom() + "' for visibility");
                 }
 
-				retval.add(this.createLexeme(str, Lexeme.Identity.HORIZONTAL_VISIBILITY));
+				retval.add(this.createLexeme(str, LexemeIdentity.HORIZONTAL_VISIBILITY));
 
                 if (minimumVisibilityDistance.isPresent() && minimumVisibilityDirection.isPresent()) {
                     final String tmp = createMinimumVisibilityString(minimumVisibilityDistance.get(), minimumVisibilityDirection.get());
-                    retval.add(createLexeme(" ", Identity.WHITE_SPACE));
-					retval.add(this.createLexeme(tmp, Lexeme.Identity.HORIZONTAL_VISIBILITY));
+                    retval.add(createLexeme(" ", LexemeIdentity.WHITE_SPACE));
+					retval.add(this.createLexeme(tmp, LexemeIdentity.HORIZONTAL_VISIBILITY));
 				}
 			}
 			return retval;

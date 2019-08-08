@@ -8,9 +8,11 @@ import java.util.function.Consumer;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
+import fi.fmi.avi.converter.IssueList;
 import fi.fmi.avi.converter.tac.AbstractTACParser;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
@@ -34,12 +36,13 @@ import fi.fmi.avi.model.taf.immutable.TAFAirTemperatureForecastImpl;
 import fi.fmi.avi.model.taf.immutable.TAFBaseForecastImpl;
 import fi.fmi.avi.model.taf.immutable.TAFChangeForecastImpl;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
+import fi.fmi.avi.model.taf.immutable.TAFReferenceImpl;
 
 public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<T> {
 
-    protected static final Lexeme.Identity[] zeroOrOneAllowed = {Lexeme.Identity.AERODROME_DESIGNATOR, Lexeme.Identity.ISSUE_TIME, Lexeme.Identity.VALID_TIME,
-            Lexeme.Identity.CORRECTION, Lexeme.Identity.AMENDMENT, Lexeme.Identity.CANCELLATION, Lexeme.Identity.NIL, Lexeme.Identity.MIN_TEMPERATURE,
-            Lexeme.Identity.MAX_TEMPERATURE, Lexeme.Identity.REMARKS_START };
+    protected static final LexemeIdentity[] zeroOrOneAllowed = {LexemeIdentity.AERODROME_DESIGNATOR, LexemeIdentity.ISSUE_TIME, LexemeIdentity.VALID_TIME,
+            LexemeIdentity.CORRECTION, LexemeIdentity.AMENDMENT, LexemeIdentity.CANCELLATION, LexemeIdentity.NIL, LexemeIdentity.MIN_TEMPERATURE,
+            LexemeIdentity.MAX_TEMPERATURE, LexemeIdentity.REMARKS_START };
     protected AviMessageLexer lexer;
 
     @Override
@@ -58,7 +61,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             return result;
         }
 
-        if (Lexeme.Identity.TAF_START != lexed.getFirstLexeme().getIdentityIfAcceptable()) {
+        if (LexemeIdentity.TAF_START != lexed.getFirstLexeme().getIdentityIfAcceptable()) {
             result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as TAF"));
             return result;
         }
@@ -81,13 +84,13 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         withTimeForTranslation(hints, builder::setTranslationTime);
 
         //Split & filter in the sequences starting with FORECAST_CHANGE_INDICATOR:
-        final List<LexemeSequence> subSequences = lexed.splitBy(Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR, Lexeme.Identity.REMARKS_START);
+        final List<LexemeSequence> subSequences = lexed.splitBy(LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR, LexemeIdentity.REMARKS_START);
 
-        lexed.getFirstLexeme().findNext(Lexeme.Identity.CORRECTION, (match) -> {
-            final Lexeme.Identity[] before = {Lexeme.Identity.AERODROME_DESIGNATOR, Lexeme.Identity.ISSUE_TIME, Lexeme.Identity.NIL,
-                    Lexeme.Identity.VALID_TIME, Lexeme.Identity.CANCELLATION, Lexeme.Identity.SURFACE_WIND, Lexeme.Identity.HORIZONTAL_VISIBILITY,
-                    Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD, Lexeme.Identity.CAVOK, Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE,
-                    Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR, Lexeme.Identity.REMARKS_START};
+        lexed.getFirstLexeme().findNext(LexemeIdentity.CORRECTION, (match) -> {
+            final LexemeIdentity[] before = {LexemeIdentity.AERODROME_DESIGNATOR, LexemeIdentity.ISSUE_TIME, LexemeIdentity.NIL,
+                    LexemeIdentity.VALID_TIME, LexemeIdentity.CANCELLATION, LexemeIdentity.SURFACE_WIND, LexemeIdentity.HORIZONTAL_VISIBILITY,
+                    LexemeIdentity.WEATHER, LexemeIdentity.CLOUD, LexemeIdentity.CAVOK, LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE,
+                    LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR, LexemeIdentity.REMARKS_START};
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
@@ -96,11 +99,11 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         });
 
-        lexed.getFirstLexeme().findNext(Lexeme.Identity.AMENDMENT, (match) -> {
-            final Lexeme.Identity[] before = {Lexeme.Identity.AERODROME_DESIGNATOR, Lexeme.Identity.ISSUE_TIME, Lexeme.Identity.NIL,
-                    Lexeme.Identity.VALID_TIME, Lexeme.Identity.CANCELLATION, Lexeme.Identity.SURFACE_WIND, Lexeme.Identity.HORIZONTAL_VISIBILITY,
-                    Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD, Lexeme.Identity.CAVOK, Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE,
-                    Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR, Lexeme.Identity.REMARKS_START };
+        lexed.getFirstLexeme().findNext(LexemeIdentity.AMENDMENT, (match) -> {
+            final LexemeIdentity[] before = {LexemeIdentity.AERODROME_DESIGNATOR, LexemeIdentity.ISSUE_TIME, LexemeIdentity.NIL,
+                    LexemeIdentity.VALID_TIME, LexemeIdentity.CANCELLATION, LexemeIdentity.SURFACE_WIND, LexemeIdentity.HORIZONTAL_VISIBILITY,
+                    LexemeIdentity.WEATHER, LexemeIdentity.CLOUD, LexemeIdentity.CAVOK, LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE,
+                    LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR, LexemeIdentity.REMARKS_START };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
@@ -109,11 +112,11 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         });
 
-        lexed.getFirstLexeme().findNext(Lexeme.Identity.AERODROME_DESIGNATOR, (match) -> {
-            final Lexeme.Identity[] before = new Lexeme.Identity[] {Lexeme.Identity.ISSUE_TIME, Lexeme.Identity.NIL, Lexeme.Identity.VALID_TIME,
-                    Lexeme.Identity.CANCELLATION, Lexeme.Identity.SURFACE_WIND, Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER,
-                    Lexeme.Identity.CLOUD, Lexeme.Identity.CAVOK, Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE,
-                    Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR, Lexeme.Identity.REMARKS_START };
+        lexed.getFirstLexeme().findNext(LexemeIdentity.AERODROME_DESIGNATOR, (match) -> {
+            final LexemeIdentity[] before = new LexemeIdentity[] {LexemeIdentity.ISSUE_TIME, LexemeIdentity.NIL, LexemeIdentity.VALID_TIME,
+                    LexemeIdentity.CANCELLATION, LexemeIdentity.SURFACE_WIND, LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER,
+                    LexemeIdentity.CLOUD, LexemeIdentity.CAVOK, LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE,
+                    LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR, LexemeIdentity.REMARKS_START };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
@@ -124,19 +127,19 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
         result.addIssue(setTAFIssueTime(builder, lexed, hints));
 
-        lexed.getFirstLexeme().findNext(Lexeme.Identity.NIL,  (match) -> {
-            final Lexeme.Identity[] before = new Lexeme.Identity[] {Lexeme.Identity.VALID_TIME, Lexeme.Identity.CANCELLATION, Lexeme.Identity.SURFACE_WIND,
-                    Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD, Lexeme.Identity.CAVOK,
-                    Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE, Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR,
-                    Lexeme.Identity.REMARKS_START };
+        lexed.getFirstLexeme().findNext(LexemeIdentity.NIL,  (match) -> {
+            final LexemeIdentity[] before = new LexemeIdentity[] {LexemeIdentity.VALID_TIME, LexemeIdentity.CANCELLATION, LexemeIdentity.SURFACE_WIND,
+                    LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER, LexemeIdentity.CLOUD, LexemeIdentity.CAVOK,
+                    LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE, LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR,
+                    LexemeIdentity.REMARKS_START };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
             } else {
                 builder.setStatus(AviationCodeListUser.TAFStatus.MISSING);
                 if (match.getNext() != null) {
-                    final Lexeme.Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
-                    if (Lexeme.Identity.END_TOKEN != nextTokenId && Lexeme.Identity.REMARKS_START != nextTokenId) {
+                    final LexemeIdentity nextTokenId = match.getNext().getIdentityIfAcceptable();
+                    if (LexemeIdentity.END_TOKEN != nextTokenId && LexemeIdentity.REMARKS_START != nextTokenId) {
                         result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL, "Missing TAF message contains extra tokens after NIL: " + input));
                     }
                 }
@@ -145,7 +148,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
         for (int i = 1; i < subSequences.size(); i++) {
             final LexemeSequence seq = subSequences.get(i);
-            if (Lexeme.Identity.REMARKS_START == seq.getFirstLexeme().getIdentity()) {
+            if (LexemeIdentity.REMARKS_START.equals(seq.getFirstLexeme().getIdentity())) {
                 final List<String> remarks = getRemarks(seq.getFirstLexeme(), hints);
                 if (!remarks.isEmpty()) {
                     builder.setRemarks(remarks);
@@ -159,25 +162,60 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             return result;
         }
 
-        result.addIssue(setTAFValidTime(builder, lexed, hints));
 
-        lexed.getFirstLexeme().findNext(Lexeme.Identity.CANCELLATION, (match) -> {
-            final Lexeme.Identity[] before = new Lexeme.Identity[] { Lexeme.Identity.SURFACE_WIND, Lexeme.Identity.HORIZONTAL_VISIBILITY,
-                    Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD, Lexeme.Identity.CAVOK, Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE,
-                    Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR, Lexeme.Identity.REMARKS_START };
+        lexed.getFirstLexeme().findNext(LexemeIdentity.CANCELLATION, (match) -> {
+            final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.SURFACE_WIND, LexemeIdentity.HORIZONTAL_VISIBILITY,
+                    LexemeIdentity.WEATHER, LexemeIdentity.CLOUD, LexemeIdentity.CAVOK, LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE,
+                    LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR, LexemeIdentity.REMARKS_START };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.addIssue(issue);
             } else {
                 builder.setStatus(AviationCodeListUser.TAFStatus.CANCELLATION);
                 if (match.getNext() != null) {
-                    final Lexeme.Identity nextTokenId = match.getNext().getIdentityIfAcceptable();
-                    if (Lexeme.Identity.END_TOKEN != nextTokenId && Lexeme.Identity.REMARKS_START != nextTokenId) {
+                    final LexemeIdentity nextTokenId = match.getNext().getIdentityIfAcceptable();
+                    if (LexemeIdentity.END_TOKEN != nextTokenId && LexemeIdentity.REMARKS_START != nextTokenId) {
                         result.addIssue(new ConversionIssue(ConversionIssue.Type.LOGICAL, "Cancelled TAF message contains extra tokens after CNL: " + input));
                     }
                 }
             }
         });
+        Object referencePolicy = ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD;
+        if (hints != null) {
+            referencePolicy = hints.getOrDefault(ConversionHints.KEY_TAF_REFERENCE_POLICY, ConversionHints
+                    .VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD);
+        }
+        if (builder.getStatus() == null) {
+            result.addIssue(setTAFValidTime(builder, lexed, hints));
+        } else {
+            switch (builder.getStatus()) {
+                case AMENDMENT:
+                    if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD)) {
+                        result.addIssue(setReferredReport(builder, lexed, hints));
+                    } else {
+                        result.addIssue(setTAFValidTime(builder, lexed, hints));
+                    }
+                    break;
+                case CORRECTION:
+                    if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD) || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL)) {
+                        result.addIssue(setReferredReport(builder, lexed, hints));
+                    } else {
+                        result.addIssue(setTAFValidTime(builder, lexed, hints));
+                    }
+                    break;
+                case CANCELLATION:
+                    if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD) || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL)
+                            || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_CNL)) {
+                        result.addIssue(setReferredReport(builder, lexed, hints));
+                    } else {
+                        result.addIssue(setTAFValidTime(builder, lexed, hints));
+                    }
+                    break;
+                default:
+                    result.addIssue(setTAFValidTime(builder, lexed, hints));
+
+            }
+        }
 
         //End processing here if CNL:
         if (AviationCodeListUser.TAFStatus.CANCELLATION == builder.getStatus()) {
@@ -189,38 +227,65 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         result.addIssue(setBaseForecast(builder, subSequences.get(0).getFirstLexeme(), hints));
         for (int i = 1; i < subSequences.size(); i++) {
             final LexemeSequence seq = subSequences.get(i);
-            if (Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR == seq.getFirstLexeme().getIdentity()) {
+            if (LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR.equals(seq.getFirstLexeme().getIdentity())) {
                 result.addIssue(addChangeForecast(builder, subSequences.get(i).getFirstLexeme(), hints));
             }
         }
-        if (builder.getValidityTime().isPresent()) {
-            result.addIssue(setFromChangeForecastEndTimes(builder));
-        } else {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Validity time period must be set before amending FM end times"));
-        }
+
+        result.addIssue(setFromChangeForecastEndTimes(builder));
 
         result.setConvertedMessage(builder.build());
         return result;
     }
 
     protected List<ConversionIssue> setTAFIssueTime(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
-        final Lexeme.Identity[] before = new Lexeme.Identity[] {Lexeme.Identity.NIL, Lexeme.Identity.VALID_TIME, Lexeme.Identity.CANCELLATION,
-                Lexeme.Identity.SURFACE_WIND, Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD, Lexeme.Identity.CAVOK,
-                Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE, Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR,
-                Lexeme.Identity.REMARKS_START };
+        final LexemeIdentity[] before = new LexemeIdentity[] {LexemeIdentity.NIL, LexemeIdentity.VALID_TIME, LexemeIdentity.CANCELLATION,
+                LexemeIdentity.SURFACE_WIND, LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER, LexemeIdentity.CLOUD, LexemeIdentity.CAVOK,
+                LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE, LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR,
+                LexemeIdentity.REMARKS_START };
         return new ArrayList<>(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
     }
 
     protected List<ConversionIssue> setTAFValidTime(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
-        final List<ConversionIssue> result = new ArrayList<>();
-        lexed.getFirstLexeme().findNext(Lexeme.Identity.VALID_TIME, (match) -> {
-            final Lexeme.Identity[] before = new Lexeme.Identity[] {Lexeme.Identity.CANCELLATION, Lexeme.Identity.SURFACE_WIND,
-                    Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD, Lexeme.Identity.CAVOK,
-                    Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE, Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR,
-                    Lexeme.Identity.REMARKS_START };
+        final IssueList result = new IssueList();
+        Optional<PartialOrCompleteTimePeriod> validityTime = parseValidityTime(lexed,result);
+        if (validityTime.isPresent()) {
+            builder.setValidityTime(validityTime);
+        } else {
+            result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing validity"));
+        }
+        return result;
+    }
+
+    protected List<ConversionIssue> setReferredReport(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
+        IssueList result = new IssueList();
+
+            final TAFReferenceImpl.Builder refBuilder = TAFReferenceImpl.builder();
+            refBuilder.setAerodrome(builder.getAerodrome());
+            Optional<PartialOrCompleteTimePeriod> validityTime = parseValidityTime(lexed,result);
+            if (validityTime.isPresent()) {
+                refBuilder.setValidityTime(validityTime.get());
+            } else {
+                result.add(ConversionIssue.Severity.ERROR, ConversionIssue.Type.MISSING_DATA, "Valid time not available in for TAF, unable to construct "
+                        + "TAFReference");
+            }
+            //Note: Status & issue time of the referred report cannot be parsed from TAC
+            builder.setReferredReport(refBuilder.build());
+
+        return result;
+    }
+
+    private Optional<PartialOrCompleteTimePeriod> parseValidityTime(final LexemeSequence lexed, final IssueList issues) {
+        Optional<PartialOrCompleteTimePeriod> retval = Optional.empty();
+        Lexeme match = lexed.getFirstLexeme().findNext(LexemeIdentity.VALID_TIME);
+        if (match != null) {
+            final LexemeIdentity[] before = new LexemeIdentity[] {LexemeIdentity.CANCELLATION, LexemeIdentity.SURFACE_WIND,
+                    LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER, LexemeIdentity.CLOUD, LexemeIdentity.CAVOK,
+                    LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE, LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR,
+                    LexemeIdentity.REMARKS_START };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
-                result.add(issue);
+                issues.add(issue);
             } else {
                 final Integer startDay = match.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
                 final Integer endDay = match.getParsedValue(Lexeme.ParsedValueName.DAY2, Integer.class);
@@ -229,17 +294,17 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 if (startDay != null && startHour != null && endHour != null) {
                     final PartialDateTime startTime = PartialDateTime.ofDayHour(startDay, startHour);
                     final PartialDateTime endTime = endDay == null ? PartialDateTime.ofHour(endHour) : PartialDateTime.ofDayHour(endDay, endHour);
-                    builder.setValidityTime(PartialOrCompleteTimePeriod.builder()//
+                    retval = Optional.of(PartialOrCompleteTimePeriod.builder()//
                             .setStartTime(PartialOrCompleteTimeInstant.of(startTime))//
                             .setEndTime(PartialOrCompleteTimeInstant.of(endTime))//
                             .build());
                 } else {
-                    result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
+                    issues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
                             "Must have at least startDay, startHour and endHour of validity " + match.getTACToken()));
                 }
             }
-        }, () -> result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing validity")));
-        return result;
+        }
+        return retval;
     }
 
     protected List<ConversionIssue> setBaseForecast(final TAFImpl.Builder builder, final Lexeme baseFctToken, final ConversionHints hints) {
@@ -247,14 +312,14 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
         //noinspection CollectionAddAllCanBeReplacedWithConstructor
         final List<ConversionIssue> result = new ArrayList<>(withForecastSurfaceWind(baseFctToken,
-                new Lexeme.Identity[] {Lexeme.Identity.CAVOK, Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD,
-                        Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE }, hints, baseFct::setSurfaceWind));
+                new LexemeIdentity[] {LexemeIdentity.CAVOK, LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER, LexemeIdentity.CLOUD,
+                        LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE }, hints, baseFct::setSurfaceWind));
         if (!baseFct.getSurfaceWind().isPresent()) {
             result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Surface wind is missing from TAF base forecast"));
         }
-        baseFctToken.findNext(Lexeme.Identity.CAVOK, (match) -> {
-            final Lexeme.Identity[] before = new Lexeme.Identity[] {Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD,
-                    Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE };
+        baseFctToken.findNext(LexemeIdentity.CAVOK, (match) -> {
+            final LexemeIdentity[] before = new LexemeIdentity[] {LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER, LexemeIdentity.CLOUD,
+                    LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.add(issue);
@@ -264,7 +329,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         });
 
         result.addAll(withVisibility(baseFctToken,
-                new Lexeme.Identity[] {Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD, Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE },
+                new LexemeIdentity[] {LexemeIdentity.WEATHER, LexemeIdentity.CLOUD, LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE },
                 hints, (measureAndOperator) -> {
                     baseFct.setPrevailingVisibility(measureAndOperator.getMeasure());
                     baseFct.setPrevailingVisibilityOperator(measureAndOperator.getOperator());
@@ -276,14 +341,19 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         }
 
-        result.addAll(withWeather(baseFctToken, new Lexeme.Identity[] { Lexeme.Identity.CLOUD, Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE }, hints,
+        result.addAll(withWeather(baseFctToken, new LexemeIdentity[] { LexemeIdentity.CLOUD, LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE }, hints,
                 baseFct::setForecastWeather));
         //Ensure that forecastWeather is always non-empty for base forecast unless CAVOK:
         if (!baseFct.getForecastWeather().isPresent() && !baseFct.isCeilingAndVisibilityOk()) {
             baseFct.setForecastWeather(new ArrayList<>());
         }
 
-        result.addAll(withClouds(baseFctToken, new Lexeme.Identity[] { Lexeme.Identity.MIN_TEMPERATURE, Lexeme.Identity.MAX_TEMPERATURE }, hints, baseFct::setCloud));
+        //NSW is not allowed in base weather
+        if (baseFctToken.findNext(LexemeIdentity.NO_SIGNIFICANT_WEATHER) != null){
+            result.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX, "NSW not allowed in TAF base weather"));
+        }
+
+        result.addAll(withClouds(baseFctToken, new LexemeIdentity[] { LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE }, hints, baseFct::setCloud));
 
         if (!baseFct.getCloud().isPresent() && !baseFct.isCeilingAndVisibilityOk()) {
             result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Cloud or CAVOK is missing from TAF base forecast"));
@@ -301,15 +371,15 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         TAFAirTemperatureForecastImpl.Builder airTemperatureForecast;
 
         //Find a pair of max & min temperatures:
-        Lexeme maxTempToken = from.findNext(Lexeme.Identity.MAX_TEMPERATURE);
+        Lexeme maxTempToken = from.findNext(LexemeIdentity.MAX_TEMPERATURE);
         Lexeme minTempToken;
 
         while (maxTempToken != null) {
-            final ConversionIssue issue = checkBeforeAnyOf(maxTempToken, new Lexeme.Identity[] { Lexeme.Identity.MIN_TEMPERATURE });
+            final ConversionIssue issue = checkBeforeAnyOf(maxTempToken, new LexemeIdentity[] { LexemeIdentity.MIN_TEMPERATURE });
             if (issue != null) {
                 result.add(issue);
             } else {
-                minTempToken = maxTempToken.findNext(Lexeme.Identity.MIN_TEMPERATURE);
+                minTempToken = maxTempToken.findNext(LexemeIdentity.MIN_TEMPERATURE);
                 if (minTempToken != null) {
                     airTemperatureForecast = TAFAirTemperatureForecastImpl.builder();
                     Integer day = minTempToken.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
@@ -354,7 +424,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                             new ConversionIssue(ConversionIssue.Type.SYNTAX, "Missing min temperature pair for max temperature " + maxTempToken.getTACToken()));
                 }
             }
-            maxTempToken = maxTempToken.findNext(Lexeme.Identity.MAX_TEMPERATURE);
+            maxTempToken = maxTempToken.findNext(LexemeIdentity.MAX_TEMPERATURE);
         }
         if (!temps.isEmpty()) {
             builder.setTemperatures(temps);
@@ -364,7 +434,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
     protected List<ConversionIssue> addChangeForecast(final TAFImpl.Builder builder, final Lexeme changeFctToken, final ConversionHints hints) {
         final List<ConversionIssue> result = new ArrayList<>();
-        final ConversionIssue issue = checkBeforeAnyOf(changeFctToken, new Lexeme.Identity[] { Lexeme.Identity.REMARKS_START });
+        final ConversionIssue issue = checkBeforeAnyOf(changeFctToken, new LexemeIdentity[] { LexemeIdentity.REMARKS_START });
         if (issue != null) {
             result.add(issue);
             return result;
@@ -381,7 +451,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 TAFForecastChangeIndicator.ForecastChangeIndicatorType.class);
         if (changeFctToken.hasNext()) {
             final Lexeme next = changeFctToken.getNext();
-            if (Lexeme.Identity.REMARKS_START != next.getIdentityIfAcceptable() && Lexeme.Identity.END_TOKEN != next.getIdentityIfAcceptable()) {
+            if (LexemeIdentity.REMARKS_START != next.getIdentityIfAcceptable() && LexemeIdentity.END_TOKEN != next.getIdentityIfAcceptable()) {
                 final TAFChangeForecastImpl.Builder changeFct = TAFChangeForecastImpl.builder();
                 switch (type) {
                     case TEMPORARY_FLUCTUATIONS:
@@ -447,10 +517,10 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
         //FM case has already been handled in the calling code:
         if (TAFForecastChangeIndicator.ForecastChangeIndicatorType.FROM != type) {
-            final Lexeme timeGroup = from.findNext(Lexeme.Identity.TAF_CHANGE_FORECAST_TIME_GROUP);
+            final Lexeme timeGroup = from.findNext(LexemeIdentity.TAF_CHANGE_FORECAST_TIME_GROUP);
             if (timeGroup != null) {
-                final Lexeme.Identity[] before = { Lexeme.Identity.SURFACE_WIND, Lexeme.Identity.CAVOK, Lexeme.Identity.HORIZONTAL_VISIBILITY,
-                        Lexeme.Identity.WEATHER, Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD };
+                final LexemeIdentity[] before = { LexemeIdentity.SURFACE_WIND, LexemeIdentity.CAVOK, LexemeIdentity.HORIZONTAL_VISIBILITY,
+                        LexemeIdentity.WEATHER, LexemeIdentity.NO_SIGNIFICANT_WEATHER, LexemeIdentity.CLOUD };
                 final ConversionIssue issue = checkBeforeAnyOf(timeGroup, before);
                 if (issue != null) {
                     result.add(issue);
@@ -477,13 +547,13 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         }
 
         result.addAll(withForecastSurfaceWind(from,
-                new Lexeme.Identity[] { Lexeme.Identity.CAVOK, Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER, Lexeme.Identity.CLOUD }, hints,
+                new LexemeIdentity[] { LexemeIdentity.CAVOK, LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER, LexemeIdentity.CLOUD }, hints,
                 builder::setSurfaceWind));
 
 
-        from.findNext(Lexeme.Identity.CAVOK, (match) -> {
-            final Lexeme.Identity[] before = new Lexeme.Identity[] { Lexeme.Identity.HORIZONTAL_VISIBILITY, Lexeme.Identity.WEATHER,
-                    Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD };
+        from.findNext(LexemeIdentity.CAVOK, (match) -> {
+            final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER,
+                    LexemeIdentity.NO_SIGNIFICANT_WEATHER, LexemeIdentity.CLOUD };
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.add(issue);
@@ -493,17 +563,17 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         });
 
         result.addAll(
-                withVisibility(from, new Lexeme.Identity[] { Lexeme.Identity.WEATHER, Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD }, hints,
+                withVisibility(from, new LexemeIdentity[] { LexemeIdentity.WEATHER, LexemeIdentity.NO_SIGNIFICANT_WEATHER, LexemeIdentity.CLOUD }, hints,
                         (measureWithOperator -> {
                             builder.setPrevailingVisibility(measureWithOperator.getMeasure());
                             builder.setPrevailingVisibilityOperator(measureWithOperator.getOperator());
 
                 })));
 
-        result.addAll(withWeather(from, new Lexeme.Identity[] { Lexeme.Identity.NO_SIGNIFICANT_WEATHER, Lexeme.Identity.CLOUD }, hints, builder::setForecastWeather));
+        result.addAll(withWeather(from, new LexemeIdentity[] { LexemeIdentity.NO_SIGNIFICANT_WEATHER, LexemeIdentity.CLOUD }, hints, builder::setForecastWeather));
 
-        from.findNext(Lexeme.Identity.NO_SIGNIFICANT_WEATHER, (match) -> {
-            final ConversionIssue issue = checkBeforeAnyOf(match, new Lexeme.Identity[] { Lexeme.Identity.CLOUD });
+        from.findNext(LexemeIdentity.NO_SIGNIFICANT_WEATHER, (match) -> {
+            final ConversionIssue issue = checkBeforeAnyOf(match, new LexemeIdentity[] { LexemeIdentity.CLOUD });
             if (issue != null) {
                 result.add(issue);
             } else {
@@ -515,7 +585,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         });
 
-        result.addAll(withClouds(from, new Lexeme.Identity[] {}, hints, builder::setCloud));
+        result.addAll(withClouds(from, new LexemeIdentity[] {}, hints, builder::setCloud));
 
         //Check that all mandatory properties are given in the FM case:
         if (TAFForecastChangeIndicator.ForecastChangeIndicatorType.FROM == type) {
@@ -553,17 +623,21 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 }
             }
             if (toChange != null) {
-                toChange.mutatePeriodOfChange(b -> b.setEndTime(builder.getValidityTime().get().getEndTime()));
-                changeForecasts.get().set(indexOfChange, toChange.build());
+                if (builder.getValidityTime().isPresent()) {
+                    toChange.mutatePeriodOfChange(b -> b.setEndTime(builder.getValidityTime().get().getEndTime()));
+                    changeForecasts.get().set(indexOfChange, toChange.build());
+                } else {
+                    result.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Validity time period must be set before amending FM end times"));
+                }
             }
         }
         return result;
     }
 
-    private List<ConversionIssue> withForecastSurfaceWind(final Lexeme from, final Lexeme.Identity[] before, final ConversionHints hints,
+    private List<ConversionIssue> withForecastSurfaceWind(final Lexeme from, final LexemeIdentity[] before, final ConversionHints hints,
             final Consumer<SurfaceWind> consumer) {
         final List<ConversionIssue> result = new ArrayList<>();
-        from.findNext(Lexeme.Identity.SURFACE_WIND, (match) -> {
+        from.findNext(LexemeIdentity.SURFACE_WIND, (match) -> {
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.add(issue);
@@ -607,10 +681,10 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         return result;
     }
 
-    private List<ConversionIssue> withVisibility(final Lexeme from, final Lexeme.Identity[] before, final ConversionHints hints,
+    private List<ConversionIssue> withVisibility(final Lexeme from, final LexemeIdentity[] before, final ConversionHints hints,
             final Consumer<MeasureWithOperator> consumer) {
         final List<ConversionIssue> result = new ArrayList<>();
-        from.findNext(Lexeme.Identity.HORIZONTAL_VISIBILITY, (match) -> {
+        from.findNext(LexemeIdentity.HORIZONTAL_VISIBILITY, (match) -> {
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.add(issue);
@@ -644,10 +718,10 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         return result;
     }
 
-    private List<ConversionIssue> withWeather(final Lexeme from, final Lexeme.Identity[] before, final ConversionHints hints,
+    private List<ConversionIssue> withWeather(final Lexeme from, final LexemeIdentity[] before, final ConversionHints hints,
             final Consumer<List<fi.fmi.avi.model.Weather>> consumer) {
         final List<ConversionIssue> result = new ArrayList<>();
-        from.findNext(Lexeme.Identity.WEATHER, (match) -> {
+        from.findNext(LexemeIdentity.WEATHER, (match) -> {
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
             if (issue != null) {
                 result.add(issue);
@@ -660,10 +734,10 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         return result;
     }
 
-    private List<ConversionIssue> withClouds(final Lexeme from, final Lexeme.Identity[] before, final ConversionHints hints,
+    private List<ConversionIssue> withClouds(final Lexeme from, final LexemeIdentity[] before, final ConversionHints hints,
             final Consumer<CloudForecast> consumer) {
         final List<ConversionIssue> result = new ArrayList<>();
-        from.findNext(Lexeme.Identity.CLOUD, (match) -> {
+        from.findNext(LexemeIdentity.CLOUD, (match) -> {
             ConversionIssue issue;
             final CloudForecastImpl.Builder cloud = CloudForecastImpl.builder();
             final List<CloudLayer> layers = new ArrayList<>();
@@ -701,7 +775,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                         }
                     }
                 }
-                match = match.findNext(Lexeme.Identity.CLOUD);
+                match = match.findNext(LexemeIdentity.CLOUD);
             }
             if (!layers.isEmpty()) {
                 cloud.setLayers(layers);

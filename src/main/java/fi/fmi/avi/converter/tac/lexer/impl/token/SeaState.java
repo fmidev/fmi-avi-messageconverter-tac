@@ -1,6 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.SEA_STATE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEA_STATE;
 
 import java.util.Optional;
 import java.util.regex.Matcher;

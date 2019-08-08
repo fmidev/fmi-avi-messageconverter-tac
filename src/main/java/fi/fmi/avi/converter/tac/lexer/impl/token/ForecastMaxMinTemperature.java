@@ -1,16 +1,17 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.MAX_TEMPERATURE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.MIN_TEMPERATURE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.MAX_TEMPERATURE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.MIN_TEMPERATURE;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -68,7 +69,7 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
         }
         int hour = Integer.parseInt(match.group(5));
 
-        Lexeme.Identity kindLexemeIdentity;
+        LexemeIdentity kindLexemeIdentity;
         if (TemperatureForecastType.MAXIMUM == kind) {
             kindLexemeIdentity = MAX_TEMPERATURE;
         } else {

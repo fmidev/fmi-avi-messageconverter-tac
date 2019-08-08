@@ -18,6 +18,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -28,7 +29,7 @@ public class TAFHorizontalVisibilityLexemeTest {
     AviMessageLexer aviMessageLexer;
 
     private void assertExtraVisibilityValue(final Lexeme notOkLexeme) {
-        assertEquals(notOkLexeme.getIdentity(), Lexeme.Identity.HORIZONTAL_VISIBILITY);
+        assertEquals(notOkLexeme.getIdentity(), LexemeIdentity.HORIZONTAL_VISIBILITY);
         assertEquals(notOkLexeme.getLexerMessage(), "Horizontal visibility already given");
         assertEquals(notOkLexeme.getStatus(), Lexeme.Status.SYNTAX_ERROR);
     }

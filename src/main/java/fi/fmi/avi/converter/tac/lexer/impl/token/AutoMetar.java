@@ -1,11 +1,12 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AUTOMATED;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AUTOMATED;
 
 import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -34,7 +35,7 @@ public class AutoMetar extends PrioritizedLexemeVisitor {
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
                 MeteorologicalTerminalAirReport m = (MeteorologicalTerminalAirReport) msg;
                 if (m.isAutomatedStation()) {
-                    return Optional.of(this.createLexeme("AUTO", Lexeme.Identity.AUTOMATED));
+                    return Optional.of(this.createLexeme("AUTO", LexemeIdentity.AUTOMATED));
                 }
             }
             return Optional.empty();

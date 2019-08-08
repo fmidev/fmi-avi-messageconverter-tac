@@ -5,11 +5,10 @@ import java.util.List;
 import java.util.Optional;
 
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-
-;
 
 /**
  * Created by rinne on 01/03/17.
@@ -30,11 +29,11 @@ public abstract class FactoryBasedReconstructor implements TACTokenReconstructor
 		return this.createLexeme(token, null, Lexeme.Status.UNRECOGNIZED);
 	}
 
-	protected Lexeme createLexeme(final String token, final Lexeme.Identity identity) {
+	protected Lexeme createLexeme(final String token, final LexemeIdentity identity) {
 		return this.createLexeme(token, identity, Lexeme.Status.OK);
 	}
 
-	protected Lexeme createLexeme(final String token, final Lexeme.Identity identity, final Lexeme.Status status) {
+	protected Lexeme createLexeme(final String token, final LexemeIdentity identity, final Lexeme.Status status) {
 		if (this.factory != null) {
 			return this.factory.createLexeme(token, identity, status);
 		} else {
@@ -50,7 +49,7 @@ public abstract class FactoryBasedReconstructor implements TACTokenReconstructor
         lexeme.ifPresent(retval::add);
     	return retval;
     }
-    
+
     /**
      * Override this unless the class overrides getAsLexemes(). The default implementation always throws RuntimeException.
      *

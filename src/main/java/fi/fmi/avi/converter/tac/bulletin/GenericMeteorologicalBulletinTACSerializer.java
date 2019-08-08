@@ -6,7 +6,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.GenericAviationWeatherMessage;
-import fi.fmi.avi.model.GenericMeteorologicalBulletin;
+import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 
 public class GenericMeteorologicalBulletinTACSerializer extends AbstractTACBulletinSerializer<GenericAviationWeatherMessage, GenericMeteorologicalBulletin> {
 

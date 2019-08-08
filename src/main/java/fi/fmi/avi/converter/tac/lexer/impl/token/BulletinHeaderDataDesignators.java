@@ -5,13 +5,14 @@ import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.BulletinHeading;
-import fi.fmi.avi.model.MeteorologicalBulletin;
+import fi.fmi.avi.model.bulletin.BulletinHeading;
+import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
 
 public class BulletinHeaderDataDesignators extends RegexMatchingLexemeVisitor {
 
@@ -22,7 +23,7 @@ public class BulletinHeaderDataDesignators extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         if (token.getFirst().equals(token)) {
-            token.identify(Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS);
+            token.identify(LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS);
             token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group("designators"));
         }
     }
@@ -48,7 +49,7 @@ public class BulletinHeaderDataDesignators extends RegexMatchingLexemeVisitor {
                         throw new SerializingException("Invalid bulletin number ('ii' part) '" + heading.getBulletinNumber() + "' in TAF bulletin");
                     }
                     sb.append(String.format("%02d", heading.getBulletinNumber()));
-                    return Optional.of(createLexeme(sb.toString(), Lexeme.Identity.BULLETIN_HEADING_DATA_DESIGNATORS));
+                    return Optional.of(createLexeme(sb.toString(), LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS));
                 } else {
                     throw new SerializingException("TAF bulletin heading is null");
                 }

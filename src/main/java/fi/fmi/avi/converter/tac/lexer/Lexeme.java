@@ -11,8 +11,10 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_DIRECTIO
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MEAN_VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_DIRECTION;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_VALUE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MONTH;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
@@ -22,6 +24,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.YEAR;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -76,7 +79,7 @@ public interface Lexeme {
      *
      * @return Lexeme identity, or null if unrecognized.
      */
-    Identity getIdentity();
+    LexemeIdentity getIdentity();
 
     /**
      * Returns the identity of the Lexeme if the Lexeme has been identified, and
@@ -84,7 +87,7 @@ public interface Lexeme {
      *
      * @return Lexeme identity, or null if status is {@link Status#UNRECOGNIZED} or {@link Status#SYNTAX_ERROR}.
      */
-    Identity getIdentityIfAcceptable();
+    LexemeIdentity getIdentityIfAcceptable();
 
     /**
      * Returns the recognizing status of Lexeme.
@@ -157,7 +160,7 @@ public interface Lexeme {
 
     /**
      * Returns the first Lexeme in the {@link LexemeSequence} containing this Lexeme ignoring
-     * any possible {@link Lexeme.Identity#WHITE_SPACE} and ignored Lexemes.
+     * any possible {@link LexemeIdentity#WHITE_SPACE} and ignored Lexemes.
      * This link is provided mainly as navigation shortcut.
      *
      * @return the first Lexeme of the sequence, if available
@@ -177,7 +180,7 @@ public interface Lexeme {
 
     /**
      * Returns the Lexeme immediately before this one in the {@link LexemeSequence}
-     * containing this Lexeme ignoring any possible {@link Lexeme.Identity#WHITE_SPACE} and ignored Lexemes.
+     * containing this Lexeme ignoring any possible {@link LexemeIdentity#WHITE_SPACE} and ignored Lexemes.
      * For the first Lexeme in sequence this must return
      * {@code null}.
      *
@@ -199,7 +202,7 @@ public interface Lexeme {
 
     /**
      * Returns the Lexeme immediately after this one in the {@link LexemeSequence}
-     * containing this Lexeme ignoring any possible {@link Lexeme.Identity#WHITE_SPACE} and ignored Lexemes.
+     * containing this Lexeme ignoring any possible {@link LexemeIdentity#WHITE_SPACE} and ignored Lexemes.
      * For the last Lexeme in sequence this must return
      * {@code null}.
      *
@@ -303,7 +306,7 @@ public interface Lexeme {
      * @param id
      *         identity to assign
      */
-    void identify(final Identity id);
+    void identify(final LexemeIdentity id);
 
     /**
      * Identifies this Lexeme as {@code id} with {@code status} and no additional message.
@@ -314,7 +317,7 @@ public interface Lexeme {
      * @param status
      *         to set
      */
-    void identify(final Identity id, final Status status);
+    void identify(final LexemeIdentity id, final Status status);
 
     /**
      * Identifies this Lexeme as {@code id} with {@code status} and {@code message}.
@@ -327,7 +330,7 @@ public interface Lexeme {
      * @param note
      *         additional message, such as lexing warning note
      */
-    void identify(final Identity id, final Status status, final String note);
+    void identify(final LexemeIdentity id, final Status status, final String note);
 
     /**
      * Identifies this Lexeme as {@code id} with {@link Status#OK} and no additional message.
@@ -337,7 +340,7 @@ public interface Lexeme {
      * @param certainty
      *         the level of confidence 0.0 - 1.0
      */
-    void identify(final Identity id, double certainty);
+    void identify(final LexemeIdentity id, double certainty);
 
     /**
      * Identifies this Lexeme as {@code id} with {@code status} and no additional message.
@@ -349,7 +352,7 @@ public interface Lexeme {
      * @param certainty
      *         the level of confidence 0.0 - 1.0
      */
-    void identify(final Identity id, final Status status, double certainty);
+    void identify(final LexemeIdentity id, final Status status, double certainty);
 
     /**
      * Identifies this Lexeme as {@code id} with {@code status} and {@code message}.
@@ -363,7 +366,7 @@ public interface Lexeme {
      * @param certainty
      *         the level of confidence 0.0 - 1.0
      */
-    void identify(final Identity id, final Status status, final String note, double certainty);
+    void identify(final LexemeIdentity id, final Status status, final String note, double certainty);
 
     /**
      * Return true when the Lexeme is not in {@link Status#UNRECOGNIZED}
@@ -442,7 +445,7 @@ public interface Lexeme {
      *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
-    Lexeme findNext(Lexeme.Identity needle);
+    Lexeme findNext(LexemeIdentity needle);
 
     /**
      * Finds the next {@link Lexeme} identified as <code>needle</code> in the sequence of Lexemes starting
@@ -475,7 +478,7 @@ public interface Lexeme {
      *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
-    Lexeme findNext(Lexeme.Identity needle, Consumer<Lexeme> found);
+    Lexeme findNext(LexemeIdentity needle, Consumer<Lexeme> found);
 
     /**
      * Finds the next {@link Lexeme} identified as <code>needle</code> in the sequence of Lexemes starting
@@ -494,7 +497,7 @@ public interface Lexeme {
      *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
-    Lexeme findNext(Lexeme.Identity needle, Consumer<Lexeme> found, LexemeParsingNotifyer notFound);
+    Lexeme findNext(LexemeIdentity needle, Consumer<Lexeme> found, LexemeParsingNotifyer notFound);
 
 
     /**
@@ -507,17 +510,31 @@ public interface Lexeme {
     /**
      * Lexeme identity corresponding to the different token
      * types used in aviation weather messages.
+     *
+     * @deprecated please use {@link LexemeIdentity} instead
      */
     enum Identity {
         METAR_START,
         SPECI_START,
         TAF_START,
+        LOW_WIND_START,
+        WX_WARNING_START,
+        ARS_START,
+        WXREP_START,
+        AIREP_START,
+        SIGMET_START,
+        US_SIGMET_START,
+        REP,
+        SPACE_WEATHER_ADVISORY_START,
+        ADVISORY_PHENOMENA_LABEL(TYPE),
+        ADVISORY_PHENOMENA_TIME_GROUP(DAY1, HOUR1, MINUTE1),
+        VOLCANIC_ASH_ADVISORY_START,
         CORRECTION,
         AMENDMENT,
         CANCELLATION,
         NIL,
         ROUTINE_DELAYED_OBSERVATION,
-        ISSUE_TIME(DAY1, HOUR1, MINUTE1),
+        ISSUE_TIME(YEAR, MONTH, DAY1, HOUR1, MINUTE1),
         AERODROME_DESIGNATOR(VALUE, COUNTRY),
         CAVOK,
         AIR_DEWPOINT_TEMPERATURE(VALUE, UNIT),
@@ -540,13 +557,13 @@ public interface Lexeme {
         SEA_STATE(UNIT, UNIT2, VALUE),
         RUNWAY_STATE(RUNWAY, VALUE),
         SNOW_CLOSURE,
-        VALID_TIME(DAY1, DAY2, HOUR1, HOUR2),
+        VALID_TIME(DAY1, DAY2, HOUR1, HOUR2, MINUTE1, MINUTE2),
         MIN_TEMPERATURE(DAY1, HOUR1, VALUE),
         MAX_TEMPERATURE(DAY1, HOUR1, VALUE),
         REMARKS_START,
         REMARK(VALUE),
         COLOR_CODE(VALUE),
-        WHITE_SPACE(VALUE),
+        WHITE_SPACE(TYPE,VALUE),
         END_TOKEN,
         BULLETIN_HEADING_DATA_DESIGNATORS(VALUE),
         BULLETIN_HEADING_LOCATION_INDICATOR(VALUE),
@@ -575,6 +592,8 @@ public interface Lexeme {
      */
     enum ParsedValueName {
         COUNTRY,
+        YEAR,
+        MONTH,
         DAY1,
         DAY2,
         HOUR1,
@@ -599,9 +618,52 @@ public interface Lexeme {
         SEQUENCE_NUMBER
     }
 
+    enum MeteorologicalBulletinSpecialCharacter {
+        START_OF_HEADING('\u0001'),
+        START_OF_TEXT('\u0002'),
+        END_OF_TEXT('\u0003'),
+        END_OF_TRANSMISSION('\u0004'),
+        ACKNOWLEDGE('\u0006'),
+        HORIZONTAL_TAB('\u0009'),
+        LINE_FEED('\n'),
+        VERTICAL_TAB('\u000B'),
+        FORM_FEED('\u000C'),
+        CARRIAGE_RETURN('\r'),
+        DATA_LINK_ESCAPE('\u0010'),
+        DEVICE_LINK_CONTROL_1('\u0011'),
+        DEVICE_LINK_CONTROL_2('\u0012'),
+        NEGATIVE_ACKNOWLEDGE('\u0015'),
+        SYNCHRONOUS_IDLE('\u0016'),
+        END_OF_TRANSMISSION_BLOCK('\u0017'),
+        ESCAPE('\u001B'),
+        FILE_SEPARATOR('\u001C'),
+        GROUP_SEPARATOR('\u001D'),
+        RECORD_SEPARATOR('\u001E'),
+        DELETE('\u007F'),
+        SPACE('\u0020');
+
+        private char content;
+
+        public static MeteorologicalBulletinSpecialCharacter fromChar(final char c) {
+            for (MeteorologicalBulletinSpecialCharacter m:MeteorologicalBulletinSpecialCharacter.values()) {
+                if (m.getContent().equals(Character.toString(c))) {
+                    return m;
+                }
+            }
+            return null;
+        }
+
+        MeteorologicalBulletinSpecialCharacter(final char content) {
+            this.content = content;
+        }
+
+        public String getContent() {
+            return String.valueOf(this.content);
+        }
+    }
     /**
      * Lambda function interface to use with
-     * {@link #findNext(Identity, Consumer, LexemeParsingNotifyer)}
+     * {@link #findNext(LexemeIdentity, Consumer, LexemeParsingNotifyer)}
      */
     @FunctionalInterface
     public interface LexemeParsingNotifyer {

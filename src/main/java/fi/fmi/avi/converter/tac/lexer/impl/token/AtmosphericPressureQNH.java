@@ -1,15 +1,15 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_PRESSURE_QNH;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIR_PRESSURE_QNH;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -92,7 +92,7 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
                     builder.append(unit);
                     builder.append(String.format("%04d", altimeter.getValue().intValue()));
 
-                    retval = Optional.of(this.createLexeme(builder.toString(), Identity.AIR_DEWPOINT_TEMPERATURE));
+                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.AIR_DEWPOINT_TEMPERATURE));
 
                 }
             }
