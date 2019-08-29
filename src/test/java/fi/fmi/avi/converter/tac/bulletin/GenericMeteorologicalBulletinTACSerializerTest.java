@@ -40,17 +40,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
 
     @Test
     public void testSerialization() {
-        final GenericMeteorologicalBulletinImpl.Builder builder = GenericMeteorologicalBulletinImpl.builder()//
-                .setHeading(BulletinHeadingImpl.builder()//
-                        .setGeographicalDesignator("FI")//
-                        .setLocationIndicator("EFKL")//
-                        .setBulletinNumber(81)//
-                        .setDataTypeDesignatorT1ForTAC(UPPER_AIR_DATA)
-                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.UpperAirDataTypeDesignatorT2.UA_MISCELLANEOUS)//
-                        .setIssueTime(PartialOrCompleteTimeInstant.builder()//
-                                .setPartialTime(PartialDateTime.ofDayHourMinute(27, 14, 2)))//
-                        .build());
-
+        final GenericMeteorologicalBulletinImpl.Builder builder = createBulletinBuilder();
         builder.addMessages(new GenericAviationWeatherMessageImpl.Builder()//
                 .setOriginalMessage("LOW WIND EFHK 270925Z\n\n1000FT     2000FT     FL050      FL100\n200/05     260/05     310/05     320/15=")
                 .setTranslated(false)
@@ -73,17 +63,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
 
     @Test
     public void whitespacePassthrough() {
-        final GenericMeteorologicalBulletinImpl.Builder builder = GenericMeteorologicalBulletinImpl.builder()//
-                .setHeading(BulletinHeadingImpl.builder()//
-                        .setGeographicalDesignator("FI")//
-                        .setLocationIndicator("EFKL")//
-                        .setBulletinNumber(81)//
-                        .setDataTypeDesignatorT1ForTAC(UPPER_AIR_DATA)
-                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.UpperAirDataTypeDesignatorT2.UA_MISCELLANEOUS)//
-                        .setIssueTime(PartialOrCompleteTimeInstant.builder()//
-                                .setPartialTime(PartialDateTime.ofDayHourMinute(27, 14, 2)))//
-                        .build());
-
+        final GenericMeteorologicalBulletinImpl.Builder builder = createBulletinBuilder();
         builder.addMessages(new GenericAviationWeatherMessageImpl.Builder()//
                 .setOriginalMessage("LOW WIND EFHK 270925Z\n\n1000FT     2000FT     FL050      FL100\n200/05     260/05     310/05     320/15=")
                 .setTranslated(false)
@@ -91,9 +71,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
                 .build());
         final GenericMeteorologicalBulletin msg = builder.build();
 
-        final ConversionHints hints = new ConversionHints();
-        hints.put(ConversionHints.KEY_WHITE_SPACE_PASSTHROUGH, ConversionHints.VALUE_WHITE_SPACE_PASSTHROUGH_ENABLE);
-        final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, hints);
+        final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, passthroughConversionHints());
         assertEquals(ConversionResult.Status.SUCCESS, tacResult.getStatus());
 
         final Optional<String> tacBulletin = tacResult.getConvertedMessage();
@@ -109,17 +87,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
 
     @Test
     public void whitespacePassthroughWithNewlineAtMaxRowLength() {
-        final GenericMeteorologicalBulletinImpl.Builder builder = GenericMeteorologicalBulletinImpl.builder()//
-                .setHeading(BulletinHeadingImpl.builder()//
-                        .setGeographicalDesignator("FI")//
-                        .setLocationIndicator("EFKL")//
-                        .setBulletinNumber(81)//
-                        .setDataTypeDesignatorT1ForTAC(UPPER_AIR_DATA)
-                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.UpperAirDataTypeDesignatorT2.UA_MISCELLANEOUS)//
-                        .setIssueTime(PartialOrCompleteTimeInstant.builder()//
-                                .setPartialTime(PartialDateTime.ofDayHourMinute(27, 14, 2)))//
-                        .build());
-
+        final GenericMeteorologicalBulletinImpl.Builder builder = createBulletinBuilder();
         builder.addMessages(new GenericAviationWeatherMessageImpl.Builder()//
                 .setOriginalMessage(
                         "LOW WIND EFHK 270925Z\n\n1000FT     2000FT     FL050      FL100 FOOBAR FOOBAR FOOBAR\n200/05     260/05     310/05     320/15=")
@@ -128,9 +96,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
                 .build());
         final GenericMeteorologicalBulletin msg = builder.build();
 
-        final ConversionHints hints = new ConversionHints();
-        hints.put(ConversionHints.KEY_WHITE_SPACE_PASSTHROUGH, ConversionHints.VALUE_WHITE_SPACE_PASSTHROUGH_ENABLE);
-        final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, hints);
+        final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, passthroughConversionHints());
         assertEquals(ConversionResult.Status.SUCCESS, tacResult.getStatus());
 
         final Optional<String> tacBulletin = tacResult.getConvertedMessage();
@@ -146,17 +112,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
 
     @Test
     public void whitespacePassthroughLongRow() {
-        final GenericMeteorologicalBulletinImpl.Builder builder = GenericMeteorologicalBulletinImpl.builder()//
-                .setHeading(BulletinHeadingImpl.builder()//
-                        .setGeographicalDesignator("FI")//
-                        .setLocationIndicator("EFKL")//
-                        .setBulletinNumber(81)//
-                        .setDataTypeDesignatorT1ForTAC(UPPER_AIR_DATA)
-                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.UpperAirDataTypeDesignatorT2.UA_MISCELLANEOUS)//
-                        .setIssueTime(PartialOrCompleteTimeInstant.builder()//
-                                .setPartialTime(PartialDateTime.ofDayHourMinute(27, 14, 2)))//
-                        .build());
-
+        final GenericMeteorologicalBulletinImpl.Builder builder = createBulletinBuilder();
         builder.addMessages(new GenericAviationWeatherMessageImpl.Builder()//
                 .setOriginalMessage("LOW WIND EFHK 270925Z\n\nFOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR=")
                 .setTranslated(false)
@@ -164,9 +120,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
                 .build());
         final GenericMeteorologicalBulletin msg = builder.build();
 
-        final ConversionHints hints = new ConversionHints();
-        hints.put(ConversionHints.KEY_WHITE_SPACE_PASSTHROUGH, ConversionHints.VALUE_WHITE_SPACE_PASSTHROUGH_ENABLE);
-        final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, hints);
+        final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, passthroughConversionHints());
         assertEquals(ConversionResult.Status.SUCCESS, tacResult.getStatus());
 
         final Optional<String> tacBulletin = tacResult.getConvertedMessage();
@@ -178,6 +132,25 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
                         + "LOW WIND EFHK 270925Z" + LINE_FEED.getContent() + LINE_FEED.getContent()//
                         + "FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR" + LINE_FEED.getContent()//
                         + "FOOBAR FOOBAR FOOBAR=", tacBulletin.get());
+    }
+
+    private GenericMeteorologicalBulletinImpl.Builder createBulletinBuilder() {
+        return GenericMeteorologicalBulletinImpl.builder()//
+                .setHeading(BulletinHeadingImpl.builder()//
+                        .setGeographicalDesignator("FI")//
+                        .setLocationIndicator("EFKL")//
+                        .setBulletinNumber(81)//
+                        .setDataTypeDesignatorT1ForTAC(UPPER_AIR_DATA)
+                        .setDataTypeDesignatorT2(DataTypeDesignatorT2.UpperAirDataTypeDesignatorT2.UA_MISCELLANEOUS)//
+                        .setIssueTime(PartialOrCompleteTimeInstant.builder()//
+                                .setPartialTime(PartialDateTime.ofDayHourMinute(27, 14, 2)))//
+                        .build());
+    }
+
+    private ConversionHints passthroughConversionHints() {
+        final ConversionHints hints = new ConversionHints();
+        hints.put(ConversionHints.KEY_WHITE_SPACE_PASSTHROUGH, ConversionHints.VALUE_WHITE_SPACE_PASSTHROUGH_ENABLE);
+        return hints;
     }
 
 }
