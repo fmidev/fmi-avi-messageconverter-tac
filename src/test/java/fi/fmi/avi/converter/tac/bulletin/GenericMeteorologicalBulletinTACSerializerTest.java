@@ -40,14 +40,8 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
 
     @Test
     public void testSerialization() {
-        final GenericMeteorologicalBulletinImpl.Builder builder = createBulletinBuilder();
-        builder.addMessages(new GenericAviationWeatherMessageImpl.Builder()//
-                .setOriginalMessage("LOW WIND EFHK 270925Z\n\n1000FT     2000FT     FL050      FL100\n200/05     260/05     310/05     320/15=")
-                .setTranslated(false)
-                .setMessageFormat(GenericAviationWeatherMessage.Format.TAC)
-                .build());
-        final GenericMeteorologicalBulletin msg = builder.build();
-
+        final GenericMeteorologicalBulletin msg = createGenericBulletin(
+                "LOW WIND EFHK 270925Z\n\n1000FT     2000FT     FL050      FL100\n200/05     260/05     310/05     " + "320/15=");
         final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, ConversionHints.EMPTY);
         assertEquals(ConversionResult.Status.SUCCESS, tacResult.getStatus());
 
@@ -63,14 +57,8 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
 
     @Test
     public void whitespacePassthrough() {
-        final GenericMeteorologicalBulletinImpl.Builder builder = createBulletinBuilder();
-        builder.addMessages(new GenericAviationWeatherMessageImpl.Builder()//
-                .setOriginalMessage("LOW WIND EFHK 270925Z\n\n1000FT     2000FT     FL050      FL100\n200/05     260/05     310/05     320/15=")
-                .setTranslated(false)
-                .setMessageFormat(GenericAviationWeatherMessage.Format.TAC)
-                .build());
-        final GenericMeteorologicalBulletin msg = builder.build();
-
+        final GenericMeteorologicalBulletin msg = createGenericBulletin(
+                "LOW WIND EFHK 270925Z\n\n1000FT     2000FT     FL050      FL100\n200/05     260/05  " + "   310/05     320/15=");
         final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, passthroughConversionHints());
         assertEquals(ConversionResult.Status.SUCCESS, tacResult.getStatus());
 
@@ -87,15 +75,8 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
 
     @Test
     public void whitespacePassthroughWithNewlineAtMaxRowLength() {
-        final GenericMeteorologicalBulletinImpl.Builder builder = createBulletinBuilder();
-        builder.addMessages(new GenericAviationWeatherMessageImpl.Builder()//
-                .setOriginalMessage(
-                        "LOW WIND EFHK 270925Z\n\n1000FT     2000FT     FL050      FL100 FOOBAR FOOBAR FOOBAR\n200/05     260/05     310/05     320/15=")
-                .setTranslated(false)
-                .setMessageFormat(GenericAviationWeatherMessage.Format.TAC)
-                .build());
-        final GenericMeteorologicalBulletin msg = builder.build();
-
+        final GenericMeteorologicalBulletin msg = createGenericBulletin(
+                "LOW WIND EFHK 270925Z\n\n1000FT     2000FT     FL050      FL100 FOOBAR FOOBAR FOOBAR\n200/05     260/05     310/05     320/15=");
         final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, passthroughConversionHints());
         assertEquals(ConversionResult.Status.SUCCESS, tacResult.getStatus());
 
@@ -112,14 +93,8 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
 
     @Test
     public void whitespacePassthroughLongRow() {
-        final GenericMeteorologicalBulletinImpl.Builder builder = createBulletinBuilder();
-        builder.addMessages(new GenericAviationWeatherMessageImpl.Builder()//
-                .setOriginalMessage("LOW WIND EFHK 270925Z\n\nFOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR=")
-                .setTranslated(false)
-                .setMessageFormat(GenericAviationWeatherMessage.Format.TAC)
-                .build());
-        final GenericMeteorologicalBulletin msg = builder.build();
-
+        final GenericMeteorologicalBulletin msg = createGenericBulletin(
+                "LOW WIND EFHK 270925Z\n\nFOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR " + "FOOBAR FOOBAR FOOBAR=");
         final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, passthroughConversionHints());
         assertEquals(ConversionResult.Status.SUCCESS, tacResult.getStatus());
 
@@ -132,6 +107,16 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
                         + "LOW WIND EFHK 270925Z" + LINE_FEED.getContent() + LINE_FEED.getContent()//
                         + "FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR" + LINE_FEED.getContent()//
                         + "FOOBAR FOOBAR FOOBAR=", tacBulletin.get());
+    }
+
+    private GenericMeteorologicalBulletin createGenericBulletin(final String message) {
+        final GenericMeteorologicalBulletinImpl.Builder builder = createBulletinBuilder();
+        builder.addMessages(new GenericAviationWeatherMessageImpl.Builder()//
+                .setOriginalMessage(message)//
+                .setTranslated(false)//
+                .setMessageFormat(GenericAviationWeatherMessage.Format.TAC)//
+                .build());
+        return builder.build();
     }
 
     private GenericMeteorologicalBulletinImpl.Builder createBulletinBuilder() {
