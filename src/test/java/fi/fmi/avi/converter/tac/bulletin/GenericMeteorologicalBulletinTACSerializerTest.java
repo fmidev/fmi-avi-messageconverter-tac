@@ -149,7 +149,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
 
     private ConversionHints passthroughConversionHints() {
         final ConversionHints hints = new ConversionHints();
-        hints.put(ConversionHints.KEY_WHITE_SPACE_PASSTHROUGH, ConversionHints.VALUE_WHITE_SPACE_PASSTHROUGH_ENABLE);
+        hints.put(ConversionHints.KEY_WHITESPACE_SERIALIZATION_MODE, ConversionHints.VALUE_WHITESPACE_SERIALIZATION_MODE_PASSTHROUGH);
         return hints;
     }
 

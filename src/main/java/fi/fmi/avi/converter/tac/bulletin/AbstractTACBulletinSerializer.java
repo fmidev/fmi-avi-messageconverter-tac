@@ -59,8 +59,8 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
         if (appendToken(retval, LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR, input, getBulletinClass(), baseCtx) == 0) {
             retval.removeLast();
         }
-        final boolean whitespacePassthrough = hints != null && ConversionHints.VALUE_WHITE_SPACE_PASSTHROUGH_ENABLE.equals(
-                hints.getOrDefault(ConversionHints.KEY_WHITE_SPACE_PASSTHROUGH, null));
+        final boolean whitespacePassthrough = hints != null && ConversionHints.VALUE_WHITESPACE_SERIALIZATION_MODE_PASSTHROUGH.equals(
+                hints.getOrDefault(ConversionHints.KEY_WHITESPACE_SERIALIZATION_MODE, null));
         final List<S> messages = input.getMessages();
         LexemeSequence messageSequence;
         if (messages.size() > 0) {
