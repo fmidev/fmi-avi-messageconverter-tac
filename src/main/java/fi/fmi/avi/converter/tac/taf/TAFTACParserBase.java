@@ -61,9 +61,12 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             return result;
         }
 
-        if (LexemeIdentity.TAF_START != lexed.getFirstLexeme().getIdentityIfAcceptable()) {
+        final Lexeme firstLexeme = lexed.getFirstLexeme();
+        if (LexemeIdentity.TAF_START != firstLexeme.getIdentity()) {
             result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as TAF"));
             return result;
+        } else if (firstLexeme.isSynthetic()) {
+            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Message does not start with a start token"));
         }
 
         if (!endsInEndToken(lexed, hints)) {

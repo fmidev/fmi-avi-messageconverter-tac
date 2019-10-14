@@ -34,11 +34,6 @@ public class Taf16Test extends AbstractAviMessageTest<String, TAF> {
 	}
 	
 	@Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
-	
-	@Override
     public ConversionHints getTokenizerParsingHints() {
 		ConversionHints hints = super.getTokenizerParsingHints();
 		if (hints != null) {

@@ -29,11 +29,10 @@ public class Taf12Test extends AbstractAviMessageTest<String, TAF> {
 	public String getJsonFilename() {
 		return "taf/taf12.json";
 	}
-	
+
 	@Override
 	public String getMessage() {
-		return
-				"EETN 301130Z 3012/3112 14016G26KT 8000 BKN010 OVC015 TXM02/3015Z TNM10/3103Z\n" +
+		return "TAF EETN 301130Z 3012/3112 14016G26KT 8000 BKN010 OVC015 TXM02/3015Z TNM10/3103Z\n" +
 				"TEMPO 3012/3018 3000 RADZ BR OVC004\n" +
 			    "BECMG 3018/3020 BKN008 SCT015CB\n" +
 				"TEMPO 3102/3112 3000 SHRASN BKN006 BKN015CB\n" + "BECMG 3104/3106 21016G30KT VV001=";
@@ -49,15 +48,10 @@ public class Taf12Test extends AbstractAviMessageTest<String, TAF> {
 	}
 
 	@Override
-	public String getTokenizedMessagePrefix() {
-		return "TAF ";
-	}
-	
-	@Override
 	public ConversionHints getLexerParsingHints() {
 		return ConversionHints.TAF;
 	}
-	
+
 	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(
@@ -72,8 +66,8 @@ public class Taf12Test extends AbstractAviMessageTest<String, TAF> {
     public ConversionSpecification<String, TAF> getParsingSpecification() {
         return TACConverter.TAC_TO_TAF_POJO;
     }
-    
-    @Override
+
+	@Override
     public ConversionSpecification<TAF, String> getSerializationSpecification() {
         return TACConverter.TAF_POJO_TO_TAC;
     }

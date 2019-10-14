@@ -38,11 +38,6 @@ public class Taf13Test extends AbstractAviMessageTest<String, TAF> {
 	}
 	
 	@Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
-	
-	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(new LexemeIdentity[] { TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, VALID_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, WEATHER, CLOUD,
                 TAF_FORECAST_CHANGE_INDICATOR, TAF_CHANGE_FORECAST_TIME_GROUP, HORIZONTAL_VISIBILITY, WEATHER, TAF_FORECAST_CHANGE_INDICATOR,

@@ -36,12 +36,7 @@ public class Taf10VVWithTCUTest extends AbstractAviMessageTest<String, TAF> {
 
     @Override
     public String getMessage() {
-        return "ESNS 301130Z 3012/3021 15008KT 9999 OVC008\n" + "TEMPO 3018/3021 0900 SNRA VV002TCU=";
-    }
-
-    @Override
-    public String getTokenizedMessagePrefix() {
-        return "TAF ";
+        return "TAF ESNS 301130Z 3012/3021 15008KT 9999 OVC008\n" + "TEMPO 3018/3021 0900 SNRA VV002TCU=";
     }
 
     @Override
@@ -80,7 +75,7 @@ public class Taf10VVWithTCUTest extends AbstractAviMessageTest<String, TAF> {
 
     @Override
     public Optional<String> getCanonicalMessage() {
-        return Optional.of("ESNS 301130Z 3012/3021 15008KT 9999 OVC008\n" + "TEMPO 3018/3021 0900 SNRA=");
+        return Optional.of("TAF ESNS 301130Z 3012/3021 15008KT 9999 OVC008\n" + "TEMPO 3018/3021 0900 SNRA=");
     }
 
     @Override
