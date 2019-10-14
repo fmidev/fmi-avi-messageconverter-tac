@@ -3,6 +3,7 @@ package fi.fmi.avi.converter.tac.taf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import fi.fmi.avi.converter.ConversionHints;
