@@ -112,8 +112,9 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         });
 
+        final AtomicBoolean hasAerodrome = new AtomicBoolean(false);
         lexed.getFirstLexeme().findNext(LexemeIdentity.AERODROME_DESIGNATOR, (match) -> {
-            final LexemeIdentity[] before = new LexemeIdentity[] {LexemeIdentity.ISSUE_TIME, LexemeIdentity.NIL, LexemeIdentity.VALID_TIME,
+            final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.NIL, LexemeIdentity.VALID_TIME,
                     LexemeIdentity.CANCELLATION, LexemeIdentity.SURFACE_WIND, LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER,
                     LexemeIdentity.CLOUD, LexemeIdentity.CAVOK, LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE,
                     LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR, LexemeIdentity.REMARKS_START };
@@ -122,8 +123,14 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 result.addIssue(issue);
             } else {
                 builder.setAerodrome(AerodromeImpl.builder().setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build());
+                hasAerodrome.set(true);
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Aerodrome designator not given in " + input)));
+
+        // End processing if the message has no aerodrome
+        if (!hasAerodrome.get()) {
+            return result;
+        }
 
         result.addIssue(setTAFIssueTime(builder, lexed, hints));
 
