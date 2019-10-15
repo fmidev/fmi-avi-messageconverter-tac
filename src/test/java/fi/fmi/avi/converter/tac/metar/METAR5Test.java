@@ -23,16 +23,11 @@ public class METAR5Test extends AbstractAviMessageTest<String, METAR> {
 	public String getJsonFilename() {
 		return "metar/metar5.json";
 	}
-	
-	@Override
+
+    @Override
 	public String getMessage() {
         return "METAR EFTU 011350Z AUTO VRB02KT CAVOK 22/12 Q1008=";
     }
-	
-	@Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
 
 	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
@@ -46,8 +41,8 @@ public class METAR5Test extends AbstractAviMessageTest<String, METAR> {
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
-	
-	@Override
+
+    @Override
     public ConversionSpecification<METAR, String> getSerializationSpecification() {
         return TACConverter.METAR_POJO_TO_TAC;
     }

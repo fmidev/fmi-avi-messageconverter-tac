@@ -34,24 +34,17 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
 	public String getJsonFilename() {
 		return "metar/metar15.json";
 	}
-	
+
 	@Override
 	public String getMessage() {
-		return
-				"EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046 ///// Q////=";
-	}
-	
+		return "METAR EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046 ///// Q////=";
+    }
+
 	@Override
 	public Optional<String> getCanonicalMessage() {
-		return Optional.of(
-				"EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046=");
-	}
-	
-	@Override
-	public String getTokenizedMessagePrefix() {
-        return "METAR ";
+		return Optional.of("METAR EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046=");
     }
-	
+
 	@Override
     public ConversionHints getLexerParsingHints() {
         return ConversionHints.METAR;
@@ -105,8 +98,8 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
-	
-	@Override
+
+    @Override
     public ConversionSpecification<METAR, String> getSerializationSpecification() {
         return TACConverter.METAR_POJO_TO_TAC;
     }

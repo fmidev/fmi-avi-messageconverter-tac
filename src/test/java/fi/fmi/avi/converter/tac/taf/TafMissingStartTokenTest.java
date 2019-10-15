@@ -8,7 +8,8 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SURFACE_WIND;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TAF_START;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.VALID_TIME;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import java.util.List;
 
@@ -23,11 +24,11 @@ import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
-public class Taf21MissingStartTokenTest extends AbstractAviMessageTest<String, TAF> {
+public class TafMissingStartTokenTest extends AbstractAviMessageTest<String, TAF> {
 
     @Override
     public String getJsonFilename() {
-        return "taf/taf21.json";
+        return "taf/taf_missing_start_token.json";
     }
 
     @Override
@@ -77,14 +78,14 @@ public class Taf21MissingStartTokenTest extends AbstractAviMessageTest<String, T
 
     @Override
     public ConversionResult.Status getExpectedParsingStatus() {
-        return ConversionResult.Status.WITH_ERRORS;
+        return ConversionResult.Status.WITH_WARNINGS;
     }
 
     @Override
     public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
-        assertTrue(conversionIssues.size() == 1);
-        assertTrue(ConversionIssue.Type.SYNTAX == conversionIssues.get(0).getType());
-        assertTrue("Message does not start with a start token".equals(conversionIssues.get(0).getMessage()));
+        assertEquals(1, conversionIssues.size());
+        assertSame(ConversionIssue.Type.SYNTAX, conversionIssues.get(0).getType());
+        assertEquals("Message does not start with a start token", conversionIssues.get(0).getMessage());
     }
 
 }

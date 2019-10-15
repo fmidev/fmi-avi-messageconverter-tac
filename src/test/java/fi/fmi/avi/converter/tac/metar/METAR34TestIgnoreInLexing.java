@@ -48,11 +48,6 @@ public class METAR34TestIgnoreInLexing extends AbstractAviMessageTest<String, ME
     }
 
     @Override
-    public String getTokenizedMessagePrefix() {
-        return "";
-    }
-
-    @Override
     public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, HORIZONTAL_VISIBILITY, AIR_DEWPOINT_TEMPERATURE,
                 AIR_PRESSURE_QNH, END_TOKEN });
