@@ -128,11 +128,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Aerodrome designator not given in " + input)));
 
-        // End processing if the message has no aerodrome
-        if (!hasAerodrome.get()) {
-            return result;
-        }
-
         result.addIssue(setTAFIssueTime(builder, lexed, hints));
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.NIL,  (match) -> {
@@ -241,6 +236,11 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         }
 
         result.addIssue(setFromChangeForecastEndTimes(builder));
+
+        // End processing if the message has no aerodrome
+        if (!hasAerodrome.get()) {
+            return result;
+        }
 
         result.setConvertedMessage(builder.build());
         return result;

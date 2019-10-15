@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
@@ -1086,6 +1087,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             }
         }, () -> builder.setStatus(AviationCodeListUser.MetarStatus.NORMAL));
 
+        final AtomicBoolean hasAerodrome = new AtomicBoolean(false);
         obs.getFirstLexeme().findNext(LexemeIdentity.AERODROME_DESIGNATOR, (match) -> {
             final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.ROUTINE_DELAYED_OBSERVATION, LexemeIdentity.NIL, LexemeIdentity.SURFACE_WIND,
                     LexemeIdentity.CAVOK, LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.CLOUD, LexemeIdentity.AIR_DEWPOINT_TEMPERATURE, LexemeIdentity.AIR_PRESSURE_QNH,
@@ -1096,6 +1098,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                 result.addIssue(issue);
             } else {
                 builder.setAerodrome(AerodromeImpl.builder().setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build());
+                hasAerodrome.set(true);
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Aerodrome designator not given in " + input)));
 
@@ -1206,6 +1209,12 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                 }
             }
         }
+
+        // End processing if the message has no aerodrome
+        if (!hasAerodrome.get()) {
+            return result;
+        }
+
         result.setConvertedMessage(buildUsing(builder));
         return result;
     }
