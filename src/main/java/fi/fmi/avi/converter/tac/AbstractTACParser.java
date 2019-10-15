@@ -291,8 +291,8 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
     protected boolean checkAndReportLexingResult(final LexemeSequence lexed, final ConversionHints hints, final ConversionResult<?> result) {
         if (!lexingSuccessful(lexed, hints)) {
             ConversionIssue.Severity severity = ConversionIssue.Severity.ERROR;
-            if (hints != null && (hints.containsValue(ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS) || hints.containsValue(
-                    ConversionHints.VALUE_PARSING_MODE_ALLOW_ANY_ERRORS))) {
+            if (hints != null && (hints.containsValue(ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS) //
+                    || hints.containsValue(ConversionHints.VALUE_PARSING_MODE_ALLOW_ANY_ERRORS))) {
                 severity = ConversionIssue.Severity.WARNING;
             } else {
                 result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Input message lexing was not fully successful: " + lexed));
