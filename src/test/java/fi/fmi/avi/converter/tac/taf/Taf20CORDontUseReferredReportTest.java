@@ -31,11 +31,6 @@ public class Taf20CORDontUseReferredReportTest extends AbstractAviMessageTest<St
 	}
 	
 	@Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
-
-	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
 		return spacify(new LexemeIdentity[] {
 				TAF_START, CORRECTION, AERODROME_DESIGNATOR, ISSUE_TIME, VALID_TIME, SURFACE_WIND, CAVOK, END_TOKEN });

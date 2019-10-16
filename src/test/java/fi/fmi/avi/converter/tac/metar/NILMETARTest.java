@@ -25,11 +25,6 @@ public class NILMETARTest extends AbstractAviMessageTest<String, METAR> {
         return "METAR EFIV 221320Z NIL=";
     }
 
-    @Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
-
 	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
 		return spacify(new LexemeIdentity[] {

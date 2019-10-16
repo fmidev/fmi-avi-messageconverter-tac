@@ -29,19 +29,14 @@ public class METAR4Test extends AbstractAviMessageTest<String, METAR> {
 	public String getJsonFilename() {
 		return "metar/metar4.json";
 	}
-	
-	@Override
+
+    @Override
 	public String getMessage() {
         return "METAR COR EFUT 111115Z 18004KT 150V240 1500 0500N R04R/1500N R15/M0050D R22L/1200N R04L/P1000U SN VV006 M08/M10 "
                 + "Q1023 RESN TEMPO 0900=";
     }
-	
-	@Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
-	
-	@Override
+
+    @Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
 		return spacify(new LexemeIdentity[] {
 				METAR_START, CORRECTION, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, VARIABLE_WIND_DIRECTION,
@@ -55,8 +50,8 @@ public class METAR4Test extends AbstractAviMessageTest<String, METAR> {
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
-	
-	@Override
+
+    @Override
     public ConversionSpecification<METAR, String> getSerializationSpecification() {
         return TACConverter.METAR_POJO_TO_TAC;
     }

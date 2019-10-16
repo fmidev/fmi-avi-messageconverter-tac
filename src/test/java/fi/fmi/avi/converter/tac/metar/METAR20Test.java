@@ -44,11 +44,6 @@ public class METAR20Test extends AbstractAviMessageTest<String, METAR> {
 	}
 	
 	@Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
-
-	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
 		return spacify(new LexemeIdentity[] {
 				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, CAVOK,

@@ -58,11 +58,6 @@ public class Taf19BaseWeatherNSWTest extends AbstractAviMessageTest<String, TAF>
     }
 
     @Override
-    public String getTokenizedMessagePrefix() {
-        return "";
-    }
-
-    @Override
     public ConversionHints getLexerParsingHints() {
         return ConversionHints.TAF;
     }

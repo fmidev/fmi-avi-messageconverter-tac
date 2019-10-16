@@ -29,18 +29,12 @@ public class Taf8Test extends AbstractAviMessageTest<String, TAF> {
 	
 	@Override
 	public String getMessage() {
-		return
-				"EFVA 270930Z 2712/2812 14015G25KT 8000 -RA SCT020 OVC050\n" +
+		return "TAF EFVA 270930Z 2712/2812 14015G25KT 8000 -RA SCT020 OVC050\n" +
 				"BECMG 2715/2717 5000 -RA BKN007\n" +
 				"PROB40 2715/2720 4000 RASN\n" +
 				"BECMG 2720/2722 16012KT\n" +
 				"TEMPO 2720/2724 8000\n" +
 				"PROB40 2802/2806 3000 RASN BKN004=";
-	}
-	
-	@Override
-	public String getTokenizedMessagePrefix() {
-		return "TAF ";
 	}
 	
 	@Override

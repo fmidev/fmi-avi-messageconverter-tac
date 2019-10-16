@@ -39,11 +39,6 @@ public class METARSeaSurfaceTemperatureTest extends AbstractAviMessageTest<Strin
     }
 
     @Override
-    public String getTokenizedMessagePrefix() {
-        return "";
-    }
-
-    @Override
     public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(
                 new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD, AIR_DEWPOINT_TEMPERATURE,

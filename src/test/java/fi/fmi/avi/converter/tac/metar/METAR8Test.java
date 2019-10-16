@@ -31,12 +31,7 @@ public class METAR8Test extends AbstractAviMessageTest<String, METAR> {
 	// Equivalent to METAR7 but with different colors
 	@Override
 	public String getMessage() {
-		return "EGXE 061150Z 03010KT 9999 FEW020 17/11 Q1014 BLACKBLU TEMPO 6000 SHRA SCT020 BLACKWHT=";
-	}
-	
-	@Override
-	public String getTokenizedMessagePrefix() {
-        return "METAR ";
+        return "METAR EGXE 061150Z 03010KT 9999 FEW020 17/11 Q1014 BLACKBLU TEMPO 6000 SHRA SCT020 BLACKWHT=";
     }
 	
 	@Override
