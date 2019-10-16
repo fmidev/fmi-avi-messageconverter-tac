@@ -1210,7 +1210,13 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
                 }
             }
         }
-        result.setConvertedMessage(buildUsing(builder));
+
+        try {
+            result.setConvertedMessage(buildUsing(builder));
+        } catch (final IllegalStateException ignored) {
+            // The message has an unset mandatory property and cannot be built, omit it from result
+        }
+
         return result;
     }
 
