@@ -3,7 +3,6 @@ package fi.fmi.avi.converter.tac.taf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -113,7 +112,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         });
 
-        final AtomicBoolean hasAerodrome = new AtomicBoolean(false);
         lexed.getFirstLexeme().findNext(LexemeIdentity.AERODROME_DESIGNATOR, (match) -> {
             final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.NIL, LexemeIdentity.VALID_TIME,
                     LexemeIdentity.CANCELLATION, LexemeIdentity.SURFACE_WIND, LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER,
@@ -124,7 +122,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 result.addIssue(issue);
             } else {
                 builder.setAerodrome(AerodromeImpl.builder().setDesignator(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build());
-                hasAerodrome.set(true);
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Aerodrome designator not given in " + input)));
 
@@ -237,12 +234,11 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
         result.addIssue(setFromChangeForecastEndTimes(builder));
 
-        // End processing if the message has no aerodrome
-        if (!hasAerodrome.get()) {
-            return result;
+        try {
+            result.setConvertedMessage(builder.build());
+        } catch (final IllegalStateException ignored) {
+            // The message has an unset mandatory property and cannot be built, omit it from result
         }
-
-        result.setConvertedMessage(builder.build());
         return result;
     }
 
