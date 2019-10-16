@@ -86,7 +86,7 @@ public class METARMissingStartTokenTest extends AbstractAviMessageTest<String, M
     public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
         assertEquals(1, conversionIssues.size());
         assertSame(ConversionIssue.Type.SYNTAX, conversionIssues.get(0).getType());
-        assertEquals("Message does not start with a start token", conversionIssues.get(0).getMessage());
+        assertEquals("Message does not start with a start token: METAR", conversionIssues.get(0).getMessage());
     }
 
 }
