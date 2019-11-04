@@ -39,11 +39,6 @@ public class METAR30Test extends AbstractAviMessageTest<String, METAR> {
         return Optional.of("METAR EFHK 240620Z 36003KT 300V360 9999 -SHSN FEW020CB BKN032 M02/M03 Q1032 NOSIG=");
     }
 
-    @Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
-
 	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
 		return spacify(

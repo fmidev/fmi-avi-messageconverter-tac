@@ -30,11 +30,6 @@ public class Taf2Test extends AbstractAviMessageTest<String, TAF> {
 	}
 	
 	@Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
-
-	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
 		return spacify(new LexemeIdentity[] {
 				TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, VALID_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD, CLOUD, END_TOKEN });

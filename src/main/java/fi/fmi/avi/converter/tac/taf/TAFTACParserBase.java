@@ -61,9 +61,13 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             return result;
         }
 
-        if (LexemeIdentity.TAF_START != lexed.getFirstLexeme().getIdentityIfAcceptable()) {
+        final Lexeme firstLexeme = lexed.getFirstLexeme();
+        if (LexemeIdentity.TAF_START != firstLexeme.getIdentity()) {
             result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as TAF"));
             return result;
+        } else if (firstLexeme.isSynthetic()) {
+            result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
+                    "Message does not start with a start token: " + firstLexeme.getTACToken()));
         }
 
         if (!endsInEndToken(lexed, hints)) {
@@ -113,7 +117,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         });
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.AERODROME_DESIGNATOR, (match) -> {
-            final LexemeIdentity[] before = new LexemeIdentity[] {LexemeIdentity.ISSUE_TIME, LexemeIdentity.NIL, LexemeIdentity.VALID_TIME,
+            final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.NIL, LexemeIdentity.VALID_TIME,
                     LexemeIdentity.CANCELLATION, LexemeIdentity.SURFACE_WIND, LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.WEATHER,
                     LexemeIdentity.CLOUD, LexemeIdentity.CAVOK, LexemeIdentity.MIN_TEMPERATURE, LexemeIdentity.MAX_TEMPERATURE,
                     LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR, LexemeIdentity.REMARKS_START };
@@ -234,7 +238,11 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
         result.addIssue(setFromChangeForecastEndTimes(builder));
 
-        result.setConvertedMessage(builder.build());
+        try {
+            result.setConvertedMessage(builder.build());
+        } catch (final IllegalStateException ignored) {
+            // The message has an unset mandatory property and cannot be built, omit it from result
+        }
         return result;
     }
 

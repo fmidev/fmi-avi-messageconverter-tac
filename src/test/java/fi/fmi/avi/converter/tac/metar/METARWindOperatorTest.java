@@ -31,11 +31,6 @@ public class METARWindOperatorTest extends AbstractAviMessageTest<String, METAR>
     }
 
     @Override
-    public String getTokenizedMessagePrefix() {
-        return "";
-    }
-
-    @Override
     public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(
                 new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, CAVOK, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH,

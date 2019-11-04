@@ -37,11 +37,6 @@ public class METAR10Test extends AbstractAviMessageTest<String, METAR> {
     }
 	
 	@Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
-	
-	@Override
 	public ConversionHints getTokenizerParsingHints() {
 		return new ConversionHints(ConversionHints.KEY_SERIALIZATION_POLICY, ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
 	}

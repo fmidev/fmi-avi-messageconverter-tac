@@ -32,11 +32,6 @@ public class SPECI1Test extends AbstractAviMessageTest<String, SPECI> {
     }
 
     @Override
-    public String getTokenizedMessagePrefix() {
-        return "";
-    }
-
-    @Override
     public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(
                 new LexemeIdentity[] { SPECI_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE,
