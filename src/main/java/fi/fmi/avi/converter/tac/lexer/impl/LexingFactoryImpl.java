@@ -634,7 +634,7 @@ public class LexingFactoryImpl implements LexingFactory {
         public Lexeme getFirst(final boolean acceptIgnoredAndWhitespace) {
             Lexeme retval = this.first;
             if (!acceptIgnoredAndWhitespace) {
-                if (retval != null && (LexemeIdentity.WHITE_SPACE.equals(retval.getIdentity()) || retval.isIgnored())) {
+                while (retval != null && (LexemeIdentity.WHITE_SPACE.equals(retval.getIdentity()) || retval.isIgnored())) {
                     retval = retval.getNext();
                 }
             }
