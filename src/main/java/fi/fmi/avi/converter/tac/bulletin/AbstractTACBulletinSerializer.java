@@ -39,11 +39,11 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
         return tokenizeMessage(msg, null);
     }
 
-    protected abstract T accepts(final AviationWeatherMessageOrCollection message) throws SerializingException;
+    protected abstract T accepts(AviationWeatherMessageOrCollection message) throws SerializingException;
 
     protected abstract Class<T> getBulletinClass();
 
-    protected abstract LexemeSequence tokenizeSingleMessage(final S message, final ConversionHints hints) throws SerializingException;
+    protected abstract LexemeSequence tokenizeSingleMessage(S message, ConversionHints hints) throws SerializingException;
 
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException {
