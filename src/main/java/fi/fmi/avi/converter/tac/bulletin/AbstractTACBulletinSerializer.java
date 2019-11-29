@@ -76,14 +76,24 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                     final int tokenLength = l.getTACToken().length();
                     if (whitespacePassthrough) {
                         if (!LexemeIdentity.END_TOKEN.equals(l.getIdentity())) {
-                            if (LexemeIdentity.WHITE_SPACE.equals(l.getIdentity()) && l.getParsedValues().containsKey(Lexeme.ParsedValueName.TYPE)
+                            if (LexemeIdentity.WHITE_SPACE.equals(l.getIdentity()) //
+                                    && l.getParsedValues().containsKey(Lexeme.ParsedValueName.TYPE) //
                                     && l.getParsedValue(Lexeme.ParsedValueName.TYPE, Lexeme.MeteorologicalBulletinSpecialCharacter.class)
                                     .equals(Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED)) {
+                                if (retval.getLast()//
+                                        .map(last -> !(LexemeIdentity.WHITE_SPACE.equals(last.getIdentity()) //
+                                                && last.getParsedValues().containsKey(Lexeme.ParsedValueName.TYPE) //
+                                                && last.getParsedValue(Lexeme.ParsedValueName.TYPE, Lexeme.MeteorologicalBulletinSpecialCharacter.class)
+                                                .equals(Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN)))//
+                                        .orElse(false)) {
+                                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
+                                }
                                 charsOnRow = 0;
                             } else if (charsOnRow + tokenLength >= MAX_ROW_LENGTH) {
-                                if (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
+                                while (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                                     retval.removeLast();
                                 }
+                                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
                                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
                                 charsOnRow = 0;
                             } else {
@@ -97,6 +107,7 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                                 if (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                                     retval.removeLast();
                                 }
+                                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
                                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
                                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE, LINE_INDENTATION);
                                 charsOnRow = 1;

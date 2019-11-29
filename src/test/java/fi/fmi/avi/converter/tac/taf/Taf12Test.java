@@ -32,15 +32,13 @@ public class Taf12Test extends AbstractAviMessageTest<String, TAF> {
 
 	@Override
 	public String getMessage() {
-		return "TAF EETN 301130Z 3012/3112 14016G26KT 8000 BKN010 OVC015 TXM02/3015Z TNM10/3103Z\n" +
-				"TEMPO 3012/3018 3000 RADZ BR OVC004\n" +
-			    "BECMG 3018/3020 BKN008 SCT015CB\n" +
-				"TEMPO 3102/3112 3000 SHRASN BKN006 BKN015CB\n" + "BECMG 3104/3106 21016G30KT VV001=";
+		return "TAF EETN 301130Z 3012/3112 14016G26KT 8000 BKN010 OVC015 TXM02/3015Z TNM10/3103Z\r\n" + "TEMPO 3012/3018 3000 RADZ BR OVC004\r\n"
+				+ "BECMG 3018/3020 BKN008 SCT015CB\r\n" + "TEMPO 3102/3112 3000 SHRASN BKN006 BKN015CB\r\n" + "BECMG 3104/3106 21016G30KT VV001=";
     }
 
 	@Override
 	public ConversionHints getParserConversionHints() {
-		ConversionHints hints = new ConversionHints();
+		final ConversionHints hints = new ConversionHints();
 		hints.put(ConversionHints.KEY_MESSAGE_TYPE, MessageType.TAF);
 		hints.put(ConversionHints.KEY_TIMEZONE_ID_POLICY, ConversionHints.VALUE_TIMEZONE_ID_POLICY_STRICT);
 

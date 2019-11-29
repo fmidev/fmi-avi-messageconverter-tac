@@ -3,7 +3,6 @@ package fi.fmi.avi.converter.tac;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
@@ -113,7 +112,7 @@ public abstract class AbstractAviMessageTest<S, T> {
             @Override
             public Difference compare(final Object left, final Object right, final boolean onlyFirstDifference,
                     final ReflectionComparator reflectionComparator) {
-                final double diff = Math.abs(((Double) left) - ((Double) right));
+                final double diff = Math.abs(((double) left) - ((double) right));
                 if (diff >= FLOAT_EQUIVALENCE_THRESHOLD) {
                     return new Difference("Floating point values differ more than set threshold", left, right);
                 }
@@ -184,7 +183,7 @@ public abstract class AbstractAviMessageTest<S, T> {
         Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
 
         final LexemeSequence result = lexer.lexMessage((String) getMessage(), getLexerParsingHints());
-        assertTokenSequenceIdentityMatch(result, getLexerTokenSequenceIdentity());
+        assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), getLexerTokenSequenceIdentity());
     }
 
     @Test
@@ -250,11 +249,22 @@ public abstract class AbstractAviMessageTest<S, T> {
         return retval.toArray(new LexemeIdentity[retval.size()]);
     }
 
-    protected void assertTokenSequenceIdentityMatch(final LexemeSequence result, final LexemeIdentity... identities) {
-        final List<Lexeme> lexemes = result.getLexemes();
-        assertTrue("Token sequence size does not match", identities.length == lexemes.size());
-        for (int i = 0; i < identities.length; i++) {
-            assertEquals("Mismatch at index " + i, identities[i], lexemes.get(i).getIdentityIfAcceptable());
+    protected List<Lexeme> trimWhitespaces(final List<Lexeme> lexemes) {
+        final List<Lexeme> trimmed = new ArrayList<>(lexemes.size());
+        for (final Lexeme lexeme : lexemes) {
+            if (trimmed.isEmpty() //
+                    || !LexemeIdentity.WHITE_SPACE.equals(lexeme.getIdentity()) //
+                    || !LexemeIdentity.WHITE_SPACE.equals(trimmed.get(trimmed.size() - 1).getIdentity())) {
+                trimmed.add(lexeme);
+            }
+        }
+        return trimmed;
+    }
+
+    protected void assertTokenSequenceIdentityMatch(final List<Lexeme> lexemes, final LexemeIdentity... expectedIdentities) {
+        assertEquals("Token sequence size does not match", expectedIdentities.length, lexemes.size());
+        for (int i = 0; i < expectedIdentities.length; i++) {
+            assertEquals("Mismatch at index " + i, expectedIdentities[i], lexemes.get(i).getIdentityIfAcceptable());
         }
     }
 

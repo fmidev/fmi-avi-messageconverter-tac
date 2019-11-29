@@ -36,12 +36,12 @@ public class Taf10VVWithTCUTest extends AbstractAviMessageTest<String, TAF> {
 
     @Override
     public String getMessage() {
-        return "TAF ESNS 301130Z 3012/3021 15008KT 9999 OVC008\n" + "TEMPO 3018/3021 0900 SNRA VV002TCU=";
+        return "TAF ESNS 301130Z 3012/3021 15008KT 9999 OVC008\r\n" + "TEMPO 3018/3021 0900 SNRA VV002TCU=";
     }
 
     @Override
     public ConversionHints getLexerParsingHints() {
-        ConversionHints hints = new ConversionHints();
+        final ConversionHints hints = new ConversionHints();
         hints.put(ConversionHints.KEY_MESSAGE_TYPE, MessageType.TAF);
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
         return hints;
@@ -49,7 +49,7 @@ public class Taf10VVWithTCUTest extends AbstractAviMessageTest<String, TAF> {
 
     @Override
     public ConversionHints getParserConversionHints() {
-        ConversionHints hints = new ConversionHints();
+        final ConversionHints hints = new ConversionHints();
         hints.put(ConversionHints.KEY_MESSAGE_TYPE, MessageType.TAF);
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
         return hints;
@@ -67,7 +67,7 @@ public class Taf10VVWithTCUTest extends AbstractAviMessageTest<String, TAF> {
     }
 
     @Override
-    public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
+    public void assertParsingIssues(final List<ConversionIssue> conversionIssues) {
         assertTrue(conversionIssues.size() == 1);
         assertTrue(ConversionIssue.Type.SYNTAX == conversionIssues.get(0).getType());
         assertTrue("Lexing problem with 'VV002TCU': 'CB' and 'TCU' not allowed with 'VV'".equals(conversionIssues.get(0).getMessage()));
@@ -75,7 +75,7 @@ public class Taf10VVWithTCUTest extends AbstractAviMessageTest<String, TAF> {
 
     @Override
     public Optional<String> getCanonicalMessage() {
-        return Optional.of("TAF ESNS 301130Z 3012/3021 15008KT 9999 OVC008\n" + "TEMPO 3018/3021 0900 SNRA=");
+        return Optional.of("TAF ESNS 301130Z 3012/3021 15008KT 9999 OVC008\r\n" + "TEMPO 3018/3021 0900 SNRA=");
     }
 
     @Override
