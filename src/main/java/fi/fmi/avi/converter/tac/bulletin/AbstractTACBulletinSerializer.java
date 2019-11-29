@@ -20,6 +20,8 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
 
     public static final int MAX_ROW_LENGTH = 60;
 
+    private static final int LINE_INDENTATION = 5;
+
     @Override
     public ConversionResult<String> convertMessage(final T input, final ConversionHints hints) {
         final ConversionResult<String> result = new ConversionResult<>();
@@ -96,7 +98,7 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                                     retval.removeLast();
                                 }
                                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
-                                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB);
+                                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE, LINE_INDENTATION);
                                 charsOnRow = 1;
                             }
                             retval.append(l);
