@@ -29,10 +29,8 @@ public class Taf5Test extends AbstractAviMessageTest<String, TAF> {
 	
 	@Override
 	public String getMessage() {
-		return "TAF ENOA 301100Z 3012/3112 29028KT 9999 -SHRA FEW015TCU SCT025\n" +
-				"TEMPO 3012/3024 4000 SHRAGS BKN012CB\n" +
-				"BECMG 3017/3020 25018KT\n" +
-                "BECMG 3100/3103 17008KT\n" +
+		return "TAF ENOA 301100Z 3012/3112 29028KT 9999 -SHRA FEW015TCU SCT025\r\n" + "TEMPO 3012/3024 4000 SHRAGS BKN012CB\r\n" + "BECMG 3017/3020 25018KT\r\n"
+				+ "BECMG 3100/3103 17008KT\r\n" +
 				"BECMG 3107/3110 23015KT=";
 	}
 	

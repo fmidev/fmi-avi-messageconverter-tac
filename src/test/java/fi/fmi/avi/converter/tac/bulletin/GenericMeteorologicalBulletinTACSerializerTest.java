@@ -1,7 +1,6 @@
 package fi.fmi.avi.converter.tac.bulletin;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
 import static fi.fmi.avi.model.bulletin.DataTypeDesignatorT1.UPPER_AIR_DATA;
 import static junit.framework.TestCase.assertTrue;
@@ -51,12 +50,31 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
                 CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "UXFI81 EFKL 271402"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
-                        + "LOW WIND EFHK 270925Z 1000FT 2000FT FL050 FL100 200/05" + LINE_FEED.getContent()//
-                        + HORIZONTAL_TAB.getContent() + "260/05 310/05 320/15=", tacBulletin.get());
+                        + "LOW WIND EFHK 270925Z 1000FT 2000FT FL050 FL100 200/05" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "     260/05 310/05 320/15=", tacBulletin.get());
     }
 
     @Test
     public void whitespacePassthrough() {
+        final GenericMeteorologicalBulletin msg = createGenericBulletin(
+                "LOW WIND EFHK 270925Z\r\n\r\n1000FT     2000FT     FL050      FL100\r\n200/05     260/05  " + "   310/05     320/15=");
+        final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, passthroughConversionHints());
+        assertEquals(ConversionResult.Status.SUCCESS, tacResult.getStatus());
+
+        final Optional<String> tacBulletin = tacResult.getConvertedMessage();
+        assertTrue(tacBulletin.isPresent());
+        TestCase.assertEquals(//
+                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "UXFI81 EFKL 271402"//
+                        + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "LOW WIND EFHK 270925Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "1000FT     2000FT     FL050      FL100" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "200/05     260/05     310/05     320/15=", tacBulletin.get());
+    }
+
+    @Test
+    public void whitespacePassthroughConvertsLFtoCRLF() {
         final GenericMeteorologicalBulletin msg = createGenericBulletin(
                 "LOW WIND EFHK 270925Z\n\n1000FT     2000FT     FL050      FL100\n200/05     260/05  " + "   310/05     320/15=");
         final ConversionResult<String> tacResult = this.converter.convertMessage(msg, TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, passthroughConversionHints());
@@ -68,8 +86,9 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
                 CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "UXFI81 EFKL 271402"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "LOW WIND EFHK 270925Z" + LINE_FEED.getContent() + LINE_FEED.getContent()//
-                        + "1000FT     2000FT     FL050      FL100" + LINE_FEED.getContent()//
+                        + "LOW WIND EFHK 270925Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "1000FT     2000FT     FL050      FL100" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "200/05     260/05     310/05     320/15=", tacBulletin.get());
     }
 
@@ -86,8 +105,9 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
                 CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "UXFI81 EFKL 271402"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "LOW WIND EFHK 270925Z" + LINE_FEED.getContent() + LINE_FEED.getContent()//
-                        + "1000FT     2000FT     FL050      FL100 FOOBAR FOOBAR FOOBAR" + LINE_FEED.getContent()//
+                        + "LOW WIND EFHK 270925Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "1000FT     2000FT     FL050      FL100 FOOBAR FOOBAR FOOBAR" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "200/05     260/05     310/05     320/15=", tacBulletin.get());
     }
 
@@ -104,8 +124,9 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
                 CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "UXFI81 EFKL 271402"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "LOW WIND EFHK 270925Z" + LINE_FEED.getContent() + LINE_FEED.getContent()//
-                        + "FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR" + LINE_FEED.getContent()//
+                        + "LOW WIND EFHK 270925Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR FOOBAR" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "FOOBAR FOOBAR FOOBAR=", tacBulletin.get());
     }
 

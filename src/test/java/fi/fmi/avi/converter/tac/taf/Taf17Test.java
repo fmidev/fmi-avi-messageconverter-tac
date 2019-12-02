@@ -30,12 +30,8 @@ public class Taf17Test extends AbstractAviMessageTest<String, TAF> {
 	
 	@Override
 	public String getMessage() {
-				return
-						"TAF KOKC 051130Z 051212 14008KT 5SM BR BKN030\n"
-						+ "TEMPO 1316 1 1/2SM BR\n"
-						+ "FM1600 16010KT P6SM SKC\n"
-						+ "BECMG 2224 20013G20KT 4SM SHRA OVC020\n"
-						+ "PROB40 0006 2SM TSRA OVC008CB\n"
+		return "TAF KOKC 051130Z 051212 14008KT 5SM BR BKN030\r\n" + "TEMPO 1316 1 1/2SM BR\r\n" + "FM1600 16010KT P6SM SKC\r\n"
+				+ "BECMG 2224 20013G20KT 4SM SHRA OVC020\r\n" + "PROB40 0006 2SM TSRA OVC008CB\r\n"
 						+ "BECMG 0608 21015KT P6SM NSW SCT040=";
 	}
 	

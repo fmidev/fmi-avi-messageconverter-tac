@@ -1,7 +1,6 @@
 package fi.fmi.avi.converter.tac.sigmet;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.HORIZONTAL_TAB;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -37,7 +36,7 @@ public class SIGMETBulletinTACSerializationTest {
     private AviMessageConverter converter;
 
     @Test
-    public void testSerialization() throws Exception {
+    public void testSerialization() {
         final SIGMETBulletinImpl.Builder builder = SIGMETBulletinImpl.builder()//
                 .setHeading(BulletinHeadingImpl.builder()//
                         .setGeographicalDesignator("FI")//
@@ -66,10 +65,10 @@ public class SIGMETBulletinTACSerializationTest {
                 CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "WSFI31 EFKL 170700"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
-                        + "EFIN SIGMET 1 VALID 170750/170950 EFKL- EFIN FINLAND FIR" + LINE_FEED.getContent()//
-                        + HORIZONTAL_TAB.getContent() + "SEV TURB FCST AT 0740Z S OF LINE N5953 E01931 - N6001" + LINE_FEED.getContent()//
-                        + HORIZONTAL_TAB.getContent() + "E02312 - N6008 E02606 - N6008 E02628 FL220-340 MOV N 15KT" + LINE_FEED.getContent()//
-                        + HORIZONTAL_TAB.getContent() + "WKN=", //
+                        + "EFIN SIGMET 1 VALID 170750/170950 EFKL- EFIN FINLAND FIR" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "     SEV TURB FCST AT 0740Z S OF LINE N5953 E01931 - N6001" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "     E02312 - N6008 E02606 - N6008 E02628 FL220-340 MOV N 15KT" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "     WKN=", //
                 tacBulletin.get());
     }
 }

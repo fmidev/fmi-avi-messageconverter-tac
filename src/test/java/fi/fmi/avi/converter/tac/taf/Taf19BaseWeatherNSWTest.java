@@ -36,22 +36,22 @@ public class Taf19BaseWeatherNSWTest extends AbstractAviMessageTest<String, TAF>
 
     @Override
     public String getMessage() {
-        return
-                "TAF EFHK 010825Z 0109/0209 25015KT 5000 NSW NSC\n"
+        return "TAF EFHK 010825Z 0109/0209 25015KT 5000 NSW NSC\r\n"
                         + "FM011530 00000KT CAVOK=";
     }
 
     @Override
     public Optional<String> getCanonicalMessage() {
-        return Optional.of(
-                "TAF EFHK 010825Z 0109/0209 25015KT 5000\n"
+        return Optional.of("TAF EFHK 010825Z 0109/0209 25015KT 5000\r\n"
                         + "FM011530 00000KT CAVOK=");
     }
 
+    @Override
     public ConversionResult.Status getExpectedParsingStatus() {
         return ConversionResult.Status.WITH_ERRORS;
     }
 
+    @Override
     public void assertParsingIssues(final List<ConversionIssue> conversionIssues) {
         assertEquals("One parsing issue expected", 1, conversionIssues.size());
         assertTrue("NSW error not correctly reported", conversionIssues.get(0).getMessage().contains("NSW not allowed"));
