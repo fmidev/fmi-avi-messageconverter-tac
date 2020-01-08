@@ -172,6 +172,9 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                 appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             } else if (clouds.getLayers().isPresent()) {
                 this.appendCloudLayers(builder, input, TAF.class, clouds.getLayers().get(), ctx);
+            } else if (clouds.isNoSignificantCloud()) {
+                this.appendToken(builder, LexemeIdentity.CLOUD, input, TAF.class, ctx);
+                appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
         }
     }
