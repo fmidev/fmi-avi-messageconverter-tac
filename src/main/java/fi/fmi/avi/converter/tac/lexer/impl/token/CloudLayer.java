@@ -84,7 +84,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
 		}
 
     }
-    
+
     public enum SpecialValue {
         AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM, CLOUD_BASE_UNOBSERVABLE, CLOUD_AMOUNT_UNOBSERVABLE, CLOUD_TYPE_UNOBSERVABLE
     }
@@ -101,6 +101,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
             } else {
                 token.identify(LexemeIdentity.CLOUD);
                 token.setParsedValue(VALUE, SpecialValue.AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM);
+                token.setParsedValue(TYPE, CloudType.forCode(match.group("type")));
             }
         } else {
             if (match.group("amount") != null) {
@@ -144,7 +145,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
             }
         }
     }
-    
+
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
@@ -158,7 +159,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
             boolean noSignificantClouds = false;
             boolean noCloudsDetected = false;
             boolean verticalVisibilityNotObservable = false;
-            
+
             if (TAF.class.isAssignableFrom(clz)) {
                 Optional<CloudForecast> cFct = Optional.empty();
                 Optional<TAFBaseForecast> baseFct = ctx.getParameter("forecast", TAFBaseForecast.class);
