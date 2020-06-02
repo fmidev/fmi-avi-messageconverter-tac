@@ -47,13 +47,16 @@ public class SWXTACParserTest {
                         + "NXT ADVISORY: NO FURTHER ADVISORIES\n \n",
          */
         final ConversionHints hints = ConversionHints.EMPTY;
+        final AdvisoryPhenomena ap = new AdvisoryPhenomena(PrioritizedLexemeVisitor.Priority.HIGH);
+        final AdvisoryPhenomenaTimeGroup aptg = new AdvisoryPhenomenaTimeGroup(PrioritizedLexemeVisitor.Priority.HIGH);
+        final DTGIssueTime dtg = new DTGIssueTime(PrioritizedLexemeVisitor.Priority.HIGH);
 
         final LexemeSequenceBuilder builder = this.lexingFactory.createLexemeSequenceBuilder()
                 .append(this.lexingFactory.createLexeme("SWX ADVISORY", LexemeIdentity.SPACE_WEATHER_ADVISORY_START))//
                 .append(this.lexingFactory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
-        final AdvisoryPhenomena ap = new AdvisoryPhenomena(PrioritizedLexemeVisitor.Priority.HIGH);
-        final AdvisoryPhenomenaTimeGroup aptg = new AdvisoryPhenomenaTimeGroup(PrioritizedLexemeVisitor.Priority.HIGH);
-        final DTGIssueTime dtg = new DTGIssueTime(PrioritizedLexemeVisitor.Priority.HIGH);
+
+        //TODO: Status
+        builder.append(this.lexingFactory.createLexeme("STATUS: TEST")).append(this.lexingFactory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
 
         builder.append(this.lexingFactory.createLexeme("DTG: 20190128/1200Z"));
         dtg.visit(builder.getLast().get(), hints);
@@ -61,8 +64,7 @@ public class SWXTACParserTest {
         builder.append(this.lexingFactory.createLexeme("\n", LexemeIdentity.WHITE_SPACE))
 
                 //TODO: SWX Center
-                .append(this.lexingFactory.createLexeme("SWXC: PECASUS"))
-                .append(this.lexingFactory.createLexeme("\n", LexemeIdentity.WHITE_SPACE))
+                .append(this.lexingFactory.createLexeme("SWXC: PECASUS")).append(this.lexingFactory.createLexeme("\n", LexemeIdentity.WHITE_SPACE))
 
                 //TODO: Advisory number
                 .append(this.lexingFactory.createLexeme("ADVISORY NR: 2019/1"))
