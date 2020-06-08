@@ -9,6 +9,7 @@ import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
+import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
@@ -91,10 +92,13 @@ public class TACConverter {
     /**
      * Pre-configured spec for {@link GenericMeteorologicalBulletin} POJO to WMO GTS text bulletin format.
      */
-    public static final ConversionSpecification<GenericMeteorologicalBulletin, String> GENERIC_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(GenericMeteorologicalBulletin
-            .class,
-            String.class,
-            null, "WMO GTS bulletin");
+    public static final ConversionSpecification<GenericMeteorologicalBulletin, String> GENERIC_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(
+            GenericMeteorologicalBulletin.class, String.class, null, "WMO GTS bulletin");
 
+    /**
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link fi.fmi.avi.model.swx.SpaceWeatherAdvisory} POJO.
+     */
+    public static final ConversionSpecification<String, SpaceWeatherAdvisory> TAC_TO_SWX_POJO = new ConversionSpecification<>(String.class,
+            SpaceWeatherAdvisory.class, "ICAO Annex 3 TAC", null);
 
 }

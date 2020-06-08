@@ -1,6 +1,7 @@
 package fi.fmi.avi.converter.tac.conf;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -12,12 +13,14 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.metar.ImmutableMETARTACParser;
 import fi.fmi.avi.converter.tac.metar.METARTACParser;
 import fi.fmi.avi.converter.tac.metar.SPECITACParser;
+import fi.fmi.avi.converter.tac.swx.SpaceWeatherAdvisoryParser;
 import fi.fmi.avi.converter.tac.taf.ImmutableTAFTACParser;
 import fi.fmi.avi.converter.tac.taf.TAFTACParser;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
@@ -30,6 +33,11 @@ public class Parsing {
 
     @Autowired
     private AviMessageLexer aviMessageLexer;
+
+    //FIXME: remove when the real SWX lexing is available:
+    @Autowired
+    @Qualifier("swxDummy")
+    private AviMessageLexer swxDummyLexer;
 
     @Bean
     AviMessageSpecificConverter<String, METAR> metarTACParser() {
@@ -70,6 +78,14 @@ public class Parsing {
     AviMessageSpecificConverter<String, GenericMeteorologicalBulletin> genericBulletinTACParser() {
         final TACParser<GenericMeteorologicalBulletin> p = new GenericMeteorologicalBulletinParser();
         p.setTACLexer(aviMessageLexer);
+        return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<String, SpaceWeatherAdvisory> swxTACParser() {
+        final TACParser<SpaceWeatherAdvisory> p = new SpaceWeatherAdvisoryParser();
+        //FIXME: set to aviMessageLexer when the real SWX lexing is available:
+        p.setTACLexer(swxDummyLexer);
         return p;
     }
 

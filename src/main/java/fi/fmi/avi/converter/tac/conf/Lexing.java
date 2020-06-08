@@ -9,8 +9,10 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -75,6 +77,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
+import fi.fmi.avi.converter.tac.swx.DummySWXLexer;
 import fi.fmi.avi.model.MessageType;
 
 /**
@@ -86,6 +89,7 @@ public class Lexing {
     private static final Pattern BULLETIN_START_PATTERN = Pattern.compile("^[A-Z]{4}[0-9]{2}$");
 
     @Bean
+    @Primary
     public AviMessageLexer aviMessageLexer() {
         final AviMessageLexerImpl l = new AviMessageLexerImpl();
         l.setLexingFactory(lexingFactory());
@@ -103,7 +107,16 @@ public class Lexing {
         l.addTokenLexer(genericAviationWeatherMessageTokenLexer()); //Keep this last, matches anything
         return l;
     }
-    
+
+    //FIXME: remove when the real SWX lexing is available:
+    @Bean
+    @Qualifier("swxDummy")
+    public AviMessageLexer swxDummyLexer() {
+        DummySWXLexer l = new DummySWXLexer();
+        l.setLexingFactory(lexingFactory());
+        return l;
+    }
+
     @Bean
     public LexingFactory lexingFactory() {
         LexingFactoryImpl f = new LexingFactoryImpl();

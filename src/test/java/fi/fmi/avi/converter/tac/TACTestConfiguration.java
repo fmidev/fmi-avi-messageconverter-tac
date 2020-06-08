@@ -15,6 +15,7 @@ import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
+import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
@@ -53,7 +54,6 @@ public class TACTestConfiguration {
     @Autowired
     private AviMessageSpecificConverter<SIGMETBulletin, String> sigmetBulletinTACSerializer;
 
-
     @Autowired
     private AviMessageSpecificConverter<String, GenericMeteorologicalBulletin> genericBulletinTACParser;
 
@@ -63,6 +63,9 @@ public class TACTestConfiguration {
     @Autowired
     @Qualifier("genericBulletinJSONSerializer")
     private AviMessageSpecificConverter<GenericMeteorologicalBulletin, String> genericBulletinJSONSerializer;
+
+    @Autowired
+    private AviMessageSpecificConverter<String, SpaceWeatherAdvisory> swxTACParser;
 
     @Bean
     public AviMessageConverter aviMessageConverter() {
@@ -84,6 +87,8 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, genericBulletinTACSerializer);
 
         p.setMessageSpecificConverter(JSONConverter.GENERIC_METEOROLOGICAL_BULLETIN_POJO_TO_JSON_STRING, genericBulletinJSONSerializer);
+
+        p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_POJO, swxTACParser);
 
         return p;
     }
