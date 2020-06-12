@@ -97,6 +97,16 @@ public class LexemeIdentity {
     public static final LexemeIdentity BULLETIN_HEADING_DATA_DESIGNATORS = new LexemeIdentity("BULLETIN_HEADING_DATA_DESIGNATORS", VALUE);
     public static final LexemeIdentity BULLETIN_HEADING_LOCATION_INDICATOR = new LexemeIdentity("BULLETIN_HEADING_LOCATION_INDICATOR", VALUE);
     public static final LexemeIdentity BULLETIN_HEADING_BBB_INDICATOR = new LexemeIdentity("BULLETIN_HEADING_BBB_INDICATOR", VALUE, SEQUENCE_NUMBER);
+    public static final LexemeIdentity TEST_OR_EXCERCISE = new LexemeIdentity("TEST_OR_EXCERCISE", VALUE);
+    public static final LexemeIdentity SPACE_WEATHER_CENTRE = new LexemeIdentity("SPACE_WEATHER_CENTRE", VALUE);
+    public static final LexemeIdentity ADVISORY_NUMBER = new LexemeIdentity("ADVISORY_NUMBER", VALUE);
+    public static final LexemeIdentity SWX_EFFECT_LABEL = new LexemeIdentity("SWX_EFFECT_LABEL", VALUE);
+    public static final LexemeIdentity SWX_EFFECT = new LexemeIdentity("SWX_EFFECT", VALUE);
+    public static final LexemeIdentity SWX_PHENOMENON_PRESET_LOCATION = new LexemeIdentity("SWX_PHENOMENON_PRESET_LOCATION", VALUE);
+    public static final LexemeIdentity NO_SWX_EXPECTED = new LexemeIdentity("NO_SWX_EXPECTED");
+    public static final LexemeIdentity SWX_PHENOMENON_LONGITUDE_LIMIT = new LexemeIdentity("SWX_PHENOMENON_LONGITUDE_LIMIT", MIN_VALUE, MAX_VALUE);
+    public static final LexemeIdentity SWX_PHENOMENON_VERTICAL_LIMIT = new LexemeIdentity("SWX_PHENOMENON_VERTICAL_LIMIT", VALUE, UNIT, RELATIONAL_OPERATOR);
+    public static final LexemeIdentity NEXT_ADVISORY = new LexemeIdentity("NEXT_ADVISORY", TYPE, YEAR, MONTH, DAY1, HOUR1, MINUTE1);
 
     private final String name;
     private final Set<Lexeme.ParsedValueName> possibleParameters = new HashSet<>();
