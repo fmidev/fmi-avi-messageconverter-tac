@@ -3,6 +3,8 @@ package fi.fmi.avi.converter.tac.swx;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,11 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
+import fi.fmi.avi.model.swx.NextAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
+import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
+import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
+import fi.fmi.avi.model.swx.SpaceWeatherRegion;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -70,6 +76,23 @@ public class SWXTACParserTest {
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage("foo", TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         assertTrue(result.getConvertedMessage().isPresent());
+
+        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertEquals(swx.getIssuingCenter().getName().get(), "PECASUS");
+        assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 1);
+        assertEquals(swx.getAdvisoryNumber().getYear(), 2019);
+        assertEquals(swx.getPhenomena().get(1), SpaceWeatherPhenomenon.fromCombinedCode("SATCOM MOD"));
+        assertEquals(swx.getRemarks().get().get(0), "TEST TEST TEST TEST THIS IS A TEST MESSAGE FOR TECHNICAL TEST. SEE WWW.PECASUS.ORG");
+        assertEquals(swx.getNextAdvisory().getTimeSpecifier(), NextAdvisory.Type.NEXT_ADVISORY_BY);
+
+        List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
+        SpaceWeatherAdvisoryAnalysis obs = analyses.get(0);
+        assertEquals(obs.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
+        assertEquals(obs.getRegion().get().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
+        assertEquals(obs.getRegion().get().get(1).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
+
+        SpaceWeatherAdvisoryAnalysis fcst = analyses.get(1);
+        assertTrue(fcst.isNoPhenomenaExpected());
     }
 
 }

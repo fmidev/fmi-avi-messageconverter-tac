@@ -10,26 +10,27 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomena;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
 import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTime;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherCenter;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherEffect;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherPresetLocation;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.MessageType;
-import fi.fmi.avi.model.swx.NextAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
 import fi.fmi.avi.model.swx.SpaceWeatherRegion;
-import fi.fmi.avi.model.swx.immutable.AdvisoryNumberImpl;
 
 public class DummySWXLexer implements AviMessageLexer {
 
     private LexingFactory factory;
 
-    public void setLexingFactory(final LexingFactory factory) {
-        this.factory = factory;
-    }
-
     public LexingFactory getLexingFactory() {
         return this.factory;
+    }
+
+    public void setLexingFactory(final LexingFactory factory) {
+        this.factory = factory;
     }
 
     @Override
@@ -84,13 +85,11 @@ public class DummySWXLexer implements AviMessageLexer {
         builder.append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
 
         l = this.factory.createLexeme("SWXC: PECASUS");
-        l.identify(LexemeIdentity.SPACE_WEATHER_CENTRE);
-        l.setParsedValue(Lexeme.ParsedValueName.VALUE, "PECASUS");
+        new SpaceWeatherCenter(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, null);
         builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
 
         l = this.factory.createLexeme("ADVISORY NR: 2019/1");
-        l.identify(LexemeIdentity.ADVISORY_NUMBER);
-        l.setParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumberImpl.Builder.from("2019/1").build());
+        new AdvisoryNumber(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, null);
         builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
 
         l = this.factory.createLexeme("SWX EFFECT:");
@@ -98,9 +97,17 @@ public class DummySWXLexer implements AviMessageLexer {
         builder.append(l).append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
 
         l = this.factory.createLexeme("SATCOM MOD");
-        l.identify(LexemeIdentity.SWX_EFFECT);
-        l.setParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherPhenomenon.fromCombinedCode("SATCOM MOD"));
+        new SpaceWeatherEffect(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, null);
         builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
+
+        /*
+        l = this.factory.createLexeme("AND");
+        builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
+
+        l = this.factory.createLexeme("RADIATION SEV");
+        new SpaceWeatherEffect(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, null);
+        builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
+        */
 
         builder.append(this.factory.createLexeme("OBS SWX:"));
         ap.visit(builder.getLast().get(), hints);
@@ -112,13 +119,11 @@ public class DummySWXLexer implements AviMessageLexer {
         builder.append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
 
         l = this.factory.createLexeme("HNH");
-        l.identify(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
-        l.setParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
+        new SpaceWeatherPresetLocation(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, null);
         builder.append(l).append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
 
         l = this.factory.createLexeme("HSH");
-        l.identify(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
-        l.setParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
+        new SpaceWeatherPresetLocation(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, null);
         builder.append(l).append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
 
         l = this.factory.createLexeme("E18000 - W18000");
@@ -217,9 +222,9 @@ public class DummySWXLexer implements AviMessageLexer {
                 .append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE))
                 .append(this.factory.createLexeme("WWW.PECASUS.ORG", LexemeIdentity.REMARK))
                 .append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
-        l = this.factory.createLexeme("NXT ADVISORY: NO FURTHER ADVISORIES");
-        l.identify(LexemeIdentity.NEXT_ADVISORY);
-        l.setParsedValue(Lexeme.ParsedValueName.TYPE, NextAdvisory.Type.NO_FURTHER_ADVISORIES);
+        l = this.factory.createLexeme("NXT ADVISORY: WILL BE ISSUED BY 20161108/0700Z");
+        //l = this.factory.createLexeme("NXT ADVISORY: NO FURTHER ADVISORIES");
+        new fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, hints);
         builder.append(l)
                 .append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE))
                 .append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE))
