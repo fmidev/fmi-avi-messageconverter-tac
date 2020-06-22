@@ -103,11 +103,16 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
             conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "Next advisory information is missing"));
         });
 
-        Lexeme phenomenon = firstLexeme;
+        List<LexemeSequence> analysisList = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
+        //Lexeme phenomenon = firstLexeme;
         List<SpaceWeatherAdvisoryAnalysis> analyses = new ArrayList<>();
 
-        while ((phenomenon = phenomenon.findNext(LexemeIdentity.ADVISORY_PHENOMENA_LABEL)) != null) {
-            analyses.add(processPhenomenon(phenomenon, hints));
+        for(LexemeSequence analysisSequence : analysisList) {
+        //while ((phenomenon = phenomenon.findNext(LexemeIdentity.ADVISORY_PHENOMENA_LABEL)) != null) {
+            Lexeme analysis = analysisSequence.getFirstLexeme();
+            if(analysis.getIdentity() == LexemeIdentity.ADVISORY_PHENOMENA_LABEL) {
+                analyses.add(processAnalysis(analysisSequence.getFirstLexeme(), hints));
+            }
         }
 
         builder.addAllAnalyses(analyses);
@@ -127,67 +132,57 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
         return new ArrayList<>(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
     }
 
-    protected SpaceWeatherAdvisoryAnalysis processPhenomenon(final Lexeme lexeme, final ConversionHints hints) {
+    protected SpaceWeatherAdvisoryAnalysis processAnalysis(final Lexeme lexeme, final ConversionHints hints) {
         SpaceWeatherAdvisoryAnalysisImpl.Builder builder = SpaceWeatherAdvisoryAnalysisImpl.builder();
 
-        StringBuilder analysisString = new StringBuilder();
-        appendToken(analysisString, lexeme);
+
         if (lexeme.getParsedValue(Lexeme.ParsedValueName.TYPE, AdvisoryPhenomena.Type.class) == AdvisoryPhenomena.Type.OBS) {
             builder.setAnalysisType(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
         } else {
             builder.setAnalysisType(SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
         }
 
-        Lexeme currentLexeme = lexeme.findNext(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP);
-        createPartialTimeInstant(currentLexeme, builder::setTime);
-        appendToken(analysisString, currentLexeme);
+        Lexeme analysisLexeme = lexeme.findNext(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP);
+        createPartialTimeInstant(analysisLexeme, builder::setTime);
 
-        currentLexeme = currentLexeme.getNext();
-        if (currentLexeme.getIdentity().equals(LexemeIdentity.NO_SWX_EXPECTED)) {
-            appendToken(analysisString, currentLexeme);
+
+        analysisLexeme = lexeme.findNext(LexemeIdentity.NO_SWX_EXPECTED);
+        if (analysisLexeme != null) {
             builder.setNoPhenomenaExpected(true);
             return builder.build();
         }
 
-        List<SpaceWeatherRegion> regionList = handleRegion(analysisString, currentLexeme);
+        List<SpaceWeatherRegion> regionList = handleRegion(lexeme);
 
         builder.setRegion(regionList);
 
         return builder.build();
     }
 
-    protected List<SpaceWeatherRegion> handleRegion(final StringBuilder analysisString, final Lexeme lexeme) {
+    protected List<SpaceWeatherRegion> handleRegion(final Lexeme lexeme) {
         //TODO: Translate tac line to region object
-        Lexeme regionLex = lexeme;
-        SpaceWeatherRegionImpl.Builder regionBuilder1 = SpaceWeatherRegionImpl.builder();
-        SpaceWeatherRegionImpl.Builder regionBuilder2 = SpaceWeatherRegionImpl.builder();
-
-        if (regionLex.getIdentity().equals(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION)) {
-            appendToken(analysisString, regionLex);
-            regionBuilder1.setLocationIndicator(regionLex.getParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.class));
-        }
-
-        regionLex = regionLex.getNext();
-
-        if (regionLex.getIdentity().equals(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION)) {
-            appendToken(analysisString, regionLex);
-            regionBuilder2.setLocationIndicator(regionLex.getParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.class));
-        }
-
-        regionLex = regionLex.getNext();
-
-        if (regionLex.getIdentity().equals(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT)) {
-            appendToken(analysisString, regionLex);
-        }
-
-        regionLex = regionLex.getNext();
-        if (regionLex.getIdentity().equals(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT)) {
-            appendToken(analysisString, regionLex);
-        }
-
+        List<LexemeSequence> locations = lexeme.getTailSequence().splitBy(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
         List<SpaceWeatherRegion> regionList = new ArrayList<>();
-        regionList.add(regionBuilder1.build());
-        regionList.add(regionBuilder2.build());
+
+        for(LexemeSequence location : locations) {
+            if(location.getFirstLexeme().getIdentity() == LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION) {
+                SpaceWeatherRegionImpl.Builder regionBuilder = SpaceWeatherRegionImpl.builder();
+                regionBuilder.setLocationIndicator(location.getFirstLexeme().getParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.class));
+                regionList.add(regionBuilder.build());
+            }
+        }
+
+
+        Lexeme regionLex = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
+
+        if (regionLex != null) {
+
+        }
+
+        regionLex = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
+        if (regionLex != null) {
+
+        }
 
         return regionList;
     }
