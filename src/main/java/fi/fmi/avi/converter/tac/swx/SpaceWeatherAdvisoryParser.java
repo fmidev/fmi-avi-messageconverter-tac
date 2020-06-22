@@ -15,6 +15,7 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomena;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.swx.AdvisoryNumber;
@@ -131,8 +132,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
 
         StringBuilder analysisString = new StringBuilder();
         appendToken(analysisString, lexeme);
-
-        if (lexeme.getTACToken().startsWith("OBS")) {
+        if (lexeme.getParsedValue(Lexeme.ParsedValueName.TYPE, AdvisoryPhenomena.Type.class) == AdvisoryPhenomena.Type.OBS) {
             builder.setAnalysisType(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
         } else {
             builder.setAnalysisType(SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
