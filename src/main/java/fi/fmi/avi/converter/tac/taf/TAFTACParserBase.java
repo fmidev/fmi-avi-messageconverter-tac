@@ -773,6 +773,8 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
 
                     } else if (fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover.NO_SIG_CLOUDS == cover) {
                         cloud.setNoSignificantCloud(true);
+                    } else if (fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer.CloudCover.NO_CLOUD_DETECTED == cover) {
+                        result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "NCD not allowed in TAF"));
                     } else {
                         final CloudLayer layer = getCloudLayer(match);
                         if (layer != null) {
