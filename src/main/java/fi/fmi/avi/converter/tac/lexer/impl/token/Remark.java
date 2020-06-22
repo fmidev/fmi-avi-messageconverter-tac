@@ -29,7 +29,8 @@ public class Remark extends PrioritizedLexemeVisitor {
             Lexeme prev = token.getPrevious();
             if ((REMARK.equals(prev.getIdentityIfAcceptable()) || REMARKS_START.equals(prev.getIdentityIfAcceptable()))
                     && !LexemeIdentity.END_TOKEN.equals(token.getIdentityIfAcceptable())
-                    && !LexemeIdentity.WHITE_SPACE.equals(token.getIdentityIfAcceptable())) {
+                    && !LexemeIdentity.WHITE_SPACE.equals(token.getIdentityIfAcceptable())
+                    && !LexemeIdentity.NEXT_ADVISORY.equals(token.getIdentityIfAcceptable())) {
                 token.identify(REMARK);
                 token.setParsedValue(ParsedValueName.VALUE, token.getTACToken());
             }
