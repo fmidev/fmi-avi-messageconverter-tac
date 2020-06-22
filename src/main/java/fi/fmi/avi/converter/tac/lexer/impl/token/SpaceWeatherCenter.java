@@ -5,8 +5,9 @@ import java.util.regex.Matcher;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
-public class SpaceWeatherCenter extends TimeHandlingRegex {
+public class SpaceWeatherCenter extends RegexMatchingLexemeVisitor {
     public SpaceWeatherCenter(final Priority prio) {
         super("^SWXC\\:\\s{1}(?<issuer>[A-Z a-z 0-9]*)$", prio);
     }

@@ -5,11 +5,12 @@ import java.util.regex.Matcher;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 /**
  * Created by rinne on 10/02/17.
  */
-public class AdvisoryPhenomena extends TimeHandlingRegex {
+public class AdvisoryPhenomena extends RegexMatchingLexemeVisitor {
 
     public enum Type { OBS, FCST }
 
