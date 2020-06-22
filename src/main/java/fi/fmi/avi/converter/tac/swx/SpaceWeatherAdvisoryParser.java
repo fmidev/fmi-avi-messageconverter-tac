@@ -69,15 +69,16 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
         firstLexeme.findNext(LexemeIdentity.SPACE_WEATHER_CENTRE, (match) -> {
             IssuingCenterImpl.Builder issuingCenter = IssuingCenterImpl.builder();
             issuingCenter.setName(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
+            issuingCenter.setDesignator("SWXC");
             builder.setIssuingCenter(issuingCenter.build());
         }, () -> {
-            System.out.println("No match");
+            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "The name of the issuing space weather center is missing"));
         });
 
         firstLexeme.findNext(LexemeIdentity.ADVISORY_NUMBER, (match) -> {
             builder.setAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
         }, () -> {
-            System.out.println("No match");
+            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "The advisory number is missing"));
         });
 
         firstLexeme.findNext(LexemeIdentity.SWX_EFFECT, (match) -> {
@@ -89,7 +90,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
             }
             builder.addAllPhenomena(phenomena);
         }, () -> {
-            System.out.println("No match");
+            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "The space weather effect is missing"));
         });
 
         firstLexeme.findNext(LexemeIdentity.NEXT_ADVISORY, (match) -> {
@@ -98,7 +99,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
             createCompleteTimeInstant(match, nxt::setTime);
             builder.setNextAdvisory(nxt.build());
         }, () -> {
-            System.out.println("No match");
+            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "Next advisory information is missing"));
         });
 
         Lexeme phenomenon = firstLexeme;
@@ -143,7 +144,6 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
 
         currentLexeme = currentLexeme.getNext();
         if (currentLexeme.getIdentity().equals(LexemeIdentity.NO_SWX_EXPECTED)) {
-            //builder.setTac(analysisString.toString());
             appendToken(analysisString, currentLexeme);
             builder.setNoPhenomenaExpected(true);
             return builder.build();
@@ -193,7 +193,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
     }
 
     private void parseRemark(final Lexeme lexeme, final Consumer<List<String>> consumer) {
-        Lexeme current = lexeme;
+        Lexeme current = lexeme.getNext();
         StringBuilder remark = new StringBuilder();
 
         while (current.getIdentity().equals(LexemeIdentity.REMARK)) {

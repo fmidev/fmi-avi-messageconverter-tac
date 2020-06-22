@@ -81,7 +81,7 @@ public class SWXTACParserTest {
         assertEquals(swx.getIssuingCenter().getName().get(), "PECASUS");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 1);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2019);
-        assertEquals(swx.getPhenomena().get(1), SpaceWeatherPhenomenon.fromCombinedCode("SATCOM MOD"));
+        assertEquals(swx.getPhenomena().get(0), SpaceWeatherPhenomenon.fromCombinedCode("SATCOM MOD"));
         assertEquals(swx.getRemarks().get().get(0), "TEST TEST TEST TEST THIS IS A TEST MESSAGE FOR TECHNICAL TEST. SEE WWW.PECASUS.ORG");
         assertEquals(swx.getNextAdvisory().getTimeSpecifier(), NextAdvisory.Type.NEXT_ADVISORY_BY);
 
