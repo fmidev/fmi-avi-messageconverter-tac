@@ -102,10 +102,12 @@ public class LexemeIdentity {
     public static final LexemeIdentity ADVISORY_NUMBER = new LexemeIdentity("ADVISORY_NUMBER", VALUE);
     public static final LexemeIdentity SWX_EFFECT_LABEL = new LexemeIdentity("SWX_EFFECT_LABEL", VALUE);
     public static final LexemeIdentity SWX_EFFECT = new LexemeIdentity("SWX_EFFECT", VALUE);
+    public static final LexemeIdentity SWX_EFFECT_CATENATION = new LexemeIdentity("SWX_EFFECT_CATENATION");
     public static final LexemeIdentity SWX_PHENOMENON_PRESET_LOCATION = new LexemeIdentity("SWX_PHENOMENON_PRESET_LOCATION", VALUE);
     public static final LexemeIdentity NO_SWX_EXPECTED = new LexemeIdentity("NO_SWX_EXPECTED");
     public static final LexemeIdentity SWX_PHENOMENON_LONGITUDE_LIMIT = new LexemeIdentity("SWX_PHENOMENON_LONGITUDE_LIMIT", MIN_VALUE, MAX_VALUE);
     public static final LexemeIdentity SWX_PHENOMENON_VERTICAL_LIMIT = new LexemeIdentity("SWX_PHENOMENON_VERTICAL_LIMIT", VALUE, UNIT, RELATIONAL_OPERATOR);
+    public static final LexemeIdentity SWX_PHENOMENON_POLYGON_LIMIT = new LexemeIdentity("SWX_PHENOMENON_POLYGON_LIMIT", VALUE);
     public static final LexemeIdentity NEXT_ADVISORY = new LexemeIdentity("NEXT_ADVISORY", TYPE, YEAR, MONTH, DAY1, HOUR1, MINUTE1);
 
     private final String name;

@@ -19,6 +19,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherEffect;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherPresetLocation;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.MessageType;
+import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
 import fi.fmi.avi.model.swx.SpaceWeatherRegion;
 
 public class DummySWXLexer implements AviMessageLexer {
@@ -54,15 +55,15 @@ public class DummySWXLexer implements AviMessageLexer {
                         + "DTG: 20190128/1200Z\n" //
                         + "SWXC: PECASUS\n" //
                         + "ADVISORY NR: 2019/1\n"//
-                        + "SWX EFFECT: SATCOM MOD\n" //
-                        + "OBS SWX: 08/1200Z HNH HSH E18000 - W18000 ABV FL340\n"//
-                        + "FCST SWX +6 HR: 08/1800Z NO SWX EXP\n"//
+                        + "SWX EFFECT: SATCOM MOD AND RADIATION SEV\n" //
+                        + "OBS SWX: 08/1200Z HNH HSH E16000 - W2000 ABV FL340\n"//
+                        + "FCST SWX +6 HR: 08/1800Z N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180 ABV FL370\n"//
                         + "FCST SWX +12 HR: 09/0000Z NO SWX EXP\n"//
                         + "FCST SWX +18 HR: 09/0600Z DAYLIGHT SIDE\n"//
-                        + "FCST SWX +24 HR: 09/1200Z NO SWX EXP\n"//
+                        + "FCST SWX +24 HR: 09/1200Z HNH\n"//
                         + "RMK: TEST TEST TEST TEST\n"
                         + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" + "SEE WWW.PECASUS.ORG \n"
-                        + "NXT ADVISORY: NO FURTHER ADVISORIES\n \n",
+                        + "NXT ADVISORY: WILL BE ISSUED BY 20161108/0700Z\n \n",
          */
         final AdvisoryPhenomena ap = new AdvisoryPhenomena(PrioritizedLexemeVisitor.Priority.HIGH);
         final AdvisoryPhenomenaTimeGroup aptg = new AdvisoryPhenomenaTimeGroup(PrioritizedLexemeVisitor.Priority.HIGH);
@@ -100,14 +101,13 @@ public class DummySWXLexer implements AviMessageLexer {
         new SpaceWeatherEffect(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, null);
         builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
 
-        /*
         l = this.factory.createLexeme("AND");
+        l.identify(LexemeIdentity.SWX_EFFECT_CATENATION);
         builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
 
         l = this.factory.createLexeme("RADIATION SEV");
         new SpaceWeatherEffect(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, null);
         builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
-        */
 
         builder.append(this.factory.createLexeme("OBS SWX:"));
         ap.visit(builder.getLast().get(), hints);
@@ -126,12 +126,12 @@ public class DummySWXLexer implements AviMessageLexer {
         new SpaceWeatherPresetLocation(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, null);
         builder.append(l).append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
 
-        l = this.factory.createLexeme("E18000 - W18000");
+        l = this.factory.createLexeme("E16000 - W2000");
         l.identify(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
-        l.setParsedValue(Lexeme.ParsedValueName.MIN_VALUE, -180.0);
-        l.setParsedValue(Lexeme.ParsedValueName.MAX_VALUE, 180.0);
-
+        l.setParsedValue(Lexeme.ParsedValueName.MIN_VALUE, -160.0);
+        l.setParsedValue(Lexeme.ParsedValueName.MAX_VALUE, 20.0);
         builder.append(l).append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
+
         l = this.factory.createLexeme("ABV FL340");
         l.identify(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
         l.setParsedValue(Lexeme.ParsedValueName.VALUE, 340);
@@ -148,8 +148,18 @@ public class DummySWXLexer implements AviMessageLexer {
         aptg.visit(builder.getLast().get(), hints);
 
         builder.append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
-        l = this.factory.createLexeme("NO SWX EXP");
-        l.identify(LexemeIdentity.NO_SWX_EXPECTED);
+        l = this.factory.createLexeme("N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180");
+        l.identify(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT);
+        l.setParsedValue(Lexeme.ParsedValueName.VALUE, PolygonGeometryImpl.builder()//
+                .setSrsName("http://www.opengis.net/def/crs/EPSG/0/4326")//
+                .addExteriorRingPositions(-80d, -180d, -70d, -75d, -60d, 15d, -70d, 75d, -80d, -180d).build());
+        builder.append(l).append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
+
+        l = this.factory.createLexeme("ABV FL370");
+        l.identify(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
+        l.setParsedValue(Lexeme.ParsedValueName.VALUE, 370);
+        l.setParsedValue(Lexeme.ParsedValueName.UNIT, "FL");
+        l.setParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR, AviationCodeListUser.RelationalOperator.ABOVE);
         builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
 
         builder.append(this.factory.createLexeme("FCST SWX +12 HR:"));
@@ -188,8 +198,8 @@ public class DummySWXLexer implements AviMessageLexer {
         aptg.visit(builder.getLast().get(), hints);
 
         builder.append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
-        l = this.factory.createLexeme("NO SWX EXP");
-        l.identify(LexemeIdentity.NO_SWX_EXPECTED);
+        l = this.factory.createLexeme("HNH");
+        new SpaceWeatherPresetLocation(PrioritizedLexemeVisitor.Priority.HIGH).visit(l, null);
         builder.append(l)
                 .append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE))
                 .append(this.factory.createLexeme("RMK:", LexemeIdentity.REMARKS_START))
