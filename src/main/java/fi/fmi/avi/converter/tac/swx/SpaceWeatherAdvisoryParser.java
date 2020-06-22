@@ -104,11 +104,9 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
         });
 
         List<LexemeSequence> analysisList = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
-        //Lexeme phenomenon = firstLexeme;
         List<SpaceWeatherAdvisoryAnalysis> analyses = new ArrayList<>();
 
         for(LexemeSequence analysisSequence : analysisList) {
-        //while ((phenomenon = phenomenon.findNext(LexemeIdentity.ADVISORY_PHENOMENA_LABEL)) != null) {
             Lexeme analysis = analysisSequence.getFirstLexeme();
             if(analysis.getIdentity() == LexemeIdentity.ADVISORY_PHENOMENA_LABEL) {
                 analyses.add(processAnalysis(analysisSequence.getFirstLexeme(), hints));
