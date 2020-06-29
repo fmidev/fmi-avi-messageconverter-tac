@@ -218,23 +218,23 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
                         final List<Double> coordinates = new ArrayList<>();
 
                         //Upper left corner:
-                        coordinates.add(location.get().getLatitudeBandMinCoordinate());
+                        location.get().getLatitudeBandMinCoordinate().ifPresent(coordinates::add);
                         coordinates.add(minLongitude.orElse(-180d));
 
                         //Lower left corner:
-                        coordinates.add(location.get().getLatitudeBandMaxCoordinate());
+                        location.get().getLatitudeBandMaxCoordinate().ifPresent(coordinates::add);
                         coordinates.add(minLongitude.orElse(-180d));
 
                         //lower right corner:
-                        coordinates.add(location.get().getLatitudeBandMaxCoordinate());
+                        location.get().getLatitudeBandMaxCoordinate().ifPresent(coordinates::add);
                         coordinates.add(maxLongitude.orElse(180d));
 
                         //Upper right corner:
-                        coordinates.add(location.get().getLatitudeBandMinCoordinate());
+                        location.get().getLatitudeBandMinCoordinate().ifPresent(coordinates::add);
                         coordinates.add(maxLongitude.orElse(180d));
 
                         //Upper left corner (again, to close the ring):
-                        coordinates.add(location.get().getLatitudeBandMinCoordinate());
+                        location.get().getLatitudeBandMinCoordinate().ifPresent(coordinates::add);
                         coordinates.add(minLongitude.orElse(-180d));
                         final PolygonGeometry polygon = PolygonGeometryImpl.builder()
                                 .addAllExteriorRingPositions(coordinates)
