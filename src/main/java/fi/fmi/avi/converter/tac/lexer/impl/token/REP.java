@@ -9,7 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
  * Created by rinne on 10/02/17.
  */
 public class REP extends PrioritizedLexemeVisitor {
-    public REP(final Priority prio) {
+    public REP(final OccurrenceFrequency prio) {
         super(prio);
     }
 

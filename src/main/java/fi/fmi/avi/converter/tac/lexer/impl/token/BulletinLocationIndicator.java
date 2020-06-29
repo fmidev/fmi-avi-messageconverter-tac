@@ -16,7 +16,7 @@ import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
 
 public class BulletinLocationIndicator extends RegexMatchingLexemeVisitor {
 
-    public BulletinLocationIndicator(final Priority prio) {
+    public BulletinLocationIndicator(final OccurrenceFrequency prio) {
         super("^(?<code>[A-Z]{4})$", prio);
     }
 

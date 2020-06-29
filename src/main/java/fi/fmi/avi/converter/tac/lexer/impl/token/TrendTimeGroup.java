@@ -26,7 +26,7 @@ import fi.fmi.avi.model.metar.TrendForecast;
  * Trend time group token parser (FM, AT or TL).
  */
 public class TrendTimeGroup extends TimeHandlingRegex {
-    public TrendTimeGroup(final Priority prio) {
+    public TrendTimeGroup(final OccurrenceFrequency prio) {
         super("^(FM|TL|AT)([0-9]{2})([0-9]{2})$", prio);
     }
 

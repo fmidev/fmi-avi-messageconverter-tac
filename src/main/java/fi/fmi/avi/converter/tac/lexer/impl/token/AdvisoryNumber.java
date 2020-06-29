@@ -9,7 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.swx.immutable.AdvisoryNumberImpl;
 
 public class AdvisoryNumber extends RegexMatchingLexemeVisitor {
-    public AdvisoryNumber(final Priority prio) {
+    public AdvisoryNumber(final OccurrenceFrequency prio) {
         super("^ADVISORY\\sNR:\\s(?<advisoryNumber>[\\d]{4}/[\\d]*)$", prio);
     }
 

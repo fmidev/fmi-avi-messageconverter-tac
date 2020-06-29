@@ -16,7 +16,7 @@ import fi.fmi.avi.model.metar.METAR;
  * Created by rinne on 10/02/17.
  */
 public class MetarStart extends PrioritizedLexemeVisitor {
-    public MetarStart(final Priority prio) {
+    public MetarStart(final OccurrenceFrequency prio) {
         super(prio);
     }
 

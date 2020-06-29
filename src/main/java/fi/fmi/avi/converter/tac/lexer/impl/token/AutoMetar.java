@@ -17,7 +17,7 @@ import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
  * Created by rinne on 10/02/17.
  */
 public class AutoMetar extends PrioritizedLexemeVisitor {
-    public AutoMetar(final Priority prio) {
+    public AutoMetar(final OccurrenceFrequency prio) {
         super(prio);
     }
 

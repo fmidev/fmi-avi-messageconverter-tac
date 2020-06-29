@@ -12,7 +12,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
  */
 public class Whitespace extends RegexMatchingLexemeVisitor {
 
-    public Whitespace(final Priority prio) {
+    public Whitespace(final OccurrenceFrequency prio) {
         super("^\\s+$", prio);
     }
 

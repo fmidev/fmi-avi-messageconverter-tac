@@ -26,7 +26,7 @@ import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
  */
 public class IssueTime extends TimeHandlingRegex {
 
-    public IssueTime(final Priority prio) {
+    public IssueTime(final OccurrenceFrequency prio) {
         super("^([0-9]{2})?([0-9]{2})([0-9]{2})Z?$", prio);
     }
 

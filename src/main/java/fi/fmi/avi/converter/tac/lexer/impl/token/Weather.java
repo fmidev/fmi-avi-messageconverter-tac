@@ -31,7 +31,7 @@ public class Weather extends RegexMatchingLexemeVisitor {
                     "SNOCLO", "BLU", "WHT", "GRN", "YLO1", "YLO2", "AMB", "RED", "BLACKWHT", "BLACKBLU", "BLACKGRN", "BLACKYLO1", "BLACKYLO2", "BLACKAMB",
                     "BLACKRED"));
 
-    public Weather(final Priority prio) {
+    public Weather(final OccurrenceFrequency prio) {
         super("^(RE)?([+-]?[A-Z]{2,8})$", prio);
     }
 

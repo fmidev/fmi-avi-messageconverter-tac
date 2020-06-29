@@ -21,7 +21,7 @@ import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
  */
 public class WindShear extends RegexMatchingLexemeVisitor {
 
-    public WindShear(final Priority prio) {
+    public WindShear(final OccurrenceFrequency prio) {
         super("^WS\\s(ALL\\s)?(?:RWY|R(?:WY)?([0-9]{2}[LRC]?))$", prio);
     }
 

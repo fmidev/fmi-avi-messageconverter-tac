@@ -14,10 +14,10 @@ public abstract class RegexMatchingLexemeVisitor extends PrioritizedLexemeVisito
     private Pattern pattern;
 
     public RegexMatchingLexemeVisitor(final String pattern) {
-        this(pattern, Priority.NORMAL);
+        this(pattern, OccurrenceFrequency.AVERAGE);
     }
 
-    public RegexMatchingLexemeVisitor(final String pattern, final Priority priority) {
+    public RegexMatchingLexemeVisitor(final String pattern, final OccurrenceFrequency priority) {
         super(priority);
         this.pattern = Pattern.compile(pattern);
     }

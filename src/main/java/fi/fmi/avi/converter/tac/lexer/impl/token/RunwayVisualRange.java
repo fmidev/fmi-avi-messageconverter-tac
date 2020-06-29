@@ -30,7 +30,7 @@ import fi.fmi.avi.model.RunwayDirection;
  */
 public class RunwayVisualRange extends RegexMatchingLexemeVisitor {
 
-    public RunwayVisualRange(final Priority prio) {
+    public RunwayVisualRange(final OccurrenceFrequency prio) {
         super("^R([0-9]{2}[LRC]?)/([MP])?([0-9]{4})(V([MP])?([0-9]{4}))?([UDN])?(FT)?$", prio);
     }
 

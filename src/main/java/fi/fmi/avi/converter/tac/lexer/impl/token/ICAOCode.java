@@ -254,7 +254,7 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
 
     private final static Map<String, ICAOCodeCountryPrefix> codeToCountryMap = ICAOCodeCountryPrefix.getCodeToCountryMap();
 
-    public ICAOCode(final Priority prio) {
+    public ICAOCode(final OccurrenceFrequency prio) {
         super("^[A-Z]{4,}$", prio);
     }
 

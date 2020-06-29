@@ -19,7 +19,7 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
  * Created by rinne on 10/02/17.
  */
 public class Remark extends PrioritizedLexemeVisitor {
-    public Remark(final Priority prio) {
+    public Remark(final OccurrenceFrequency prio) {
         super(prio);
     }
 

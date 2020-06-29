@@ -6,53 +6,53 @@ import fi.fmi.avi.converter.tac.lexer.LexemeVisitor;
  */
 public abstract class PrioritizedLexemeVisitor implements LexemeVisitor, Comparable<LexemeVisitor> {
 
-    public enum Priority {
-        HIGH(1), NORMAL(2), LOW(3);
+    public enum OccurrenceFrequency {
+        FREQUENT(1), AVERAGE(2), RARE(3);
 
-        private int priority;
+        private final int occurrence;
 
-        Priority(final int priority) {
-            this.priority = priority;
+        OccurrenceFrequency(final int occurrence) {
+            this.occurrence = occurrence;
         }
 
         public int asNumber() {
-            return this.priority;
+            return this.occurrence;
         }
     }
 
-    private Priority priority;
+    private OccurrenceFrequency expectedOccurrence;
 
-    public PrioritizedLexemeVisitor(final Priority priority) {
-        this.priority = priority;
+    protected PrioritizedLexemeVisitor(final OccurrenceFrequency expectedOccurrence) {
+        this.expectedOccurrence = expectedOccurrence;
     }
 
-    public PrioritizedLexemeVisitor() {
-        this(Priority.NORMAL);
+    protected PrioritizedLexemeVisitor() {
+        this(OccurrenceFrequency.AVERAGE);
     }
 
-    public Priority getPriority() {
-        return this.priority;
+    public OccurrenceFrequency getExpectedOccurrence() {
+        return this.expectedOccurrence;
     }
 
-    public void setPriority(final Priority prio) {
-        this.priority = prio;
+    public void setExpectedOccurrence(final OccurrenceFrequency prio) {
+        this.expectedOccurrence = prio;
     }
 
-    public PrioritizedLexemeVisitor withPriority(Priority prio) {
-        this.setPriority(prio);
+    public PrioritizedLexemeVisitor withExpectedOccurrence(OccurrenceFrequency prio) {
+        this.setExpectedOccurrence(prio);
         return this;
     }
 
     @Override
     public int compareTo(final LexemeVisitor o) {
         if (o instanceof PrioritizedLexemeVisitor) {
-            return this.priority.asNumber() - ((PrioritizedLexemeVisitor) o).priority.asNumber();
+            return this.expectedOccurrence.asNumber() - ((PrioritizedLexemeVisitor) o).expectedOccurrence.asNumber();
         } else {
             return 0;
         }
     }
 
     public String toString() {
-        return new StringBuilder().append("priority:").append(this.priority).toString();
+        return new StringBuilder().append("expected occurrence frequency:").append(this.expectedOccurrence).toString();
     }
 }

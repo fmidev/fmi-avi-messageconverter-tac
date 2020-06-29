@@ -37,7 +37,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
 	public static final int MAX_STATUE_MILE_DENOMINATOR = 16;
 
-    public MetricHorizontalVisibility(final Priority prio) {
+    public MetricHorizontalVisibility(final OccurrenceFrequency prio) {
         super("^([0-9]{4})([A-Z]{1,2}|NDV)?$", prio);
     }
 

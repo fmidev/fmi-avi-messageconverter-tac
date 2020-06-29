@@ -18,7 +18,7 @@ import fi.fmi.avi.model.taf.TAF;
  */
 public class Amendment extends PrioritizedLexemeVisitor {
 
-    public Amendment(final Priority prio) {
+    public Amendment(final OccurrenceFrequency prio) {
         super(prio);
     }
 

@@ -17,7 +17,7 @@ import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
  */
 public class NoSignificantChanges extends PrioritizedLexemeVisitor {
 
-    public NoSignificantChanges(final Priority prio) {
+    public NoSignificantChanges(final OccurrenceFrequency prio) {
         super(prio);
     }
 

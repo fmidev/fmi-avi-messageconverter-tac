@@ -9,7 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
 
 public class SpaceWeatherEffect extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherEffect(final Priority prio) {
+    public SpaceWeatherEffect(final OccurrenceFrequency prio) {
         super("^(?<phenomenon>(SATCOM|HF\\sCOM|GNSS|RADIATION){1}\\s(MOD|SEV){1})$", prio);
     }
 

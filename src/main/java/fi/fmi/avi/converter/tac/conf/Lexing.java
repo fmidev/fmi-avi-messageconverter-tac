@@ -21,7 +21,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
-import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.Priority;
+import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.OccurrenceFrequency;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomena;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
@@ -484,12 +484,13 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("METAR");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.METAR;
             }
         });
-        l.teach(new MetarStart(Priority.HIGH));
+        l.teach(new MetarStart(OccurrenceFrequency.FREQUENT));
         teachMetarAndSpeciCommonTokens(l);
         return l;
     }
@@ -501,46 +502,47 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("SPECI");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.SPECI;
             }
         });
-        l.teach(new SpeciStart(Priority.HIGH));
+        l.teach(new SpeciStart(OccurrenceFrequency.FREQUENT));
         teachMetarAndSpeciCommonTokens(l);
         return l;
     }
 
     private void teachMetarAndSpeciCommonTokens(final RecognizingAviMessageTokenLexer l) {
-        l.teach(new ICAOCode(Priority.LOW));
-        l.teach(new IssueTime(Priority.LOW));
-        l.teach(new CloudLayer(Priority.HIGH));
-        l.teach(new Weather(Priority.NORMAL));
-        l.teach(new SurfaceWind(Priority.LOW));
-        l.teach(new VariableSurfaceWind(Priority.LOW));
-        l.teach(new MetricHorizontalVisibility(Priority.NORMAL));
-        l.teach(new FractionalHorizontalVisibility(Priority.NORMAL));
-        l.teach(new TrendChangeIndicator(Priority.LOW));
-        l.teach(new NoSignificantChanges(Priority.LOW));
-        l.teach(new TrendTimeGroup(Priority.LOW));
-        l.teach(new ColorCode(Priority.LOW));
-        l.teach(new CAVOK(Priority.LOW));
-        l.teach(new Correction(Priority.LOW));
-        l.teach(new RunwayVisualRange(Priority.HIGH));
-        l.teach(new AirDewpointTemperature(Priority.LOW));
-        l.teach(new AtmosphericPressureQNH(Priority.LOW));
-        l.teach(new RunwayState(Priority.LOW));
-        l.teach(new SnowClosure(Priority.LOW));
-        l.teach(new AutoMetar(Priority.LOW));
-        l.teach(new NoSignificantWeather(Priority.LOW));
-        l.teach(new RemarkStart(Priority.HIGH));
-        l.teach(new Remark(Priority.HIGH));
-        l.teach(new WindShear(Priority.LOW));
-        l.teach(new SeaState(Priority.LOW));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
-        l.teach(new Nil(Priority.HIGH));
-        l.teach(new RoutineDelayedObservation(Priority.HIGH));
+        l.teach(new ICAOCode(OccurrenceFrequency.RARE));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new CloudLayer(OccurrenceFrequency.FREQUENT));
+        l.teach(new Weather(OccurrenceFrequency.AVERAGE));
+        l.teach(new SurfaceWind(OccurrenceFrequency.RARE));
+        l.teach(new VariableSurfaceWind(OccurrenceFrequency.RARE));
+        l.teach(new MetricHorizontalVisibility(OccurrenceFrequency.AVERAGE));
+        l.teach(new FractionalHorizontalVisibility(OccurrenceFrequency.AVERAGE));
+        l.teach(new TrendChangeIndicator(OccurrenceFrequency.RARE));
+        l.teach(new NoSignificantChanges(OccurrenceFrequency.RARE));
+        l.teach(new TrendTimeGroup(OccurrenceFrequency.RARE));
+        l.teach(new ColorCode(OccurrenceFrequency.RARE));
+        l.teach(new CAVOK(OccurrenceFrequency.RARE));
+        l.teach(new Correction(OccurrenceFrequency.RARE));
+        l.teach(new RunwayVisualRange(OccurrenceFrequency.FREQUENT));
+        l.teach(new AirDewpointTemperature(OccurrenceFrequency.RARE));
+        l.teach(new AtmosphericPressureQNH(OccurrenceFrequency.RARE));
+        l.teach(new RunwayState(OccurrenceFrequency.RARE));
+        l.teach(new SnowClosure(OccurrenceFrequency.RARE));
+        l.teach(new AutoMetar(OccurrenceFrequency.RARE));
+        l.teach(new NoSignificantWeather(OccurrenceFrequency.RARE));
+        l.teach(new RemarkStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new Remark(OccurrenceFrequency.FREQUENT));
+        l.teach(new WindShear(OccurrenceFrequency.RARE));
+        l.teach(new SeaState(OccurrenceFrequency.RARE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
+        l.teach(new Nil(OccurrenceFrequency.FREQUENT));
+        l.teach(new RoutineDelayedObservation(OccurrenceFrequency.FREQUENT));
     }
 
     private RecognizingAviMessageTokenLexer tafTokenLexer() {
@@ -551,34 +553,35 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("TAF");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.TAF;
             }
         });
-        l.teach(new TAFStart(Priority.HIGH));
-        l.teach(new ICAOCode(Priority.LOW));
-        l.teach(new ValidTime(Priority.LOW));
-        l.teach(new IssueTime(Priority.LOW));
-        l.teach(new CloudLayer(Priority.HIGH));
-        l.teach(new Weather(Priority.NORMAL));
-        l.teach(new SurfaceWind(Priority.LOW));
-        l.teach(new VariableSurfaceWind(Priority.LOW));
-        l.teach(new MetricHorizontalVisibility(Priority.NORMAL));
-        l.teach(new FractionalHorizontalVisibility(Priority.NORMAL));
-        l.teach(new TAFForecastChangeIndicator(Priority.LOW));
-        l.teach(new TAFChangeForecastTimeGroup(Priority.LOW));
-        l.teach(new Correction(Priority.LOW));
-        l.teach(new Amendment(Priority.LOW));
-        l.teach(new Nil(Priority.HIGH));
-        l.teach(new Cancellation(Priority.LOW));
-        l.teach(new CAVOK(Priority.LOW));
-        l.teach(new NoSignificantWeather(Priority.LOW));
-        l.teach(new ForecastMaxMinTemperature(Priority.LOW));
-        l.teach(new RemarkStart(Priority.HIGH));
-        l.teach(new Remark(Priority.HIGH));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new TAFStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new ICAOCode(OccurrenceFrequency.RARE));
+        l.teach(new ValidTime(OccurrenceFrequency.RARE));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new CloudLayer(OccurrenceFrequency.FREQUENT));
+        l.teach(new Weather(OccurrenceFrequency.AVERAGE));
+        l.teach(new SurfaceWind(OccurrenceFrequency.RARE));
+        l.teach(new VariableSurfaceWind(OccurrenceFrequency.RARE));
+        l.teach(new MetricHorizontalVisibility(OccurrenceFrequency.AVERAGE));
+        l.teach(new FractionalHorizontalVisibility(OccurrenceFrequency.AVERAGE));
+        l.teach(new TAFForecastChangeIndicator(OccurrenceFrequency.RARE));
+        l.teach(new TAFChangeForecastTimeGroup(OccurrenceFrequency.RARE));
+        l.teach(new Correction(OccurrenceFrequency.RARE));
+        l.teach(new Amendment(OccurrenceFrequency.RARE));
+        l.teach(new Nil(OccurrenceFrequency.FREQUENT));
+        l.teach(new Cancellation(OccurrenceFrequency.RARE));
+        l.teach(new CAVOK(OccurrenceFrequency.RARE));
+        l.teach(new NoSignificantWeather(OccurrenceFrequency.RARE));
+        l.teach(new ForecastMaxMinTemperature(OccurrenceFrequency.RARE));
+        l.teach(new RemarkStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new Remark(OccurrenceFrequency.FREQUENT));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -603,12 +606,12 @@ public class Lexing {
             }
 
         });
-        l.teach(new BulletinHeaderDataDesignators(Priority.NORMAL));
-        l.teach(new BulletinLocationIndicator(Priority.NORMAL));
-        l.teach(new IssueTime(Priority.HIGH));
-        l.teach(new BulletinHeadingBBBIndicator(Priority.NORMAL));
-        l.teach(new EndToken(Priority.HIGH));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new BulletinHeaderDataDesignators(OccurrenceFrequency.AVERAGE));
+        l.teach(new BulletinLocationIndicator(OccurrenceFrequency.AVERAGE));
+        l.teach(new IssueTime(OccurrenceFrequency.FREQUENT));
+        l.teach(new BulletinHeadingBBBIndicator(OccurrenceFrequency.AVERAGE));
+        l.teach(new EndToken(OccurrenceFrequency.FREQUENT));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -618,7 +621,7 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-              return true;
+                return true;
             }
 
             @Override
@@ -627,8 +630,8 @@ public class Lexing {
             }
 
         });
-        l.teach(new EndToken(Priority.HIGH));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new EndToken(OccurrenceFrequency.FREQUENT));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -640,16 +643,17 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("LOW WIND");
             }
+
             @Override
             public MessageType getMessageType() {
                 return lowWind();
             }
         });
-        l.teach(new LowWindStart(Priority.HIGH));
-        l.teach(new ICAOCode(Priority.LOW));
-        l.teach(new IssueTime(Priority.LOW));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new LowWindStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new ICAOCode(OccurrenceFrequency.RARE));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -661,16 +665,17 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("WX WRNG");
             }
+
             @Override
             public MessageType getMessageType() {
                 return wxWarning();
             }
         });
-        l.teach(new WXWarningStart(Priority.HIGH));
-        l.teach(new ICAOCode(Priority.LOW));
-        l.teach(new IssueTime(Priority.LOW));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new WXWarningStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new ICAOCode(OccurrenceFrequency.RARE));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -682,16 +687,17 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("WXREP");
             }
+
             @Override
             public MessageType getMessageType() {
                 return wxRep();
             }
         });
-        l.teach(new WXREPStart(Priority.HIGH));
-        l.teach(new REP(Priority.HIGH));
-        l.teach(new IssueTime(Priority.LOW));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new WXREPStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new REP(OccurrenceFrequency.FREQUENT));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -703,15 +709,16 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().hasNext() && sequence.getFirstLexeme().getNext().getTACToken().equals("SIGMET");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.SIGMET;
             }
         });
-        l.teach(new SigmetStart(Priority.HIGH));
-        l.teach(new SigmetValidTime(Priority.NORMAL));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new SigmetStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -723,16 +730,17 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().matches("^SIG[CWE]$");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.SIGMET;
             }
         });
 
-        l.teach(new USSigmetStart(Priority.HIGH));
-        l.teach(new USSigmetValidUntil(Priority.NORMAL));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new USSigmetStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new USSigmetValidUntil(OccurrenceFrequency.AVERAGE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -744,17 +752,18 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().matches("^SWX\\s+ADVISORY$");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.SPACE_WEATHER_ADVISORY;
             }
         });
 
-        l.teach(new SpaceWeatherAdvisoryStart(Priority.LOW));
-        l.teach(new DTGIssueTime(Priority.LOW));
-        l.teach(new AdvisoryPhenomena(Priority.NORMAL));
-        l.teach(new AdvisoryPhenomenaTimeGroup(Priority.NORMAL));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new SpaceWeatherAdvisoryStart(OccurrenceFrequency.RARE));
+        l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
+        l.teach(new AdvisoryPhenomena(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -766,17 +775,18 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().matches("^VA\\s+ADVISORY$");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.VOLCANIC_ASH_ADVISORY;
             }
         });
 
-        l.teach(new VolcanicAshAdvisoryStart(Priority.LOW));
-        l.teach(new DTGIssueTime(Priority.LOW));
-        l.teach(new AdvisoryPhenomena(Priority.NORMAL));
-        l.teach(new AdvisoryPhenomenaTimeGroup(Priority.NORMAL));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new VolcanicAshAdvisoryStart(OccurrenceFrequency.RARE));
+        l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
+        l.teach(new AdvisoryPhenomena(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 

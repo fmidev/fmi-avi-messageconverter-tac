@@ -8,7 +8,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 public class SpaceWeatherAdvisoryStart extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherAdvisoryStart(final Priority prio) {
+    public SpaceWeatherAdvisoryStart(final OccurrenceFrequency prio) {
         super("^SWX\\s+ADVISORY$", prio);
     }
 

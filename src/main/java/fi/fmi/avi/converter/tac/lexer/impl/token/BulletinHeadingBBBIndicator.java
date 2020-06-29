@@ -16,7 +16,7 @@ import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
 
 public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
 
-    public BulletinHeadingBBBIndicator(final Priority prio) {
+    public BulletinHeadingBBBIndicator(final OccurrenceFrequency prio) {
         super("^(?<bbb>(?:RR|AA|CC)[A-Z])$", prio);
     }
 
