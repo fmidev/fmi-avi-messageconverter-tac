@@ -15,7 +15,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 
 public class SigmetValidTime extends TimeHandlingRegex {
 
-    public SigmetValidTime(final Priority prio) {
+    public SigmetValidTime(final OccurrenceFrequency prio) {
         super("^VALID\\s(?<startDay>[0-9]{2})(?<startHour>[0-9]{2})(?<startMinute>[0-9]{2})[/-](?<endDay>[0-9]{2})(?<endHour>[0-9]{2})"
                 + "(?<endMinute>[0-9]{2})$", prio);
     }

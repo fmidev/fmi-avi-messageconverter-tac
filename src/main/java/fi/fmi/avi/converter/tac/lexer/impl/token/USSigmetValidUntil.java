@@ -11,7 +11,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 
 public class USSigmetValidUntil extends TimeHandlingRegex {
 
-    public USSigmetValidUntil(final Priority prio) {
+    public USSigmetValidUntil(final OccurrenceFrequency prio) {
         super("^VALID\\s+UNTIL\\s+(?<endHour>[0-9]{2})(?<endMinute>[0-9]{2})Z$", prio);
     }
 

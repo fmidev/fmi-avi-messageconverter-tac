@@ -9,7 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 public class VolcanicAshAdvisoryStart extends RegexMatchingLexemeVisitor {
-    public VolcanicAshAdvisoryStart(final Priority prio) {
+    public VolcanicAshAdvisoryStart(final OccurrenceFrequency prio) {
         super("^VA\\s+ADVISORY$", prio);
     }
 

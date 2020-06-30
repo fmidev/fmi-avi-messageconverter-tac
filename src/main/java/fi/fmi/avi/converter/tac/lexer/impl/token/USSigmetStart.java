@@ -8,7 +8,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 public class USSigmetStart extends RegexMatchingLexemeVisitor {
-    public USSigmetStart(final Priority prio) {
+    public USSigmetStart(final OccurrenceFrequency prio) {
         super("^SIG[CWE]$", prio);
     }
 

@@ -19,7 +19,7 @@ import fi.fmi.avi.model.swx.SpaceWeatherRegion;
 
 public class SpaceWeatherPresetLocation extends RegexMatchingLexemeVisitor {
 
-    public SpaceWeatherPresetLocation(final Priority prio) {
+    public SpaceWeatherPresetLocation(final OccurrenceFrequency prio) {
         super("^(?<type>EQN|EQS|HSH|HNH|MSH|MNH|DAYLIGHT_SIDE)$", prio);
     }
 

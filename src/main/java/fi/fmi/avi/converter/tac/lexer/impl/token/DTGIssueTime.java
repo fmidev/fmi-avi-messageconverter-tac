@@ -13,7 +13,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
  */
 public class DTGIssueTime extends TimeHandlingRegex {
 
-    public DTGIssueTime(final Priority prio) {
+    public DTGIssueTime(final OccurrenceFrequency prio) {
         super("^DTG:\\s+(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})/(?<hour>[0-9]{2})(?<minute>[0-9]{2})Z$", prio);
     }
 

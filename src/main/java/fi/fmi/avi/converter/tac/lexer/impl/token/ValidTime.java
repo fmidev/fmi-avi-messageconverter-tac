@@ -29,7 +29,7 @@ import fi.fmi.avi.model.taf.TAF;
 public class ValidTime extends TimeHandlingRegex {
     private static final Logger LOG = LoggerFactory.getLogger(ValidTime.class);
 
-    public ValidTime(final Priority prio) {
+    public ValidTime(final OccurrenceFrequency prio) {
         super("^(([0-9]{2})([0-9]{2})([0-9]{2}))|(([0-9]{2})([0-9]{2})/([0-9]{2})([0-9]{2}))$", prio);
     }
 

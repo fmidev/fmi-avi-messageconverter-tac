@@ -10,7 +10,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 public class WXWarningStart extends RegexMatchingLexemeVisitor {
     public static final LexemeIdentity WX_WARNING_START = new LexemeIdentity("WX_WARNING_START");
 
-    public WXWarningStart(final Priority prio) {
+    public WXWarningStart(final OccurrenceFrequency prio) {
         super("^WX\\s+WRNG$", prio);
     }
 

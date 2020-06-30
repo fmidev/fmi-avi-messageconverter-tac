@@ -9,7 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 public class WXREPStart extends PrioritizedLexemeVisitor {
     public static final LexemeIdentity WXREP_START = new LexemeIdentity("WXREP_START");
 
-    public WXREPStart(final Priority prio) {
+    public WXREPStart(final OccurrenceFrequency prio) {
         super(prio);
     }
 

@@ -16,7 +16,7 @@ import fi.fmi.avi.model.metar.SPECI;
  * Created by rinne on 10/02/17.
  */
 public class SpeciStart extends PrioritizedLexemeVisitor {
-    public SpeciStart(final Priority prio) {
+    public SpeciStart(final OccurrenceFrequency prio) {
         super(prio);
     }
 

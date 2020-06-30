@@ -18,7 +18,7 @@ import fi.fmi.avi.model.metar.METAR;
  */
 public class RoutineDelayedObservation extends PrioritizedLexemeVisitor {
 
-    public RoutineDelayedObservation(final Priority prio) {
+    public RoutineDelayedObservation(final OccurrenceFrequency prio) {
         super(prio);
     }
 

@@ -184,12 +184,13 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 
     
     
-    public RunwayState(final Priority prio) {
-    	// 16th ed: 99421594 or 14CLRD//
-    	// 19th ed: R99/421594 or R14L/CLRD//
-    	// (snow closures are handled by a different lexer token)
-    	
-        super("^(?:R?(?<RunwayDesignator19th>[0-9]{2}[LCR]?)/|(?<RunwayDesignator16th>[0-9]{2}[LCR]?))((([0-9/])([1259/])([0-9]{2}|//))|(CLRD))([0-9]{2}|//)$", prio);
+    public RunwayState(final OccurrenceFrequency prio) {
+        // 16th ed: 99421594 or 14CLRD//
+        // 19th ed: R99/421594 or R14L/CLRD//
+        // (snow closures are handled by a different lexer token)
+
+        super("^(?:R?(?<RunwayDesignator19th>[0-9]{2}[LCR]?)/|(?<RunwayDesignator16th>[0-9]{2}[LCR]?))((([0-9/])([1259/])([0-9]{2}|//))|(CLRD))([0-9]{2}|//)$",
+                prio);
     }
 
     protected String getRunwayDesignationMatch(Matcher match) {

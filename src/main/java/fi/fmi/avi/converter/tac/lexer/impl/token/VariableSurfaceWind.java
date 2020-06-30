@@ -26,7 +26,7 @@ import fi.fmi.avi.model.metar.ObservedSurfaceWind;
  */
 public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
 
-    public VariableSurfaceWind(final Priority prio) {
+    public VariableSurfaceWind(final OccurrenceFrequency prio) {
         super("^([0-9]{3})V([0-9]{3})$", prio);
     }
 

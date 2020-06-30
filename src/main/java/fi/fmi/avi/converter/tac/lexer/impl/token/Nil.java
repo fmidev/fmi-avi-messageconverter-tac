@@ -20,7 +20,7 @@ import fi.fmi.avi.model.taf.TAF;
  */
 public class Nil extends PrioritizedLexemeVisitor {
 
-    public Nil(final Priority prio) {
+    public Nil(final OccurrenceFrequency prio) {
         super(prio);
     }
 

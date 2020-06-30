@@ -53,7 +53,7 @@ public class SeaState extends RegexMatchingLexemeVisitor {
         }
     }
 
-    public SeaState(final Priority prio) {
+    public SeaState(final OccurrenceFrequency prio) {
         super("^W(?<minus>M?)(?<temp>[0-9]{2}|//)/(S(?<state>[0-9]|/)|H(?<height>[0-9]{1,3}))$", prio);
     }
 

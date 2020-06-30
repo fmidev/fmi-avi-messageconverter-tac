@@ -17,7 +17,7 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
 public class AdvisoryPhenomenaTimeGroup extends TimeHandlingRegex {
 
-    public AdvisoryPhenomenaTimeGroup(final Priority prio) {
+    public AdvisoryPhenomenaTimeGroup(final OccurrenceFrequency prio) {
         super("^(?<day>[0-9]{2})/(?<hour>[0-9]{2})(?<minute>[0-9]{2})Z$", prio);
     }
 

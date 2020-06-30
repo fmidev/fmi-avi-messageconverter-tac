@@ -15,7 +15,7 @@ import fi.fmi.avi.model.swx.IssuingCenter;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
 public class SpaceWeatherCenter extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherCenter(final Priority prio) {
+    public SpaceWeatherCenter(final OccurrenceFrequency prio) {
         super("^SWXC\\:\\s{1}(?<issuer>[A-Z a-z 0-9]*)$", prio);
     }
 

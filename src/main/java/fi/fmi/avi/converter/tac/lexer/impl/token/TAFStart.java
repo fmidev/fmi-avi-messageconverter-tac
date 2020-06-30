@@ -17,7 +17,7 @@ import fi.fmi.avi.model.taf.TAF;
  * Created by rinne on 10/02/17.
  */
 public class TAFStart extends PrioritizedLexemeVisitor {
-    public TAFStart(final Priority prio) {
+    public TAFStart(final OccurrenceFrequency prio) {
         super(prio);
     }
 

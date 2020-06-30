@@ -15,7 +15,7 @@ import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
 public class NextAdvisory extends TimeHandlingRegex {
-    public NextAdvisory(final Priority prio) {
+    public NextAdvisory(final OccurrenceFrequency prio) {
         super("NXT\\sADVISORY\\:\\s(?<type>NO\\sFURTHER\\sADVISORIES|WILL\\sBE\\sISSUED\\sBY)?\\s?((?<year>[0-9]{4})(?<month>[0-1][0-9])(?<day>[0-3][0-9])\\/"
                 + "(?<hour>[0-2][0-9])(?<minute>[0-5][0-9])Z)?", prio);
     }

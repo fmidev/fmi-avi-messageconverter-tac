@@ -16,7 +16,7 @@ import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
 
 public class BulletinHeaderDataDesignators extends RegexMatchingLexemeVisitor {
 
-    public BulletinHeaderDataDesignators(final Priority prio) {
+    public BulletinHeaderDataDesignators(final OccurrenceFrequency prio) {
         super("^(?<designators>[A-Z]{2}[A-Z]{2}[0-9]{2})$", prio);
     }
 

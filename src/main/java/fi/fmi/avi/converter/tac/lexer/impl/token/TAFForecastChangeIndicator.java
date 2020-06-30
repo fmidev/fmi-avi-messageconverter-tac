@@ -27,7 +27,7 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
  */
 public class TAFForecastChangeIndicator extends TimeHandlingRegex {
 
-    public TAFForecastChangeIndicator(final Priority prio) {
+    public TAFForecastChangeIndicator(final OccurrenceFrequency prio) {
         super("^(TEMPO|BECMG|PROB40|PROB30|PROB30 TEMPO|PROB40 TEMPO)|(FM([0-9]{2})?([0-9]{2})([0-9]{2}))$", prio);
     }
 

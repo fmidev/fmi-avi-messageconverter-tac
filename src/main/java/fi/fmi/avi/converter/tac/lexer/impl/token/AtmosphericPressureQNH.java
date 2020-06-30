@@ -42,7 +42,7 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
         }
     }
 
-    public AtmosphericPressureQNH(final Priority prio) {
+    public AtmosphericPressureQNH(final OccurrenceFrequency prio) {
         super("^([AQ])([0-9]{4}|////)$", prio);
     }
 

@@ -7,7 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 
 public class AIREPStart extends PrioritizedLexemeVisitor {
-    public AIREPStart(final Priority prio) {
+    public AIREPStart(final OccurrenceFrequency prio) {
         super(prio);
     }
 

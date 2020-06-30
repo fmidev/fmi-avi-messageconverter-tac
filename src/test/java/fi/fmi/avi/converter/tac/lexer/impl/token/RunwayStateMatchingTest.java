@@ -1,20 +1,22 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.regex.Matcher;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.Priority;
+import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.OccurrenceFrequency;
 
 public class RunwayStateMatchingTest {
 	RunwayState runwayState;
 	
 	@Before
 	public void setUp() throws Exception {
-		runwayState = new RunwayState(Priority.NORMAL);
+		runwayState = new RunwayState(OccurrenceFrequency.AVERAGE);
 	}
 
 	@Test

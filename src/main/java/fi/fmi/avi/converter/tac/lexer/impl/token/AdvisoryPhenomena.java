@@ -20,7 +20,7 @@ public class AdvisoryPhenomena extends RegexMatchingLexemeVisitor {
 
     public enum Type { OBS, FCST }
 
-    public AdvisoryPhenomena(final Priority prio) {
+    public AdvisoryPhenomena(final OccurrenceFrequency prio) {
         super("^(?<type>OBS|FCST)(?:[a-zA-Z0-9\\+\\s]+)?:$", prio);
     }
 
