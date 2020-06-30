@@ -101,4 +101,6 @@ public class TACConverter {
     public static final ConversionSpecification<String, SpaceWeatherAdvisory> TAC_TO_SWX_POJO = new ConversionSpecification<>(String.class,
             SpaceWeatherAdvisory.class, "ICAO Annex 3 TAC", null);
 
+    public static final ConversionSpecification<SpaceWeatherAdvisory, String> SWX_POJO_TO_TAC = new ConversionSpecification<>(
+            SpaceWeatherAdvisory.class, String.class, null, "ICAO Annex 3 TAC");
 }

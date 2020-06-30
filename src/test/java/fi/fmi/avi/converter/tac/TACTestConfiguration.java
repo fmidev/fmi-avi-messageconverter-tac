@@ -1,5 +1,6 @@
 package fi.fmi.avi.converter.tac;
 
+import fi.fmi.avi.converter.tac.swx.SWXTACSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -67,6 +68,9 @@ public class TACTestConfiguration {
     @Autowired
     private AviMessageSpecificConverter<String, SpaceWeatherAdvisory> swxTACParser;
 
+    //@Autowired
+    //private AviMessageSpecificConverter<SpaceWeatherAdvisory, String> swxTACSerializer;
+
     @Bean
     public AviMessageConverter aviMessageConverter() {
         final AviMessageConverter p = new AviMessageConverter();
@@ -89,6 +93,7 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(JSONConverter.GENERIC_METEOROLOGICAL_BULLETIN_POJO_TO_JSON_STRING, genericBulletinJSONSerializer);
 
         p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_POJO, swxTACParser);
+        //p.setMessageSpecificConverter(TACConverter.SWX_POJO_TO_TAC, swxTACSerializer);
 
         return p;
     }
