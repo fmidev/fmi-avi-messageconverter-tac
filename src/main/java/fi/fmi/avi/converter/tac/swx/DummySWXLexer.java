@@ -13,6 +13,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomena;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatus;
 import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherCenter;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherEffect;
@@ -76,8 +77,7 @@ public class DummySWXLexer implements AviMessageLexer {
                 .append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
 
         l = this.factory.createLexeme("STATUS: TEST");
-        l.identify(LexemeIdentity.TEST_OR_EXCERCISE);
-        l.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.TEST);
+        new AdvisoryStatus(PrioritizedLexemeVisitor.OccurrenceFrequency.FREQUENT).visit(l, null);
         builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
 
         builder.append(this.factory.createLexeme("DTG: 20190128/1200Z"));
