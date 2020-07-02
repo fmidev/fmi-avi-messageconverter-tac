@@ -56,10 +56,7 @@ public class SWXReconstructorTest {
 
         String input = getInput("spacewx-A2-3.json");
         msg = OBJECT_MAPPER.readValue(input, SpaceWeatherAdvisoryImpl.class);
-
         ctx = new ReconstructorContext<>(msg, new ConversionHints());
-        Object i = converter.convertMessage(input, JSONConverter.JSON_STRING_TO_SWX_POJO);
-        System.out.println("adsfghgfds");
 
     }
 
@@ -81,7 +78,7 @@ public class SWXReconstructorTest {
         AdvisoryNumber.Reconstructor reconstructor = new AdvisoryNumber.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisory.class, ctx);
-        Assert.assertEquals("ADVISORY NR: 2/2016", lexeme.get().getTACToken());
+        Assert.assertEquals("ADVISORY NR: 2016/2", lexeme.get().getTACToken());
     }
 
     @Test
@@ -97,9 +94,9 @@ public class SWXReconstructorTest {
         SpaceWeatherEffect.Reconstructor reconstructor = new SpaceWeatherEffect.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         List<Lexeme> lexeme = reconstructor.getAsLexemes(msg, SpaceWeatherAdvisory.class, ctx);
-        Assert.assertEquals("HF COM MOD", lexeme.get(0).getTACToken());
-        Assert.assertEquals("AND", lexeme.get(1).getTACToken());
-        Assert.assertEquals("GNSS MOD", lexeme.get(2).getTACToken());
+        Assert.assertEquals("HF COM MOD", lexeme.get(2).getTACToken());
+        Assert.assertEquals("AND", lexeme.get(4).getTACToken());
+        Assert.assertEquals("GNSS MOD", lexeme.get(6).getTACToken());
     }
 
     @Test
@@ -110,7 +107,7 @@ public class SWXReconstructorTest {
 
         List<Lexeme> lexeme = reconstructor.getAsLexemes(msg, SpaceWeatherAdvisory.class, ctx);
         Assert.assertEquals("HNH",lexeme.get(0).getTACToken());
-        Assert.assertEquals("HSH",lexeme.get(1).getTACToken());
+        Assert.assertEquals("HSH",lexeme.get(2).getTACToken());
 
     }
 
