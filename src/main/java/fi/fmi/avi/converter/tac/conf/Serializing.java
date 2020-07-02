@@ -41,6 +41,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.MetarStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NoSWXAvailable;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSWXExpected;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
@@ -178,6 +179,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, new AdvisoryPhenomenaTimeGroup.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, new SpaceWeatherPresetLocation.Reconstructor());
         s.addReconstructor(LexemeIdentity.NO_SWX_EXPECTED, new NoSWXExpected.Reconstructor());
+        s.addReconstructor(LexemeIdentity.NO_SWX_AVAILABLE, new NoSWXAvailable.Reconstructor());
         //TODO: add airspacevolume stuff
         s.addReconstructor(LexemeIdentity.REMARKS_START, new RemarkStart.Reconstructor());
         s.addReconstructor(LexemeIdentity.REMARK, new Remark.Reconstructor());

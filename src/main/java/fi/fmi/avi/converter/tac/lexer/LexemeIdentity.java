@@ -106,6 +106,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity SWX_EFFECT_CATENATION = new LexemeIdentity("SWX_EFFECT_CATENATION");
     public static final LexemeIdentity SWX_PHENOMENON_PRESET_LOCATION = new LexemeIdentity("SWX_PHENOMENON_PRESET_LOCATION", VALUE);
     public static final LexemeIdentity NO_SWX_EXPECTED = new LexemeIdentity("NO_SWX_EXPECTED");
+    public static final LexemeIdentity NO_SWX_AVAILABLE = new LexemeIdentity("NO_SWX_AVAILABLE");
     public static final LexemeIdentity SWX_PHENOMENON_LONGITUDE_LIMIT = new LexemeIdentity("SWX_PHENOMENON_LONGITUDE_LIMIT", MIN_VALUE, MAX_VALUE);
     public static final LexemeIdentity SWX_PHENOMENON_VERTICAL_LIMIT = new LexemeIdentity("SWX_PHENOMENON_VERTICAL_LIMIT", VALUE, UNIT, RELATIONAL_OPERATOR);
     public static final LexemeIdentity SWX_PHENOMENON_POLYGON_LIMIT = new LexemeIdentity("SWX_PHENOMENON_POLYGON_LIMIT", VALUE);
