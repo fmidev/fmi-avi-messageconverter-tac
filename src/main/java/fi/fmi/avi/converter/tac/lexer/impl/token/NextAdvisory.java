@@ -1,6 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import java.time.temporal.TemporalField;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -51,32 +51,26 @@ public class NextAdvisory extends TimeHandlingRegex {
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
-            if(SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                fi.fmi.avi.model.swx.NextAdvisory nextAdvisory = ((SpaceWeatherAdvisory)msg).getNextAdvisory();
-                if(nextAdvisory == null) {
+            if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
+                fi.fmi.avi.model.swx.NextAdvisory nextAdvisory = ((SpaceWeatherAdvisory) msg).getNextAdvisory();
+                if (nextAdvisory == null) {
                     throw new SerializingException("Next advisory is missing");
                 }
                 StringBuilder builder = new StringBuilder();
                 builder.append("NXT ADVISORY: ");
 
-                if(nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_AT)) {
-
-                } else if(nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_BY)) {
-
-                } else if(nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES)) {
-                    //TODO: Check message is correct
+                if (nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_BY)) {
+                    builder.append("WILL BE ISSUED BY");
+                } else if (nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES)) {
                     builder.append("NO FURTHER ADVISORIES");
                 }
 
-                if(nextAdvisory.getTime().isPresent()) {
-                    //20161108/0700Z
+                if (nextAdvisory.getTime().isPresent()) {
                     PartialOrCompleteTimeInstant time = nextAdvisory.getTime().get();
-
-                    builder.append(time.getDay().getAsInt());
-                    builder.append(time.getHour().getAsInt());
+                    builder.append(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
                 }
 
-                Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.NEXT_ADVISORY));
+                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.NEXT_ADVISORY));
             }
             return retval;
         }

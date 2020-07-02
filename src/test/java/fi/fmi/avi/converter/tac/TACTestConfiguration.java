@@ -68,8 +68,9 @@ public class TACTestConfiguration {
     @Autowired
     private AviMessageSpecificConverter<String, SpaceWeatherAdvisory> swxTACParser;
 
-    //@Autowired
-    //private AviMessageSpecificConverter<SpaceWeatherAdvisory, String> swxTACSerializer;
+    @Autowired
+    @Qualifier("swxSerializer")
+    private AviMessageSpecificConverter<SpaceWeatherAdvisory, String> swxTACSerializer;
 
     @Bean
     public AviMessageConverter aviMessageConverter() {
@@ -93,7 +94,7 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(JSONConverter.GENERIC_METEOROLOGICAL_BULLETIN_POJO_TO_JSON_STRING, genericBulletinJSONSerializer);
 
         p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_POJO, swxTACParser);
-        //p.setMessageSpecificConverter(TACConverter.SWX_POJO_TO_TAC, swxTACSerializer);
+        p.setMessageSpecificConverter(TACConverter.SWX_POJO_TO_TAC, swxTACSerializer);
 
         return p;
     }

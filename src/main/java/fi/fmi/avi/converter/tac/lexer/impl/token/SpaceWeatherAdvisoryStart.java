@@ -11,7 +11,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
 public class SpaceWeatherAdvisoryStart extends RegexMatchingLexemeVisitor {
     public SpaceWeatherAdvisoryStart(final OccurrenceFrequency prio) {

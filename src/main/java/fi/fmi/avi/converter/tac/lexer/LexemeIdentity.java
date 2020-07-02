@@ -54,8 +54,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity REP = new LexemeIdentity("REP");
     public static final LexemeIdentity SPACE_WEATHER_ADVISORY_START = new LexemeIdentity("SPACE_WEATHER_ADVISORY_START");
     public static final LexemeIdentity ADVISORY_PHENOMENA_LABEL = new LexemeIdentity("ADVISORY_PHENOMENA_LABEL", TYPE);
-    public static final LexemeIdentity ADVISORY_PHENOMENA_TIME_GROUP = new LexemeIdentity("ADVISORY_PHENOMENA_TIME_GROUP", DAY1,
-            HOUR1, MINUTE1);
+    public static final LexemeIdentity ADVISORY_PHENOMENA_TIME_GROUP = new LexemeIdentity("ADVISORY_PHENOMENA_TIME_GROUP", DAY1, HOUR1, MINUTE1);
     public static final LexemeIdentity VOLCANIC_ASH_ADVISORY_START = new LexemeIdentity("VOLCANIC_ASH_ADVISORY_START");
     public static final LexemeIdentity CORRECTION = new LexemeIdentity("CORRECTION");
     public static final LexemeIdentity AMENDMENT = new LexemeIdentity("AMENDMENT");
@@ -65,9 +64,10 @@ public class LexemeIdentity {
     public static final LexemeIdentity ISSUE_TIME = new LexemeIdentity("ISSUE_TIME", YEAR, MONTH, DAY1, HOUR1, MINUTE1);
     public static final LexemeIdentity AERODROME_DESIGNATOR = new LexemeIdentity("AERODROME_DESIGNATOR", VALUE, COUNTRY);
     public static final LexemeIdentity CAVOK = new LexemeIdentity("CAVOK");
-    public static final LexemeIdentity AIR_DEWPOINT_TEMPERATURE = new LexemeIdentity("AIR_DEWPOINT_TEMPERATURE",VALUE, UNIT);
-    public static final LexemeIdentity AIR_PRESSURE_QNH = new LexemeIdentity("AIR_PRESSURE_QNH",VALUE, UNIT);
-    public static final LexemeIdentity SURFACE_WIND = new LexemeIdentity("SURFACE_WIND",DIRECTION, MAX_VALUE, MEAN_VALUE, UNIT, RELATIONAL_OPERATOR, RELATIONAL_OPERATOR2);
+    public static final LexemeIdentity AIR_DEWPOINT_TEMPERATURE = new LexemeIdentity("AIR_DEWPOINT_TEMPERATURE", VALUE, UNIT);
+    public static final LexemeIdentity AIR_PRESSURE_QNH = new LexemeIdentity("AIR_PRESSURE_QNH", VALUE, UNIT);
+    public static final LexemeIdentity SURFACE_WIND = new LexemeIdentity("SURFACE_WIND", DIRECTION, MAX_VALUE, MEAN_VALUE, UNIT, RELATIONAL_OPERATOR,
+            RELATIONAL_OPERATOR2);
     public static final LexemeIdentity VARIABLE_WIND_DIRECTION = new LexemeIdentity("VARIABLE_WIND_DIRECTION", MIN_DIRECTION, MAX_DIRECTION, UNIT);
     public static final LexemeIdentity HORIZONTAL_VISIBILITY = new LexemeIdentity("HORIZONTAL_VISIBILITY", RELATIONAL_OPERATOR, VALUE, UNIT, DIRECTION);
     public static final LexemeIdentity CLOUD = new LexemeIdentity("CLOUD", VALUE, COVER, TYPE, UNIT);
@@ -100,6 +100,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity TEST_OR_EXCERCISE = new LexemeIdentity("TEST_OR_EXCERCISE", VALUE);
     public static final LexemeIdentity SPACE_WEATHER_CENTRE = new LexemeIdentity("SPACE_WEATHER_CENTRE", VALUE);
     public static final LexemeIdentity ADVISORY_NUMBER = new LexemeIdentity("ADVISORY_NUMBER", VALUE);
+    public static final LexemeIdentity REPLACE_ADVISORY_NUMBER = new LexemeIdentity("REPLACE_ADVISORY_NUMBER", VALUE);
     public static final LexemeIdentity SWX_EFFECT_LABEL = new LexemeIdentity("SWX_EFFECT_LABEL", VALUE);
     public static final LexemeIdentity SWX_EFFECT = new LexemeIdentity("SWX_EFFECT", VALUE);
     public static final LexemeIdentity SWX_EFFECT_CATENATION = new LexemeIdentity("SWX_EFFECT_CATENATION");

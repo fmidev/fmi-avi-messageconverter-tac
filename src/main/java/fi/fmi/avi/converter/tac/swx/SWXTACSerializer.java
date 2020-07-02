@@ -12,7 +12,7 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-
+import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 
 public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory> {
 
@@ -41,15 +41,66 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
         final SpaceWeatherAdvisory input = (SpaceWeatherAdvisory) msg;
         final LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
         final ReconstructorContext<SpaceWeatherAdvisory> baseCtx = new ReconstructorContext<>(input, hints);
-        appendToken(retval, LexemeIdentity.SPACE_WEATHER_ADVISORY_START, input, SpaceWeatherAdvisory.class, baseCtx);
-        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        if (appendToken(retval, LexemeIdentity.SPACE_WEATHER_ADVISORY_START, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
         if (appendToken(retval, LexemeIdentity.TEST_OR_EXCERCISE, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (appendToken(retval, LexemeIdentity.ISSUE_TIME, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
+        if (appendToken(retval, LexemeIdentity.SPACE_WEATHER_CENTRE, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        if (appendToken(retval, LexemeIdentity.ADVISORY_NUMBER, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        if (appendToken(retval, LexemeIdentity.REPLACE_ADVISORY_NUMBER, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        if (appendToken(retval, LexemeIdentity.SWX_EFFECT, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        for (int i = 0; i < input.getAnalyses().size(); i++) {
+            baseCtx.setHint(ConversionHints.KEY_SWX_ANALYSIS_INDEX, i);
 
-        return null;
+            if (appendToken(retval, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+
+            if (appendToken(retval, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+
+            SpaceWeatherAdvisoryAnalysis analysis = input.getAnalyses().get(i);
+
+            if (analysis.isNoPhenomenaExpected()) {
+                if (appendToken(retval, LexemeIdentity.NO_SWX_EXPECTED, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                }
+            } else if (analysis.isNoInformationAvailable()) {
+                //TODO:
+            } else {
+                if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                }
+                //TODO: Add coordinate thing
+            }
+        }
+        if (input.getRemarks().isPresent() && input.getRemarks().get().size() > 0) {
+            baseCtx.setParameter("remark", input.getRemarks().get().get(0));
+            if (appendToken(retval, LexemeIdentity.REMARKS_START, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+            if (appendToken(retval, LexemeIdentity.REMARK, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+        }
+        if (appendToken(retval, LexemeIdentity.NEXT_ADVISORY, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+
+        return retval.build();
     }
 }

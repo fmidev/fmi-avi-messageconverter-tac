@@ -10,19 +10,25 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.swx.IssuingCenter;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
-public class SpaceWeatherCenter extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherCenter(final OccurrenceFrequency prio) {
-        super("^SWXC\\:\\s{1}(?<issuer>[A-Z a-z 0-9]*)$", prio);
+public class AdvisoryStatus extends RegexMatchingLexemeVisitor {
+    public AdvisoryStatus(final OccurrenceFrequency prio) {
+        super("^(?<label>STATUS\\:\\s){1}(?<status>TEST|EXERCISE){1}$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(LexemeIdentity.SPACE_WEATHER_CENTRE);
-        token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group("issuer"));
+        token.identify(LexemeIdentity.TEST_OR_EXCERCISE);
+        String status = match.group("status");
+
+        if (status.equals(AviationCodeListUser.PermissibleUsageReason.TEST.toString())) {
+            token.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.TEST);
+        } else {
+            token.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.EXERCISE);
+        }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -30,23 +36,16 @@ public class SpaceWeatherCenter extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
-
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                IssuingCenter center = ((SpaceWeatherAdvisory) msg).getIssuingCenter();
+                SpaceWeatherAdvisory advisory = (SpaceWeatherAdvisory) msg;
 
-                if (!center.getType().isPresent()) {
-                    throw new SerializingException("Issuing center name is missing");
-                }
+                if (advisory.getPermissibleUsageReason().isPresent()) {
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("STATUS: ");
+                    builder.append(advisory.getPermissibleUsageReason().get().toString());
 
-                if (!center.getDesignator().isPresent()) {
-                    throw new SerializingException("Issuing center designator is missing");
+                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.TEST_OR_EXCERCISE));
                 }
-                //TODO: add handling for removing unwaned stuff from type (OTHER:SWXC should be SWXC)
-                StringBuilder builder = new StringBuilder();
-                builder.append(center.getType().get());
-                builder.append(": ");
-                builder.append(center.getDesignator().get());
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SPACE_WEATHER_CENTRE));
             }
             return retval;
         }

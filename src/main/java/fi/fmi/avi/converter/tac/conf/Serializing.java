@@ -1,6 +1,7 @@
 package fi.fmi.avi.converter.tac.conf;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -16,6 +17,10 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageTACTokenizerImpl;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomena;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatus;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Amendment;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
@@ -34,16 +39,23 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.ICAOCode;
 import fi.fmi.avi.converter.tac.lexer.impl.token.IssueTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetarStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NoSWXExpected;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumber;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherAdvisoryStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherCenter;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherEffect;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherPresetLocation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFChangeForecastTimeGroup;
@@ -57,16 +69,18 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
 import fi.fmi.avi.converter.tac.metar.METARTACSerializer;
 import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
+import fi.fmi.avi.converter.tac.swx.SWXTACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
+import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 
 /**
- * TAC converter serializing Spring configuration
+ * TAC converter serializing Spring configuration.
  */
 @Configuration
 @Import(Lexing.class)
@@ -78,7 +92,6 @@ public class Serializing {
     @Autowired
     private LexingFactory lexingFactory;
 
-    
     @Bean
     AviMessageSpecificConverter<METAR, String> metarTACSerializer() {
         final METARTACSerializer s = new METARTACSerializer();
@@ -130,6 +143,14 @@ public class Serializing {
         return s;
     }
 
+    @Bean
+    @Qualifier("swxSerializer")
+    AviMessageSpecificConverter<SpaceWeatherAdvisory, String> swxTACSerializer() {
+        final SWXTACSerializer s = new SWXTACSerializer();
+        addSpaceWeatherAdvisoryReconstructors(s);
+        s.addReconstructor(LexemeIdentity.SPACE_WEATHER_ADVISORY_START, new SpaceWeatherAdvisoryStart.Reconstructor());
+        return s;
+    }
 
     @Bean
     public AviMessageTACTokenizer tacTokenizer() {
@@ -140,7 +161,27 @@ public class Serializing {
         tokenizer.setTAFBulletinSerializer((TAFBulletinTACSerializer) tafBulletinTACSerializer());
         tokenizer.setSIGMETBulletinSerializer((SIGMETBulletinTACSerializer) sigmetBulletinTACSerializer());
         tokenizer.setGenericBulletinSerializer((GenericMeteorologicalBulletinTACSerializer) genericBulletinTACSerializer());
+        tokenizer.setSWXTacSerializer((SWXTACSerializer) swxTACSerializer());
+
         return tokenizer;
+    }
+
+    public void addSpaceWeatherAdvisoryReconstructors(final AbstractTACSerializer<?> s) {
+        s.setLexingFactory(lexingFactory);
+        s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.TEST_OR_EXCERCISE, new AdvisoryStatus.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SPACE_WEATHER_CENTRE, new SpaceWeatherCenter.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ADVISORY_NUMBER, new AdvisoryNumber.Reconstructor());
+        s.addReconstructor(LexemeIdentity.REPLACE_ADVISORY_NUMBER, new ReplaceAdvisoryNumber.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_EFFECT, new SpaceWeatherEffect.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ADVISORY_PHENOMENA_LABEL, new AdvisoryPhenomena.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, new AdvisoryPhenomenaTimeGroup.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, new SpaceWeatherPresetLocation.Reconstructor());
+        s.addReconstructor(LexemeIdentity.NO_SWX_EXPECTED, new NoSWXExpected.Reconstructor());
+        //TODO: add airspacevolume stuff
+        s.addReconstructor(LexemeIdentity.REMARKS_START, new RemarkStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.REMARK, new Remark.Reconstructor());
+        s.addReconstructor(LexemeIdentity.NEXT_ADVISORY, new NextAdvisory.Reconstructor());
     }
 
     private void addMetarAndSpeciCommonReconstructors(final AbstractTACSerializer<?> s) {

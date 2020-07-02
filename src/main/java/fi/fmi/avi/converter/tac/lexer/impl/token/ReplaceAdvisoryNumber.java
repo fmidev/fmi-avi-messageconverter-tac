@@ -14,14 +14,14 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.immutable.AdvisoryNumberImpl;
 
-public class AdvisoryNumber extends RegexMatchingLexemeVisitor {
-    public AdvisoryNumber(final OccurrenceFrequency prio) {
-        super("^ADVISORY\\sNR:\\s(?<advisoryNumber>[\\d]{4}/[\\d]*)$", prio);
+public class ReplaceAdvisoryNumber extends RegexMatchingLexemeVisitor {
+    public ReplaceAdvisoryNumber(final OccurrenceFrequency prio) {
+        super("^NR\\sRPLC:\\s(?<advisoryNumber>[\\d]{4}/[\\d]*)$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(LexemeIdentity.ADVISORY_NUMBER);
+        token.identify(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
 
         AdvisoryNumberImpl advisoryNumber = AdvisoryNumberImpl.builder().from(match.group("advisoryNumber")).build();
         token.setParsedValue(Lexeme.ParsedValueName.VALUE, advisoryNumber);
@@ -33,26 +33,29 @@ public class AdvisoryNumber extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                fi.fmi.avi.model.swx.AdvisoryNumber advisoryNumber = ((SpaceWeatherAdvisory) msg).getAdvisoryNumber();
+                if (((SpaceWeatherAdvisory) msg).getReplaceAdvisoryNumber().isPresent()) {
+                    fi.fmi.avi.model.swx.AdvisoryNumber advisoryNumber = ((SpaceWeatherAdvisory) msg).getReplaceAdvisoryNumber().get();
 
-                if (advisoryNumber.getSerialNumber() == 0) {
-                    throw new SerializingException("The advisory number is missing the serial number");
+                    if (advisoryNumber.getSerialNumber() == 0) {
+                        throw new SerializingException("The advisory number is missing the serial number");
+                    }
+
+                    if (advisoryNumber.getYear() == 0) {
+                        throw new SerializingException(("The advisory number is missing the year"));
+                    }
+
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("NR RPLC: ");
+                    builder.append(advisoryNumber.getYear());
+                    builder.append("/");
+                    builder.append(advisoryNumber.getSerialNumber());
+
+                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.REPLACE_ADVISORY_NUMBER));
+
                 }
-
-                if (advisoryNumber.getYear() == 0) {
-                    throw new SerializingException(("The advisory number is missing the year"));
-                }
-
-                StringBuilder builder = new StringBuilder();
-                builder.append("ADVISORY NR: ");
-                builder.append(advisoryNumber.getYear());
-                builder.append("/");
-                builder.append(advisoryNumber.getSerialNumber());
-
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_NUMBER));
-
             }
             return retval;
         }
+
     }
 }

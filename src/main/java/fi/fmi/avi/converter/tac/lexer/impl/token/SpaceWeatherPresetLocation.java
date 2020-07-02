@@ -2,7 +2,6 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -32,12 +31,25 @@ public class SpaceWeatherPresetLocation extends RegexMatchingLexemeVisitor {
 
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
-        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ReconstructorContext<T> ctx) throws SerializingException {
+        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
+                throws SerializingException {
             List<Lexeme> lexemes = new ArrayList<>();
-            if(SpaceWeatherAdvisoryAnalysis.class.isAssignableFrom(clz)) {
-                SpaceWeatherAdvisoryAnalysis analysis = (SpaceWeatherAdvisoryAnalysis) msg;
-                for(SpaceWeatherRegion region : analysis.getRegion().get()) {
-                    lexemes.add(this.createLexeme(region.getLocationIndicator().get().getCode() , LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION));
+            if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
+                Integer index = (Integer) ctx.getHints().get(ConversionHints.KEY_SWX_ANALYSIS_INDEX);
+                if (index == null) {
+                    throw new SerializingException("Conversion hint KEY_SWX_ANALYSIS_INDEX has not been set");
+                }
+                SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(index);
+                if (analysis.getRegion().isPresent()) {
+                    for (int i = 0; i < analysis.getRegion().get().size(); i++) {
+                        SpaceWeatherRegion region = analysis.getRegion().get().get(i);
+                        if (region.getLocationIndicator().isPresent()) {
+                            if (i > 0) {
+                                lexemes.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
+                            }
+                            lexemes.add(this.createLexeme(region.getLocationIndicator().get().getCode(), LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION));
+                        }
+                    }
                 }
             }
 
