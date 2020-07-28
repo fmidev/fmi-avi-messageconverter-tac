@@ -9,7 +9,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import java.util.regex.Matcher;
 
 public class SpaceWeatherPolygon extends RegexMatchingLexemeVisitor {
-    //TODO:
     public SpaceWeatherPolygon(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
         super("^(((N|S)\\d*\\s(W|E)\\d*)(\\s-\\s)?){5}$", prio);
     }

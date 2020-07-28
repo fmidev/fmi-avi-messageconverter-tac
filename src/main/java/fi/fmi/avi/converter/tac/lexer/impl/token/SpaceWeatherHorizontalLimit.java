@@ -9,7 +9,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import java.util.regex.Matcher;
 
 public class SpaceWeatherHorizontalLimit extends RegexMatchingLexemeVisitor {
-    //TODO:
     public SpaceWeatherHorizontalLimit(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
         super("^((W|E)(\\d+)\\s?\\-?\\s?){2}$", prio);
     }
