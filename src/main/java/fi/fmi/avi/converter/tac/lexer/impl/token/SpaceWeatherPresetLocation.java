@@ -19,14 +19,18 @@ import fi.fmi.avi.model.swx.SpaceWeatherRegion;
 public class SpaceWeatherPresetLocation extends RegexMatchingLexemeVisitor {
 
     public SpaceWeatherPresetLocation(final OccurrenceFrequency prio) {
-        super("^(?<type>EQN|EQS|HSH|HNH|MSH|MNH|DAYLIGHT_SIDE)$", prio);
+        super("^(?<type>EQN|EQS|HSH|HNH|MSH|MNH|(DAYLIGHT SIDE))$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
 
-        token.setParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.fromCode(match.group("type")));
+        String locationCode = match.group("type");
+        if(locationCode.equals("DAYLIGHT SIDE")) {
+            locationCode = "DAYLIGHT_SIDE";
+        }
+        token.setParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.fromCode(locationCode));
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
