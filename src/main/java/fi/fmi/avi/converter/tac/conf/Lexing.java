@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import fi.fmi.avi.converter.tac.lexer.impl.token.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,60 +24,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.OccurrenceFrequency;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomena;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Amendment;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AutoMetar;
-import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeaderDataDesignators;
-import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeadingBBBIndicator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinLocationIndicator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.CAVOK;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Cancellation;
-import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ColorCode;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Correction;
-import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTime;
-import fi.fmi.avi.converter.tac.lexer.impl.token.EndToken;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ForecastMaxMinTemperature;
-import fi.fmi.avi.converter.tac.lexer.impl.token.FractionalHorizontalVisibility;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ICAOCode;
-import fi.fmi.avi.converter.tac.lexer.impl.token.IssueTime;
-import fi.fmi.avi.converter.tac.lexer.impl.token.LowWindStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.MetarStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
-import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
-import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
-import fi.fmi.avi.converter.tac.lexer.impl.token.REP;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
-import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
-import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
-import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherAdvisoryStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
-import fi.fmi.avi.converter.tac.lexer.impl.token.TAFChangeForecastTimeGroup;
-import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.TAFStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup;
-import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetValidUntil;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
-import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
-import fi.fmi.avi.converter.tac.lexer.impl.token.VolcanicAshAdvisoryStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
-import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
 import fi.fmi.avi.converter.tac.swx.DummySWXLexer;
 import fi.fmi.avi.model.MessageType;
 
@@ -136,6 +83,24 @@ public class Lexing {
         f.addTokenCombiningRule(volcanicAshAdvisoryDtgCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryCloudForecastCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryForecastTimeCombinationRule());
+        //////////////////////////////////////////////////
+        f.addTokenCombiningRule(statusCombinationRule());
+        f.addTokenCombiningRule(advisoryNumberCombinationRule());
+        f.addTokenCombiningRule(SpaceWeatherAdvisoryNotAvailableCombinationRule());
+        f.addTokenCombiningRule(SpaceWeatherAdvisoryNoExpectedCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryHorizontalLimitCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryVerticalLimitCombinationRule());
+        f.addTokenCombiningRule(SpaceWeatherAdvisoryPolygonCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryCenterCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryEffect());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryEffectType());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryEffectTypeHFCom());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryDaylightSide());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryPhenomenon());
+        f.addTokenCombiningRule(SpaceWeatherAdvisoryIssuedAtCombinationRule());
+        f.addTokenCombiningRule(SpaceWeatherAdvisoryIssuedByCombinationRule());
+        f.addTokenCombiningRule(SpaceWeatherAdvisoryNoAdvisoriesCombinationRule());
+        //////////////////////////////////////////////////
 
         f.setMessageStartToken(MessageType.METAR,
                 f.createLexeme("METAR", LexemeIdentity.METAR_START, Lexeme.Status.OK, true));
@@ -394,6 +359,149 @@ public class Lexing {
         return retval;
     }
 
+    private List<Predicate<String>> spaceWeatherAdvisoryEffect() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SWX$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^EFFECT:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryHorizontalLimitCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(W|E)\\d{3,5}$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^-$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(W|E)\\d{3,5}$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryVerticalLimitCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ABV$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^FL\\d{3}$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryEffectType() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SATCOM|GNSS|RADIATION$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^MOD|SEV$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryEffectTypeHFCom() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^HF$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^COM$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^MOD|SEV$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryDaylightSide() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^DAYLIGHT$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SIDE$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryPhenomenon() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^FCST$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SWX:$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^\\+\\d{1,2}$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^HR:$");
+            }
+        });
+        return retval;
+    }
+
     private List<Predicate<String>> spaceWeatherAdvisoryForecastTimeCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -406,6 +514,218 @@ public class Lexing {
             @Override
             public boolean test(final String s) {
                 return s.matches("^\\+[0-9]{1,2}\\s+HR:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryCenterCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SWXC:$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[A-Z a-z 0-9]*$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> statusCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^STATUS:$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^TEST|EXER$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> advisoryNumberCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ADVISORY$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NR:$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^\\d{4}\\/\\d+$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> SpaceWeatherAdvisoryPolygonCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        for(int i = 0; i < 5; i++) {
+            retval.add(new Predicate<String>() {
+                @Override
+                public boolean test(final String s) {
+                    return s.matches("^(N|S)\\d+$");
+                }
+            });
+            retval.add(new Predicate<String>() {
+                @Override
+                public boolean test(final String s) {
+                    return s.matches("^(W|E)\\d+$");
+                }
+            });
+
+            if(i < 4) {
+                retval.add(new Predicate<String>() {
+                    @Override
+                    public boolean test(final String s) {
+                        return s.matches("^-$");
+                    }
+                });
+            }
+        }
+        return retval;
+    }
+
+    private List<Predicate<String>> SpaceWeatherAdvisoryIssuedByCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        SpaceWeatherAdvisoryNextAdvisoryRules(retval);
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^WILL$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^BE$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ISSUED$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^BY$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            //TODO:
+            public boolean test(final String s) {
+                return s.matches("^[0-9]{4}[0-9]{2}[0-9]{2}/[0-9]{2}[0-9]{2}Z$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> SpaceWeatherAdvisoryIssuedAtCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        SpaceWeatherAdvisoryNextAdvisoryRules(retval);
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[0-9]{4}[0-9]{2}[0-9]{2}/[0-9]{2}[0-9]{2}Z$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> SpaceWeatherAdvisoryNoAdvisoriesCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        SpaceWeatherAdvisoryNextAdvisoryRules(retval);
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NO$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^FURTHER$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ADVISORIES$");
+            }
+        }); return retval;
+    }
+
+    private void SpaceWeatherAdvisoryNextAdvisoryRules(List<Predicate<String>> retval) {
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NXT$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ADVISORY:$");
+            }
+        });
+    }
+
+    private List<Predicate<String>> SpaceWeatherAdvisoryNoExpectedCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NO$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SWX$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^EXP$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> SpaceWeatherAdvisoryNotAvailableCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NOT$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^AVBL$");
             }
         });
         return retval;
@@ -764,6 +1084,20 @@ public class Lexing {
         l.teach(new AdvisoryPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
+        l.teach(new AdvisoryStatus(OccurrenceFrequency.AVERAGE));
+        l.teach(new SpaceWeatherCenter(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryNumber(OccurrenceFrequency.RARE));
+        l.teach(new SpaceWeatherEffectLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new SpaceWeatherEffect(OccurrenceFrequency.AVERAGE));
+        l.teach(new SpaceWeatherPresetLocation(OccurrenceFrequency.AVERAGE));
+        l.teach(new NextAdvisory(OccurrenceFrequency.RARE));
+        l.teach(new SpaceWeatherNotAvailable(OccurrenceFrequency.RARE));
+        l.teach(new SpaceWeatherNotExpected(OccurrenceFrequency.RARE));
+        l.teach(new SpaceWeatherConjuction(OccurrenceFrequency.AVERAGE));
+        l.teach(new SpaceWeatherHorizontalLimit(OccurrenceFrequency.AVERAGE));
+        l.teach(new SpaceWeatherPolygon(OccurrenceFrequency.AVERAGE));
+        l.teach(new SpaceWeatherVerticalLimit(OccurrenceFrequency.AVERAGE));
+
         return l;
     }
 
