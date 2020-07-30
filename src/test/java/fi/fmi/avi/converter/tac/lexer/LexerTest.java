@@ -1,9 +1,9 @@
 package fi.fmi.avi.converter.tac.lexer;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -99,7 +99,7 @@ public class LexerTest {
                 + "SWX EFFECT: SATCOM MOD AND RADIATION SEV AND HF COM SEV\n" //
                 + "OBS SWX: 08/1200Z HNH HSH E16000 - W2000 ABV FL340\n"//
                 + "FCST SWX +6 HR: 08/1800Z N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180 ABV FL370\n"//
-                + "FCST SWX +12 HR: 09/0000Z NO SWX EXP\n"//
+                + "FCST SWX +12 HR: 09/0000Z NO SWX EXP FL150-250\n"//
                 + "FCST SWX +12 HR: 09/0000Z NOT AVBL\n"//
                 + "FCST SWX +18 HR: 09/0600Z DAYLIGHT SIDE\n"//
                 + "FCST SWX +24 HR: 09/1200Z HNH\n"//
@@ -109,24 +109,23 @@ public class LexerTest {
                 + "NXT ADVISORY: 20161108/0700Z\n"
                 + "NXT ADVISORY: NO FURTHER ADVISORIES\n";
 
+        List<Lexeme> unidentifiedLexemes = new ArrayList<>();
+
         LexemeSequence seq = lexer.lexMessage(message);
-        //System.out.println(seq.toString());
         Lexeme le = seq.getFirstLexeme();
+
         while(le != null) {
             if(le.getIdentity() == null) {
-                System.out.println(le.toString());
+                if(!le.getTACToken().equals("AND") && !le.getTACToken().equals("FL150-250"))
+                unidentifiedLexemes.add(le);
             }
             le = le.getNext();
         }
 
-        System.out.println("-----------------------------------------------------------------");
-
-        le = seq.getFirstLexeme();
-        while(le != null) {
-            if(le.getIdentity() != null) {
-                System.out.println(le.toString());
-            }
-            le = le.getNext();
+        if(unidentifiedLexemes.size() > 0) {
+            System.out.println("Unidentified lexemes: ");
+            unidentifiedLexemes.stream().forEach(lexeme -> System.out.println(lexeme.getTACToken()));
+            fail("There were unidentified lexemes");
         }
     }
         
