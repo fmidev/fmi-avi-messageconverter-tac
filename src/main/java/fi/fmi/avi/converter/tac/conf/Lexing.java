@@ -55,15 +55,6 @@ public class Lexing {
         return l;
     }
 
-    //FIXME: remove when the real SWX lexing is available:
-    @Bean
-    @Qualifier("swxDummy")
-    public AviMessageLexer swxDummyLexer() {
-        DummySWXLexer l = new DummySWXLexer();
-        l.setLexingFactory(lexingFactory());
-        return l;
-    }
-
     @Bean
     public LexingFactory lexingFactory() {
         LexingFactoryImpl f = new LexingFactoryImpl();
@@ -83,7 +74,6 @@ public class Lexing {
         f.addTokenCombiningRule(volcanicAshAdvisoryDtgCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryCloudForecastCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryForecastTimeCombinationRule());
-        //////////////////////////////////////////////////
         f.addTokenCombiningRule(statusCombinationRule());
         f.addTokenCombiningRule(advisoryNumberCombinationRule());
         f.addTokenCombiningRule(SpaceWeatherAdvisoryNotAvailableCombinationRule());
@@ -100,7 +90,7 @@ public class Lexing {
         f.addTokenCombiningRule(SpaceWeatherAdvisoryIssuedAtCombinationRule());
         f.addTokenCombiningRule(SpaceWeatherAdvisoryIssuedByCombinationRule());
         f.addTokenCombiningRule(SpaceWeatherAdvisoryNoAdvisoriesCombinationRule());
-        //////////////////////////////////////////////////
+        f.addTokenCombiningRule(SpaceWeatherAdvisoryReplaceAdvisoryCombinationRules());
 
         f.setMessageStartToken(MessageType.METAR,
                 f.createLexeme("METAR", LexemeIdentity.METAR_START, Lexeme.Status.OK, true));
@@ -691,6 +681,35 @@ public class Lexing {
         });
     }
 
+    private List<Predicate<String>>  SpaceWeatherAdvisoryReplaceAdvisoryCombinationRules() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NR$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^RPLC$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^:$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^\\d{4}\\/\\d+$");
+            }
+        });
+        return retval;
+    }
+
     private List<Predicate<String>> SpaceWeatherAdvisoryNoExpectedCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -1093,10 +1112,12 @@ public class Lexing {
         l.teach(new NextAdvisory(OccurrenceFrequency.RARE));
         l.teach(new SpaceWeatherNotAvailable(OccurrenceFrequency.RARE));
         l.teach(new SpaceWeatherNotExpected(OccurrenceFrequency.RARE));
-        l.teach(new SpaceWeatherConjuction(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherHorizontalLimit(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherPolygon(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherVerticalLimit(OccurrenceFrequency.AVERAGE));
+        l.teach(new ReplaceAdvisoryNumber(OccurrenceFrequency.AVERAGE));
+        l.teach(new RemarkStart(OccurrenceFrequency.AVERAGE));
+        l.teach(new Remark(OccurrenceFrequency.AVERAGE));
 
         return l;
     }
