@@ -91,6 +91,10 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
             conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "The advisory number is missing"));
         });
 
+        firstLexeme.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER, (match) -> {
+            builder.setReplaceAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
+        });
+
         firstLexeme.findNext(LexemeIdentity.SWX_EFFECT, (match) -> {
             List<SpaceWeatherPhenomenon> phenomena = new ArrayList<>();
             while (match != null) {
@@ -127,9 +131,11 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
         parseRemark(firstLexeme.findNext(LexemeIdentity.REMARKS_START), builder::setRemarks);
 
         retval.addIssue(conversionIssues);
-        retval.setConvertedMessage(builder.build());
+        if(conversionIssues.size() == 0) {
+            retval.setConvertedMessage(builder.build());
+            retval.setStatus(ConversionResult.Status.SUCCESS);
+        }
 
-        retval.setStatus(ConversionResult.Status.SUCCESS);
         return retval;
     }
 
