@@ -34,11 +34,6 @@ public class Parsing {
     @Autowired
     private AviMessageLexer aviMessageLexer;
 
-    //FIXME: remove when the real SWX lexing is available:
-    @Autowired
-    @Qualifier("swxDummy")
-    private AviMessageLexer swxDummyLexer;
-
     @Bean
     AviMessageSpecificConverter<String, METAR> metarTACParser() {
         final TACParser<METAR> p = new METARTACParser();
@@ -85,7 +80,7 @@ public class Parsing {
     AviMessageSpecificConverter<String, SpaceWeatherAdvisory> swxTACParser() {
         final TACParser<SpaceWeatherAdvisory> p = new SpaceWeatherAdvisoryParser();
         //FIXME: set to aviMessageLexer when the real SWX lexing is available:
-        p.setTACLexer(swxDummyLexer);
+        p.setTACLexer(aviMessageLexer);
         return p;
     }
 
