@@ -27,7 +27,7 @@ public class Remark extends PrioritizedLexemeVisitor {
     public void visit(final Lexeme token, final ConversionHints hints) {
         if (token.getPrevious() != null) {
             Lexeme prev = token.getPrevious();
-            if ((REMARK.equals(prev.getIdentityIfAcceptable()) || REMARKS_START.equals(prev.getIdentityIfAcceptable()))
+            if (((REMARK.equals(prev.getIdentityIfAcceptable()) && !token.getTACToken().startsWith("NXT ADVISORY:")) || REMARKS_START.equals(prev.getIdentityIfAcceptable()))
                     && !LexemeIdentity.END_TOKEN.equals(token.getIdentityIfAcceptable())
                     && !LexemeIdentity.WHITE_SPACE.equals(token.getIdentityIfAcceptable())
                     && !LexemeIdentity.NEXT_ADVISORY.equals(token.getIdentityIfAcceptable())) {

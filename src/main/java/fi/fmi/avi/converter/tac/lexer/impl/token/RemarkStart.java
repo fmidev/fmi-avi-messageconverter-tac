@@ -24,7 +24,7 @@ public class RemarkStart extends PrioritizedLexemeVisitor {
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if ("RMK".equalsIgnoreCase(token.getTACToken())) {
+        if ("RMK".equalsIgnoreCase(token.getTACToken()) || "RMK:".equalsIgnoreCase(token.getTACToken())) {
             token.identify(REMARKS_START);
         }
     }
