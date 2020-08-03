@@ -180,15 +180,10 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
         Optional<NumericMeasure> verticalLimit = Optional.empty();
         Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator = Optional.empty();
 
-        Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT);
+        Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
         if (l != null) {
-            polygonLimit = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.VALUE, PolygonGeometry.class));
-        } else {
-            l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
-            if (l != null) {
-                minLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Double.class));
-                maxLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Double.class));
-            }
+            minLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Double.class));
+            maxLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Double.class));
         }
 
         l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
@@ -200,6 +195,11 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
             }
             verticalLimitOperator = Optional.ofNullable(
                     l.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR, AviationCodeListUser.RelationalOperator.class));
+        }
+
+        l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT);
+        if (l != null) {
+            polygonLimit = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.VALUE, PolygonGeometry.class));
         }
 
         //2. Create regions applying limits
@@ -219,6 +219,12 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
                 if (location.isPresent()) {
                     regionBuilder = SpaceWeatherRegionImpl.builder();
                     regionBuilder.setLocationIndicator(location);
+                    if (minLongitude.isPresent()) {
+                        regionBuilder.setLongitudeLimitMinimum(minLongitude.get());
+                    }
+                    if (maxLongitude.isPresent()) {
+                        regionBuilder.setLongitudeLimitMaximum(maxLongitude.get());
+                    }
 
                     if (!location.get().equals(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE)) {
                         final List<Double> coordinates = new ArrayList<>();
@@ -254,7 +260,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
                     regionList.add(regionBuilder.build());
                 } else {
                     issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.OTHER,
-                            "Location indicator not available in " + "Lexeme " + l + ", strange"));
+                            "Location indicator not available in Lexeme " + l + ", strange"));
                 }
                 l = l.findNext(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
             }
