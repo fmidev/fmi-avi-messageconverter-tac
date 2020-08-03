@@ -94,9 +94,9 @@ public class SWXReconstructorTest {
         SpaceWeatherEffect.Reconstructor reconstructor = new SpaceWeatherEffect.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         List<Lexeme> lexeme = reconstructor.getAsLexemes(msg, SpaceWeatherAdvisory.class, ctx);
-        Assert.assertEquals("HF COM MOD", lexeme.get(2).getTACToken());
-        Assert.assertEquals("AND", lexeme.get(4).getTACToken());
-        Assert.assertEquals("GNSS MOD", lexeme.get(6).getTACToken());
+        Assert.assertEquals("HF COM MOD", lexeme.get(0).getTACToken());
+        Assert.assertEquals("AND", lexeme.get(2).getTACToken());
+        Assert.assertEquals("GNSS MOD", lexeme.get(4).getTACToken());
     }
 
     @Test
