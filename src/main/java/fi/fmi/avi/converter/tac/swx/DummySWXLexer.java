@@ -149,7 +149,7 @@ public class DummySWXLexer implements AviMessageLexer {
 
         builder.append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
         l = this.factory.createLexeme("N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180");
-        l.identify(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT);
+        l.identify(LexemeIdentity.SWX_PHENOMENON_POLYGON);
         l.setParsedValue(Lexeme.ParsedValueName.VALUE, PolygonGeometryImpl.builder()//
                 .setSrsName("http://www.opengis.net/def/crs/EPSG/0/4326")//
                 .addExteriorRingPositions(-80d, -180d, -70d, -75d, -60d, 15d, -70d, 75d, -80d, -180d).build());
