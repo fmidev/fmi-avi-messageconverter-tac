@@ -59,6 +59,7 @@ public class AdvisoryPhenomena extends RegexMatchingLexemeVisitor {
                     builder.append(" HR");
                 }
                 builder.append(":");
+                appendWhiteSpaceToString(builder, 21);
 
                 retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_PHENOMENA_LABEL));
             }

@@ -42,6 +42,7 @@ public class AdvisoryStatus extends RegexMatchingLexemeVisitor {
                 if (advisory.getPermissibleUsageReason().isPresent()) {
                     StringBuilder builder = new StringBuilder();
                     builder.append("STATUS: ");
+                    appendWhiteSpaceToString(builder, 21);
                     builder.append(advisory.getPermissibleUsageReason().get().toString());
 
                     retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.TEST_OR_EXCERCISE));

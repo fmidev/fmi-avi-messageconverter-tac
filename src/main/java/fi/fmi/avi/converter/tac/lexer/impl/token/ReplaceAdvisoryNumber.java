@@ -45,7 +45,8 @@ public class ReplaceAdvisoryNumber extends RegexMatchingLexemeVisitor {
                     }
 
                     StringBuilder builder = new StringBuilder();
-                    builder.append("NR RPLC: ");
+                    builder.append("NR RPLC :");
+                    appendWhiteSpaceToString(builder, 21);
                     builder.append(advisoryNumber.getYear());
                     builder.append("/");
                     builder.append(advisoryNumber.getSerialNumber());

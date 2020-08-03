@@ -45,6 +45,7 @@ public class AdvisoryNumber extends RegexMatchingLexemeVisitor {
 
                 StringBuilder builder = new StringBuilder();
                 builder.append("ADVISORY NR: ");
+                appendWhiteSpaceToString(builder, 21);
                 builder.append(advisoryNumber.getYear());
                 builder.append("/");
                 builder.append(advisoryNumber.getSerialNumber());

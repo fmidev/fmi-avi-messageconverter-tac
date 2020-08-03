@@ -93,7 +93,8 @@ public class IssueTime extends TimeHandlingRegex {
                 format = "%02d%02d%02d";
             } else if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 StringBuilder builder = new StringBuilder();
-                builder.append("DTG: ");
+                builder.append("DTG:");
+                appendWhiteSpaceToString(builder, 21);
                 builder.append(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
                 return Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ISSUE_TIME));
             } else {

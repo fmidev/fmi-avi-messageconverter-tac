@@ -53,15 +53,29 @@ public class AdvisoryPhenomenaTimeGroup extends TimeHandlingRegex {
 
                 StringBuilder builder = new StringBuilder();
                 PartialOrCompleteTimeInstant timeInstant = analysis.getTime();
-                if (!timeInstant.getCompleteTime().isPresent()) {
+                if (timeInstant.getPartialTime().isPresent()) {
+                    builder.append(convertTimeToString(timeInstant.getPartialTime().get().getDay().getAsInt()));
+                    builder.append("/");
+                    builder.append(convertTimeToString(timeInstant.getPartialTime().get().getHour().getAsInt()));
+                    builder.append(convertTimeToString(timeInstant.getPartialTime().get().getMinute().getAsInt()));
+                    builder.append("Z");
+                } else if(timeInstant.getCompleteTime().isPresent()) {
+                    builder.append(timeInstant.getCompleteTime().get().format(DateTimeFormatter.ofPattern("dd/HHmm'Z'")));
+                } else {
                     throw new SerializingException("Analysis time is missing");
                 }
-                builder.append(timeInstant.getCompleteTime().get().format(DateTimeFormatter.ofPattern("dd/HHmm'Z'")));
-
                 retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP));
             }
             return retval;
         }
+        private String convertTimeToString(int value) {
+            StringBuilder builder = new StringBuilder().append(value);
+            if(builder.length() < 2) {
+                builder.insert(0, "0");
+            }
+            return builder.toString();
+        }
+
     }
 
 }

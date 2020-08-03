@@ -34,17 +34,14 @@ public class SpaceWeatherCenter extends RegexMatchingLexemeVisitor {
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 IssuingCenter center = ((SpaceWeatherAdvisory) msg).getIssuingCenter();
 
-                if (!center.getType().isPresent()) {
+                if (!center.getName().isPresent()) {
                     throw new SerializingException("Issuing center name is missing");
                 }
 
-                if (!center.getDesignator().isPresent()) {
-                    throw new SerializingException("Issuing center designator is missing");
-                }
                 //TODO: add handling for removing unwaned stuff from type (OTHER:SWXC should be SWXC)
                 StringBuilder builder = new StringBuilder();
-                builder.append(center.getType().get());
-                builder.append(": ");
+                builder.append("SWXC:");
+                appendWhiteSpaceToString(builder, 21);
                 builder.append(center.getDesignator().get());
                 retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SPACE_WEATHER_CENTRE));
             }

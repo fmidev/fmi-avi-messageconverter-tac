@@ -57,7 +57,8 @@ public class NextAdvisory extends TimeHandlingRegex {
                     throw new SerializingException("Next advisory is missing");
                 }
                 StringBuilder builder = new StringBuilder();
-                builder.append("NXT ADVISORY: ");
+                builder.append("NXT ADVISORY:");
+                appendWhiteSpaceToString(builder, 21);
 
                 if (nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_BY)) {
                     builder.append("WILL BE ISSUED BY");
