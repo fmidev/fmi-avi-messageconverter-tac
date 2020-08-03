@@ -74,19 +74,18 @@ public class Lexing {
         f.addTokenCombiningRule(volcanicAshAdvisoryDtgCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryCloudForecastCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryForecastTimeCombinationRule());
-        f.addTokenCombiningRule(statusCombinationRule());
         f.addTokenCombiningRule(advisoryNumberCombinationRule());
         f.addTokenCombiningRule(SpaceWeatherAdvisoryNotAvailableCombinationRule());
         f.addTokenCombiningRule(SpaceWeatherAdvisoryNoExpectedCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryHorizontalLimitCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryVerticalLimitCombinationRule());
         f.addTokenCombiningRule(SpaceWeatherAdvisoryPolygonCombinationRule());
-        f.addTokenCombiningRule(spaceWeatherAdvisoryCenterCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffect());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffectType());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffectTypeHFCom());
         f.addTokenCombiningRule(spaceWeatherAdvisoryDaylightSide());
         f.addTokenCombiningRule(spaceWeatherAdvisoryPhenomenon());
+        f.addTokenCombiningRule(SpaceWeatherAdvisoryNextAdvisoryCombinationRules());
         f.addTokenCombiningRule(SpaceWeatherAdvisoryIssuedAtCombinationRule());
         f.addTokenCombiningRule(SpaceWeatherAdvisoryIssuedByCombinationRule());
         f.addTokenCombiningRule(SpaceWeatherAdvisoryNoAdvisoriesCombinationRule());
@@ -509,40 +508,6 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> spaceWeatherAdvisoryCenterCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^SWXC:$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[A-Z a-z 0-9]*$");
-            }
-        });
-        return retval;
-    }
-
-    private List<Predicate<String>> statusCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^STATUS:$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^TEST|EXER$");
-            }
-        });
-        return retval;
-    }
-
     private List<Predicate<String>> advisoryNumberCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -555,12 +520,6 @@ public class Lexing {
             @Override
             public boolean test(final String s) {
                 return s.matches("^NR:$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^\\d{4}\\/\\d+$");
             }
         });
         return retval;
@@ -596,7 +555,6 @@ public class Lexing {
 
     private List<Predicate<String>> SpaceWeatherAdvisoryIssuedByCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
-        SpaceWeatherAdvisoryNextAdvisoryRules(retval);
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -633,7 +591,6 @@ public class Lexing {
 
     private List<Predicate<String>> SpaceWeatherAdvisoryIssuedAtCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
-        SpaceWeatherAdvisoryNextAdvisoryRules(retval);
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -645,7 +602,6 @@ public class Lexing {
 
     private List<Predicate<String>> SpaceWeatherAdvisoryNoAdvisoriesCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
-        SpaceWeatherAdvisoryNextAdvisoryRules(retval);
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -666,7 +622,8 @@ public class Lexing {
         }); return retval;
     }
 
-    private void SpaceWeatherAdvisoryNextAdvisoryRules(List<Predicate<String>> retval) {
+    private List<Predicate<String>> SpaceWeatherAdvisoryNextAdvisoryCombinationRules() {
+        List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -679,6 +636,7 @@ public class Lexing {
                 return s.matches("^ADVISORY:$");
             }
         });
+        return retval;
     }
 
     private List<Predicate<String>>  SpaceWeatherAdvisoryReplaceAdvisoryCombinationRules() {
@@ -699,12 +657,6 @@ public class Lexing {
             @Override
             public boolean test(final String s) {
                 return s.matches("^:$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^\\d{4}\\/\\d+$");
             }
         });
         return retval;
@@ -1100,24 +1052,34 @@ public class Lexing {
 
         l.teach(new SpaceWeatherAdvisoryStart(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new SpaceWeatherIssueTimeLabel(OccurrenceFrequency.RARE));
         l.teach(new AdvisoryPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         l.teach(new AdvisoryStatus(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryStatusLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherCenter(OccurrenceFrequency.AVERAGE));
+        l.teach(new SpaceWeatherCenterLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryNumberLabel(OccurrenceFrequency.RARE));
         l.teach(new AdvisoryNumber(OccurrenceFrequency.RARE));
         l.teach(new SpaceWeatherEffectLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherEffect(OccurrenceFrequency.AVERAGE));
+        l.teach(new SpaceWeatherEffectConjuction(OccurrenceFrequency.FREQUENT));
         l.teach(new SpaceWeatherPresetLocation(OccurrenceFrequency.AVERAGE));
         l.teach(new NextAdvisory(OccurrenceFrequency.RARE));
+        l.teach(new NextAdvisoryLabel(OccurrenceFrequency.RARE));
+        l.teach(new NoFurtherAdvisories(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherNotAvailable(OccurrenceFrequency.RARE));
         l.teach(new SpaceWeatherNotExpected(OccurrenceFrequency.RARE));
         l.teach(new SpaceWeatherHorizontalLimit(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherPolygon(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherVerticalLimit(OccurrenceFrequency.AVERAGE));
+        l.teach(new ReplaceAdvisoryNumberLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumber(OccurrenceFrequency.AVERAGE));
         l.teach(new RemarkStart(OccurrenceFrequency.AVERAGE));
         l.teach(new Remark(OccurrenceFrequency.AVERAGE));
+        l.teach(new SpaceWeatherIssueTimeLabel(OccurrenceFrequency.AVERAGE));
 
         return l;
     }

@@ -47,7 +47,8 @@ public class SpaceWeatherEffect extends RegexMatchingLexemeVisitor {
                 for (SpaceWeatherPhenomenon phenomenon : phenomena) {
                     if (index > 0) {
                         retval.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
-                        retval.add(this.createLexeme("AND", null, Lexeme.Status.OK));
+
+                        retval.add(this.createLexeme("AND", LexemeIdentity.SWX_EFFECT_CONJUCTION, Lexeme.Status.OK));
                         retval.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
                     }
                     Lexeme lexeme = this.createLexeme(phenomenon.asCombinedCode(), LexemeIdentity.SWX_EFFECT);

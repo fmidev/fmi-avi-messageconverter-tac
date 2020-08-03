@@ -16,15 +16,18 @@ import fi.fmi.avi.model.swx.immutable.AdvisoryNumberImpl;
 
 public class AdvisoryNumber extends RegexMatchingLexemeVisitor {
     public AdvisoryNumber(final OccurrenceFrequency prio) {
-        super("^ADVISORY\\sNR:\\s(?<advisoryNumber>[\\d]{4}/[\\d]*)$", prio);
+        super("^(?<advisoryNumber>[\\d]{4}/[\\d]*)$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(LexemeIdentity.ADVISORY_NUMBER);
+        Lexeme previous = token.getPrevious();
+        if(previous.getIdentity() != null && previous.getIdentity().equals(LexemeIdentity.ADVISORY_NUMBER_LABEL)) {
+            token.identify(LexemeIdentity.ADVISORY_NUMBER);
 
-        AdvisoryNumberImpl advisoryNumber = AdvisoryNumberImpl.builder().from(match.group("advisoryNumber")).build();
-        token.setParsedValue(Lexeme.ParsedValueName.VALUE, advisoryNumber);
+            AdvisoryNumberImpl advisoryNumber = AdvisoryNumberImpl.builder().from(match.group("advisoryNumber")).build();
+            token.setParsedValue(Lexeme.ParsedValueName.VALUE, advisoryNumber);
+        }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -44,8 +47,6 @@ public class AdvisoryNumber extends RegexMatchingLexemeVisitor {
                 }
 
                 StringBuilder builder = new StringBuilder();
-                builder.append("ADVISORY NR: ");
-                appendWhiteSpaceToString(builder, 21);
                 builder.append(advisoryNumber.getYear());
                 builder.append("/");
                 builder.append(advisoryNumber.getSerialNumber());

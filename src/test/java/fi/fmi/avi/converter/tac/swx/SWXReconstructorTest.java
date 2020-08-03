@@ -78,7 +78,7 @@ public class SWXReconstructorTest {
         AdvisoryNumber.Reconstructor reconstructor = new AdvisoryNumber.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisory.class, ctx);
-        Assert.assertEquals("ADVISORY NR: 2016/2", lexeme.get().getTACToken());
+        Assert.assertEquals("2016/2", lexeme.get().getTACToken());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class SWXReconstructorTest {
         SpaceWeatherCenter.Reconstructor reconstructor = new SpaceWeatherCenter.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisory.class, ctx);
-        Assert.assertEquals("SWXC: DONLON", lexeme.get().getTACToken());
+        Assert.assertEquals("DONLON Weather Forecast Center", lexeme.get().getTACToken());
     }
 
     @Test

@@ -16,18 +16,20 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
 public class AdvisoryStatus extends RegexMatchingLexemeVisitor {
     public AdvisoryStatus(final OccurrenceFrequency prio) {
-        super("^(?<label>STATUS\\:\\s){1}(?<status>TEST|EXERCISE){1}$", prio);
+        super("^(?<status>TEST|EXERCISE){1}$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(LexemeIdentity.TEST_OR_EXCERCISE);
-        String status = match.group("status");
+        if(token.getPrevious().getIdentity().equals(LexemeIdentity.TEST_OR_EXCERCISE_LABEL)) {
+            token.identify(LexemeIdentity.TEST_OR_EXCERCISE);
+            String status = match.group("status");
 
-        if (status.equals(AviationCodeListUser.PermissibleUsageReason.TEST.toString())) {
-            token.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.TEST);
-        } else {
-            token.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.EXERCISE);
+            if (status.equals(AviationCodeListUser.PermissibleUsageReason.TEST.toString())) {
+                token.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.TEST);
+            } else {
+                token.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.EXERCISE);
+            }
         }
     }
 
@@ -41,8 +43,6 @@ public class AdvisoryStatus extends RegexMatchingLexemeVisitor {
 
                 if (advisory.getPermissibleUsageReason().isPresent()) {
                     StringBuilder builder = new StringBuilder();
-                    builder.append("STATUS: ");
-                    appendWhiteSpaceToString(builder, 21);
                     builder.append(advisory.getPermissibleUsageReason().get().toString());
 
                     retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.TEST_OR_EXCERCISE));

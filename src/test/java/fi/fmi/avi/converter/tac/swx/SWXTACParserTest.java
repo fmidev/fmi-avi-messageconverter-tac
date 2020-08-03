@@ -182,7 +182,7 @@ public class SWXTACParserTest {
 
     @Test
     public void parseAndSerialize() throws Exception {
-        String input = getInput("spacewx-A2-4.tac");
+        String input = getInput("spacewx-A2-3.tac");
 
         final ConversionResult<SpaceWeatherAdvisory> parseResult = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(0, parseResult.getConversionIssues().size());

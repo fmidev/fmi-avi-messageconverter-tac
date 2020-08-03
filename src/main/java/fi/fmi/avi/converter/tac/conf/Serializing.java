@@ -119,10 +119,15 @@ public class Serializing {
 
     public void addSpaceWeatherAdvisoryReconstructors(final AbstractTACSerializer<?> s) {
         s.setLexingFactory(lexingFactory);
+        s.addReconstructor(LexemeIdentity.SWX_ISSUE_TIME_LABEL, new SpaceWeatherIssueTimeLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.TEST_OR_EXCERCISE_LABEL, new AdvisoryStatusLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.TEST_OR_EXCERCISE, new AdvisoryStatus.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SPACE_WEATHER_CENTRE_LABEL, new SpaceWeatherCenterLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.SPACE_WEATHER_CENTRE, new SpaceWeatherCenter.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ADVISORY_NUMBER_LABEL, new AdvisoryNumberLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.ADVISORY_NUMBER, new AdvisoryNumber.Reconstructor());
+        s.addReconstructor(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, new ReplaceAdvisoryNumberLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.REPLACE_ADVISORY_NUMBER, new ReplaceAdvisoryNumber.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_EFFECT_LABEL, new SpaceWeatherEffectLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_EFFECT, new SpaceWeatherEffect.Reconstructor());
@@ -141,6 +146,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.REMARKS_START, new RemarkStart.Reconstructor());
         s.addReconstructor(LexemeIdentity.REMARK, new Remark.Reconstructor());
         s.addReconstructor(LexemeIdentity.NEXT_ADVISORY, new NextAdvisory.Reconstructor());
+        s.addReconstructor(LexemeIdentity.NEXT_ADVISORY_LABEL, new NextAdvisoryLabel.Reconstructor());
     }
 
     private void addMetarAndSpeciCommonReconstructors(final AbstractTACSerializer<?> s) {
