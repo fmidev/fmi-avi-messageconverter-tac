@@ -64,4 +64,9 @@ public abstract class FactoryBasedReconstructor implements TACTokenReconstructor
             throws SerializingException {
 		throw new RuntimeException("Reconstructor does not implement getAsLexeme");
 	}
+	public static void appendWhiteSpaceToString(StringBuilder builder, int endIndex) {
+		for(int i = builder.length(); i < endIndex; i++) {
+			builder.append(" ");
+		}
+	}
 }
