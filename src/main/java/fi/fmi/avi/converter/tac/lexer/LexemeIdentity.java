@@ -111,7 +111,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity NO_SWX_AVAILABLE = new LexemeIdentity("NO_SWX_AVAILABLE");
     public static final LexemeIdentity SWX_PHENOMENON_LONGITUDE_LIMIT = new LexemeIdentity("SWX_PHENOMENON_LONGITUDE_LIMIT", MIN_VALUE, MAX_VALUE);
     public static final LexemeIdentity SWX_PHENOMENON_VERTICAL_LIMIT = new LexemeIdentity("SWX_PHENOMENON_VERTICAL_LIMIT", VALUE, UNIT, RELATIONAL_OPERATOR);
-    public static final LexemeIdentity SWX_PHENOMENON_POLYGON = new LexemeIdentity("SWX_PHENOMENON_POLYGON_LIMIT", VALUE);
+    public static final LexemeIdentity SWX_PHENOMENON_POLYGON_LIMIT = new LexemeIdentity("SWX_PHENOMENON_POLYGON_LIMIT", VALUE);
     public static final LexemeIdentity NEXT_ADVISORY = new LexemeIdentity("NEXT_ADVISORY", TYPE, YEAR, MONTH, DAY1, HOUR1, MINUTE1);
 
     private final String name;

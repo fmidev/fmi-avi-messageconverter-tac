@@ -180,7 +180,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
         Optional<NumericMeasure> verticalLimit = Optional.empty();
         Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator = Optional.empty();
 
-        Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_POLYGON);
+        Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT);
         if (l != null) {
             polygonLimit = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.VALUE, PolygonGeometry.class));
         } else {

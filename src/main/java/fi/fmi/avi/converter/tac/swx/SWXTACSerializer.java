@@ -93,7 +93,7 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
                 //TODO: Add coordinate thing
                 //TODO: Add condition for polygon or horizontal limit
 
-                if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_POLYGON, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+                if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                 }
 

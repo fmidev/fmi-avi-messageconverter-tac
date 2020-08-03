@@ -57,8 +57,8 @@ public class DummySWXLexer implements AviMessageLexer {
                         + "SWXC: PECASUS\n" //
                         + "ADVISORY NR: 2019/1\n"//
                         + "SWX EFFECT: SATCOM MOD AND RADIATION SEV\n" //
-                        + "OBS SWX: 08/1200Z HNH HSH E16000 - W2000 ABV FL340\n"//
-                        + "FCST SWX +6 HR: 08/1800Z N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180 ABV FL370\n"//
+                        + "OBS SWX: 08/1200Z HNH HSH ABV FL340 E16000 - W2000 \n"//
+                        + "FCST SWX +6 HR: 08/1800Z ABV FL370 N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180\n"// is this order correct?
                         + "FCST SWX +12 HR: 09/0000Z NO SWX EXP\n"//
                         + "FCST SWX +18 HR: 09/0600Z DAYLIGHT SIDE\n"//
                         + "FCST SWX +24 HR: 09/1200Z HNH\n"//
@@ -148,18 +148,20 @@ public class DummySWXLexer implements AviMessageLexer {
         aptg.visit(builder.getLast().get(), hints);
 
         builder.append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
-        l = this.factory.createLexeme("N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180");
-        l.identify(LexemeIdentity.SWX_PHENOMENON_POLYGON);
-        l.setParsedValue(Lexeme.ParsedValueName.VALUE, PolygonGeometryImpl.builder()//
-                .setSrsName("http://www.opengis.net/def/crs/EPSG/0/4326")//
-                .addExteriorRingPositions(-80d, -180d, -70d, -75d, -60d, 15d, -70d, 75d, -80d, -180d).build());
-        builder.append(l).append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
 
         l = this.factory.createLexeme("ABV FL370");
         l.identify(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
         l.setParsedValue(Lexeme.ParsedValueName.VALUE, 370);
         l.setParsedValue(Lexeme.ParsedValueName.UNIT, "FL");
         l.setParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR, AviationCodeListUser.RelationalOperator.ABOVE);
+
+        builder.append(this.factory.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
+
+        l = this.factory.createLexeme("N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180");
+        l.identify(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT);
+        l.setParsedValue(Lexeme.ParsedValueName.VALUE, PolygonGeometryImpl.builder()//
+                .setSrsName("http://www.opengis.net/def/crs/EPSG/0/4326")//
+                .addExteriorRingPositions(-80d, -180d, -70d, -75d, -60d, 15d, -70d, 75d, -80d, -180d).build());
         builder.append(l).append(this.factory.createLexeme("\n", LexemeIdentity.WHITE_SPACE));
 
         builder.append(this.factory.createLexeme("FCST SWX +12 HR:"));

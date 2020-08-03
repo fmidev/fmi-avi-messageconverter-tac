@@ -132,7 +132,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.NO_SWX_EXPECTED, new NoSWXExpected.Reconstructor());
         s.addReconstructor(LexemeIdentity.NO_SWX_AVAILABLE, new NoSWXAvailable.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT, new SpaceWeatherVerticalLimit.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_POLYGON, new SpaceWeatherPolygon.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT, new SpaceWeatherPolygon.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_HORIZONTAL_LIMIT, new SpaceWeatherHorizontalLimit.Reconstructor());
 
 
