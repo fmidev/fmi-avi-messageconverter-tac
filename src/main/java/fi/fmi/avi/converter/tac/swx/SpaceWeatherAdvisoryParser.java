@@ -140,7 +140,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
     }
 
     protected List<ConversionIssue> setSWXIssueTime(final SpaceWeatherAdvisoryImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
-        LexemeIdentity[] before = {LexemeIdentity.ADVISORY_PHENOMENA_LABEL};
+        LexemeIdentity[] before = {LexemeIdentity.ADVISORY_NUMBER};
 
         return new ArrayList<>(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
     }
@@ -180,7 +180,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
         Optional<NumericMeasure> verticalLimit = Optional.empty();
         Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator = Optional.empty();
 
-        Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT);
+        Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_POLYGON);
         if (l != null) {
             polygonLimit = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.VALUE, PolygonGeometry.class));
         } else {
