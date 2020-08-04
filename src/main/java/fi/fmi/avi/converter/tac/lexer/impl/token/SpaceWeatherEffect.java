@@ -40,9 +40,6 @@ public class SpaceWeatherEffect extends RegexMatchingLexemeVisitor {
                     throw new SerializingException("There are no space weather phenomena");
                 }
 
-                /*retval.add(this.createLexeme("SWX EFFECT:", null, Lexeme.Status.OK));
-                retval.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));*/
-
                 int index = 0;
                 for (SpaceWeatherPhenomenon phenomenon : phenomena) {
                     if (index > 0) {

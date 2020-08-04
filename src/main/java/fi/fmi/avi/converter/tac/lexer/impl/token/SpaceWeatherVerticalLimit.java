@@ -60,7 +60,7 @@ public class SpaceWeatherVerticalLimit extends RegexMatchingLexemeVisitor {
                         if(volume.getLowerLimitReference().isPresent()) {
                             String ref = volume.getLowerLimitReference().get();
                             if(ref.equals("STD")) {
-                                builder.append("ABV");
+                                builder.append(" ABV");
                             }
                             builder.append(" ");
                         }
@@ -69,11 +69,12 @@ public class SpaceWeatherVerticalLimit extends RegexMatchingLexemeVisitor {
                             builder.append(nm.getUom());
                             DecimalFormat f = new DecimalFormat("#");
                             builder.append(f.format(nm.getValue()));
+
+                            retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT));
                         }
 
                     }
                 }
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT));
             }
             return retval;
         }
