@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import fi.fmi.avi.converter.tac.lexer.impl.token.*;
-import org.springframework.beans.factory.annotation.Qualifier;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -24,7 +24,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.OccurrenceFrequency;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
-import fi.fmi.avi.converter.tac.swx.DummySWXLexer;
 import fi.fmi.avi.model.MessageType;
 
 /**
@@ -1072,7 +1071,7 @@ public class Lexing {
         l.teach(new NoFurtherAdvisories(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherNotAvailable(OccurrenceFrequency.RARE));
         l.teach(new SpaceWeatherNotExpected(OccurrenceFrequency.RARE));
-        l.teach(new SpaceWeatherHorizontalLimit(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryPhenonmenonLongitudeLimit(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherPolygon(OccurrenceFrequency.AVERAGE));
         l.teach(new SpaceWeatherVerticalLimit(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumberLabel(OccurrenceFrequency.AVERAGE));
