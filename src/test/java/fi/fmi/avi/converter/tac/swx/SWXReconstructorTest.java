@@ -8,11 +8,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionSpecification;
-import fi.fmi.avi.converter.json.conf.JSONConverter;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.token.*;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

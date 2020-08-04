@@ -47,10 +47,6 @@ import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
 
 public class SWXTACParserTest {
 
-    //@Autowired
-    //@Qualifier("swxDummy")
-    //private AviMessageLexer swxDummyLexer;
-
     @Autowired
     private AviMessageConverter converter;
 
@@ -182,7 +178,7 @@ public class SWXTACParserTest {
 
     @Test
     public void parseAndSerialize() throws Exception {
-        String input = getInput("spacewx-A2-3.tac");
+        String input = getInput("spacewx-A2-4.tac");
 
         final ConversionResult<SpaceWeatherAdvisory> parseResult = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(0, parseResult.getConversionIssues().size());
@@ -194,6 +190,8 @@ public class SWXTACParserTest {
         ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, new ConversionHints());
         Assert.assertTrue(SerializeResult.getConvertedMessage().isPresent());
         System.out.println(SerializeResult.getConvertedMessage().get());
+
+        Assert.assertEquals(input, SerializeResult.getConvertedMessage().get());
     }
 
     /*TODO: REMOVE WHEN DUMMYLEXER IS REMOVED

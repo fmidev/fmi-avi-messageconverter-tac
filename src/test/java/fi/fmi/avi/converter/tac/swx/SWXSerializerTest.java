@@ -64,7 +64,7 @@ public class SWXSerializerTest {
     }
 
     @Test
-    public void swxSerializerTest() throws Exception {
+    public void swxSerializerTest() {
         ConversionResult<String> result = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, new ConversionHints());
         Assert.assertTrue(result.getConvertedMessage().isPresent());
         System.out.println(result.getConvertedMessage().get());
