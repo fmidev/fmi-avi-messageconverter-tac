@@ -98,9 +98,7 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
             if (analysis.isNoPhenomenaExpected()) {
                 appendToken(retval, LexemeIdentity.SWX_NOT_EXPECTED, input, SpaceWeatherAdvisory.class, baseCtx);
             } else if (analysis.isNoInformationAvailable()) {
-                if (appendToken(retval, LexemeIdentity.SWX_NOT_AVAILABLE, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
-                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                }
+                appendToken(retval, LexemeIdentity.SWX_NOT_AVAILABLE, input, SpaceWeatherAdvisory.class, baseCtx);
             } else {
                 if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
