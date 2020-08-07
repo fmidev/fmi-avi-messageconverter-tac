@@ -30,7 +30,7 @@ import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
-public class SWXSerializerTest {
+public class SWXTACSerializerTest {
 
     @Autowired
     @Qualifier("tacTokenizer")
