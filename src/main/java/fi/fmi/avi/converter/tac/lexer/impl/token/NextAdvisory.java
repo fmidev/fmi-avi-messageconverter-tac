@@ -33,7 +33,7 @@ public class NextAdvisory extends TimeHandlingRegex {
             if (type == null) {
                 token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_AT);
                 setParsedDateValues(token, match, hints);
-            } else if (type.equals("WILL BE ISSUED BY")) {
+            } else if (type.trim().toUpperCase().equals("WILL BE ISSUED BY")) {
                 token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_BY);
                 setParsedDateValues(token, match, hints);
             } else {
@@ -64,7 +64,7 @@ public class NextAdvisory extends TimeHandlingRegex {
                 }
                 StringBuilder builder = new StringBuilder();
                 if (nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_BY)) {
-                    builder.append("WILL BE ISSUED BY");
+                    builder.append("WILL BE ISSUED BY ");
                 } else if (nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES)) {
                     builder.append("NO FURTHER ADVISORIES");
                 }
