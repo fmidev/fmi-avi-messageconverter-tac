@@ -57,7 +57,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }
 
         final LexemeSequence lexed = this.lexer.lexMessage(input);
-
+System.out.println(lexed);
         final Lexeme firstLexeme = lexed.getFirstLexeme();
 
         if (LexemeIdentity.SPACE_WEATHER_ADVISORY_START != firstLexeme.getIdentity()) {
@@ -75,6 +75,10 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }
 
         List<ConversionIssue> conversionIssues = setSWXIssueTime(builder, lexed, hints);
+
+        firstLexeme.findNext(LexemeIdentity.TEST_OR_EXCERCISE, (match) ->{
+            builder.setPermissibleUsageReason(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
+        });
 
         firstLexeme.findNext(LexemeIdentity.SWX_CENTRE, (match) -> {
             IssuingCenterImpl.Builder issuingCenter = IssuingCenterImpl.builder();
@@ -161,6 +165,11 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         analysisLexeme = lexeme.findNext(LexemeIdentity.SWX_NOT_EXPECTED);
         if (analysisLexeme != null) {
             builder.setNoPhenomenaExpected(true);
+            return builder.build();
+        }
+        analysisLexeme = lexeme.findNext(LexemeIdentity.SWX_NOT_AVAILABLE);
+        if (analysisLexeme != null) {
+            builder.setNoInformationAvailable(true);
             return builder.build();
         }
 
