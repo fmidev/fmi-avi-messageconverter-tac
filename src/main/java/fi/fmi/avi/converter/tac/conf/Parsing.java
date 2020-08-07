@@ -1,7 +1,6 @@
 package fi.fmi.avi.converter.tac.conf;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -13,7 +12,7 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.metar.ImmutableMETARTACParser;
 import fi.fmi.avi.converter.tac.metar.METARTACParser;
 import fi.fmi.avi.converter.tac.metar.SPECITACParser;
-import fi.fmi.avi.converter.tac.swx.SpaceWeatherAdvisoryParser;
+import fi.fmi.avi.converter.tac.swx.SWXTACParser;
 import fi.fmi.avi.converter.tac.taf.ImmutableTAFTACParser;
 import fi.fmi.avi.converter.tac.taf.TAFTACParser;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
@@ -78,7 +77,7 @@ public class Parsing {
 
     @Bean
     AviMessageSpecificConverter<String, SpaceWeatherAdvisory> swxTACParser() {
-        final TACParser<SpaceWeatherAdvisory> p = new SpaceWeatherAdvisoryParser();
+        final TACParser<SpaceWeatherAdvisory> p = new SWXTACParser();
         //FIXME: set to aviMessageLexer when the real SWX lexing is available:
         p.setTACLexer(aviMessageLexer);
         return p;

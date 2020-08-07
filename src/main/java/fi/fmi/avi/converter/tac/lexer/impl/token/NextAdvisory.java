@@ -26,7 +26,7 @@ public class NextAdvisory extends TimeHandlingRegex {
         while (previous != null && previous.getIdentity().equals(LexemeIdentity.WHITE_SPACE)) {
             previous = previous.getPrevious();
         }
-        if(previous.getIdentity().equals(LexemeIdentity.NEXT_ADVISORY_LABEL)) {
+        if (previous.getIdentity().equals(LexemeIdentity.NEXT_ADVISORY_LABEL)) {
             token.identify(LexemeIdentity.NEXT_ADVISORY);
 
             String type = match.group("type");

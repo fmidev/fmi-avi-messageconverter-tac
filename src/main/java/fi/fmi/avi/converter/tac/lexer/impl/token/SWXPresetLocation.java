@@ -16,9 +16,9 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 import fi.fmi.avi.model.swx.SpaceWeatherRegion;
 
-public class SpaceWeatherPresetLocation extends RegexMatchingLexemeVisitor {
+public class SWXPresetLocation extends RegexMatchingLexemeVisitor {
 
-    public SpaceWeatherPresetLocation(final OccurrenceFrequency prio) {
+    public SWXPresetLocation(final OccurrenceFrequency prio) {
         super("^(?<type>EQN|EQS|HSH|HNH|MSH|MNH|(DAYLIGHT SIDE))$", prio);
     }
 
@@ -27,7 +27,7 @@ public class SpaceWeatherPresetLocation extends RegexMatchingLexemeVisitor {
         token.identify(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
 
         String locationCode = match.group("type");
-        if(locationCode.equals("DAYLIGHT SIDE")) {
+        if (locationCode.equals("DAYLIGHT SIDE")) {
             locationCode = "DAYLIGHT_SIDE";
         }
         token.setParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.fromCode(locationCode));

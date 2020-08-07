@@ -59,7 +59,7 @@ public class AdvisoryPhenomenaTimeGroup extends TimeHandlingRegex {
                     builder.append(convertTimeToString(timeInstant.getPartialTime().get().getHour().getAsInt()));
                     builder.append(convertTimeToString(timeInstant.getPartialTime().get().getMinute().getAsInt()));
                     builder.append("Z");
-                } else if(timeInstant.getCompleteTime().isPresent()) {
+                } else if (timeInstant.getCompleteTime().isPresent()) {
                     builder.append(timeInstant.getCompleteTime().get().format(DateTimeFormatter.ofPattern("dd/HHmm'Z'")));
                 } else {
                     throw new SerializingException("Analysis time is missing");
@@ -68,9 +68,9 @@ public class AdvisoryPhenomenaTimeGroup extends TimeHandlingRegex {
             }
             return retval;
         }
-        private String convertTimeToString(int value) {
+        private String convertTimeToString(final int value) {
             StringBuilder builder = new StringBuilder().append(value);
-            if(builder.length() < 2) {
+            if (builder.length() < 2) {
                 builder.insert(0, "0");
             }
             return builder.toString();

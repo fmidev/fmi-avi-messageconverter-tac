@@ -173,10 +173,9 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
                 final Integer hour = match.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
                 final Integer month = match.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
                 final Integer year = match.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
-                if(year != null && month != null && day != null && minute != null && hour != null) {
-                    consumer.accept(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour,minute, 0, 0, ZoneId.of("Z"))));
-                }
-                else if (day != null && minute != null && hour != null) {
+                if (year != null && month != null && day != null && minute != null && hour != null) {
+                    consumer.accept(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
+                } else if (day != null && minute != null && hour != null) {
                     consumer.accept(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"))));
                 } else {
                     retval.add(

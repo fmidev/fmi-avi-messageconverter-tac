@@ -14,14 +14,14 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-public class SpaceWeatherNotExpected extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherNotExpected(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
-        super("^NO\\sSWX\\sEXP$", prio);
+public class SWXEffectLabel extends RegexMatchingLexemeVisitor {
+    public SWXEffectLabel(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
+        super("^SWX\\sEFFECT:$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(LexemeIdentity.NO_SWX_EXPECTED);
+        token.identify(LexemeIdentity.SWX_EFFECT_LABEL);
 
     }
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -31,8 +31,8 @@ public class SpaceWeatherNotExpected extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                StringBuilder builder = new StringBuilder("NO SWX EXPECTED");
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.NO_SWX_EXPECTED));
+                StringBuilder builder = new StringBuilder("SWX EFFECT:");
+                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_EFFECT_LABEL));
             }
             return retval;
         }

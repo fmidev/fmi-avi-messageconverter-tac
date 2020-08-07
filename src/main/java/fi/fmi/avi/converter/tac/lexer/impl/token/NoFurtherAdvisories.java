@@ -23,15 +23,15 @@ public class NoFurtherAdvisories extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         Lexeme previous = token.getPrevious();
-        while(previous != null && previous.getIdentity().equals(LexemeIdentity.WHITE_SPACE)) {
+        while (previous != null && previous.getIdentity().equals(LexemeIdentity.WHITE_SPACE)) {
             previous = previous.getPrevious();
         }
-        if(previous.getIdentity().equals(NEXT_ADVISORY_LABEL)) {
+        if (previous.getIdentity().equals(NEXT_ADVISORY_LABEL)) {
             token.identify(NEXT_ADVISORY);
             token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES);
         }
     }
-/*
+
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
@@ -43,5 +43,5 @@ public class NoFurtherAdvisories extends RegexMatchingLexemeVisitor {
             }
             return retval;
         }
-    }*/
+    }
 }

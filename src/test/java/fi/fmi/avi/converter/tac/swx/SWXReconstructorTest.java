@@ -80,7 +80,7 @@ public class SWXReconstructorTest {
 
     @Test
     public void spaceWeatherCenterReconstructorTest() throws Exception {
-        SpaceWeatherCenter.Reconstructor reconstructor = new SpaceWeatherCenter.Reconstructor();
+        SWXCenter.Reconstructor reconstructor = new SWXCenter.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisory.class, ctx);
         Assert.assertEquals("DONLON Weather Forecast Center", lexeme.get().getTACToken());
@@ -88,7 +88,7 @@ public class SWXReconstructorTest {
 
     @Test
     public void spaceWeatherEffectReconstructorTest() throws Exception {
-        SpaceWeatherEffect.Reconstructor reconstructor = new SpaceWeatherEffect.Reconstructor();
+        SWXEffect.Reconstructor reconstructor = new SWXEffect.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         List<Lexeme> lexeme = reconstructor.getAsLexemes(msg, SpaceWeatherAdvisory.class, ctx);
         Assert.assertEquals("HF COM MOD", lexeme.get(0).getTACToken());
@@ -98,7 +98,7 @@ public class SWXReconstructorTest {
 
     @Test
     public void spaceWeatherPresetLocationReconstructorTest() throws Exception {
-        SpaceWeatherPresetLocation.Reconstructor reconstructor = new SpaceWeatherPresetLocation.Reconstructor();
+        SWXPresetLocation.Reconstructor reconstructor = new SWXPresetLocation.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         ctx.setHint(ConversionHints.KEY_SWX_ANALYSIS_INDEX, 0);
 
@@ -112,7 +112,7 @@ public class SWXReconstructorTest {
     public void AdvisoryPhenomenaReconstructorTest() throws Exception {
         List<Lexeme> lexList = new ArrayList<>();
 
-        AdvisoryPhenomena.Reconstructor reconstructor = new AdvisoryPhenomena.Reconstructor();
+        SWXPhenomena.Reconstructor reconstructor = new SWXPhenomena.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
 
         for(int i = 0; i < msg.getAnalyses().size(); i++) {

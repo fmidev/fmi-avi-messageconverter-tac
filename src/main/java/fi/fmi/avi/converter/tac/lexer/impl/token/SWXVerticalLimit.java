@@ -20,9 +20,8 @@ import java.text.DecimalFormat;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-public class SpaceWeatherVerticalLimit extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherVerticalLimit(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
-        //TODO: Add pattern for FL000-000
+public class SWXVerticalLimit extends RegexMatchingLexemeVisitor {
+    public SWXVerticalLimit(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
         super("^((?<above>ABV)\\s(?<unit>FL)(?<value>\\d*))$", prio);
     }
 
@@ -31,7 +30,7 @@ public class SpaceWeatherVerticalLimit extends RegexMatchingLexemeVisitor {
         token.identify(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
 
         String above = match.group("above");
-        if(above != null && above != "") {
+        if (above != null && above != "") {
             token.setParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR, AviationCodeListUser.RelationalOperator.ABOVE);
         }
         token.setParsedValue(Lexeme.ParsedValueName.UNIT, match.group("unit"));
@@ -53,18 +52,18 @@ public class SpaceWeatherVerticalLimit extends RegexMatchingLexemeVisitor {
                 }
 
                 SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(index);
-                if(analysis.getRegion().isPresent()) {
+                if (analysis.getRegion().isPresent()) {
                     SpaceWeatherRegion region = analysis.getRegion().get().get(0);
-                    if(region.getAirSpaceVolume().isPresent()) {
+                    if (region.getAirSpaceVolume().isPresent()) {
                         AirspaceVolume volume = region.getAirSpaceVolume().get();
-                        if(volume.getLowerLimitReference().isPresent()) {
+                        if (volume.getLowerLimitReference().isPresent()) {
                             String ref = volume.getLowerLimitReference().get();
-                            if(ref.equals("STD")) {
+                            if (ref.equals("STD")) {
                                 builder.append(" ABV");
                             }
                             builder.append(" ");
                         }
-                        if(volume.getLowerLimit().isPresent()) {
+                        if (volume.getLowerLimit().isPresent()) {
                             NumericMeasure nm = volume.getLowerLimit().get();
                             builder.append(nm.getUom());
                             DecimalFormat f = new DecimalFormat("#");

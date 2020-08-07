@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-public class SpaceWeatherPolygon extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherPolygon(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
+public class SWXPolygon extends RegexMatchingLexemeVisitor {
+    public SWXPolygon(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
         super("^(((N|S)\\d*\\s(W|E)\\d*)(\\s-\\s)?){5}$", prio);
     }
 
@@ -47,11 +47,11 @@ public class SpaceWeatherPolygon extends RegexMatchingLexemeVisitor {
                     SpaceWeatherRegion region = analysis.getRegion().get().get(0);
                     if (region.getAirSpaceVolume().isPresent()) {
                         AirspaceVolume volume = region.getAirSpaceVolume().get();
-                        if(volume.getHorizontalProjection().isPresent()) {
-                            List<Double> coord = ((PolygonGeometry)volume.getHorizontalProjection().get()).getExteriorRingPositions();
-                            for(int i = 0; i < coord.size(); i++) {
+                        if (volume.getHorizontalProjection().isPresent()) {
+                            List<Double> coord = ((PolygonGeometry) volume.getHorizontalProjection().get()).getExteriorRingPositions();
+                            for (int i = 0; i < coord.size(); i++) {
                                 Double val = coord.get(i);
-                                if(val < 0) {
+                                if (val < 0) {
                                     builder.append("S");
                                     val = Math.abs(val);
                                 } else {
@@ -61,17 +61,17 @@ public class SpaceWeatherPolygon extends RegexMatchingLexemeVisitor {
                                 builder.append(" ");
                                 i++;
                                 val = coord.get(i);
-                                if(val < 0) {
+                                if (val < 0) {
                                     builder.append("W");
                                     val = Math.abs(val);
                                 } else {
                                     builder.append("E");
                                 }
-                                if((val % 1) == 0) {
+                                if ((val % 1) == 0) {
 
                                 }
                                 builder.append(formatDouble(val));
-                                if((i + 1) != coord.size()) {
+                                if ((i + 1) != coord.size()) {
                                     builder.append(" - ");
                                 }
                             }
@@ -82,8 +82,8 @@ public class SpaceWeatherPolygon extends RegexMatchingLexemeVisitor {
             }
             return retval;
         }
-        private String formatDouble(Double number) {
-            if((number % 1) == 0.0) {
+        private String formatDouble(final Double number) {
+            if ((number % 1) == 0.0) {
                 DecimalFormat f = new DecimalFormat("#");
                 return f.format(number);
             }

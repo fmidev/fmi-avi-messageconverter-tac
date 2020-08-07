@@ -22,7 +22,7 @@ public class AdvisoryNumber extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         Lexeme previous = token.getPrevious();
-        if(previous.getIdentity() != null && previous.getIdentity().equals(LexemeIdentity.ADVISORY_NUMBER_LABEL)) {
+        if (previous.getIdentity() != null && previous.getIdentity().equals(LexemeIdentity.ADVISORY_NUMBER_LABEL)) {
             token.identify(LexemeIdentity.ADVISORY_NUMBER);
 
             AdvisoryNumberImpl advisoryNumber = AdvisoryNumberImpl.builder().from(match.group("advisoryNumber")).build();

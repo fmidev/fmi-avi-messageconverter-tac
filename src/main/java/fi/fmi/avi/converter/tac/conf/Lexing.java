@@ -74,21 +74,21 @@ public class Lexing {
         f.addTokenCombiningRule(volcanicAshAdvisoryCloudForecastCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryForecastTimeCombinationRule());
         f.addTokenCombiningRule(advisoryNumberCombinationRule());
-        f.addTokenCombiningRule(SpaceWeatherAdvisoryNotAvailableCombinationRule());
-        f.addTokenCombiningRule(SpaceWeatherAdvisoryNoExpectedCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryNotAvailableCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryNoExpectedCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryHorizontalLimitCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryVerticalLimitCombinationRule());
-        f.addTokenCombiningRule(SpaceWeatherAdvisoryPolygonCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffect());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffectType());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffectTypeHFCom());
         f.addTokenCombiningRule(spaceWeatherAdvisoryDaylightSide());
         f.addTokenCombiningRule(spaceWeatherAdvisoryPhenomenon());
-        f.addTokenCombiningRule(SpaceWeatherAdvisoryNextAdvisoryCombinationRules());
-        f.addTokenCombiningRule(SpaceWeatherAdvisoryIssuedAtCombinationRule());
-        f.addTokenCombiningRule(SpaceWeatherAdvisoryIssuedByCombinationRule());
-        f.addTokenCombiningRule(SpaceWeatherAdvisoryNoAdvisoriesCombinationRule());
-        f.addTokenCombiningRule(SpaceWeatherAdvisoryReplaceAdvisoryCombinationRules());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryNextAdvisoryCombinationRules());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryIssuedAtCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryIssuedByCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryNoAdvisoriesCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryCombinationRules());
 
         f.setMessageStartToken(MessageType.METAR,
                 f.createLexeme("METAR", LexemeIdentity.METAR_START, Lexeme.Status.OK, true));
@@ -524,7 +524,7 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> SpaceWeatherAdvisoryPolygonCombinationRule() {
+    private List<Predicate<String>> spaceWeatherAdvisoryPolygonCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         for(int i = 0; i < 5; i++) {
             retval.add(new Predicate<String>() {
@@ -552,7 +552,7 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> SpaceWeatherAdvisoryIssuedByCombinationRule() {
+    private List<Predicate<String>> spaceWeatherAdvisoryIssuedByCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -588,7 +588,7 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> SpaceWeatherAdvisoryIssuedAtCombinationRule() {
+    private List<Predicate<String>> spaceWeatherAdvisoryIssuedAtCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -599,7 +599,7 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> SpaceWeatherAdvisoryNoAdvisoriesCombinationRule() {
+    private List<Predicate<String>> spaceWeatherAdvisoryNoAdvisoriesCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -621,7 +621,7 @@ public class Lexing {
         }); return retval;
     }
 
-    private List<Predicate<String>> SpaceWeatherAdvisoryNextAdvisoryCombinationRules() {
+    private List<Predicate<String>> spaceWeatherAdvisoryNextAdvisoryCombinationRules() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -638,7 +638,7 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>>  SpaceWeatherAdvisoryReplaceAdvisoryCombinationRules() {
+    private List<Predicate<String>>  spaceWeatherAdvisoryReplaceAdvisoryCombinationRules() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -661,7 +661,7 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> SpaceWeatherAdvisoryNoExpectedCombinationRule() {
+    private List<Predicate<String>> spaceWeatherAdvisoryNoExpectedCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -684,7 +684,7 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> SpaceWeatherAdvisoryNotAvailableCombinationRule() {
+    private List<Predicate<String>> spaceWeatherAdvisoryNotAvailableCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -1049,36 +1049,36 @@ public class Lexing {
             }
         });
 
-        l.teach(new SpaceWeatherAdvisoryStart(OccurrenceFrequency.RARE));
+        l.teach(new SWXAdvisoryStart(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
         l.teach(new IssueTime(OccurrenceFrequency.RARE));
-        l.teach(new SpaceWeatherIssueTimeLabel(OccurrenceFrequency.RARE));
-        l.teach(new AdvisoryPhenomena(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXIssueTimeLabel(OccurrenceFrequency.RARE));
+        l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         l.teach(new AdvisoryStatus(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryStatusLabel(OccurrenceFrequency.AVERAGE));
-        l.teach(new SpaceWeatherCenter(OccurrenceFrequency.AVERAGE));
-        l.teach(new SpaceWeatherCenterLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXCenter(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXCenterLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryNumberLabel(OccurrenceFrequency.RARE));
         l.teach(new AdvisoryNumber(OccurrenceFrequency.RARE));
-        l.teach(new SpaceWeatherEffectLabel(OccurrenceFrequency.AVERAGE));
-        l.teach(new SpaceWeatherEffect(OccurrenceFrequency.AVERAGE));
-        l.teach(new SpaceWeatherEffectConjuction(OccurrenceFrequency.FREQUENT));
-        l.teach(new SpaceWeatherPresetLocation(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXEffectLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXEffect(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXEffectConjuction(OccurrenceFrequency.FREQUENT));
+        l.teach(new SWXPresetLocation(OccurrenceFrequency.AVERAGE));
         l.teach(new NextAdvisory(OccurrenceFrequency.RARE));
         l.teach(new NextAdvisoryLabel(OccurrenceFrequency.RARE));
         l.teach(new NoFurtherAdvisories(OccurrenceFrequency.AVERAGE));
-        l.teach(new SpaceWeatherNotAvailable(OccurrenceFrequency.RARE));
-        l.teach(new SpaceWeatherNotExpected(OccurrenceFrequency.RARE));
-        l.teach(new AdvisoryPhenonmenonLongitudeLimit(OccurrenceFrequency.AVERAGE));
-        l.teach(new SpaceWeatherPolygon(OccurrenceFrequency.AVERAGE));
-        l.teach(new SpaceWeatherVerticalLimit(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXNotAvailable(OccurrenceFrequency.RARE));
+        l.teach(new SWXNotExpected(OccurrenceFrequency.RARE));
+        l.teach(new SWXPhenonmenonLongitudeLimit(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXPolygon(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXVerticalLimit(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumberLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumber(OccurrenceFrequency.AVERAGE));
         l.teach(new RemarkStart(OccurrenceFrequency.AVERAGE));
         l.teach(new Remark(OccurrenceFrequency.AVERAGE));
-        l.teach(new SpaceWeatherIssueTimeLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXIssueTimeLabel(OccurrenceFrequency.AVERAGE));
 
         return l;
     }
@@ -1100,7 +1100,7 @@ public class Lexing {
 
         l.teach(new VolcanicAshAdvisoryStart(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
-        l.teach(new AdvisoryPhenomena(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;

@@ -17,7 +17,7 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomena;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.PartialDateTime;
@@ -39,7 +39,7 @@ import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryAnalysisImpl;
 import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryImpl;
 import fi.fmi.avi.model.swx.immutable.SpaceWeatherRegionImpl;
 
-public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAdvisory> {
+public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
     private AviMessageLexer lexer;
 
@@ -76,7 +76,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
 
         List<ConversionIssue> conversionIssues = setSWXIssueTime(builder, lexed, hints);
 
-        firstLexeme.findNext(LexemeIdentity.SPACE_WEATHER_CENTRE, (match) -> {
+        firstLexeme.findNext(LexemeIdentity.SWX_CENTRE, (match) -> {
             IssuingCenterImpl.Builder issuingCenter = IssuingCenterImpl.builder();
             issuingCenter.setName(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
             issuingCenter.setDesignator("SWXC");
@@ -119,9 +119,9 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
         List<LexemeSequence> analysisList = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
         List<SpaceWeatherAdvisoryAnalysis> analyses = new ArrayList<>();
 
-        for(LexemeSequence analysisSequence : analysisList) {
+        for (LexemeSequence analysisSequence : analysisList) {
             Lexeme analysis = analysisSequence.getFirstLexeme();
-            if(analysis.getIdentity() == LexemeIdentity.ADVISORY_PHENOMENA_LABEL) {
+            if (analysis.getIdentity() == LexemeIdentity.ADVISORY_PHENOMENA_LABEL) {
                 analyses.add(processAnalysis(analysisSequence.getFirstLexeme(), conversionIssues));
             }
         }
@@ -131,7 +131,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
         parseRemark(firstLexeme.findNext(LexemeIdentity.REMARKS_START), builder::setRemarks);
 
         retval.addIssue(conversionIssues);
-        if(conversionIssues.size() == 0) {
+        if (conversionIssues.size() == 0) {
             retval.setConvertedMessage(builder.build());
             retval.setStatus(ConversionResult.Status.SUCCESS);
         }
@@ -148,7 +148,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
     protected SpaceWeatherAdvisoryAnalysis processAnalysis(final Lexeme lexeme, final List<ConversionIssue> issues) {
         SpaceWeatherAdvisoryAnalysisImpl.Builder builder = SpaceWeatherAdvisoryAnalysisImpl.builder();
 
-        if (lexeme.getParsedValue(Lexeme.ParsedValueName.TYPE, AdvisoryPhenomena.Type.class) == AdvisoryPhenomena.Type.OBS) {
+        if (lexeme.getParsedValue(Lexeme.ParsedValueName.TYPE, SWXPhenomena.Type.class) == SWXPhenomena.Type.OBS) {
             builder.setAnalysisType(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
         } else {
             builder.setAnalysisType(SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
@@ -158,7 +158,7 @@ public class SpaceWeatherAdvisoryParser extends AbstractTACParser<SpaceWeatherAd
         createPartialTimeInstant(analysisLexeme, builder::setTime);
 
 
-        analysisLexeme = lexeme.findNext(LexemeIdentity.NO_SWX_EXPECTED);
+        analysisLexeme = lexeme.findNext(LexemeIdentity.SWX_NOT_EXPECTED);
         if (analysisLexeme != null) {
             builder.setNoPhenomenaExpected(true);
             return builder.build();

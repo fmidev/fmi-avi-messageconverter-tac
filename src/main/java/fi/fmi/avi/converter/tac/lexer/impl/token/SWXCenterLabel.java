@@ -12,14 +12,14 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
-public class SpaceWeatherIssueTimeLabel extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherIssueTimeLabel(final OccurrenceFrequency prio) {
-        super("^DTG\\:$", prio);
+public class SWXCenterLabel extends RegexMatchingLexemeVisitor {
+    public SWXCenterLabel(final OccurrenceFrequency prio) {
+        super("^SWXC\\:$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(LexemeIdentity.SWX_ISSUE_TIME_LABEL);
+        token.identify(LexemeIdentity.SWX_CENTRE_LABEL);
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -28,8 +28,8 @@ public class SpaceWeatherIssueTimeLabel extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                StringBuilder builder = new StringBuilder("DTG:");
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_ISSUE_TIME_LABEL));
+                StringBuilder builder = new StringBuilder("SWXC:");
+                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_CENTRE_LABEL));
             }
             return retval;
         }

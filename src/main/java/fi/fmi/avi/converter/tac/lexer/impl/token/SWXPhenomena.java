@@ -14,15 +14,22 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 
-public class NoSWXExpected extends RegexMatchingLexemeVisitor {
+/**
+ * Created by rinne on 10/02/17.
+ */
+public class SWXPhenomena extends RegexMatchingLexemeVisitor {
 
-    public NoSWXExpected(final OccurrenceFrequency prio) {
-        super("^NO SWX EXP$", prio);
+    public SWXPhenomena(final OccurrenceFrequency prio) {
+        super("^(?<type>OBS|FCST)(?:[a-zA-Z0-9\\+\\s]+)?:$", prio);
     }
 
+    @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(LexemeIdentity.NO_SWX_EXPECTED);
+        token.identify(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
+        token.setParsedValue(Lexeme.ParsedValueName.TYPE, Type.valueOf(match.group("type")));
     }
+
+    public enum Type { OBS, FCST }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
@@ -35,13 +42,28 @@ public class NoSWXExpected extends RegexMatchingLexemeVisitor {
                     throw new SerializingException("Conversion hint KEY_SWX_ANALYSIS_INDEX has not been set");
                 }
 
+                StringBuilder builder = new StringBuilder();
                 SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(index);
 
-                if (analysis.isNoPhenomenaExpected()) {
-                    retval = Optional.of(this.createLexeme("NO SWX EXP", LexemeIdentity.NO_SWX_EXPECTED));
+                if (analysis.getAnalysisType().get().equals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION)) {
+                    builder.append("OBS ");
+                } else {
+                    builder.append("FCST ");
                 }
+
+                builder.append("SWX");
+
+                if (index != null && index > 0) {
+                    builder.append(" +");
+                    builder.append(index * 6);
+                    builder.append(" HR");
+                }
+                builder.append(":");
+
+                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_PHENOMENA_LABEL));
             }
             return retval;
         }
     }
+
 }

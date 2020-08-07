@@ -15,8 +15,8 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
 
-public class SpaceWeatherEffect extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherEffect(final OccurrenceFrequency prio) {
+public class SWXEffect extends RegexMatchingLexemeVisitor {
+    public SWXEffect(final OccurrenceFrequency prio) {
         super("^(?<phenomenon>(SATCOM|HF\\sCOM|GNSS|RADIATION){1}\\s(MOD|SEV){1})$", prio);
     }
 

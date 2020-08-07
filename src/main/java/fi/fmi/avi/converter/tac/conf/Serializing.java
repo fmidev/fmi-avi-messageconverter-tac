@@ -99,7 +99,7 @@ public class Serializing {
     AviMessageSpecificConverter<SpaceWeatherAdvisory, String> swxTACSerializer() {
         final SWXTACSerializer s = new SWXTACSerializer();
         addSpaceWeatherAdvisoryReconstructors(s);
-        s.addReconstructor(LexemeIdentity.SPACE_WEATHER_ADVISORY_START, new SpaceWeatherAdvisoryStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SPACE_WEATHER_ADVISORY_START, new SWXAdvisoryStart.Reconstructor());
         return s;
     }
 
@@ -119,26 +119,26 @@ public class Serializing {
 
     public void addSpaceWeatherAdvisoryReconstructors(final AbstractTACSerializer<?> s) {
         s.setLexingFactory(lexingFactory);
-        s.addReconstructor(LexemeIdentity.SWX_ISSUE_TIME_LABEL, new SpaceWeatherIssueTimeLabel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_ISSUE_TIME_LABEL, new SWXIssueTimeLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
         s.addReconstructor(LexemeIdentity.TEST_OR_EXCERCISE_LABEL, new AdvisoryStatusLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.TEST_OR_EXCERCISE, new AdvisoryStatus.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SPACE_WEATHER_CENTRE_LABEL, new SpaceWeatherCenterLabel.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SPACE_WEATHER_CENTRE, new SpaceWeatherCenter.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_CENTRE_LABEL, new SWXCenterLabel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_CENTRE, new SWXCenter.Reconstructor());
         s.addReconstructor(LexemeIdentity.ADVISORY_NUMBER_LABEL, new AdvisoryNumberLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.ADVISORY_NUMBER, new AdvisoryNumber.Reconstructor());
         s.addReconstructor(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, new ReplaceAdvisoryNumberLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.REPLACE_ADVISORY_NUMBER, new ReplaceAdvisoryNumber.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SWX_EFFECT_LABEL, new SpaceWeatherEffectLabel.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SWX_EFFECT, new SpaceWeatherEffect.Reconstructor());
-        s.addReconstructor(LexemeIdentity.ADVISORY_PHENOMENA_LABEL, new AdvisoryPhenomena.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_EFFECT_LABEL, new SWXEffectLabel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_EFFECT, new SWXEffect.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ADVISORY_PHENOMENA_LABEL, new SWXPhenomena.Reconstructor());
         s.addReconstructor(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, new AdvisoryPhenomenaTimeGroup.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, new SpaceWeatherPresetLocation.Reconstructor());
-        s.addReconstructor(LexemeIdentity.NO_SWX_EXPECTED, new NoSWXExpected.Reconstructor());
-        s.addReconstructor(LexemeIdentity.NO_SWX_AVAILABLE, new NoSWXAvailable.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT, new SpaceWeatherVerticalLimit.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT, new SpaceWeatherPolygon.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, new AdvisoryPhenonmenonLongitudeLimit.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, new SWXPresetLocation.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_NOT_EXPECTED, new SWXNotExpected.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_NOT_AVAILABLE, new SWXNotAvailable.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT, new SWXVerticalLimit.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT, new SWXPolygon.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, new SWXPhenonmenonLongitudeLimit.Reconstructor());
         s.addReconstructor(LexemeIdentity.REMARKS_START, new RemarkStart.Reconstructor());
         s.addReconstructor(LexemeIdentity.REMARK, new Remark.Reconstructor());
         s.addReconstructor(LexemeIdentity.NEXT_ADVISORY, new NextAdvisory.Reconstructor());

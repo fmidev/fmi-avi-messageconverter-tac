@@ -14,14 +14,14 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-public class SpaceWeatherNotAvailable extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherNotAvailable(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
+public class SWXNotAvailable extends RegexMatchingLexemeVisitor {
+    public SWXNotAvailable(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
         super("^NOT\\sAVBL", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(LexemeIdentity.NO_SWX_AVAILABLE);
+        token.identify(LexemeIdentity.SWX_NOT_AVAILABLE);
 
     }
 
@@ -33,7 +33,7 @@ public class SpaceWeatherNotAvailable extends RegexMatchingLexemeVisitor {
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 StringBuilder builder = new StringBuilder("NOT AVBL");
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.NO_SWX_AVAILABLE));
+                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_NOT_AVAILABLE));
             }
             return retval;
         }

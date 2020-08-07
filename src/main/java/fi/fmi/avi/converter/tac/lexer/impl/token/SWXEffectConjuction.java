@@ -12,14 +12,14 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
-public class SpaceWeatherEffectConjuction extends RegexMatchingLexemeVisitor {
-    public SpaceWeatherEffectConjuction(final OccurrenceFrequency prio) {
+public class SWXEffectConjuction extends RegexMatchingLexemeVisitor {
+    public SWXEffectConjuction(final OccurrenceFrequency prio) {
         super("^AND$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if(token.getPrevious().getIdentity().equals(LexemeIdentity.SWX_EFFECT)) {
+        if (token.getPrevious().getIdentity().equals(LexemeIdentity.SWX_EFFECT)) {
             token.identify(LexemeIdentity.SWX_EFFECT_CONJUCTION);
         }
     }

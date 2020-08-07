@@ -19,8 +19,8 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 import fi.fmi.avi.model.swx.SpaceWeatherRegion;
 
-public class AdvisoryPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
-    public AdvisoryPhenonmenonLongitudeLimit(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
+public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
+    public SWXPhenonmenonLongitudeLimit(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
         super("^((W|E)(\\d+)\\s?\\-?\\s?){2}$", prio);
     }
 
@@ -36,15 +36,15 @@ public class AdvisoryPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisito
         token.setParsedValue(Lexeme.ParsedValueName.MAX_VALUE, maxLimit);
     }
 
-    private Double parseLimit(String value) {
+    private Double parseLimit(final String value) {
         StringBuilder builder = new StringBuilder();
-        if(value.startsWith("E")) {
+        if (value.startsWith("E")) {
             builder.append("-");
         }
         return Double.parseDouble(addDecimal(builder, value.substring(1)));
     }
 
-    private String addDecimal(StringBuilder builder, String value) {
+    private String addDecimal(final StringBuilder builder, final String value) {
         builder.append(value.substring(0, value.length() - 2));
         builder.append(".");
         builder.append(value.substring(value.length() - 2));
@@ -77,9 +77,9 @@ public class AdvisoryPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisito
             return lexeme;
         }
 
-        private String parseLimit(Double limit) {
+        private String parseLimit(final Double limit) {
             StringBuilder builder = new StringBuilder();
-            if(limit < 0) {
+            if (limit < 0) {
                 builder.append("E");
             } else {
                 builder.append("W");
@@ -87,7 +87,7 @@ public class AdvisoryPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisito
             String[] limtArray = Double.toString(Math.abs(limit)).split("\\.");
             builder.append(limtArray[0]);
             builder.append(limtArray[1]);
-            if(limtArray[1].length() < 2) {
+            if (limtArray[1].length() < 2) {
                 builder.append("0");
             }
             return builder.toString();
