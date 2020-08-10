@@ -37,7 +37,7 @@ public abstract class RegexMatchingLexemeVisitor extends PrioritizedLexemeVisito
 
     public abstract void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints);
 
-    public static boolean checkPreviousIdentity(Lexeme token, LexemeIdentity id) {
+    public static boolean hasPreceedingLexeme(Lexeme token, LexemeIdentity id) {
         Lexeme previous = token.getPrevious();
 
         while(previous != null) {
@@ -49,6 +49,9 @@ public abstract class RegexMatchingLexemeVisitor extends PrioritizedLexemeVisito
         return false;
     }
 
+    /**
+     * @deprecated This does exactly the same as Lexeme.getPrevious(), so should not be used
+     */
     public static Lexeme getPreviousToken(Lexeme token) {
         Lexeme previous = token.getPrevious();
         try {
