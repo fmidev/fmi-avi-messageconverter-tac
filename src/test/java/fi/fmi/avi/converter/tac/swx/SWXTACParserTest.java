@@ -1,7 +1,6 @@
 package fi.fmi.avi.converter.tac.swx;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -10,37 +9,26 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryImpl;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
 
 import fi.fmi.avi.converter.AviMessageConverter;
+import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.model.PolygonGeometry;
-import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.swx.NextAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
 import fi.fmi.avi.model.swx.SpaceWeatherRegion;
-import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -69,21 +57,6 @@ public class SWXTACParserTest {
                        + "NXT ADVISORY: WILL BE ISSUED BY 20161108/0700Z\n \n",
         */
 
-    /*TODO: REMOVE WHEN DUMMYLEXER IS REMOVED
-    @Test
-
-    public void testLexer() {
-        final LexemeSequence lexed = swxDummyLexer.lexMessage("foo");
-        assertEquals(LexemeIdentity.SPACE_WEATHER_ADVISORY_START, lexed.getFirstLexeme().getIdentityIfAcceptable());
-        lexed.getFirstLexeme().findNext(LexemeIdentity.ISSUE_TIME, (issueTime) -> {
-            assertEquals(Integer.valueOf(2019), issueTime.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class));
-            assertEquals(Integer.valueOf(1), issueTime.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class));
-            assertEquals(Integer.valueOf(28), issueTime.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class));
-            assertEquals(Integer.valueOf(12), issueTime.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class));
-            assertEquals(Integer.valueOf(0), issueTime.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class));
-        });
-    }
-*/
     @Test
     public void testParser1() throws Exception {
         String input = getInput("spacewx-A2-3.tac");
@@ -158,17 +131,36 @@ public class SWXTACParserTest {
         assertTrue(analysis.getRegion().isPresent());
         assertEquals(2, analysis.getRegion().get().size());
 
-        assertTrue(analysis.getRegion().get().get(0).getLocationIndicator().isPresent());
-        assertEquals(analysis.getRegion().get().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().isPresent());
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
-        assertTrue(
-                PolygonGeometry.class.isAssignableFrom(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        PolygonGeometry poly = (PolygonGeometry) analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        //1st region:
+        SpaceWeatherRegion r = analysis.getRegion().get().get(0);
+
+        assertTrue(r.getLocationIndicator().isPresent());
+        assertEquals(r.getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
+        assertTrue(r.getAirSpaceVolume().isPresent());
+        assertTrue(r.getAirSpaceVolume().get().getHorizontalProjection().isPresent());
+        assertTrue(PolygonGeometry.class.isAssignableFrom(r.getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        PolygonGeometry poly = (PolygonGeometry) r.getAirSpaceVolume().get().getHorizontalProjection().get();
+
         Double[] expected = { -90d, -180d, -60d, -180d, -60d, 180d, -90d, 180d, -90d, -180d };
         Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
-        SpaceWeatherRegion r = analysis.getRegion().get().get(0);
+
+        assertEquals(r.getAirSpaceVolume().get().getLowerLimit().get().getValue(), 340.0);
+        assertEquals(r.getAirSpaceVolume().get().getLowerLimit().get().getUom(), "FL");
+        assertEquals(r.getAirSpaceVolume().get().getLowerLimitReference().get(), "STD");
+
+        //2nd region:
+        r = analysis.getRegion().get().get(1);
+        assertTrue(r.getLocationIndicator().isPresent());
+        assertEquals(r.getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
+        assertTrue(r.getAirSpaceVolume().isPresent());
+        assertTrue(r.getAirSpaceVolume().get().getHorizontalProjection().isPresent());
+        assertTrue(PolygonGeometry.class.isAssignableFrom(r.getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        poly = (PolygonGeometry) r.getAirSpaceVolume().get().getHorizontalProjection().get();
+
+        expected = new Double[] { 60d, -180d, 90d, -180d, 90d, 180d, 60d, 180d, 60d, -180d };
+        actual = poly.getExteriorRingPositions().toArray(new Double[10]);
+        assertTrue(Arrays.deepEquals(expected, actual));
 
         assertEquals(r.getAirSpaceVolume().get().getLowerLimit().get().getValue(), 340.0);
         assertEquals(r.getAirSpaceVolume().get().getLowerLimit().get().getUom(), "FL");
