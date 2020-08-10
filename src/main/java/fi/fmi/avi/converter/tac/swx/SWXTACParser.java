@@ -74,6 +74,14 @@ System.out.println(lexed);
             builder.setTranslatedTAC(lexed.getTAC());
         }
 
+        firstLexeme.findNext(LexemeIdentity.TEST_OR_EXCERCISE_LABEL, (match) -> {
+            final Lexeme value = match.getNext();
+            builder.setPermissibleUsage(AviationCodeListUser.PermissibleUsage.NON_OPERATIONAL);
+            if (LexemeIdentity.TEST_OR_EXCERCISE == value.getIdentity()) {
+                builder.setPermissibleUsageReason(value.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
+            }
+        });
+
         List<ConversionIssue> conversionIssues = setSWXIssueTime(builder, lexed, hints);
 
         firstLexeme.findNext(LexemeIdentity.TEST_OR_EXCERCISE, (match) ->{
@@ -132,7 +140,13 @@ System.out.println(lexed);
 
         builder.addAllAnalyses(analyses);
 
-        parseRemark(firstLexeme.findNext(LexemeIdentity.REMARKS_START), builder::setRemarks);
+        firstLexeme.findNext(LexemeIdentity.REMARKS_START, (match) -> {
+            final List<String> remarks = getRemarks(match, hints);
+            if (!remarks.isEmpty()) {
+                builder.setRemarks(remarks);
+            }
+        });
+
 
         retval.addIssue(conversionIssues);
         if (conversionIssues.size() == 0) {
@@ -318,6 +332,7 @@ System.out.println(lexed);
         return volumeBuilder.build();
     }
 
+    //FIXME: very similar method exists already, see AbstractTACParser.getRemarks()
     private void parseRemark(final Lexeme lexeme, final Consumer<List<String>> consumer) {
         Lexeme current = lexeme.getNext();
         StringBuilder remark = new StringBuilder();
