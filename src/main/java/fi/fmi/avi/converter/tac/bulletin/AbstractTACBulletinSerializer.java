@@ -15,6 +15,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
+import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
 public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMessage, T extends MeteorologicalBulletin<S>> extends AbstractTACSerializer<T> {
 
@@ -61,20 +62,23 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
         if (appendToken(retval, LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR, input, getBulletinClass(), baseCtx) == 0) {
             retval.removeLast();
         }
+
         final boolean whitespacePassthrough = hints != null && ConversionHints.VALUE_WHITESPACE_SERIALIZATION_MODE_PASSTHROUGH.equals(
                 hints.getOrDefault(ConversionHints.KEY_WHITESPACE_SERIALIZATION_MODE, null));
         final List<S> messages = input.getMessages();
         LexemeSequence messageSequence;
         if (messages.size() > 0) {
             for (final S message : messages) {
+                boolean swxStyleLayout = SpaceWeatherAdvisory.class.isAssignableFrom(message.getClass());
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN, 2);
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
                 messageSequence = tokenizeSingleMessage(message, hints);
+
                 int charsOnRow = 0;
                 final List<Lexeme> lexemes = messageSequence.getLexemes();
                 for (final Lexeme l : lexemes) {
                     final int tokenLength = l.getTACToken().length();
-                    if (whitespacePassthrough) {
+                    if (whitespacePassthrough || swxStyleLayout) {
                         if (!LexemeIdentity.END_TOKEN.equals(l.getIdentity())) {
                             if (LexemeIdentity.WHITE_SPACE.equals(l.getIdentity()) //
                                     && l.getParsedValues().containsKey(Lexeme.ParsedValueName.TYPE) //
@@ -122,8 +126,10 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                 while (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                     retval.removeLast();
                 }
-                //..and make sure '=' is the last character:
-                retval.append(this.getLexingFactory().createLexeme("=", LexemeIdentity.END_TOKEN));
+                if (!swxStyleLayout) {
+                    //..and make sure '=' is the last character:
+                    retval.append(this.getLexingFactory().createLexeme("=", LexemeIdentity.END_TOKEN));
+                }
             }
         }
         return retval.build();
