@@ -12,7 +12,6 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 
 public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory> {
 
@@ -83,39 +82,45 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
         for (int i = 0; i < input.getAnalyses().size(); i++) {
-            baseCtx.setHint(ConversionHints.KEY_SWX_ANALYSIS_INDEX, i);
+            final ReconstructorContext<SpaceWeatherAdvisory> analysisContext = baseCtx.copyWithParameter("analysisIndex", i);
 
-            if (appendToken(retval, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+            if (appendToken(retval, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
                 appendWhiteSpace(retval, labelSize);
             }
 
-            if (appendToken(retval, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+            if (appendToken(retval, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
 
-            SpaceWeatherAdvisoryAnalysis analysis = input.getAnalyses().get(i);
-
-            if (analysis.isNoPhenomenaExpected()) {
-                appendToken(retval, LexemeIdentity.SWX_NOT_EXPECTED, input, SpaceWeatherAdvisory.class, baseCtx);
-            } else if (analysis.isNoInformationAvailable()) {
-                appendToken(retval, LexemeIdentity.SWX_NOT_AVAILABLE, input, SpaceWeatherAdvisory.class, baseCtx);
-            } else {
-                if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
-                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                    appendToken(retval, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, input, SpaceWeatherAdvisory.class, baseCtx);
-                } else {
-                    appendToken(retval, LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT, input, SpaceWeatherAdvisory.class, baseCtx);
-                }
-                appendToken(retval, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT, input, SpaceWeatherAdvisory.class, baseCtx);
+            if (appendToken(retval, LexemeIdentity.SWX_NOT_EXPECTED, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
+            if (appendToken(retval, LexemeIdentity.SWX_NOT_AVAILABLE, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+            if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+
+            if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+
+            if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+
+            if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
-        if (input.getRemarks().isPresent() && input.getRemarks().get().size() > 0) {
-            baseCtx.setParameter("remark", input.getRemarks().get().get(0));
-            if (appendToken(retval, LexemeIdentity.REMARKS_START, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
-                appendWhiteSpace(retval, labelSize);
-            }
-            if (appendToken(retval, LexemeIdentity.REMARK, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (input.getRemarks().isPresent()) {
+            appendToken(retval, LexemeIdentity.REMARKS_START, input, SpaceWeatherAdvisory.class, baseCtx);
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            for (final String remark : input.getRemarks().get()) {
+                this.appendToken(retval, LexemeIdentity.REMARK, input, SpaceWeatherAdvisory.class, baseCtx.copyWithParameter("remark", remark));
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
@@ -129,6 +134,7 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
 
         return retval.build();
     }
+    //FIXME: confusing name (casing: appendWhiteSpace when the other append methods use appendWhitespace)
     private void appendWhiteSpace(final LexemeSequenceBuilder builder, final int labelSize) {
         int whiteSpace = labelSize - builder.getLast().get().getTACToken().length();
         if (labelSize > 0 && whiteSpace > 0) {
