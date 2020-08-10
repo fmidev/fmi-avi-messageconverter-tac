@@ -1,9 +1,9 @@
-package fi.fmi.avi.converter.tac.bulletin;
+package fi.fmi.avi.converter.tac.taf;
 
 import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.bulletin.AbstractTACBulletinSerializer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
