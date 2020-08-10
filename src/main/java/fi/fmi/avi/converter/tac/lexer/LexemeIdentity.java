@@ -106,7 +106,6 @@ public class LexemeIdentity {
     public static final LexemeIdentity SWX_CENTRE = new LexemeIdentity("SWX_CENTRE", VALUE);
     public static final LexemeIdentity SWX_CENTRE_LABEL = new LexemeIdentity("SWX_CENTRE_LABEL", VALUE);
     public static final LexemeIdentity SWX_EFFECT_LABEL = new LexemeIdentity("SWX_EFFECT_LABEL", VALUE);
-    public static final LexemeIdentity SWX_POLYGON = new LexemeIdentity("SWX_POLYGON", VALUE);
     public static final LexemeIdentity SWX_EFFECT = new LexemeIdentity("SWX_EFFECT", VALUE);
     public static final LexemeIdentity SWX_EFFECT_CONJUCTION = new LexemeIdentity("SWX_EFFECT_CONJUCTION", VALUE);
     public static final LexemeIdentity SWX_EFFECT_CATENATION = new LexemeIdentity("SWX_EFFECT_CATENATION");
