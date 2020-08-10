@@ -78,7 +78,6 @@ public class Parsing {
     @Bean
     AviMessageSpecificConverter<String, SpaceWeatherAdvisory> swxTACParser() {
         final TACParser<SpaceWeatherAdvisory> p = new SWXTACParser();
-        //FIXME: set to aviMessageLexer when the real SWX lexing is available:
         p.setTACLexer(aviMessageLexer);
         return p;
     }
