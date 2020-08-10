@@ -114,7 +114,8 @@ public class LexemeIdentity {
     public static final LexemeIdentity SWX_NOT_EXPECTED = new LexemeIdentity("SWX_NOT_EXPECTED");
     public static final LexemeIdentity SWX_NOT_AVAILABLE = new LexemeIdentity("SWX_NOT_AVAILABLE");
     public static final LexemeIdentity SWX_PHENOMENON_LONGITUDE_LIMIT = new LexemeIdentity("SWX_PHENOMENON_LONGITUDE_LIMIT", MIN_VALUE, MAX_VALUE);
-    public static final LexemeIdentity SWX_PHENOMENON_VERTICAL_LIMIT = new LexemeIdentity("SWX_PHENOMENON_VERTICAL_LIMIT", VALUE, UNIT, RELATIONAL_OPERATOR);
+    public static final LexemeIdentity SWX_PHENOMENON_VERTICAL_LIMIT = new LexemeIdentity("SWX_PHENOMENON_VERTICAL_LIMIT",MIN_VALUE, MAX_VALUE, UNIT,
+            RELATIONAL_OPERATOR);
     public static final LexemeIdentity SWX_PHENOMENON_POLYGON_LIMIT = new LexemeIdentity("SWX_PHENOMENON_POLYGON_LIMIT", VALUE);
     public static final LexemeIdentity SWX_ISSUE_TIME_LABEL = new LexemeIdentity("SWX_ISSUE_TIME_LABEL", VALUE);
     public static final LexemeIdentity NEXT_ADVISORY = new LexemeIdentity("NEXT_ADVISORY", TYPE, YEAR, MONTH, DAY1, HOUR1, MINUTE1);

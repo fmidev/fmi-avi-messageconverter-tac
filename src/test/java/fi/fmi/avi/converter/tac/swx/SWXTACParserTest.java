@@ -194,26 +194,31 @@ public class SWXTACParserTest {
         Assert.assertEquals(input, SerializeResult.getConvertedMessage().get());
     }
 
-    /*TODO: REMOVE WHEN DUMMYLEXER IS REMOVED
-    @Test
-    public void testParser() {
 
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage("foo", TACConverter.TAC_TO_SWX_POJO);
+    @Test
+    public void testAdvancedMessage() throws IOException {
+        final String input = getInput("spacewx-advanced.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         assertTrue(result.getConvertedMessage().isPresent());
 
-        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
         assertEquals(swx.getIssuingCenter().getName().get(), "PECASUS");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 1);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2019);
         assertEquals(2, swx.getPhenomena().size());
         assertEquals(swx.getPhenomena().get(0), SpaceWeatherPhenomenon.fromCombinedCode("SATCOM MOD"));
         assertEquals(swx.getPhenomena().get(1), SpaceWeatherPhenomenon.fromCombinedCode("RADIATION SEV"));
-        assertEquals(swx.getRemarks().get().get(0), "TEST TEST TEST TEST THIS IS A TEST MESSAGE FOR TECHNICAL TEST. SEE WWW.PECASUS.ORG");
+        assertTrue(swx.getRemarks().isPresent());
+        final String[] expectedRemarks = {"TEST", "TEST", "TEST", "TEST", "THIS", "IS", "A", "TEST", "MESSAGE", "FOR", "TECHNICAL", "TEST.", "SEE", "WWW"
+                + ".PECASUS"
+                + ".ORG"};
+        assertTrue(Arrays.deepEquals(swx.getRemarks().get().toArray(new String[14]), expectedRemarks));
         assertEquals(swx.getNextAdvisory().getTimeSpecifier(), NextAdvisory.Type.NEXT_ADVISORY_BY);
 
-        List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
+        final List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
         assertEquals(5, analyses.size());
+
         SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
         assertTrue(analysis.getAnalysisType().isPresent());
         assertEquals(analysis.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
@@ -278,7 +283,29 @@ public class SWXTACParserTest {
         assertEquals(1, analysis.getRegion().get().size());
         assertTrue(analysis.getRegion().get().get(0).getLocationIndicator().isPresent());
         assertEquals(analysis.getRegion().get().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE);
-    }*/
+
+        analysis = analyses.get(4);
+        assertTrue(analysis.getAnalysisType().isPresent());
+        assertEquals(analysis.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
+        assertTrue(analysis.getRegion().isPresent());
+        assertEquals(1, analysis.getRegion().get().size());
+        assertEquals(analysis.getRegion().get().get(0).getLocationIndicator().get(),
+                SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
+        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().isPresent());
+        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
+        assertTrue(
+                PolygonGeometry.class.isAssignableFrom(analysis.getRegion().get().get(1).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        poly = (PolygonGeometry) analysis.getRegion().get().get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
+        expected = new Double[] { 60d, -180d, 90d, -180d, 90d, 180d, 60d, 180d, 60d, -180d };
+        actual = poly.getExteriorRingPositions().toArray(new Double[10]);
+        assertTrue(Arrays.deepEquals(expected, actual));
+        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
+        assertEquals(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build(),
+                analysis.getRegion().get().get(0).getAirSpaceVolume().get().getLowerLimit().get());
+        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getUpperLimit().isPresent());
+        assertEquals(NumericMeasureImpl.builder().setValue(370d).setUom("FL").build(),
+                analysis.getRegion().get().get(0).getAirSpaceVolume().get().getUpperLimit().get());
+    }
 
     private String getInput(String fileName) throws IOException {
         InputStream is = null;

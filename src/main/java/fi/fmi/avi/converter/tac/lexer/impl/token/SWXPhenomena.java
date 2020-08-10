@@ -37,30 +37,36 @@ public class SWXPhenomena extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                Integer index = (Integer) ctx.getHints().get(ConversionHints.KEY_SWX_ANALYSIS_INDEX);
-                if (index == null) {
-                    throw new SerializingException("Conversion hint KEY_SWX_ANALYSIS_INDEX has not been set");
+                final SpaceWeatherAdvisory advisory = (SpaceWeatherAdvisory) msg;
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    final SpaceWeatherAdvisoryAnalysis analysis = advisory.getAnalyses().get(analysisIndex.get());
+                    final StringBuilder builder = new StringBuilder();
+                    if (analysis.getAnalysisType().isPresent()) {
+                        if (analysis.getAnalysisType().get().equals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION)) {
+                            builder.append("OBS ");
+                        } else if (analysis.getAnalysisType().get().equals(SpaceWeatherAdvisoryAnalysis.Type.FORECAST)) {
+                            builder.append("FCST ");
+                        } else {
+                            throw new SerializingException("Unknown analysisType '" + analysis.getAnalysisType().get() + "'");
+                        }
+
+                        builder.append("SWX");
+                    }
+
+                    if (analysisIndex.get() > 0) {
+                        builder.append(" +");
+                        builder.append(analysisIndex.get() * 6);
+                        builder.append(" HR");
+                    }
+                    builder.append(":");
+
+                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_PHENOMENA_LABEL));
                 }
 
-                StringBuilder builder = new StringBuilder();
-                SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(index);
 
-                if (analysis.getAnalysisType().get().equals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION)) {
-                    builder.append("OBS ");
-                } else {
-                    builder.append("FCST ");
-                }
 
-                builder.append("SWX");
 
-                if (index != null && index > 0) {
-                    builder.append(" +");
-                    builder.append(index * 6);
-                    builder.append(" HR");
-                }
-                builder.append(":");
-
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_PHENOMENA_LABEL));
             }
             return retval;
         }

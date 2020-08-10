@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.impl.token.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,10 +22,19 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import fi.fmi.avi.converter.AviMessageConverter;
+import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
+
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenter;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffect;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPresetLocation;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryImpl;
 
@@ -100,8 +106,8 @@ public class SWXReconstructorTest {
     public void spaceWeatherPresetLocationReconstructorTest() throws Exception {
         SWXPresetLocation.Reconstructor reconstructor = new SWXPresetLocation.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
-        ctx.setHint(ConversionHints.KEY_SWX_ANALYSIS_INDEX, 0);
-
+        //ctx.setHint(ConversionHints.KEY_SWX_ANALYSIS_INDEX, 0);
+        ctx.setParameter("analysisIndex", 0);
         List<Lexeme> lexeme = reconstructor.getAsLexemes(msg, SpaceWeatherAdvisory.class, ctx);
         Assert.assertEquals("HNH",lexeme.get(0).getTACToken());
         Assert.assertEquals("HSH",lexeme.get(2).getTACToken());
@@ -116,7 +122,7 @@ public class SWXReconstructorTest {
         reconstructor.setLexingFactory(this.lexingFactory);
 
         for(int i = 0; i < msg.getAnalyses().size(); i++) {
-            ctx.setHint(ConversionHints.KEY_SWX_ANALYSIS_INDEX, i);
+            ctx.setParameter("analysisIndex", i);
             Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisory.class, ctx);
 
             Assert.assertEquals(lexeme.get().getIdentity(), LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
@@ -138,7 +144,7 @@ public class SWXReconstructorTest {
         List<Lexeme> lexList = new ArrayList<>();
 
         for(int i = 0; i < msg.getAnalyses().size(); i++) {
-            ctx.setHint(ConversionHints.KEY_SWX_ANALYSIS_INDEX, i);
+            ctx.setParameter("analysisIndex", i);
             Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisory.class, ctx);
             Assert.assertEquals(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, lexeme.get().getIdentity());
             lexList.add(lexeme.get());

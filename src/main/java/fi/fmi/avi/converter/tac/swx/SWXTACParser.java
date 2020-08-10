@@ -186,7 +186,8 @@ System.out.println(lexed);
         Optional<PolygonGeometry> polygonLimit = Optional.empty();
         Optional<Double> minLongitude = Optional.empty();
         Optional<Double> maxLongitude = Optional.empty();
-        Optional<NumericMeasure> verticalLimit = Optional.empty();
+        Optional<NumericMeasure> lowerLimit = Optional.empty();
+        Optional<NumericMeasure> upperLimit = Optional.empty();
         Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator = Optional.empty();
 
         Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
@@ -197,10 +198,19 @@ System.out.println(lexed);
 
         l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
         if (l != null) {
-            final Integer value = l.getParsedValue(Lexeme.ParsedValueName.VALUE, Integer.class);
+            final Integer minValue = l.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Integer.class);
+            final Integer maxValue = l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
             final String unit = l.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
-            if (value != null && unit != null) {
-                verticalLimit = Optional.of(NumericMeasureImpl.builder().setValue(value.doubleValue()).setUom(unit).build());
+            if (unit != null) {
+                if (minValue != null) {
+                    lowerLimit =  Optional.of(NumericMeasureImpl.builder().setValue(minValue.doubleValue()).setUom(unit).build());
+                }
+                if (maxValue != null) {
+                    upperLimit =  Optional.of(NumericMeasureImpl.builder().setValue(maxValue.doubleValue()).setUom(unit).build());
+                }
+            } else {
+                issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.MISSING_DATA, "Missing vertical limit "
+                        + "unit for airspace volume"));
             }
             verticalLimitOperator = Optional.ofNullable(
                     l.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR, AviationCodeListUser.RelationalOperator.class));
@@ -217,7 +227,7 @@ System.out.println(lexed);
 
         if (polygonLimit.isPresent()) {
             //Explicit polygon limit provided, create a single airspace volume with no location indicator:
-            final AirspaceVolume volume = buildAirspaceVolume(polygonLimit.get(), verticalLimit, verticalLimitOperator, issues);
+            final AirspaceVolume volume = buildAirspaceVolume(polygonLimit.get(), lowerLimit, upperLimit, verticalLimitOperator, issues);
             regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
         } else {
             //Create regions from each preset location (if any)
@@ -263,7 +273,7 @@ System.out.println(lexed);
                                 .setSrsDimension(BigInteger.valueOf(2))
                                 .setAxisLabels(Arrays.asList("lat", "lon"))
                                 .build();
-                        final AirspaceVolume volume = buildAirspaceVolume(polygon, verticalLimit, verticalLimitOperator, issues);
+                        final AirspaceVolume volume = buildAirspaceVolume(polygon, lowerLimit, upperLimit, verticalLimitOperator, issues);
                         regionBuilder.setAirSpaceVolume(volume);
                     }
                     regionList.add(regionBuilder.build());
@@ -278,20 +288,32 @@ System.out.println(lexed);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private AirspaceVolume buildAirspaceVolume(final PolygonGeometry polygon, final Optional<NumericMeasure> verticalLimit,
-            final Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator, final List<ConversionIssue> issues) {
-        final AirspaceVolumeImpl.Builder volumeBuilder = AirspaceVolumeImpl.builder().setHorizontalProjection(polygon);
-        if (verticalLimit.isPresent() && verticalLimitOperator.isPresent()) {
-            if (verticalLimitOperator.get() == AviationCodeListUser.RelationalOperator.ABOVE) {
-                volumeBuilder.setLowerLimit(verticalLimit);
-                volumeBuilder.setLowerLimitReference("STD");
-            } else if (verticalLimitOperator.get() == AviationCodeListUser.RelationalOperator.BELOW) {
-                volumeBuilder.setUpperLimit(verticalLimit);
-                volumeBuilder.setUpperLimitReference("STD");
+    private AirspaceVolume buildAirspaceVolume(final PolygonGeometry polygon, final Optional<NumericMeasure> lowerLimit, final Optional<NumericMeasure>
+            upperLimit, final Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator, final List<ConversionIssue> issues) {
+        final AirspaceVolumeImpl.Builder volumeBuilder = AirspaceVolumeImpl.builder()//
+                .setHorizontalProjection(polygon)//
+                .setLowerLimitReference("STD");
+        if (lowerLimit.isPresent()) {
+            if (upperLimit.isPresent()) {
+                volumeBuilder.setLowerLimit(lowerLimit);
+                volumeBuilder.setUpperLimit(upperLimit);
+            } else if (verticalLimitOperator.isPresent() && AviationCodeListUser.RelationalOperator.ABOVE == verticalLimitOperator.get()){
+                volumeBuilder.setLowerLimit(lowerLimit);
+            }  else {
+                issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA, "Airspace lower limit given, but "
+                        + "missing the relational operator " +
+                        AviationCodeListUser.RelationalOperator.ABOVE));
             }
-        } else if (verticalLimit.isPresent() || verticalLimitOperator.isPresent()) {
-            issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.MISSING_DATA,
-                    "Either the vertical limit or the operator " + "is given, but not both"));
+        } else {
+            if (upperLimit.isPresent()) {
+                if (verticalLimitOperator.isPresent() && AviationCodeListUser.RelationalOperator.BELOW == verticalLimitOperator.get()) {
+                    volumeBuilder.setUpperLimit(upperLimit);
+                } else {
+                    issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA, "Airspace upper limit given, but "
+                            + "missing the relational operator " +
+                            AviationCodeListUser.RelationalOperator.BELOW));
+                }
+            }
         }
         return volumeBuilder.build();
     }
