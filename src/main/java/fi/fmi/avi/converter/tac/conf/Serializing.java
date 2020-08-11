@@ -50,6 +50,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumberLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXAdvisoryStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenter;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenterLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffect;
@@ -243,6 +244,7 @@ public class Serializing {
     private SWXTACSerializer spawnSWXTACSerializer() {
         final SWXTACSerializer s = new SWXTACSerializer();
         s.setLexingFactory(lexingFactory);
+        s.addReconstructor(LexemeIdentity.SPACE_WEATHER_ADVISORY_START, new SWXAdvisoryStart.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_ISSUE_TIME_LABEL, new SWXIssueTimeLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
         s.addReconstructor(LexemeIdentity.TEST_OR_EXCERCISE_LABEL, new AdvisoryStatusLabel.Reconstructor());
