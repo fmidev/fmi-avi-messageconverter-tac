@@ -1,5 +1,8 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
+import java.util.Optional;
+import java.util.regex.Matcher;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -10,9 +13,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-
-import java.util.Optional;
-import java.util.regex.Matcher;
+import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 
 public class SWXNotAvailable extends RegexMatchingLexemeVisitor {
     public SWXNotAvailable(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
@@ -32,8 +33,13 @@ public class SWXNotAvailable extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                StringBuilder builder = new StringBuilder("NOT AVBL");
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_NOT_AVAILABLE));
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(analysisIndex.get());
+                    if (analysis.isNoInformationAvailable()) {
+                        retval = Optional.of(this.createLexeme("NOT AVBL", LexemeIdentity.SWX_NOT_AVAILABLE));
+                    }
+                }
             }
             return retval;
         }
