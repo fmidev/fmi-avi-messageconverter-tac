@@ -118,7 +118,7 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
         }
         if (input.getRemarks().isPresent()) {
             appendToken(retval, LexemeIdentity.REMARKS_START, input, SpaceWeatherAdvisory.class, baseCtx);
-            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            appendWhiteSpace(retval, labelSize);
             for (final String remark : input.getRemarks().get()) {
                 this.appendToken(retval, LexemeIdentity.REMARK, input, SpaceWeatherAdvisory.class, baseCtx.copyWithParameter("remark", remark));
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
