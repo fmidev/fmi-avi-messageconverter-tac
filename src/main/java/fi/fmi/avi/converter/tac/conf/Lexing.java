@@ -1150,7 +1150,7 @@ public class Lexing {
         l.teach(new ReplaceAdvisoryNumberLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumber(OccurrenceFrequency.AVERAGE));
         l.teach(new RemarkStart(OccurrenceFrequency.AVERAGE));
-        l.teach(new Remark(OccurrenceFrequency.AVERAGE));
+        l.teach(new Remark(OccurrenceFrequency.FREQUENT));
         l.teach(new SWXIssueTimeLabel(OccurrenceFrequency.AVERAGE));
 
         return l;
