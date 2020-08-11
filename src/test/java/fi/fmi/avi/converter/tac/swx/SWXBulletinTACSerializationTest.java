@@ -71,7 +71,7 @@ public class SWXBulletinTACSerializationTest {
         assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
                 CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "FNXX01 EFKL 020500 AAA"//
+                        + "FNXX01 EFKL 020500"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF AMD EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
