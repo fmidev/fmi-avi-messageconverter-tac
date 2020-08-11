@@ -57,20 +57,19 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             Optional<Lexeme> lexeme = Optional.empty();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                Integer index = (Integer) ctx.getHints().get(ConversionHints.KEY_SWX_ANALYSIS_INDEX);
-                if (index == null) {
-                    throw new SerializingException("Conversion hint KEY_SWX_ANALYSIS_INDEX has not been set");
-                }
-                SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(index);
-                if (analysis.getRegion().isPresent()) {
-                    SpaceWeatherRegion region = analysis.getRegion().get().get(0);
-                    if (region.getLongitudeLimitMinimum().isPresent() && region.getLongitudeLimitMaximum().isPresent()) {
-                        StringBuilder builder = new StringBuilder();
-                        builder.append(parseLimit(region.getLongitudeLimitMinimum().getAsDouble()));
-                        builder.append(" - ");
-                        builder.append(parseLimit(region.getLongitudeLimitMaximum().getAsDouble()));
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(analysisIndex.get());
+                    if (analysis.getRegion().isPresent() && analysis.getRegion().get().size() > 0) {
+                        SpaceWeatherRegion region = analysis.getRegion().get().get(0);
+                        if (region.getLongitudeLimitMinimum().isPresent() && region.getLongitudeLimitMaximum().isPresent()) {
+                            StringBuilder builder = new StringBuilder();
+                            builder.append(parseLimit(region.getLongitudeLimitMinimum().getAsDouble()));
+                            builder.append(" - ");
+                            builder.append(parseLimit(region.getLongitudeLimitMaximum().getAsDouble()));
 
-                        lexeme = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT));
+                            lexeme = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT));
+                        }
                     }
                 }
             }
