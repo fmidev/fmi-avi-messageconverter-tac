@@ -22,7 +22,7 @@ public class SWXCenter extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         if (token.hasPrevious()) {
-            if (token.getPrevious().getIdentity().equals(LexemeIdentity.SWX_CENTRE_LABEL)) {
+            if (LexemeIdentity.SWX_CENTRE_LABEL.equals(token.getPrevious().getIdentity())) {
                 token.identify(LexemeIdentity.SWX_CENTRE);
                 token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group("issuer"));
             }
