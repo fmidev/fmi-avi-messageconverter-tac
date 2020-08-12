@@ -1163,7 +1163,6 @@ public class Lexing {
         l.teach(new SWXNotAvailable(OccurrenceFrequency.RARE));
         l.teach(new SWXNotExpected(OccurrenceFrequency.RARE));
         l.teach(new SWXPhenonmenonLongitudeLimit(OccurrenceFrequency.AVERAGE));
-        //l.teach(new SWXPolygon(OccurrenceFrequency.AVERAGE));
         l.teach(new PolygonCoordinatePair(OccurrenceFrequency.FREQUENT));
         l.teach(new PolygonCoordinatePairSeparator(OccurrenceFrequency.AVERAGE));
         l.teach(new SWXVerticalLimit(OccurrenceFrequency.AVERAGE));
