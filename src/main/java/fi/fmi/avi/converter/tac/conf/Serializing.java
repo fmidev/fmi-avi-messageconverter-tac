@@ -43,6 +43,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisoryLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
+import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePair;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumber;
@@ -60,7 +61,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotAvailable;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotExpected;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenonmenonLongitudeLimit;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPolygon;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPresetLocation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXVerticalLimit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
@@ -263,12 +263,13 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SWX_NOT_EXPECTED, new SWXNotExpected.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_NOT_AVAILABLE, new SWXNotAvailable.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT, new SWXVerticalLimit.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT, new SWXPolygon.Reconstructor());
+        s.addReconstructor(LexemeIdentity.POLYGON_COORDINATE_PAIR, new PolygonCoordinatePair.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, new SWXPhenonmenonLongitudeLimit.Reconstructor());
         s.addReconstructor(LexemeIdentity.REMARKS_START, new RemarkStart.Reconstructor());
         s.addReconstructor(LexemeIdentity.REMARK, new Remark.Reconstructor());
         s.addReconstructor(LexemeIdentity.NEXT_ADVISORY, new NextAdvisory.Reconstructor());
         s.addReconstructor(LexemeIdentity.NEXT_ADVISORY_LABEL, new NextAdvisoryLabel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
         return s;
     }
 
