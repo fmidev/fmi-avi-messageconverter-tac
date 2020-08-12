@@ -57,7 +57,6 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }
 
         final LexemeSequence lexed = this.lexer.lexMessage(input);
-System.out.println(lexed);
         final Lexeme firstLexeme = lexed.getFirstLexeme();
 
         if (LexemeIdentity.SPACE_WEATHER_ADVISORY_START != firstLexeme.getIdentity()) {
@@ -230,9 +229,26 @@ System.out.println(lexed);
                     l.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR, AviationCodeListUser.RelationalOperator.class));
         }
 
-        l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_POLYGON_LIMIT);
+        l = lexeme.findNext(LexemeIdentity.POLYGON_COORDINATE_PAIR);
         if (l != null) {
-            polygonLimit = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.VALUE, PolygonGeometry.class));
+            final PolygonGeometryImpl.Builder polyBuilder = PolygonGeometryImpl.builder()//
+                    .setSrsName("http://www.opengis.net/def/crs/EPSG/0/4326")//
+                    .setAxisLabels(Arrays.asList("lat", "lon"))//
+                    .setSrsDimension(BigInteger.valueOf(2));
+            while (l != null) {
+                polyBuilder.addExteriorRingPositions(l.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class));
+                polyBuilder.addExteriorRingPositions(l.getParsedValue(Lexeme.ParsedValueName.VALUE2, Double.class));
+                if (l.hasNext() && LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR.equals(l.getNext().getIdentity())) {
+                    if (l.getNext().hasNext() && LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(l.getNext().getNext().getIdentity())) {
+                        l = l.getNext().getNext();
+                    } else {
+                        l = null;
+                    }
+                } else {
+                    l = null;
+                }
+            }
+            polygonLimit = Optional.of(polyBuilder.build());
         }
 
         //2. Create regions applying limits

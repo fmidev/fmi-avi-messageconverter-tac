@@ -24,6 +24,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.YEAR;
 
 import java.io.IOException;
@@ -116,6 +117,8 @@ public class LexemeIdentity {
     public static final LexemeIdentity SWX_PHENOMENON_VERTICAL_LIMIT = new LexemeIdentity("SWX_PHENOMENON_VERTICAL_LIMIT",MIN_VALUE, MAX_VALUE, UNIT,
             RELATIONAL_OPERATOR);
     public static final LexemeIdentity SWX_PHENOMENON_POLYGON_LIMIT = new LexemeIdentity("SWX_PHENOMENON_POLYGON_LIMIT", VALUE);
+    public static final LexemeIdentity POLYGON_COORDINATE_PAIR_SEPARATOR = new LexemeIdentity("POLYGON_COORDINATE_PAIR_SEPARATOR");
+    public static final LexemeIdentity POLYGON_COORDINATE_PAIR = new LexemeIdentity("POLYGON_COORDINATE_PAIR", VALUE, VALUE2);
     public static final LexemeIdentity SWX_ISSUE_TIME_LABEL = new LexemeIdentity("SWX_ISSUE_TIME_LABEL", VALUE);
     public static final LexemeIdentity NEXT_ADVISORY = new LexemeIdentity("NEXT_ADVISORY", TYPE, YEAR, MONTH, DAY1, HOUR1, MINUTE1);
     public static final LexemeIdentity NEXT_ADVISORY_LABEL = new LexemeIdentity("NEXT_ADVISORY_LABEL");

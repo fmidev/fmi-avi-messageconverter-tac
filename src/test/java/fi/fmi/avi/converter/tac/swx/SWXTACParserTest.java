@@ -203,6 +203,7 @@ public class SWXTACParserTest {
         assertTrue(result.getConvertedMessage().isPresent());
 
         final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertTrue(swx.getIssuingCenter().getName().isPresent());
         assertEquals(swx.getIssuingCenter().getName().get(), "PECASUS");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 1);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2019);
@@ -210,9 +211,8 @@ public class SWXTACParserTest {
         assertEquals(swx.getPhenomena().get(0), SpaceWeatherPhenomenon.fromCombinedCode("SATCOM MOD"));
         assertEquals(swx.getPhenomena().get(1), SpaceWeatherPhenomenon.fromCombinedCode("RADIATION SEV"));
         assertTrue(swx.getRemarks().isPresent());
-        final String[] expectedRemarks = {"TEST", "TEST", "TEST", "TEST", "THIS", "IS", "A", "TEST", "MESSAGE", "FOR", "TECHNICAL", "TEST.", "SEE", "WWW"
-                + ".PECASUS"
-                + ".ORG"};
+        final String[] expectedRemarks = { "TEST", "TEST", "TEST", "TEST", "THIS", "IS", "A", "TEST", "MESSAGE", "FOR", "TECHNICAL", "TEST.", "SEE",//
+                "WWW.PECASUS.ORG" };
         assertTrue(Arrays.deepEquals(swx.getRemarks().get().toArray(new String[14]), expectedRemarks));
         assertEquals(swx.getNextAdvisory().getTimeSpecifier(), NextAdvisory.Type.NEXT_ADVISORY_BY);
 
@@ -289,14 +289,13 @@ public class SWXTACParserTest {
         assertEquals(analysis.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
         assertTrue(analysis.getRegion().isPresent());
         assertEquals(1, analysis.getRegion().get().size());
-        assertEquals(analysis.getRegion().get().get(0).getLocationIndicator().get(),
-                SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
+        assertEquals(analysis.getRegion().get().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
         assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().isPresent());
         assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(
-                PolygonGeometry.class.isAssignableFrom(analysis.getRegion().get().get(1).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        poly = (PolygonGeometry) analysis.getRegion().get().get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
-        expected = new Double[] { 60d, -180d, 90d, -180d, 90d, 180d, 60d, 180d, 60d, -180d };
+                PolygonGeometry.class.isAssignableFrom(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        poly = (PolygonGeometry) analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        expected = new Double[] { -90d, -160d, -60d, -160d, -60d, 20d, -90d, 20d, -90d, -160d };
         actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
         assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());

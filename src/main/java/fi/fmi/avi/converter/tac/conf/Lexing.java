@@ -54,6 +54,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoFurtherAdvisories;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
+import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePair;
+import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePairSeparator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.REP;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
@@ -73,7 +75,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotAvailable;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotExpected;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenonmenonLongitudeLimit;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPolygon;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPresetLocation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXVerticalLimit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
@@ -151,7 +152,7 @@ public class Lexing {
         f.addTokenCombiningRule(spaceWeatherAdvisoryNoExpectedCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryHorizontalLimitCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryVerticalLimitCombinationRule());
-        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
+        f.addTokenCombiningRule(latitudeLongitudePairCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffect());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffectType());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffectTypeHFCom());
@@ -622,6 +623,23 @@ public class Lexing {
                 });
             }
         }
+        return retval;
+    }
+
+    private List<Predicate<String>> latitudeLongitudePairCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[NS]\\d+$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[WE]\\d+$");
+            }
+        });
         return retval;
     }
 
@@ -1145,7 +1163,9 @@ public class Lexing {
         l.teach(new SWXNotAvailable(OccurrenceFrequency.RARE));
         l.teach(new SWXNotExpected(OccurrenceFrequency.RARE));
         l.teach(new SWXPhenonmenonLongitudeLimit(OccurrenceFrequency.AVERAGE));
-        l.teach(new SWXPolygon(OccurrenceFrequency.AVERAGE));
+        //l.teach(new SWXPolygon(OccurrenceFrequency.AVERAGE));
+        l.teach(new PolygonCoordinatePair(OccurrenceFrequency.FREQUENT));
+        l.teach(new PolygonCoordinatePairSeparator(OccurrenceFrequency.AVERAGE));
         l.teach(new SWXVerticalLimit(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumberLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumber(OccurrenceFrequency.AVERAGE));
