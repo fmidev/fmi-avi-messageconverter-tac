@@ -48,20 +48,4 @@ public abstract class RegexMatchingLexemeVisitor extends PrioritizedLexemeVisito
         }
         return false;
     }
-
-    /**
-     * @deprecated This does exactly the same as Lexeme.getPrevious(), so should not be used
-     */
-    public static Lexeme getPreviousToken(Lexeme token) {
-        Lexeme previous = token.getPrevious();
-        try {
-            while (previous != null && previous.getIdentity() == null) {
-                previous = previous.getPrevious();
-            }
-        }catch(Exception e) {
-            System.out.println("asdfg");
-        }
-        return previous;
-    }
-
 }

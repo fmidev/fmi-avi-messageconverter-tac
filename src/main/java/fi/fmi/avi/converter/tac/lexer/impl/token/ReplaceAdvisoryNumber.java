@@ -21,7 +21,6 @@ public class ReplaceAdvisoryNumber extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        //Lexeme previous = getPreviousToken(token);
         if (token.hasPrevious()) {
             if (token.getPrevious().getIdentity().equals(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL)) {
                 token.identify(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
