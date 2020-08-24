@@ -15,7 +15,7 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
 public class ReplaceAdvisoryNumberLabel extends RegexMatchingLexemeVisitor {
     public ReplaceAdvisoryNumberLabel(final OccurrenceFrequency prio) {
-        super("^NR\\sRPLC\\s:$", prio);
+        super("^NR\\sRPLC\\s?:$", prio);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ReplaceAdvisoryNumberLabel extends RegexMatchingLexemeVisitor {
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 if (((SpaceWeatherAdvisory) msg).getReplaceAdvisoryNumber().isPresent()) {
                     StringBuilder builder = new StringBuilder();
-                    builder.append("NR RPLC :");
+                    builder.append("NR RPLC:");
 
                     retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.REPLACE_ADVISORY_NUMBER));
                 }

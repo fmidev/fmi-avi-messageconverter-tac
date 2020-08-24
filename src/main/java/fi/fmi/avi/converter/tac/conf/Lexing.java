@@ -163,6 +163,7 @@ public class Lexing {
         f.addTokenCombiningRule(spaceWeatherAdvisoryIssuedByCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryNoAdvisoriesCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryCombinationRules());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules());
 
         f.setMessageStartToken(MessageType.METAR,
                 f.createLexeme("METAR", LexemeIdentity.METAR_START, Lexeme.Status.OK, true));
@@ -729,7 +730,7 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>>  spaceWeatherAdvisoryReplaceAdvisoryCombinationRules() {
+    private List<Predicate<String>>  spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -747,6 +748,23 @@ public class Lexing {
             @Override
             public boolean test(final String s) {
                 return s.matches("^:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>>  spaceWeatherAdvisoryReplaceAdvisoryCombinationRules() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NR$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^RPLC:$");
             }
         });
         return retval;
