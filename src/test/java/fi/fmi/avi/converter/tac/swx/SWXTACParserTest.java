@@ -177,25 +177,6 @@ public class SWXTACParserTest {
     }
 
     @Test
-    public void parseAndSerialize() throws Exception {
-        String input = getInput("spacewx-A2-4.tac");
-
-        final ConversionResult<SpaceWeatherAdvisory> parseResult = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertEquals(0, parseResult.getConversionIssues().size());
-        assertEquals(ConversionResult.Status.SUCCESS, parseResult.getStatus());
-        assertTrue(parseResult.getConvertedMessage().isPresent());
-
-        SpaceWeatherAdvisory msg = parseResult.getConvertedMessage().get();
-
-        ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, new ConversionHints());
-        Assert.assertTrue(SerializeResult.getConvertedMessage().isPresent());
-        System.out.println(SerializeResult.getConvertedMessage().get());
-
-        Assert.assertEquals(input, SerializeResult.getConvertedMessage().get());
-    }
-
-
-    @Test
     public void testAdvancedMessage() throws IOException {
         final String input = getInput("spacewx-advanced.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
