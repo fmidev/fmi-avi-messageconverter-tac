@@ -77,8 +77,8 @@ public class SWXVerticalLimit extends RegexMatchingLexemeVisitor {
                                     builder.append(nm.getUom());
                                     builder.append(f.format(nm.getValue()));
                                 }
+                                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT));
                             }
-                            retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT));
                         }
                     }
 
