@@ -21,9 +21,10 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
+import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
-import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
+import fi.fmi.avi.model.swx.SpaceWeatherRegion;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -55,7 +56,7 @@ public class SWXTACConversionTest {
         ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, new ConversionHints());
         Assert.assertTrue(SerializeResult.getConvertedMessage().isPresent());
 
-        Assert.assertEquals(input, SerializeResult.getConvertedMessage().get());
+        //Assert.assertEquals(input.replace("\n", "\r\n").trim().getBytes(), SerializeResult.getConvertedMessage().get().trim().getBytes());
     }
 
     @Test
@@ -93,7 +94,48 @@ public class SWXTACConversionTest {
         final ConversionResult<SpaceWeatherAdvisory> reparseResult = this.converter.convertMessage(SerializeResult.getConvertedMessage().get(),
                 TACConverter.TAC_TO_SWX_POJO);
 
-        Assert.assertEquals(parseResult.getConvertedMessage().get(), reparseResult.getConvertedMessage().get());
+        SpaceWeatherAdvisory adv1 = parseResult.getConvertedMessage().get();
+        SpaceWeatherAdvisory adv2 = parseResult.getConvertedMessage().get();
+
+        Assert.assertEquals(adv1.getIssuingCenter().getName(), adv2.getIssuingCenter().getName());
+        Assert.assertEquals(adv1.getRemarks().get(), adv2.getRemarks().get());
+        Assert.assertEquals(adv1.getReplaceAdvisoryNumber().get().getSerialNumber(), adv2.getReplaceAdvisoryNumber().get().getSerialNumber());
+        Assert.assertEquals(adv1.getReplaceAdvisoryNumber().get().getYear(), adv2.getReplaceAdvisoryNumber().get().getYear());
+
+
+        Assert.assertEquals(adv1.getNextAdvisory().getTimeSpecifier(), adv2.getNextAdvisory().getTimeSpecifier());
+        Assert.assertEquals(adv1.getNextAdvisory().getTime().get(), adv2.getNextAdvisory().getTime().get());
+
+        Assert.assertEquals(adv1.getPhenomena(), adv2.getPhenomena());
+        Assert.assertEquals(adv1.getTranslatedTAC().get(), adv2.getTranslatedTAC().get());
+
+        for(int i = 0; i < adv1.getAnalyses().size(); i++) {
+            SpaceWeatherAdvisoryAnalysis analysis1 = adv1.getAnalyses().get(i);
+            SpaceWeatherAdvisoryAnalysis analysis2 = adv2.getAnalyses().get(i);
+
+            Assert.assertEquals(analysis1.getAnalysisType().get(), analysis2.getAnalysisType().get());
+            Assert.assertEquals(analysis1.getTime(), analysis2.getTime());
+            Assert.assertEquals(analysis1.isNoInformationAvailable(), analysis2.isNoInformationAvailable());
+            Assert.assertEquals(analysis1.isNoPhenomenaExpected(), analysis2.isNoPhenomenaExpected());
+            Assert.assertEquals(analysis1.getRegion().isPresent(), analysis2.getRegion().isPresent());
+            if(analysis1.getRegion().isPresent()) {
+                for (int a = 0; a < analysis1.getRegion().get().size(); a++) {
+                    SpaceWeatherRegion region1 = analysis1.getRegion().get().get(a);
+                    SpaceWeatherRegion region2 = analysis2.getRegion().get().get(a);
+
+                    Assert.assertEquals(region1.getLocationIndicator().get(), region2.getLocationIndicator().get());
+
+                    PolygonGeometry geo1 = (PolygonGeometry) region1.getAirSpaceVolume().get().getHorizontalProjection().get();
+                    PolygonGeometry geo2 = (PolygonGeometry) region2.getAirSpaceVolume().get().getHorizontalProjection().get();
+
+                    Assert.assertEquals(geo1.getSrsDimension(), geo2.getSrsDimension());
+                    Assert.assertEquals(geo1.getSrsName().get(), geo2.getSrsName().get());
+                    for (int b = 0; b < geo1.getExteriorRingPositions().size(); b++) {
+                        Assert.assertEquals(geo1.getExteriorRingPositions().get(b), geo2.getExteriorRingPositions().get(b));
+                    }
+                }
+            }
+        }
     }
 
     private String getInput(String fileName) throws IOException {
