@@ -149,14 +149,10 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         retval.addIssue(conversionIssues);
         if (conversionIssues.size() == 0) {
+            builder.addAllAnalyses(analyses);
             retval.setConvertedMessage(builder.build());
             retval.setStatus(ConversionResult.Status.SUCCESS);
         }
-
-        if(conversionIssues.size() == 0) {
-            builder.addAllAnalyses(analyses);
-        }
-
 
         return retval;
     }
