@@ -1,11 +1,11 @@
 SWX ADVISORY
 STATUS:             TEST
-DTG:                20200327/0008Z
-SWXC:               SWPC
-ADVISORY NR:        2020/13
-NR RPLC:            2020/11
-SWX EFFECT:         GNSS MOD
-OBS SWX:            27/0008Z HNH HSH E180 - W180
+DTG:                202327/0008Z
+SWXC:               SWC
+ADVISORY NR:        200/13
+NR RPLC:            200/11
+SWX EFFECT:         GNS MOD
+OBS SWX:            27/008Z HNG HSH E180 - W180
 FCST SWX +6 HR:     27/0700Z NOT AVBL
 FCST SWX +12 HR:    27/1300Z NOT AVBL
 FCST SWX +18 HR:    27/1900Z NOT AVBL

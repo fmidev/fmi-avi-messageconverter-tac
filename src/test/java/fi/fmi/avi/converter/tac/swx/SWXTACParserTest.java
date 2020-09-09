@@ -6,10 +6,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.model.swx.immutable.SpaceWeatherPhenomenonImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -286,6 +288,30 @@ public class SWXTACParserTest {
         assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getUpperLimit().isPresent());
         assertEquals(NumericMeasureImpl.builder().setValue(370d).setUom("FL").build(),
                 analysis.getRegion().get().get(0).getAirSpaceVolume().get().getUpperLimit().get());
+    }
+
+    @Test
+    public void testBadMessage() throws IOException {
+        final String input = getInput("spacewx-pecasus-notavbl.tac");
+        List<String> conversionIssues = new ArrayList<>();
+        conversionIssues.add("SYNTAX:The advisory number is missing");
+        conversionIssues.add("SYNTAX:The space weather effect is missing");
+        conversionIssues.add("SYNTAX:Advisory time is missing");
+        conversionIssues.add("MISSING_DATA:Missing at least some of the issue time components in SWX ADVISORY\n" + "STATUS:             TEST\n"
+                + "DTG:                202327/0008Z\n" + "SWXC:               SWC\n" + "ADVISORY NR:        200/13\n" + "NR RPLC:            200/11\n"
+                + "SWX EFFECT:         GNS MOD\n" + "OBS SWX:            27/008Z HNG HSH E180 - W180\n" + "FCST SWX +6 HR:     27/0700Z NOT AVBL\n"
+                + "FCST SWX +12 HR:    27/1300Z NOT AVBL\n" + "FCST SWX +18 HR:    27/1900Z NOT AVBL\n" + "FCST SWX +24 HR:    28/0100Z NOT AVBL\n"
+                + "RMK:                TEST TEST TEST. THIS IS A TEST SPACE WEATHER ADVISORY TEST. PLEASE DISREGARD.\n"
+                + "NXT ADVISORY:       NO FURTHER ADVISORIES=");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertEquals(ConversionResult.Status.FAIL, result.getStatus());
+        //result.getConversionIssues().stream().forEach(System.out::println);
+        Assert.assertEquals(4, result.getConversionIssues().size());
+        assertFalse(result.getConvertedMessage().isPresent());
+        for(ConversionIssue issue : result.getConversionIssues()) {
+            Assert.assertTrue(conversionIssues.contains(issue.toString().trim()));
+        }
+
     }
 
     private String getInput(String fileName) throws IOException {
