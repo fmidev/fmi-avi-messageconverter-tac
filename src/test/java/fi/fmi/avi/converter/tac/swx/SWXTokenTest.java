@@ -60,7 +60,7 @@ public class SWXTokenTest {
         final RegexMatchingLexemeVisitor VISITOR = new ReplaceAdvisoryNumber(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
 
-        Pattern pattern = Pattern.compile("^(?<advisoryNumber>[\\d]{4}/[\\d]*)$");
+        Pattern pattern = Pattern.compile("^(?<advisoryNumber>[\\d]{4}/[0-9][0-9]?[0-9]?[0-9]?)$");
         Matcher matcher = pattern.matcher(FIELD_VALUE);
         Assert.assertTrue(matcher.matches());
 
@@ -138,6 +138,35 @@ public class SWXTokenTest {
         return resultset.get(CORRECT_PREVIOUS);
     }
 
+    @Test
+    public void advisoryNumberVisitIfMatchedTest() {
+        final String LABEL = "ADVISORY NR:";
+        final String FIELD_VALUE = "2020/30";
+        final LexemeIdentity LABEL_ID = LexemeIdentity.ADVISORY_NUMBER_LABEL;
+        final RegexMatchingLexemeVisitor VISITOR = new AdvisoryNumber(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
+
+
+        Pattern pattern = Pattern.compile("^(?<advisoryNumber>[\\d]{4}/[0-9][0-9]?[0-9]?[0-9]?)$");
+        Matcher matcher = pattern.matcher(FIELD_VALUE);
+        Assert.assertTrue(matcher.matches());
+
+        Map<String, Lexeme> resultset = visitIfMatchedTest(LABEL, LABEL_ID, FIELD_VALUE, matcher, VISITOR);
+
+        Assert.assertEquals(LexemeIdentity.ADVISORY_NUMBER, resultset.get(CORRECT_PREVIOUS).getIdentity());
+        AdvisoryNumberImpl advisoryNumber = resultset.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumberImpl.class);
+
+        Assert.assertEquals(30, advisoryNumber.getSerialNumber());
+        Assert.assertEquals(2020, advisoryNumber.getYear());
+    }
+
+    @Test
+    public void badAdvisoryNumberVisitIfMatchedTest() {
+        final String FIELD_VALUE = "2020/30005";
+
+        Pattern pattern = Pattern.compile("^(?<advisoryNumber>[\\d]{4}/[0-9][0-9]?[0-9]?[0-9]?)$");
+        Matcher matcher = pattern.matcher(FIELD_VALUE);
+        Assert.assertFalse(matcher.matches());
+    }
 
     public Map<String, Lexeme> visitIfMatchedTest(String previousToken, LexemeIdentity previousTokenId, String fielValue, Matcher matcher,
             RegexMatchingLexemeVisitor tokenVisitor) {

@@ -16,17 +16,18 @@ import fi.fmi.avi.model.swx.immutable.AdvisoryNumberImpl;
 
 public class AdvisoryNumber extends RegexMatchingLexemeVisitor {
     public AdvisoryNumber(final OccurrenceFrequency prio) {
-        super("^(?<advisoryNumber>[\\d]{4}/[\\d]*)$", prio);
+        super("^(?<advisoryNumber>[\\d]{4}/[0-9][0-9]?[0-9]?[0-9]?)$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        Lexeme previous = token.getPrevious();
-        if (previous.getIdentity() != null && previous.getIdentity().equals(LexemeIdentity.ADVISORY_NUMBER_LABEL)) {
-            token.identify(LexemeIdentity.ADVISORY_NUMBER);
+        if(token != null && token.hasPrevious()) {
+            if (token.getPrevious().getIdentity() != null && token.getPrevious().getIdentity().equals(LexemeIdentity.ADVISORY_NUMBER_LABEL)) {
+                token.identify(LexemeIdentity.ADVISORY_NUMBER);
 
-            AdvisoryNumberImpl advisoryNumber = AdvisoryNumberImpl.builder().from(match.group("advisoryNumber")).build();
-            token.setParsedValue(Lexeme.ParsedValueName.VALUE, advisoryNumber);
+                AdvisoryNumberImpl advisoryNumber = AdvisoryNumberImpl.builder().from(match.group("advisoryNumber")).build();
+                token.setParsedValue(Lexeme.ParsedValueName.VALUE, advisoryNumber);
+            }
         }
     }
 

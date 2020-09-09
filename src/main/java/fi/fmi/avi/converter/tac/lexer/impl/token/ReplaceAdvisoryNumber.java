@@ -16,7 +16,7 @@ import fi.fmi.avi.model.swx.immutable.AdvisoryNumberImpl;
 
 public class ReplaceAdvisoryNumber extends RegexMatchingLexemeVisitor {
     public ReplaceAdvisoryNumber(final OccurrenceFrequency prio) {
-        super("^(?<advisoryNumber>[\\d]{4}/[\\d]*)$", prio);
+        super("^(?<advisoryNumber>[\\d]{4}/[0-9][0-9]?[0-9]?[0-9]?)$", prio);
     }
 
     @Override
