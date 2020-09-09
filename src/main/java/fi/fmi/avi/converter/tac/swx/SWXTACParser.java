@@ -132,12 +132,12 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         for (LexemeSequence analysisSequence : analysisList) {
             Lexeme analysis = analysisSequence.getFirstLexeme();
-            if (analysis.getIdentity() == LexemeIdentity.ADVISORY_PHENOMENA_LABEL) {
+            if (analysis.getIdentity().equals(LexemeIdentity.ADVISORY_PHENOMENA_LABEL)) {
                 analyses.add(processAnalysis(analysisSequence.getFirstLexeme(), conversionIssues));
             }
         }
 
-        builder.addAllAnalyses(analyses);
+
 
         firstLexeme.findNext(LexemeIdentity.REMARKS_START, (match) -> {
             final List<String> remarks = getRemarks(match, hints);
@@ -152,6 +152,11 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             retval.setConvertedMessage(builder.build());
             retval.setStatus(ConversionResult.Status.SUCCESS);
         }
+
+        if(conversionIssues.size() == 0) {
+            builder.addAllAnalyses(analyses);
+        }
+
 
         return retval;
     }
@@ -172,7 +177,13 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }
 
         Lexeme analysisLexeme = lexeme.findNext(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP);
-        createPartialTimeInstant(analysisLexeme, builder::setTime);
+        if(analysisLexeme != null) {
+            createPartialTimeInstant(analysisLexeme, builder::setTime);
+        } else {
+            issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "Advisory time is missing\n"));
+            return null;
+        }
+
 
 
         analysisLexeme = lexeme.findNext(LexemeIdentity.SWX_NOT_EXPECTED);
@@ -348,25 +359,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         return volumeBuilder.build();
     }
 
-    //FIXME: very similar method exists already, see AbstractTACParser.getRemarks()
-    private void parseRemark(final Lexeme lexeme, final Consumer<List<String>> consumer) {
-        Lexeme current = lexeme.getNext();
-        StringBuilder remark = new StringBuilder();
-
-        while (current.getIdentity().equals(LexemeIdentity.REMARK)) {
-            appendToken(remark, current);
-            current = current.getNext();
-        }
-        consumer.accept(Arrays.asList(remark.toString().trim()));
-    }
-
-    public StringBuilder appendToken(final StringBuilder builder, final Lexeme lexeme) {
-        return builder.append(lexeme.getTACToken()).append(" ");
-
-    }
-
     protected void createPartialTimeInstant(final Lexeme lexeme, final Consumer<PartialOrCompleteTimeInstant> consumer) {
-
         final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
         final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
         final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
