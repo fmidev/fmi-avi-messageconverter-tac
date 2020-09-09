@@ -21,14 +21,16 @@ public class AdvisoryStatus extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.getPrevious().getIdentity().equals(LexemeIdentity.TEST_OR_EXCERCISE_LABEL)) {
-            token.identify(LexemeIdentity.TEST_OR_EXCERCISE);
-            String status = match.group("status");
+        if(token != null && token.hasPrevious()) {
+            if (token.getPrevious().getIdentity() != null && token.getPrevious().getIdentity().equals(LexemeIdentity.TEST_OR_EXCERCISE_LABEL)) {
+                token.identify(LexemeIdentity.TEST_OR_EXCERCISE);
+                String status = match.group("status");
 
-            if (status.equals(AviationCodeListUser.PermissibleUsageReason.TEST.toString())) {
-                token.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.TEST);
-            } else {
-                token.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.EXERCISE);
+                if (status.equals(AviationCodeListUser.PermissibleUsageReason.TEST.toString())) {
+                    token.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.TEST);
+                } else {
+                    token.setParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.EXERCISE);
+                }
             }
         }
     }

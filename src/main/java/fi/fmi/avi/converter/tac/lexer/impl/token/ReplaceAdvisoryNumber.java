@@ -21,8 +21,8 @@ public class ReplaceAdvisoryNumber extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious()) {
-            if (token.getPrevious().getIdentity().equals(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL)) {
+        if (token != null && token.hasPrevious()) {
+            if (token.getPrevious().getIdentity() != null && token.getPrevious().getIdentity().equals(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL)) {
                 token.identify(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
 
                 AdvisoryNumberImpl advisoryNumber = AdvisoryNumberImpl.Builder.from(match.group("advisoryNumber")).build();
