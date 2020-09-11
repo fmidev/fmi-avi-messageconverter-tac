@@ -147,12 +147,15 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         });
 
 
-        retval.addIssue(conversionIssues);
-        if (conversionIssues.size() == 0) {
+
+        try {
             builder.addAllAnalyses(analyses);
             retval.setConvertedMessage(builder.build());
-            retval.setStatus(ConversionResult.Status.SUCCESS);
+        } catch (final IllegalStateException ignored) {
+
         }
+
+        retval.addIssue(conversionIssues);
 
         return retval;
     }
@@ -239,7 +242,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         l = lexeme.findNext(LexemeIdentity.POLYGON_COORDINATE_PAIR);
         if (l != null) {
             final PolygonGeometryImpl.Builder polyBuilder = PolygonGeometryImpl.builder()//
-                    .setSrsName("http://www.opengis.net/def/crs/EPSG/0/4326")//
+                    .setSrsName(AviationCodeListUser.CODELIST_VALUE_EPSG_4326)//
                     .setAxisLabels(Arrays.asList("lat", "lon"))//
                     .setSrsDimension(BigInteger.valueOf(2));
             while (l != null) {
@@ -306,7 +309,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                         coordinates.add(minLongitude.orElse(-180d));
                         final PolygonGeometry polygon = PolygonGeometryImpl.builder()
                                 .addAllExteriorRingPositions(coordinates)
-                                .setSrsName("http://www.opengis.net/def/crs/EPSG/0/4326")
+                                .setSrsName(AviationCodeListUser.CODELIST_VALUE_EPSG_4326)
                                 .setSrsDimension(BigInteger.valueOf(2))
                                 .setAxisLabels(Arrays.asList("lat", "lon"))
                                 .build();

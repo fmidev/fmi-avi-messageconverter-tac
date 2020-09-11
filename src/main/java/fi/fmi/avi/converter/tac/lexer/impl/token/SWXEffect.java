@@ -24,7 +24,7 @@ public class SWXEffect extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(LexemeIdentity.SWX_EFFECT);
-        SpaceWeatherPhenomenon phenomenon = SpaceWeatherPhenomenonImpl.builder().fromCombinedCode(match.group("phenomenon")).build();
+        SpaceWeatherPhenomenon phenomenon = SpaceWeatherPhenomenonImpl.Builder.fromCombinedCode(match.group("phenomenon")).build();
         token.setParsedValue(Lexeme.ParsedValueName.VALUE, phenomenon);
     }
 
