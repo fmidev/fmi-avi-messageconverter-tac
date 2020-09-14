@@ -89,7 +89,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
         AMOUNT_AND_HEIGHT_UNOBSERVABLE_BY_AUTO_SYSTEM, CLOUD_BASE_UNOBSERVABLE, CLOUD_AMOUNT_UNOBSERVABLE, CLOUD_TYPE_UNOBSERVABLE
     }
 
-    public CloudLayer(final Priority prio) {
+    public CloudLayer(final OccurrenceFrequency prio) {
         super("^(?<iscloud>(?<amount>[A-Z]{3}|VV|/{3})(?<height>[0-9]{3}|/{3})(?<type>CB|TCU|/{3})?)|(?<nocloud>SKC|NSC|NCD|CLR)$", prio);
     }
 

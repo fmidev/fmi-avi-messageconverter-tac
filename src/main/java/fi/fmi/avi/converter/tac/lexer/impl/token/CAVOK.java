@@ -20,7 +20,7 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
  * Created by rinne on 10/02/17.
  */
 public class CAVOK extends PrioritizedLexemeVisitor {
-    public CAVOK(final Priority prio) {
+    public CAVOK(final OccurrenceFrequency prio) {
         super(prio);
     }
 

@@ -12,7 +12,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
  */
 public class SigmetStart extends PrioritizedLexemeVisitor {
 
-    public SigmetStart(final Priority prio) {
+    public SigmetStart(final OccurrenceFrequency prio) {
         super(prio);
     }
 

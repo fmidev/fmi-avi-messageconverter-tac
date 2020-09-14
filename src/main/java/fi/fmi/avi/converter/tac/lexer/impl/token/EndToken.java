@@ -16,7 +16,7 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
  * Created by rinne on 10/02/17.
  */
 public class EndToken extends PrioritizedLexemeVisitor {
-    public EndToken(final Priority prio) {
+    public EndToken(final OccurrenceFrequency prio) {
         super(prio);
     }
 

@@ -47,7 +47,7 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
 
     }
 
-    public ForecastMaxMinTemperature(final Priority prio) {
+    public ForecastMaxMinTemperature(final OccurrenceFrequency prio) {
         super("^(TX|TN)(M)?([0-9]{2})/([0-9]{2})?([0-9]{2})(Z)?$", prio);
     }
 

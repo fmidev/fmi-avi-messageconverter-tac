@@ -18,7 +18,7 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
  * Created by rinne on 10/02/17.
  */
 public class NoSignificantWeather extends PrioritizedLexemeVisitor {
-    public NoSignificantWeather(final Priority prio) {
+    public NoSignificantWeather(final OccurrenceFrequency prio) {
         super(prio);
     }
 

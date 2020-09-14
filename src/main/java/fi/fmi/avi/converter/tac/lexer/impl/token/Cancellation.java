@@ -20,7 +20,7 @@ import fi.fmi.avi.model.taf.TAF;
  */
 public class Cancellation extends PrioritizedLexemeVisitor {
 
-    public Cancellation(final Priority prio) {
+    public Cancellation(final OccurrenceFrequency prio) {
         super(prio);
     }
 

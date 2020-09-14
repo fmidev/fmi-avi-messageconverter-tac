@@ -34,7 +34,7 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
  */
 public class SurfaceWind extends RegexMatchingLexemeVisitor {
 
-    public SurfaceWind(final Priority prio) {
+    public SurfaceWind(final OccurrenceFrequency prio) {
         super("^(VRB|[0-9]{3})(P?[0-9]{2,3})(GP?[0-9]{2,3})?(KT|MPS|KMH)$", prio);
     }
 

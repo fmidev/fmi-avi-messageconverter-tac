@@ -602,7 +602,7 @@ public interface Lexeme {
         MINUTE2,
         TYPE,
         COVER,
-        VALUE,
+        VALUE, VALUE2,
         UNIT,
         UNIT2,
         MAX_VALUE,

@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 
 /**
  * Created by rinne on 18/01/17.
@@ -14,10 +15,10 @@ public abstract class RegexMatchingLexemeVisitor extends PrioritizedLexemeVisito
     private Pattern pattern;
 
     public RegexMatchingLexemeVisitor(final String pattern) {
-        this(pattern, Priority.NORMAL);
+        this(pattern, OccurrenceFrequency.AVERAGE);
     }
 
-    public RegexMatchingLexemeVisitor(final String pattern, final Priority priority) {
+    public RegexMatchingLexemeVisitor(final String pattern, final OccurrenceFrequency priority) {
         super(priority);
         this.pattern = Pattern.compile(pattern);
     }
@@ -35,4 +36,16 @@ public abstract class RegexMatchingLexemeVisitor extends PrioritizedLexemeVisito
     }
 
     public abstract void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints);
+
+    public static boolean hasPreceedingLexeme(Lexeme token, LexemeIdentity id) {
+        Lexeme previous = token.getPrevious();
+
+        while(previous != null) {
+            if (previous.getIdentity().equals(id)) {
+                return true;
+            }
+            previous = previous.getPrevious();
+        }
+        return false;
+    }
 }

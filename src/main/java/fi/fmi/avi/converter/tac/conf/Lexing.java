@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -19,10 +20,13 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
-import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.Priority;
+import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.OccurrenceFrequency;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomena;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumberLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatus;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatusLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Amendment;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
@@ -44,20 +48,39 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.IssueTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.LowWindStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetarStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisoryLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NoFurtherAdvisories;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
+import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePair;
+import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePairSeparator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.REP;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumber;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumberLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXAdvisoryStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenter;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenterLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffect;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffectConjuction;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffectLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXIssueTimeLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotAvailable;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotExpected;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenonmenonLongitudeLimit;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPresetLocation;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXVerticalLimit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SpaceWeatherAdvisoryStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFChangeForecastTimeGroup;
@@ -86,6 +109,7 @@ public class Lexing {
     private static final Pattern BULLETIN_START_PATTERN = Pattern.compile("^[A-Z]{4}[0-9]{2}$");
 
     @Bean
+    @Primary
     public AviMessageLexer aviMessageLexer() {
         final AviMessageLexerImpl l = new AviMessageLexerImpl();
         l.setLexingFactory(lexingFactory());
@@ -103,7 +127,7 @@ public class Lexing {
         l.addTokenLexer(genericAviationWeatherMessageTokenLexer()); //Keep this last, matches anything
         return l;
     }
-    
+
     @Bean
     public LexingFactory lexingFactory() {
         LexingFactoryImpl f = new LexingFactoryImpl();
@@ -123,6 +147,23 @@ public class Lexing {
         f.addTokenCombiningRule(volcanicAshAdvisoryDtgCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryCloudForecastCombinationRule());
         f.addTokenCombiningRule(volcanicAshAdvisoryForecastTimeCombinationRule());
+        f.addTokenCombiningRule(advisoryNumberCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryNotAvailableCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryNoExpectedCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryHorizontalLimitCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryVerticalLimitCombinationRule());
+        f.addTokenCombiningRule(latitudeLongitudePairCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryEffect());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryEffectType());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryEffectTypeHFCom());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryDaylightSide());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryPhenomenon());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryNextAdvisoryCombinationRules());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryIssuedAtCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryIssuedByCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryNoAdvisoriesCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryCombinationRules());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules());
 
         f.setMessageStartToken(MessageType.METAR,
                 f.createLexeme("METAR", LexemeIdentity.METAR_START, Lexeme.Status.OK, true));
@@ -381,6 +422,149 @@ public class Lexing {
         return retval;
     }
 
+    private List<Predicate<String>> spaceWeatherAdvisoryEffect() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SWX$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^EFFECT:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryHorizontalLimitCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(W|E)\\d{3,5}$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^-$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(W|E)\\d{3,5}$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryVerticalLimitCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ABV$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^FL\\d{3}$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryEffectType() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SATCOM|GNSS|RADIATION$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^MOD|SEV$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryEffectTypeHFCom() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^HF$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^COM$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^MOD|SEV$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryDaylightSide() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^DAYLIGHT$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SIDE$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryPhenomenon() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^FCST$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SWX:$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^\\+\\d{1,2}$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^HR:$");
+            }
+        });
+        return retval;
+    }
+
     private List<Predicate<String>> spaceWeatherAdvisoryForecastTimeCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -393,6 +577,234 @@ public class Lexing {
             @Override
             public boolean test(final String s) {
                 return s.matches("^\\+[0-9]{1,2}\\s+HR:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> advisoryNumberCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ADVISORY$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NR:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryPolygonCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        for(int i = 0; i < 5; i++) {
+            retval.add(new Predicate<String>() {
+                @Override
+                public boolean test(final String s) {
+                    return s.matches("^(N|S)\\d+$");
+                }
+            });
+            retval.add(new Predicate<String>() {
+                @Override
+                public boolean test(final String s) {
+                    return s.matches("^(W|E)\\d+$");
+                }
+            });
+
+            if(i < 4) {
+                retval.add(new Predicate<String>() {
+                    @Override
+                    public boolean test(final String s) {
+                        return s.matches("^-$");
+                    }
+                });
+            }
+        }
+        return retval;
+    }
+
+    private List<Predicate<String>> latitudeLongitudePairCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[NS]\\d+$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[WE]\\d+$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryIssuedByCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^WILL$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^BE$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ISSUED$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^BY$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            //TODO:
+            public boolean test(final String s) {
+                return s.matches("^[0-9]{4}[0-9]{2}[0-9]{2}/[0-9]{2}[0-9]{2}Z$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryIssuedAtCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[0-9]{4}[0-9]{2}[0-9]{2}/[0-9]{2}[0-9]{2}Z$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryNoAdvisoriesCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NO$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^FURTHER$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ADVISORIES$");
+            }
+        }); return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryNextAdvisoryCombinationRules() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NXT$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ADVISORY:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>>  spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NR$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^RPLC$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>>  spaceWeatherAdvisoryReplaceAdvisoryCombinationRules() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NR$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^RPLC:$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryNoExpectedCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NO$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^SWX$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^EXP$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryNotAvailableCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^NOT$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^AVBL$");
             }
         });
         return retval;
@@ -471,12 +883,13 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("METAR");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.METAR;
             }
         });
-        l.teach(new MetarStart(Priority.HIGH));
+        l.teach(new MetarStart(OccurrenceFrequency.FREQUENT));
         teachMetarAndSpeciCommonTokens(l);
         return l;
     }
@@ -488,46 +901,47 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("SPECI");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.SPECI;
             }
         });
-        l.teach(new SpeciStart(Priority.HIGH));
+        l.teach(new SpeciStart(OccurrenceFrequency.FREQUENT));
         teachMetarAndSpeciCommonTokens(l);
         return l;
     }
 
     private void teachMetarAndSpeciCommonTokens(final RecognizingAviMessageTokenLexer l) {
-        l.teach(new ICAOCode(Priority.LOW));
-        l.teach(new IssueTime(Priority.LOW));
-        l.teach(new CloudLayer(Priority.HIGH));
-        l.teach(new Weather(Priority.NORMAL));
-        l.teach(new SurfaceWind(Priority.LOW));
-        l.teach(new VariableSurfaceWind(Priority.LOW));
-        l.teach(new MetricHorizontalVisibility(Priority.NORMAL));
-        l.teach(new FractionalHorizontalVisibility(Priority.NORMAL));
-        l.teach(new TrendChangeIndicator(Priority.LOW));
-        l.teach(new NoSignificantChanges(Priority.LOW));
-        l.teach(new TrendTimeGroup(Priority.LOW));
-        l.teach(new ColorCode(Priority.LOW));
-        l.teach(new CAVOK(Priority.LOW));
-        l.teach(new Correction(Priority.LOW));
-        l.teach(new RunwayVisualRange(Priority.HIGH));
-        l.teach(new AirDewpointTemperature(Priority.LOW));
-        l.teach(new AtmosphericPressureQNH(Priority.LOW));
-        l.teach(new RunwayState(Priority.LOW));
-        l.teach(new SnowClosure(Priority.LOW));
-        l.teach(new AutoMetar(Priority.LOW));
-        l.teach(new NoSignificantWeather(Priority.LOW));
-        l.teach(new RemarkStart(Priority.HIGH));
-        l.teach(new Remark(Priority.HIGH));
-        l.teach(new WindShear(Priority.LOW));
-        l.teach(new SeaState(Priority.LOW));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
-        l.teach(new Nil(Priority.HIGH));
-        l.teach(new RoutineDelayedObservation(Priority.HIGH));
+        l.teach(new ICAOCode(OccurrenceFrequency.RARE));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new CloudLayer(OccurrenceFrequency.FREQUENT));
+        l.teach(new Weather(OccurrenceFrequency.AVERAGE));
+        l.teach(new SurfaceWind(OccurrenceFrequency.RARE));
+        l.teach(new VariableSurfaceWind(OccurrenceFrequency.RARE));
+        l.teach(new MetricHorizontalVisibility(OccurrenceFrequency.AVERAGE));
+        l.teach(new FractionalHorizontalVisibility(OccurrenceFrequency.AVERAGE));
+        l.teach(new TrendChangeIndicator(OccurrenceFrequency.RARE));
+        l.teach(new NoSignificantChanges(OccurrenceFrequency.RARE));
+        l.teach(new TrendTimeGroup(OccurrenceFrequency.RARE));
+        l.teach(new ColorCode(OccurrenceFrequency.RARE));
+        l.teach(new CAVOK(OccurrenceFrequency.RARE));
+        l.teach(new Correction(OccurrenceFrequency.RARE));
+        l.teach(new RunwayVisualRange(OccurrenceFrequency.FREQUENT));
+        l.teach(new AirDewpointTemperature(OccurrenceFrequency.RARE));
+        l.teach(new AtmosphericPressureQNH(OccurrenceFrequency.RARE));
+        l.teach(new RunwayState(OccurrenceFrequency.RARE));
+        l.teach(new SnowClosure(OccurrenceFrequency.RARE));
+        l.teach(new AutoMetar(OccurrenceFrequency.RARE));
+        l.teach(new NoSignificantWeather(OccurrenceFrequency.RARE));
+        l.teach(new RemarkStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new Remark(OccurrenceFrequency.FREQUENT));
+        l.teach(new WindShear(OccurrenceFrequency.RARE));
+        l.teach(new SeaState(OccurrenceFrequency.RARE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
+        l.teach(new Nil(OccurrenceFrequency.FREQUENT));
+        l.teach(new RoutineDelayedObservation(OccurrenceFrequency.FREQUENT));
     }
 
     private RecognizingAviMessageTokenLexer tafTokenLexer() {
@@ -538,34 +952,35 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("TAF");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.TAF;
             }
         });
-        l.teach(new TAFStart(Priority.HIGH));
-        l.teach(new ICAOCode(Priority.LOW));
-        l.teach(new ValidTime(Priority.LOW));
-        l.teach(new IssueTime(Priority.LOW));
-        l.teach(new CloudLayer(Priority.HIGH));
-        l.teach(new Weather(Priority.NORMAL));
-        l.teach(new SurfaceWind(Priority.LOW));
-        l.teach(new VariableSurfaceWind(Priority.LOW));
-        l.teach(new MetricHorizontalVisibility(Priority.NORMAL));
-        l.teach(new FractionalHorizontalVisibility(Priority.NORMAL));
-        l.teach(new TAFForecastChangeIndicator(Priority.LOW));
-        l.teach(new TAFChangeForecastTimeGroup(Priority.LOW));
-        l.teach(new Correction(Priority.LOW));
-        l.teach(new Amendment(Priority.LOW));
-        l.teach(new Nil(Priority.HIGH));
-        l.teach(new Cancellation(Priority.LOW));
-        l.teach(new CAVOK(Priority.LOW));
-        l.teach(new NoSignificantWeather(Priority.LOW));
-        l.teach(new ForecastMaxMinTemperature(Priority.LOW));
-        l.teach(new RemarkStart(Priority.HIGH));
-        l.teach(new Remark(Priority.HIGH));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new TAFStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new ICAOCode(OccurrenceFrequency.RARE));
+        l.teach(new ValidTime(OccurrenceFrequency.RARE));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new CloudLayer(OccurrenceFrequency.FREQUENT));
+        l.teach(new Weather(OccurrenceFrequency.AVERAGE));
+        l.teach(new SurfaceWind(OccurrenceFrequency.RARE));
+        l.teach(new VariableSurfaceWind(OccurrenceFrequency.RARE));
+        l.teach(new MetricHorizontalVisibility(OccurrenceFrequency.AVERAGE));
+        l.teach(new FractionalHorizontalVisibility(OccurrenceFrequency.AVERAGE));
+        l.teach(new TAFForecastChangeIndicator(OccurrenceFrequency.RARE));
+        l.teach(new TAFChangeForecastTimeGroup(OccurrenceFrequency.RARE));
+        l.teach(new Correction(OccurrenceFrequency.RARE));
+        l.teach(new Amendment(OccurrenceFrequency.RARE));
+        l.teach(new Nil(OccurrenceFrequency.FREQUENT));
+        l.teach(new Cancellation(OccurrenceFrequency.RARE));
+        l.teach(new CAVOK(OccurrenceFrequency.RARE));
+        l.teach(new NoSignificantWeather(OccurrenceFrequency.RARE));
+        l.teach(new ForecastMaxMinTemperature(OccurrenceFrequency.RARE));
+        l.teach(new RemarkStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new Remark(OccurrenceFrequency.FREQUENT));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -590,12 +1005,12 @@ public class Lexing {
             }
 
         });
-        l.teach(new BulletinHeaderDataDesignators(Priority.NORMAL));
-        l.teach(new BulletinLocationIndicator(Priority.NORMAL));
-        l.teach(new IssueTime(Priority.HIGH));
-        l.teach(new BulletinHeadingBBBIndicator(Priority.NORMAL));
-        l.teach(new EndToken(Priority.HIGH));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new BulletinHeaderDataDesignators(OccurrenceFrequency.AVERAGE));
+        l.teach(new BulletinLocationIndicator(OccurrenceFrequency.AVERAGE));
+        l.teach(new IssueTime(OccurrenceFrequency.FREQUENT));
+        l.teach(new BulletinHeadingBBBIndicator(OccurrenceFrequency.AVERAGE));
+        l.teach(new EndToken(OccurrenceFrequency.FREQUENT));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -605,7 +1020,7 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-              return true;
+                return true;
             }
 
             @Override
@@ -614,8 +1029,8 @@ public class Lexing {
             }
 
         });
-        l.teach(new EndToken(Priority.HIGH));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new EndToken(OccurrenceFrequency.FREQUENT));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -627,16 +1042,17 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("LOW WIND");
             }
+
             @Override
             public MessageType getMessageType() {
                 return lowWind();
             }
         });
-        l.teach(new LowWindStart(Priority.HIGH));
-        l.teach(new ICAOCode(Priority.LOW));
-        l.teach(new IssueTime(Priority.LOW));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new LowWindStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new ICAOCode(OccurrenceFrequency.RARE));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -648,16 +1064,17 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("WX WRNG");
             }
+
             @Override
             public MessageType getMessageType() {
                 return wxWarning();
             }
         });
-        l.teach(new WXWarningStart(Priority.HIGH));
-        l.teach(new ICAOCode(Priority.LOW));
-        l.teach(new IssueTime(Priority.LOW));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new WXWarningStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new ICAOCode(OccurrenceFrequency.RARE));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -669,16 +1086,17 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().equals("WXREP");
             }
+
             @Override
             public MessageType getMessageType() {
                 return wxRep();
             }
         });
-        l.teach(new WXREPStart(Priority.HIGH));
-        l.teach(new REP(Priority.HIGH));
-        l.teach(new IssueTime(Priority.LOW));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new WXREPStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new REP(OccurrenceFrequency.FREQUENT));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -690,15 +1108,16 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().hasNext() && sequence.getFirstLexeme().getNext().getTACToken().equals("SIGMET");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.SIGMET;
             }
         });
-        l.teach(new SigmetStart(Priority.HIGH));
-        l.teach(new SigmetValidTime(Priority.NORMAL));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new SigmetStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -710,16 +1129,17 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().matches("^SIG[CWE]$");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.SIGMET;
             }
         });
 
-        l.teach(new USSigmetStart(Priority.HIGH));
-        l.teach(new USSigmetValidUntil(Priority.NORMAL));
-        l.teach(new EndToken(Priority.LOW));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new USSigmetStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new USSigmetValidUntil(OccurrenceFrequency.AVERAGE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 
@@ -731,17 +1151,45 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().matches("^SWX\\s+ADVISORY$");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.SPACE_WEATHER_ADVISORY;
             }
         });
 
-        l.teach(new SpaceWeatherAdvisoryStart(Priority.LOW));
-        l.teach(new DTGIssueTime(Priority.LOW));
-        l.teach(new AdvisoryPhenomena(Priority.NORMAL));
-        l.teach(new AdvisoryPhenomenaTimeGroup(Priority.NORMAL));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new SWXAdvisoryStart(OccurrenceFrequency.RARE));
+        l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
+        l.teach(new IssueTime(OccurrenceFrequency.RARE));
+        l.teach(new SWXIssueTimeLabel(OccurrenceFrequency.RARE));
+        l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
+        l.teach(new AdvisoryStatus(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryStatusLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXCenter(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXCenterLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryNumberLabel(OccurrenceFrequency.RARE));
+        l.teach(new AdvisoryNumber(OccurrenceFrequency.RARE));
+        l.teach(new SWXEffectLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXEffect(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXEffectConjuction(OccurrenceFrequency.FREQUENT));
+        l.teach(new SWXPresetLocation(OccurrenceFrequency.AVERAGE));
+        l.teach(new NextAdvisory(OccurrenceFrequency.RARE));
+        l.teach(new NextAdvisoryLabel(OccurrenceFrequency.RARE));
+        l.teach(new NoFurtherAdvisories(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXNotAvailable(OccurrenceFrequency.RARE));
+        l.teach(new SWXNotExpected(OccurrenceFrequency.RARE));
+        l.teach(new SWXPhenonmenonLongitudeLimit(OccurrenceFrequency.AVERAGE));
+        l.teach(new PolygonCoordinatePair(OccurrenceFrequency.FREQUENT));
+        l.teach(new PolygonCoordinatePairSeparator(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXVerticalLimit(OccurrenceFrequency.AVERAGE));
+        l.teach(new ReplaceAdvisoryNumberLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new ReplaceAdvisoryNumber(OccurrenceFrequency.AVERAGE));
+        l.teach(new RemarkStart(OccurrenceFrequency.AVERAGE));
+        l.teach(new Remark(OccurrenceFrequency.FREQUENT));
+        l.teach(new SWXIssueTimeLabel(OccurrenceFrequency.AVERAGE));
+
         return l;
     }
 
@@ -753,17 +1201,18 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 return sequence.getFirstLexeme().getTACToken().matches("^VA\\s+ADVISORY$");
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.VOLCANIC_ASH_ADVISORY;
             }
         });
 
-        l.teach(new VolcanicAshAdvisoryStart(Priority.LOW));
-        l.teach(new DTGIssueTime(Priority.LOW));
-        l.teach(new AdvisoryPhenomena(Priority.NORMAL));
-        l.teach(new AdvisoryPhenomenaTimeGroup(Priority.NORMAL));
-        l.teach(new Whitespace(Priority.HIGH));
+        l.teach(new VolcanicAshAdvisoryStart(OccurrenceFrequency.RARE));
+        l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
+        l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
 

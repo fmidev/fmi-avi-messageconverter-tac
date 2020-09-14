@@ -26,7 +26,7 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
  */
 public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
 
-    public TAFChangeForecastTimeGroup(final Priority prio) {
+    public TAFChangeForecastTimeGroup(final OccurrenceFrequency prio) {
         super("^(([0-9]{2})([0-9]{2}))|(([0-9]{2})([0-9]{2})/([0-9]{2})([0-9]{2}))$", prio);
     }
 

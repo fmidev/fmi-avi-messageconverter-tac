@@ -15,6 +15,8 @@ import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
+import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
+import fi.fmi.avi.model.swx.SpaceWeatherBulletin;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
@@ -53,7 +55,6 @@ public class TACTestConfiguration {
     @Autowired
     private AviMessageSpecificConverter<SIGMETBulletin, String> sigmetBulletinTACSerializer;
 
-
     @Autowired
     private AviMessageSpecificConverter<String, GenericMeteorologicalBulletin> genericBulletinTACParser;
 
@@ -63,6 +64,16 @@ public class TACTestConfiguration {
     @Autowired
     @Qualifier("genericBulletinJSONSerializer")
     private AviMessageSpecificConverter<GenericMeteorologicalBulletin, String> genericBulletinJSONSerializer;
+
+    @Autowired
+    private AviMessageSpecificConverter<String, SpaceWeatherAdvisory> swxTACParser;
+
+    @Autowired
+    @Qualifier("swxSerializer")
+    private AviMessageSpecificConverter<SpaceWeatherAdvisory, String> swxTACSerializer;
+
+    @Autowired
+    private AviMessageSpecificConverter<SpaceWeatherBulletin, String> swxBulletinTACSerializer;
 
     @Bean
     public AviMessageConverter aviMessageConverter() {
@@ -81,9 +92,13 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(TACConverter.TAC_TO_GENERIC_BULLETIN_POJO, genericBulletinTACParser);
         p.setMessageSpecificConverter(TACConverter.TAF_BULLETIN_POJO_TO_TAC, tafBulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.SIGMET_BULLETIN_POJO_TO_TAC, sigmetBulletinTACSerializer);
+        p.setMessageSpecificConverter(TACConverter.SWX_BULLETIN_POJO_TO_TAC, swxBulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, genericBulletinTACSerializer);
 
         p.setMessageSpecificConverter(JSONConverter.GENERIC_METEOROLOGICAL_BULLETIN_POJO_TO_JSON_STRING, genericBulletinJSONSerializer);
+
+        p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_POJO, swxTACParser);
+        p.setMessageSpecificConverter(TACConverter.SWX_POJO_TO_TAC, swxTACSerializer);
 
         return p;
     }

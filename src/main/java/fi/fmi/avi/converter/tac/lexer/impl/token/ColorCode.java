@@ -58,7 +58,7 @@ public class ColorCode extends RegexMatchingLexemeVisitor {
 
     }
 
-    public ColorCode(final Priority prio) {
+    public ColorCode(final OccurrenceFrequency prio) {
         super("^(BLU|WHT|YLO1|YLO2|AMB|RED)|(BLACK(BLU|WHT|YLO1|YLO2|AMB|RED)?)$", prio);
     }
 

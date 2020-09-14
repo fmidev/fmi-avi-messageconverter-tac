@@ -70,8 +70,7 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
     }
 
     protected <V extends AviationWeatherMessageOrCollection> int appendToken(final LexemeSequenceBuilder builder, final LexemeIdentity id, final V msg,
-            final Class<V> clz,
-                                                                 final ReconstructorContext<V> ctx) throws SerializingException {
+            final Class<V> clz, final ReconstructorContext<V> ctx) throws SerializingException {
         TACTokenReconstructor rec = this.reconstructors.get(id);
         int retval = 0;
         if (rec != null) {

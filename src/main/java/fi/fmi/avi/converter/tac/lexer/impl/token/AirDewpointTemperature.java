@@ -23,7 +23,7 @@ import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
  */
 public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
 
-    public AirDewpointTemperature(final Priority prio) {
+    public AirDewpointTemperature(final OccurrenceFrequency prio) {
         super("^(M)?([0-9]{2}|//)/(M)?([0-9]{2}|//)$", prio);
     }
 

@@ -19,7 +19,7 @@ import fi.fmi.avi.model.taf.TAF;
  */
 public class Correction extends PrioritizedLexemeVisitor {
 
-    public Correction(final Priority prio) {
+    public Correction(final OccurrenceFrequency prio) {
         super(prio);
     }
 

@@ -40,7 +40,7 @@ public class TrendChangeIndicator extends TimeHandlingRegex {
 
     }
 
-    public TrendChangeIndicator(final Priority prio) {
+    public TrendChangeIndicator(final OccurrenceFrequency prio) {
         super("^(TEMPO|BECMG)$", prio);
     }
 

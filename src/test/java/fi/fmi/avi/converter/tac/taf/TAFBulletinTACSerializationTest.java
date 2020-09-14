@@ -10,7 +10,6 @@ import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -19,8 +18,6 @@ import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.bulletin.BulletinHeading;
 import fi.fmi.avi.model.bulletin.DataTypeDesignatorT2;
@@ -32,10 +29,6 @@ import fi.fmi.avi.model.taf.immutable.TAFBulletinImpl;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
 public class TAFBulletinTACSerializationTest {
-
-    @Autowired
-    @Qualifier("tacTokenizer")
-    private AviMessageTACTokenizer tokenizer;
 
     @Autowired
     private AviMessageConverter converter;
@@ -62,7 +55,9 @@ public class TAFBulletinTACSerializationTest {
                 .addMessages(taf.get())//
                 .build();
 
-        final LexemeSequence lexemeSequence = tokenizer.tokenizeMessage(bulletin);
+        final ConversionResult<String> stringResult = this.converter.convertMessage(bulletin, TACConverter.TAF_BULLETIN_POJO_TO_TAC);
+        assertTrue(stringResult.getConversionIssues().isEmpty());
+        assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
                 CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "FCFI33 EFPP 020500 AAA"//
@@ -70,7 +65,7 @@ public class TAFBulletinTACSerializationTest {
                         + "TAF AMD EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     BKN010 SCT030CB=", //
-                lexemeSequence.getTAC());
+                stringResult.getConvertedMessage().get());
     }
 
     @Test
@@ -95,7 +90,9 @@ public class TAFBulletinTACSerializationTest {
                 .addMessages(taf.get())//
                 .build();
 
-        final LexemeSequence lexemeSequence = tokenizer.tokenizeMessage(bulletin);
+        final ConversionResult<String> stringResult = this.converter.convertMessage(bulletin, TACConverter.TAF_BULLETIN_POJO_TO_TAC);
+        assertTrue(stringResult.getConversionIssues().isEmpty());
+        assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
                 CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "FCFI33 EFPP 020500 RRZ" //
@@ -103,7 +100,7 @@ public class TAFBulletinTACSerializationTest {
                         + "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004 BECMG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA BKN010" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     SCT030CB=", //
-                lexemeSequence.getTAC());
+                stringResult.getConvertedMessage().get());
     }
 
     //TODO: move to fmi-avi-messageconverter project
@@ -152,7 +149,9 @@ public class TAFBulletinTACSerializationTest {
                 .addMessages(taf.get())//
                 .build();
 
-        final LexemeSequence lexemeSequence = tokenizer.tokenizeMessage(bulletin);
+        final ConversionResult<String> stringResult = this.converter.convertMessage(bulletin, TACConverter.TAF_BULLETIN_POJO_TO_TAC);
+        assertTrue(stringResult.getConversionIssues().isEmpty());
+        assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
                 CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "FCFI33 EFPP 020500 CCB"//
@@ -160,7 +159,7 @@ public class TAFBulletinTACSerializationTest {
                         + "TAF COR EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     BKN010 SCT030CB=", //
-                lexemeSequence.getTAC());
+                stringResult.getConvertedMessage().get());
     }
 
     @Test
