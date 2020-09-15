@@ -36,8 +36,10 @@ public class SWXNotAvailable extends RegexMatchingLexemeVisitor {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
                     final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(analysisIndex.get());
-                    if (analysis.isNoInformationAvailable()) {
-                        retval = Optional.of(this.createLexeme("NOT AVBL", LexemeIdentity.SWX_NOT_AVAILABLE));
+                    if (analysis.getNilPhenomenonReason().isPresent()) {
+                        if (analysis.getNilPhenomenonReason().get().equals(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_INFORMATION_AVAILABLE)) {
+                            retval = Optional.of(this.createLexeme("NOT AVBL", LexemeIdentity.SWX_NOT_AVAILABLE));
+                        }
                     }
                 }
             }

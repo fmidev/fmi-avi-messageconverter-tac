@@ -42,17 +42,15 @@ public class SWXPhenomena extends RegexMatchingLexemeVisitor {
                 if (analysisIndex.isPresent()) {
                     final SpaceWeatherAdvisoryAnalysis analysis = advisory.getAnalyses().get(analysisIndex.get());
                     final StringBuilder builder = new StringBuilder();
-                    if (analysis.getAnalysisType().isPresent()) {
-                        if (analysis.getAnalysisType().get().equals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION)) {
-                            builder.append("OBS ");
-                        } else if (analysis.getAnalysisType().get().equals(SpaceWeatherAdvisoryAnalysis.Type.FORECAST)) {
-                            builder.append("FCST ");
-                        } else {
-                            throw new SerializingException("Unknown analysisType '" + analysis.getAnalysisType().get() + "'");
-                        }
-
-                        builder.append("SWX");
+                    if (analysis.getAnalysisType().equals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION)) {
+                        builder.append("OBS ");
+                    } else if (analysis.getAnalysisType().equals(SpaceWeatherAdvisoryAnalysis.Type.FORECAST)) {
+                        builder.append("FCST ");
+                    } else {
+                        throw new SerializingException("Unknown analysisType '" + analysis.getAnalysisType() + "'");
                     }
+
+                    builder.append("SWX");
 
                     if (analysisIndex.get() > 0) {
                         builder.append(" +");
@@ -63,10 +61,6 @@ public class SWXPhenomena extends RegexMatchingLexemeVisitor {
 
                     retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_PHENOMENA_LABEL));
                 }
-
-
-
-
             }
             return retval;
         }

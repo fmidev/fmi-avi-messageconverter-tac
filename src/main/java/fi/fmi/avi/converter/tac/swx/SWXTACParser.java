@@ -95,7 +95,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }, () -> {
             conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "The name of the issuing space weather center is missing"));
         });
-
+System.out.println(lexed);
         firstLexeme.findNext(LexemeIdentity.ADVISORY_NUMBER, (match) -> {
             builder.setAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
         }, () -> {
@@ -133,11 +133,12 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         for (LexemeSequence analysisSequence : analysisList) {
             Lexeme analysis = analysisSequence.getFirstLexeme();
             if (analysis.getIdentity().equals(LexemeIdentity.ADVISORY_PHENOMENA_LABEL)) {
-                analyses.add(processAnalysis(analysisSequence.getFirstLexeme(), conversionIssues));
+                SpaceWeatherAdvisoryAnalysis processedAnalysis = processAnalysis(analysisSequence.getFirstLexeme(), conversionIssues);
+                if(processedAnalysis != null) {
+                    analyses.add(processedAnalysis);
+                }
             }
         }
-
-
 
         firstLexeme.findNext(LexemeIdentity.REMARKS_START, (match) -> {
             final List<String> remarks = getRemarks(match, hints);
@@ -146,13 +147,11 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             }
         });
 
-
-
         try {
             builder.addAllAnalyses(analyses);
             retval.setConvertedMessage(builder.build());
         } catch (final IllegalStateException ignored) {
-
+            System.out.println(ignored.getMessage());
         }
 
         retval.addIssue(conversionIssues);
@@ -187,18 +186,18 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         analysisLexeme = lexeme.findNext(LexemeIdentity.SWX_NOT_EXPECTED);
         if (analysisLexeme != null) {
-            builder.setNoPhenomenaExpected(true);
+            builder.setNilPhenomenonReason(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_PHENOMENON_EXPECTED);
             return builder.build();
         }
         analysisLexeme = lexeme.findNext(LexemeIdentity.SWX_NOT_AVAILABLE);
         if (analysisLexeme != null) {
-            builder.setNoInformationAvailable(true);
+            builder.setNilPhenomenonReason(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_INFORMATION_AVAILABLE);
             return builder.build();
         }
 
         List<SpaceWeatherRegion> regionList = handleRegion(lexeme, issues);
 
-        builder.setRegion(regionList);
+        builder.addAllRegions(regionList);
 
         return builder.build();
     }

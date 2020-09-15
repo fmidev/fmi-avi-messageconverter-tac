@@ -43,15 +43,13 @@ public class SWXPresetLocation extends RegexMatchingLexemeVisitor {
                 final Optional<Integer> index = ctx.getParameter("analysisIndex", Integer.class);
                 if (index.isPresent()) {
                     SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(index.get());
-                    if (analysis.getRegion().isPresent()) {
-                        for (int i = 0; i < analysis.getRegion().get().size(); i++) {
-                            SpaceWeatherRegion region = analysis.getRegion().get().get(i);
-                            if (region.getLocationIndicator().isPresent()) {
-                                if (i > 0) {
-                                    lexemes.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
-                                }
-                                lexemes.add(this.createLexeme(region.getLocationIndicator().get().getCode(), LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION));
+                    for (int i = 0; i < analysis.getRegions().size(); i++) {
+                        SpaceWeatherRegion region = analysis.getRegions().get(i);
+                        if (region.getLocationIndicator().isPresent()) {
+                            if (i > 0) {
+                                lexemes.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
                             }
+                            lexemes.add(this.createLexeme(region.getLocationIndicator().get().getCode(), LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION));
                         }
                     }
                 }

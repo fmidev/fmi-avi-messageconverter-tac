@@ -64,8 +64,8 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
                     SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(analysisIndex.get());
-                    if (analysis.getRegion().isPresent() && analysis.getRegion().get().size() > 0) {
-                        SpaceWeatherRegion region = analysis.getRegion().get().get(0);
+                    if (analysis.getRegions() != null && analysis.getRegions().size() > 0) {
+                        SpaceWeatherRegion region = analysis.getRegions().get(0);
                         if (!region.getLocationIndicator().isPresent() && region.getAirSpaceVolume().isPresent()) {
                             AirspaceVolume volume = region.getAirSpaceVolume().get();
                             if (volume.getHorizontalProjection().isPresent()) {
