@@ -37,7 +37,7 @@ public class SWXTokenTest {
         final LexemeIdentity LABEL_ID = LexemeIdentity.TEST_OR_EXCERCISE_LABEL;
         final RegexMatchingLexemeVisitor VISITOR = new AdvisoryStatus(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
-        Pattern pattern = Pattern.compile("^(?<status>TEST|EXERCISE){1}$");
+        Pattern pattern = VISITOR.getPattern();
         Matcher matcher = pattern.matcher(FIELD_VALUE);
         Assert.assertTrue(matcher.matches());
 
@@ -57,10 +57,9 @@ public class SWXTokenTest {
         final String LABEL = "NR RPLC:";
         final String FIELD_VALUE = "2020/15";
         final LexemeIdentity LABEL_ID = LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL;
-        final RegexMatchingLexemeVisitor VISITOR = new ReplaceAdvisoryNumber(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
+        final ReplaceAdvisoryNumber VISITOR = new ReplaceAdvisoryNumber(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
-
-        Pattern pattern = Pattern.compile("^(?<advisoryNumber>[\\d]{4}/[0-9][0-9]?[0-9]?[0-9]?)$");
+        Pattern pattern = VISITOR.getPattern();
         Matcher matcher = pattern.matcher(FIELD_VALUE);
         Assert.assertTrue(matcher.matches());
 
@@ -124,8 +123,7 @@ public class SWXTokenTest {
         final RegexMatchingLexemeVisitor VISITOR = new NextAdvisory(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
 
-        Pattern pattern = Pattern.compile("(?<type>WILL\\sBE\\sISSUED\\sBY\\s?)?((?<year>[0-9]{4})(?<month>[0-1][0-9])(?<day>[0-3][0-9])\\/"
-                + "(?<hour>[0-2][0-9])(?<minute>[0-5][0-9])Z)|(?<nofurther>NO\\sFURTHER\\sADVISORIES)");
+        Pattern pattern = VISITOR.getPattern();
         Matcher matcher = pattern.matcher(FIELD_VALUE);
         Assert.assertTrue(matcher.matches());
 
@@ -146,7 +144,7 @@ public class SWXTokenTest {
         final RegexMatchingLexemeVisitor VISITOR = new AdvisoryNumber(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
 
-        Pattern pattern = Pattern.compile("^(?<advisoryNumber>[\\d]{4}/[0-9][0-9]?[0-9]?[0-9]?)$");
+        Pattern pattern = VISITOR.getPattern();
         Matcher matcher = pattern.matcher(FIELD_VALUE);
         Assert.assertTrue(matcher.matches());
 
@@ -157,15 +155,6 @@ public class SWXTokenTest {
 
         Assert.assertEquals(30, advisoryNumber.getSerialNumber());
         Assert.assertEquals(2020, advisoryNumber.getYear());
-    }
-
-    @Test
-    public void badAdvisoryNumberVisitIfMatchedTest() {
-        final String FIELD_VALUE = "2020/30005";
-
-        Pattern pattern = Pattern.compile("^(?<advisoryNumber>[\\d]{4}/[0-9][0-9]?[0-9]?[0-9]?)$");
-        Matcher matcher = pattern.matcher(FIELD_VALUE);
-        Assert.assertFalse(matcher.matches());
     }
 
     public Map<String, Lexeme> visitIfMatchedTest(String previousToken, LexemeIdentity previousTokenId, String fielValue, Matcher matcher,

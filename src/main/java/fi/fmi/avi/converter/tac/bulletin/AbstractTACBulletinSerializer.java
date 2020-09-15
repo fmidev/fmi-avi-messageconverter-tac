@@ -72,8 +72,8 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
             for (final S message : messages) {
                 final boolean advisoryStyleLayout = SpaceWeatherAdvisory.class.isAssignableFrom(message.getClass());
                 int lineWrapIndentLength = advisoryStyleLayout ? 20 : DEFAULT_LINE_WRAP_INDENTATION_LENGTH;
-                if (hints != null && hints.containsKey(ConversionHints.KEY_SWX_LABEL_END_LENGTH)) {
-                    lineWrapIndentLength = (Integer) hints.get(ConversionHints.KEY_SWX_LABEL_END_LENGTH);
+                if (hints != null && hints.containsKey(ConversionHints.KEY_SWX_LABEL_WIDTH)) {
+                    lineWrapIndentLength = (Integer) hints.get(ConversionHints.KEY_SWX_LABEL_WIDTH);
                 }
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN, 2);
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);

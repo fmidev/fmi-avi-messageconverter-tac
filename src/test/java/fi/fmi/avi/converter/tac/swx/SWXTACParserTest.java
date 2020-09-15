@@ -89,24 +89,23 @@ public class SWXTACParserTest {
         List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
         assertEquals(5, analyses.size());
         SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
-        assertTrue(analysis.getAnalysisType().isPresent());
-        assertEquals(analysis.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
-        assertTrue(analysis.getRegion().isPresent());
-        assertEquals(2, analysis.getRegion().get().size());
+        assertEquals(analysis.getAnalysisType(), SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
+        assertEquals(2, analysis.getRegions().size());
 
-        assertTrue(analysis.getRegion().get().get(0).getLocationIndicator().isPresent());
-        assertEquals(analysis.getRegion().get().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().isPresent());
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
+        assertTrue(analysis.getRegions().get(0).getLocationIndicator().isPresent());
+        assertEquals(analysis.getRegions().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(
-                PolygonGeometry.class.isAssignableFrom(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        PolygonGeometry poly = (PolygonGeometry) analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+                PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        PolygonGeometry poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         Double[] expected = { -90d, -180d, -60d, -180d, -60d, 180d, -90d, 180d, -90d, -180d };
         Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
         analysis = analyses.get(4);
-        Assert.assertEquals(true, analysis.isNoPhenomenaExpected());
+        Assert.assertTrue(analysis.getNilPhenomenonReason().isPresent());
+        Assert.assertEquals(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_PHENOMENON_EXPECTED, analysis.getNilPhenomenonReason().get());
         Assert.assertEquals(NextAdvisory.Type.NO_FURTHER_ADVISORIES, swx.getNextAdvisory().getTimeSpecifier());
         Assert.assertTrue(swx.getReplaceAdvisoryNumber().isPresent());
         Assert.assertEquals(1, swx.getReplaceAdvisoryNumber().get().getSerialNumber());
@@ -137,13 +136,11 @@ public class SWXTACParserTest {
         List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
         assertEquals(5, analyses.size());
         SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
-        assertTrue(analysis.getAnalysisType().isPresent());
-        assertEquals(analysis.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
-        assertTrue(analysis.getRegion().isPresent());
-        assertEquals(2, analysis.getRegion().get().size());
+        assertEquals(analysis.getAnalysisType(), SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
+        assertEquals(2, analysis.getRegions().size());
 
         //1st region:
-        SpaceWeatherRegion r = analysis.getRegion().get().get(0);
+        SpaceWeatherRegion r = analysis.getRegions().get(0);
 
         assertTrue(r.getLocationIndicator().isPresent());
         assertEquals(r.getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
@@ -161,7 +158,7 @@ public class SWXTACParserTest {
         assertEquals(r.getAirSpaceVolume().get().getLowerLimitReference().get(), "STD");
 
         //2nd region:
-        r = analysis.getRegion().get().get(1);
+        r = analysis.getRegions().get(1);
         assertTrue(r.getLocationIndicator().isPresent());
         assertEquals(r.getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
         assertTrue(r.getAirSpaceVolume().isPresent());
@@ -204,90 +201,84 @@ public class SWXTACParserTest {
         assertEquals(5, analyses.size());
 
         SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
-        assertTrue(analysis.getAnalysisType().isPresent());
-        assertEquals(analysis.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
-        assertTrue(analysis.getRegion().isPresent());
-        assertEquals(2, analysis.getRegion().get().size());
+        assertEquals(analysis.getAnalysisType(), SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
+        assertEquals(2, analysis.getRegions().size());
 
-        assertTrue(analysis.getRegion().get().get(0).getLocationIndicator().isPresent());
-        assertEquals(analysis.getRegion().get().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().isPresent());
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
+        assertTrue(analysis.getRegions().get(0).getLocationIndicator().isPresent());
+        assertEquals(analysis.getRegions().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(
-                PolygonGeometry.class.isAssignableFrom(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        PolygonGeometry poly = (PolygonGeometry) analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+                PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        PolygonGeometry poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         Double[] expected = { -90d, -160d, -60d, -160d, -60d, 20d, -90d, 20d, -90d, -160d };
         Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
         assertEquals(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build(),
-                analysis.getRegion().get().get(0).getAirSpaceVolume().get().getLowerLimit().get());
+                analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().get());
 
-        assertTrue(analysis.getRegion().get().get(1).getLocationIndicator().isPresent());
-        assertEquals(analysis.getRegion().get().get(1).getLocationIndicator().get(),
+        assertTrue(analysis.getRegions().get(1).getLocationIndicator().isPresent());
+        assertEquals(analysis.getRegions().get(1).getLocationIndicator().get(),
                 SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
-        assertTrue(analysis.getRegion().get().get(1).getAirSpaceVolume().isPresent());
-        assertTrue(analysis.getRegion().get().get(1).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
+        assertTrue(analysis.getRegions().get(1).getAirSpaceVolume().isPresent());
+        assertTrue(analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(
-                PolygonGeometry.class.isAssignableFrom(analysis.getRegion().get().get(1).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        poly = (PolygonGeometry) analysis.getRegion().get().get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
+                PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        poly = (PolygonGeometry) analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
         expected = new Double[] { 60d, -160d, 90d, -160d, 90d, 20d, 60d, 20d, 60d, -160d };
         actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
         analysis = analyses.get(1);
-        assertTrue(analysis.getAnalysisType().isPresent());
-        assertEquals(analysis.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
-        assertTrue(analysis.getRegion().isPresent());
-        assertEquals(1, analysis.getRegion().get().size());
-        assertFalse(analysis.getRegion().get().get(0).getLocationIndicator().isPresent());
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().isPresent());
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
+        assertEquals(analysis.getAnalysisType(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
+        assertEquals(1, analysis.getRegions().size());
+        assertFalse(analysis.getRegions().get(0).getLocationIndicator().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(
-                PolygonGeometry.class.isAssignableFrom(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        poly = (PolygonGeometry) analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+                PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         expected = new Double[] { -80d, -180d, -70d, -75d, -60d, 15d, -70d, 75d, -80d, -180d };
         actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
         assertEquals(NumericMeasureImpl.builder().setValue(370d).setUom("FL").build(),
-                analysis.getRegion().get().get(0).getAirSpaceVolume().get().getLowerLimit().get());
+                analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().get());
 
         analysis = analyses.get(2);
-        assertTrue(analysis.getAnalysisType().isPresent());
-        assertEquals(analysis.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
-        assertTrue(analysis.isNoPhenomenaExpected());
-        assertFalse(analysis.getRegion().isPresent());
+        
+        assertEquals(analysis.getAnalysisType(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
+        assertTrue(analysis.getNilPhenomenonReason().isPresent());
+        assertEquals(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_PHENOMENON_EXPECTED, analysis.getNilPhenomenonReason().get());
 
         analysis = analyses.get(3);
-        assertTrue(analysis.getAnalysisType().isPresent());
-        assertEquals(analysis.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
-        assertTrue(analysis.getRegion().isPresent());
-        assertEquals(1, analysis.getRegion().get().size());
-        assertTrue(analysis.getRegion().get().get(0).getLocationIndicator().isPresent());
-        assertEquals(analysis.getRegion().get().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE);
+        
+        assertEquals(analysis.getAnalysisType(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
+        assertEquals(1, analysis.getRegions().size());
+        assertTrue(analysis.getRegions().get(0).getLocationIndicator().isPresent());
+        assertEquals(analysis.getRegions().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE);
 
         analysis = analyses.get(4);
-        assertTrue(analysis.getAnalysisType().isPresent());
-        assertEquals(analysis.getAnalysisType().get(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
-        assertTrue(analysis.getRegion().isPresent());
-        assertEquals(1, analysis.getRegion().get().size());
-        assertEquals(analysis.getRegion().get().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().isPresent());
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
+        
+        assertEquals(analysis.getAnalysisType(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
+        assertEquals(1, analysis.getRegions().size());
+        assertEquals(analysis.getRegions().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(
-                PolygonGeometry.class.isAssignableFrom(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        poly = (PolygonGeometry) analysis.getRegion().get().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+                PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         expected = new Double[] { -90d, -160d, -60d, -160d, -60d, 20d, -90d, 20d, -90d, -160d };
         actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
         assertEquals(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build(),
-                analysis.getRegion().get().get(0).getAirSpaceVolume().get().getLowerLimit().get());
-        assertTrue(analysis.getRegion().get().get(0).getAirSpaceVolume().get().getUpperLimit().isPresent());
+                analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().get());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit().isPresent());
         assertEquals(NumericMeasureImpl.builder().setValue(370d).setUom("FL").build(),
-                analysis.getRegion().get().get(0).getAirSpaceVolume().get().getUpperLimit().get());
+                analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit().get());
     }
 
     @Test
@@ -311,6 +302,7 @@ public class SWXTACParserTest {
         for(ConversionIssue issue : result.getConversionIssues()) {
             Assert.assertTrue(conversionIssues.contains(issue.toString().trim()));
         }
+        System.out.println();
 
     }
 

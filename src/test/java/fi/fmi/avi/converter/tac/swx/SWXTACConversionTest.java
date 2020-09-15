@@ -51,7 +51,7 @@ public class SWXTACConversionTest {
         Assert.assertEquals("RADIATION MOD", msg.getPhenomena().get(0).asCombinedCode());
 
         Assert.assertEquals(5, msg.getAnalyses().size());
-        Assert.assertEquals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION, msg.getAnalyses().get(0).getAnalysisType().get());
+        Assert.assertEquals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION, msg.getAnalyses().get(0).getAnalysisType());
 
         ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, new ConversionHints());
         Assert.assertTrue(SerializeResult.getConvertedMessage().isPresent());
@@ -63,7 +63,7 @@ public class SWXTACConversionTest {
     public void compareParsedObjects() throws Exception {
         String input = getInput("spacewx-pecasus-mnhmsh.tac");
         ConversionHints hints = new ConversionHints();
-        hints.put(ConversionHints.KEY_SWX_LABEL_END_LENGTH, 19);
+        hints.put(ConversionHints.KEY_SWX_LABEL_WIDTH, 19);
 
         final ConversionResult<SpaceWeatherAdvisory> parseResult = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(0, parseResult.getConversionIssues().size());
@@ -80,13 +80,14 @@ public class SWXTACConversionTest {
         Assert.assertEquals("HF COM MOD", msg.getPhenomena().get(0).asCombinedCode());
         Assert.assertEquals(5, msg.getAnalyses().size());
         SpaceWeatherAdvisoryAnalysis analysis = msg.getAnalyses().get(0);
-        Assert.assertEquals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION, analysis.getAnalysisType().get());
-        Assert.assertEquals("MNH", analysis.getRegion().get().get(0).getLocationIndicator().get().getCode());
-        Assert.assertEquals("MSH", analysis.getRegion().get().get(1).getLocationIndicator().get().getCode());
-        Assert.assertEquals("EQN", analysis.getRegion().get().get(2).getLocationIndicator().get().getCode());
+        Assert.assertEquals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION, analysis.getAnalysisType());
+        Assert.assertEquals("MNH", analysis.getRegions().get(0).getLocationIndicator().get().getCode());
+        Assert.assertEquals("MSH", analysis.getRegions().get(1).getLocationIndicator().get().getCode());
+        Assert.assertEquals("EQN", analysis.getRegions().get(2).getLocationIndicator().get().getCode());
 
         analysis = msg.getAnalyses().get(1);
-        Assert.assertTrue(analysis.isNoInformationAvailable());
+        Assert.assertTrue(analysis.getNilPhenomenonReason().isPresent());
+        Assert.assertEquals(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_INFORMATION_AVAILABLE, analysis.getNilPhenomenonReason().get());
 
         ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, hints);
         Assert.assertTrue(SerializeResult.getConvertedMessage().isPresent());
@@ -113,15 +114,14 @@ public class SWXTACConversionTest {
             SpaceWeatherAdvisoryAnalysis analysis1 = adv1.getAnalyses().get(i);
             SpaceWeatherAdvisoryAnalysis analysis2 = adv2.getAnalyses().get(i);
 
-            Assert.assertEquals(analysis1.getAnalysisType().get(), analysis2.getAnalysisType().get());
+            Assert.assertEquals(analysis1.getAnalysisType(), analysis2.getAnalysisType());
             Assert.assertEquals(analysis1.getTime(), analysis2.getTime());
-            Assert.assertEquals(analysis1.isNoInformationAvailable(), analysis2.isNoInformationAvailable());
-            Assert.assertEquals(analysis1.isNoPhenomenaExpected(), analysis2.isNoPhenomenaExpected());
-            Assert.assertEquals(analysis1.getRegion().isPresent(), analysis2.getRegion().isPresent());
-            if(analysis1.getRegion().isPresent()) {
-                for (int a = 0; a < analysis1.getRegion().get().size(); a++) {
-                    SpaceWeatherRegion region1 = analysis1.getRegion().get().get(a);
-                    SpaceWeatherRegion region2 = analysis2.getRegion().get().get(a);
+            Assert.assertEquals(analysis1.getNilPhenomenonReason(), analysis2.getNilPhenomenonReason());
+            Assert.assertEquals(analysis1.getRegions().size(), analysis2.getRegions().size());
+            if(analysis1.getRegions() != null) {
+                for (int a = 0; a < analysis1.getRegions().size(); a++) {
+                    SpaceWeatherRegion region1 = analysis1.getRegions().get(a);
+                    SpaceWeatherRegion region2 = analysis2.getRegions().get(a);
 
                     Assert.assertEquals(region1.getLocationIndicator().get(), region2.getLocationIndicator().get());
 

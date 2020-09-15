@@ -57,8 +57,8 @@ public class SWXVerticalLimit extends RegexMatchingLexemeVisitor {
                 final Optional<Integer> index = ctx.getParameter("analysisIndex", Integer.class);
                 if (index.isPresent()) {
                     final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(index.get());
-                    if (analysis.getRegion().isPresent() && analysis.getRegion().get().size() > 0) {
-                        final SpaceWeatherRegion region = analysis.getRegion().get().get(0);
+                    if (analysis.getRegions() != null && analysis.getRegions().size() > 0) {
+                        final SpaceWeatherRegion region = analysis.getRegions().get(0);
                         if (region.getAirSpaceVolume().isPresent()) {
                             final StringBuilder builder = new StringBuilder();
                             final AirspaceVolume volume = region.getAirSpaceVolume().get();
