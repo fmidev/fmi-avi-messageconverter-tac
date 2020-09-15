@@ -48,13 +48,7 @@ public class ReplaceAdvisoryNumber extends RegexMatchingLexemeVisitor {
                         throw new SerializingException(("The advisory number is missing the year"));
                     }
 
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(advisoryNumber.getYear());
-                    builder.append("/");
-                    builder.append(advisoryNumber.getSerialNumber());
-
-                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.REPLACE_ADVISORY_NUMBER));
-
+                    retval = Optional.of(this.createLexeme(advisoryNumber.asAdvisoryNumber(), LexemeIdentity.REPLACE_ADVISORY_NUMBER));
                 }
             }
             return retval;
