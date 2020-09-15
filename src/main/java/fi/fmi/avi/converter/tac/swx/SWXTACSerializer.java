@@ -39,8 +39,8 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
         }
         int labelColumnWidth = 20;
         if (hints != null) {
-            if (hints.containsKey(ConversionHints.KEY_SWX_LABEL_WIDTH)) {
-                labelColumnWidth = (Integer) hints.get(ConversionHints.KEY_SWX_LABEL_WIDTH);
+            if (hints.containsKey(ConversionHints.KEY_ADVISORY_LABEL_WIDTH)) {
+                labelColumnWidth = (Integer) hints.get(ConversionHints.KEY_ADVISORY_LABEL_WIDTH);
             }
         }
         final SpaceWeatherAdvisory input = (SpaceWeatherAdvisory) msg;

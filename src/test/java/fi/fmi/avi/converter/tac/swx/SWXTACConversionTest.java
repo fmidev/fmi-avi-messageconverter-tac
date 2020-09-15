@@ -63,7 +63,7 @@ public class SWXTACConversionTest {
     public void compareParsedObjects() throws Exception {
         String input = getInput("spacewx-pecasus-mnhmsh.tac");
         ConversionHints hints = new ConversionHints();
-        hints.put(ConversionHints.KEY_SWX_LABEL_WIDTH, 19);
+        hints.put(ConversionHints.KEY_ADVISORY_LABEL_WIDTH, 19);
 
         final ConversionResult<SpaceWeatherAdvisory> parseResult = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(0, parseResult.getConversionIssues().size());
