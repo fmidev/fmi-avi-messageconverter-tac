@@ -160,6 +160,32 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
         return retval;
     }
 
+    protected static List<ConversionIssue> checkExactlyOne(final LexemeSequence lexed, final LexemeIdentity[] ids) {
+        final List<ConversionIssue> retval = new ArrayList<>();
+        final boolean[] oneFound = new boolean[ids.length];
+        final List<Lexeme> recognizedLexemes = lexed.getLexemes()
+                .stream()
+                .filter((lexeme) -> Lexeme.Status.UNRECOGNIZED != lexeme.getStatus())
+                .collect(Collectors.toList());
+        for (final Lexeme l : recognizedLexemes) {
+            for (int i = 0; i < ids.length; i++) {
+                if (ids[i].equals(l.getIdentity())) {
+                    if (!oneFound[i]) {
+                        oneFound[i] = true;
+                    } else {
+                        retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "More than one of " + l.getIdentity() + " in " + lexed.getTAC()));
+                    }
+                }
+            }
+        }
+        for(int i = 0; i < oneFound.length; i++) {
+            if(!oneFound[i]) {
+                retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "One of " + ids[i] + " not recognized in " + lexed.getTAC()));
+            }
+        }
+        return retval;
+    }
+
     protected static List<ConversionIssue> withFoundIssueTime(final LexemeSequence lexed, final LexemeIdentity[] before, final ConversionHints hints,
             final Consumer<PartialOrCompleteTimeInstant> consumer) {
         final List<ConversionIssue> retval = new ArrayList<>();
