@@ -130,7 +130,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA, "Advisory should contain at least 1 valid "
                     + "space wather effect."));
         });
-        
+
         List<LexemeSequence> analysisList = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
         List<SpaceWeatherAdvisoryAnalysis> analyses = new ArrayList<>();
 
