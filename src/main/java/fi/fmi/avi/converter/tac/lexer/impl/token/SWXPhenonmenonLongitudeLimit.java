@@ -64,9 +64,9 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
                         SpaceWeatherRegion region = analysis.getRegion().get().get(0);
                         if (region.getLongitudeLimitMinimum().isPresent() && region.getLongitudeLimitMaximum().isPresent()) {
                             StringBuilder builder = new StringBuilder();
-                            builder.append(parseLimit(region.getLongitudeLimitMinimum().getAsDouble()));
+                            builder.append(parseLimit(region.getLongitudeLimitMinimum().get()));
                             builder.append(" - ");
-                            builder.append(parseLimit(region.getLongitudeLimitMaximum().getAsDouble()));
+                            builder.append(parseLimit(region.getLongitudeLimitMaximum().get()));
 
                             lexeme = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT));
                         }
