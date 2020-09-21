@@ -15,9 +15,11 @@ import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatus;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumber;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenter;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.swx.immutable.AdvisoryNumberImpl;
 
@@ -34,7 +36,7 @@ public class SWXTokenTest {
     public void advisoryStatusVisitIfMatchedTest() {
         final String LABEL = "STATUS:";
         final String FIELD_VALUE = "TEST";
-        final LexemeIdentity LABEL_ID = LexemeIdentity.TEST_OR_EXCERCISE_LABEL;
+        final LexemeIdentity LABEL_ID = LexemeIdentity.ADVISORY_STATUS_LABEL;
         final RegexMatchingLexemeVisitor VISITOR = new AdvisoryStatus(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
         Pattern pattern = VISITOR.getPattern();
@@ -46,7 +48,7 @@ public class SWXTokenTest {
         Assert.assertNull(resultset.get(NO_PREVIOUS).getIdentity());
         Assert.assertNull(resultset.get(NULL_PREVIOUS).getIdentity());
         Assert.assertNull(resultset.get(WRONG_ID_PREVIOUS).getIdentity());
-        Assert.assertEquals(LexemeIdentity.TEST_OR_EXCERCISE, resultset.get(CORRECT_PREVIOUS).getIdentity());
+        Assert.assertEquals(LexemeIdentity.ADVISORY_STATUS, resultset.get(CORRECT_PREVIOUS).getIdentity());
         Assert.assertEquals(AviationCodeListUser.PermissibleUsageReason.TEST, resultset.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.VALUE,
                 AviationCodeListUser.PermissibleUsageReason.class));
 
@@ -155,6 +157,46 @@ public class SWXTokenTest {
 
         Assert.assertEquals(30, advisoryNumber.getSerialNumber());
         Assert.assertEquals(2020, advisoryNumber.getYear());
+    }
+
+    @Test
+    public void swxCenterVisitIfMatchedTest() {
+        final String LABEL = "SWXC:";
+        final String FIELD_VALUE = "DONLON";
+        final LexemeIdentity LABEL_ID = LexemeIdentity.SWX_CENTRE_LABEL;
+        final SWXCenter VISITOR = new SWXCenter(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
+
+        Pattern pattern = VISITOR.getPattern();
+        Matcher matcher = pattern.matcher(FIELD_VALUE);
+        Assert.assertTrue(matcher.matches());
+
+        Map<String, Lexeme> resultset = visitIfMatchedTest(LABEL, LABEL_ID, FIELD_VALUE, matcher, VISITOR);
+
+        Assert.assertNull(resultset.get(NO_PREVIOUS).getIdentity());
+        Assert.assertNull(resultset.get(NULL_PREVIOUS).getIdentity());
+        Assert.assertNull(resultset.get(WRONG_ID_PREVIOUS).getIdentity());
+
+        resultset.get(CORRECT_PREVIOUS);
+    }
+
+    @Test
+    public void AdvisoryTimeGroupVisitIfMatchedTest() {
+        final String LABEL = "NR RPLC:";
+        final String FIELD_VALUE = "08/1254Z";
+        final LexemeIdentity LABEL_ID = LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL;
+        final AdvisoryPhenomenaTimeGroup VISITOR = new AdvisoryPhenomenaTimeGroup(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
+
+        Pattern pattern = VISITOR.getPattern();
+        Matcher matcher = pattern.matcher(FIELD_VALUE);
+        Assert.assertTrue(matcher.matches());
+
+        Map<String, Lexeme> resultset = visitIfMatchedTest(LABEL, LABEL_ID, FIELD_VALUE, matcher, VISITOR);
+
+        Assert.assertNull(resultset.get(NO_PREVIOUS).getIdentity());
+        Assert.assertNull(resultset.get(NULL_PREVIOUS).getIdentity());
+        Assert.assertNull(resultset.get(WRONG_ID_PREVIOUS).getIdentity());
+
+        resultset.get(CORRECT_PREVIOUS);
     }
 
     public Map<String, Lexeme> visitIfMatchedTest(String previousToken, LexemeIdentity previousTokenId, String fielValue, Matcher matcher,
