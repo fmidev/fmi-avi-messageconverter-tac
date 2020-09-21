@@ -59,7 +59,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         final LexemeSequence lexed = this.lexer.lexMessage(input);
         final Lexeme firstLexeme = lexed.getFirstLexeme();
 
-        if(!firstLexeme.getIdentity().equals(LexemeIdentity.SPACE_WEATHER_ADVISORY_START)) {
+        if (!LexemeIdentity.SPACE_WEATHER_ADVISORY_START.equals(firstLexeme.getIdentity())) {
             retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as Space Weather Advisory"));
             return retval;
         } else if (firstLexeme.isSynthetic()) {
@@ -137,7 +137,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         analysisList.stream().forEach(analysisSequence -> {
             Lexeme analysis = analysisSequence.getFirstLexeme();
             //TODO: CHeck if it works
-            if (analysis.getIdentity().equals(LexemeIdentity.ADVISORY_PHENOMENA_LABEL)) {
+            if (LexemeIdentity.ADVISORY_PHENOMENA_LABEL.equals(analysis.getIdentity())) {
                 SpaceWeatherAdvisoryAnalysis processedAnalysis = processAnalysis(analysisSequence.getFirstLexeme(), conversionIssues);
                 if(processedAnalysis != null) {
                     analyses.add(processedAnalysis);
