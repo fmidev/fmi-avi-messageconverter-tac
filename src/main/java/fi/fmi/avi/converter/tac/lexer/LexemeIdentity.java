@@ -98,8 +98,8 @@ public class LexemeIdentity {
     public static final LexemeIdentity BULLETIN_HEADING_DATA_DESIGNATORS = new LexemeIdentity("BULLETIN_HEADING_DATA_DESIGNATORS", VALUE);
     public static final LexemeIdentity BULLETIN_HEADING_LOCATION_INDICATOR = new LexemeIdentity("BULLETIN_HEADING_LOCATION_INDICATOR", VALUE);
     public static final LexemeIdentity BULLETIN_HEADING_BBB_INDICATOR = new LexemeIdentity("BULLETIN_HEADING_BBB_INDICATOR", VALUE, SEQUENCE_NUMBER);
-    public static final LexemeIdentity TEST_OR_EXCERCISE = new LexemeIdentity("TEST_OR_EXCERCISE", VALUE);
-    public static final LexemeIdentity TEST_OR_EXCERCISE_LABEL = new LexemeIdentity("TEST_OR_EXCERCISE_LABEL", VALUE);
+    public static final LexemeIdentity ADVISORY_STATUS = new LexemeIdentity("ADVISORY_STATUS", VALUE);
+    public static final LexemeIdentity ADVISORY_STATUS_LABEL = new LexemeIdentity("ADVISORY_STATUS_LABEL", VALUE);
     public static final LexemeIdentity ADVISORY_NUMBER = new LexemeIdentity("ADVISORY_NUMBER", VALUE);
     public static final LexemeIdentity ADVISORY_NUMBER_LABEL = new LexemeIdentity("ADVISORY_NUMBER_LABEL", VALUE);
     public static final LexemeIdentity REPLACE_ADVISORY_NUMBER = new LexemeIdentity("REPLACE_ADVISORY_NUMBER", VALUE);

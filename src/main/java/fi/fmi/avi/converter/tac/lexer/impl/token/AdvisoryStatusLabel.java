@@ -19,7 +19,7 @@ public class AdvisoryStatusLabel extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(LexemeIdentity.TEST_OR_EXCERCISE_LABEL);
+        token.identify(LexemeIdentity.ADVISORY_STATUS_LABEL);
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -32,7 +32,7 @@ public class AdvisoryStatusLabel extends RegexMatchingLexemeVisitor {
                 if (advisory.getPermissibleUsageReason().isPresent()) {
                     if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                         StringBuilder builder = new StringBuilder("STATUS:");
-                        retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.TEST_OR_EXCERCISE_LABEL));
+                        retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_STATUS_LABEL));
                     }
                 }
             }
