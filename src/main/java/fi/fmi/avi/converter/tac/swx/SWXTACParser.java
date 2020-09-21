@@ -59,12 +59,23 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         final LexemeSequence lexed = this.lexer.lexMessage(input);
         final Lexeme firstLexeme = lexed.getFirstLexeme();
 
-        if (LexemeIdentity.SPACE_WEATHER_ADVISORY_START != firstLexeme.getIdentity()) {
+        if(!firstLexeme.getIdentity().equals(LexemeIdentity.SPACE_WEATHER_ADVISORY_START)) {
             retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as Space Weather Advisory"));
             return retval;
         } else if (firstLexeme.isSynthetic()) {
             retval.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
                     "Message does not start with a start token: " + firstLexeme.getTACToken()));
+        }
+
+        List<ConversionIssue> conversionIssues = new ArrayList<>();
+
+        LexemeIdentity[] exactkyOne = new LexemeIdentity[]{
+                LexemeIdentity.ADVISORY_STATUS, LexemeIdentity.ISSUE_TIME, LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
+                /*LexemeIdentity.SWX_EFFECT,*/ LexemeIdentity.NEXT_ADVISORY
+        };
+        final List<ConversionIssue> checkIssues = checkExactlyOne(firstLexeme.getTailSequence(), exactkyOne);
+        if(checkIssues != null) {
+            conversionIssues.addAll(checkIssues);
         }
 
         SpaceWeatherAdvisoryImpl.Builder builder = SpaceWeatherAdvisoryImpl.builder();
@@ -73,19 +84,21 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             builder.setTranslatedTAC(lexed.getTAC());
         }
 
-        firstLexeme.findNext(LexemeIdentity.TEST_OR_EXCERCISE_LABEL, (match) -> {
+        firstLexeme.findNext(LexemeIdentity.ADVISORY_STATUS_LABEL, (match) -> {
             final Lexeme value = match.getNext();
             builder.setPermissibleUsage(AviationCodeListUser.PermissibleUsage.NON_OPERATIONAL);
-            if (LexemeIdentity.TEST_OR_EXCERCISE == value.getIdentity()) {
+            if (LexemeIdentity.ADVISORY_STATUS == value.getIdentity()) {
                 builder.setPermissibleUsageReason(value.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
             }
         });
 
-        List<ConversionIssue> conversionIssues = setSWXIssueTime(builder, lexed, hints);
-
-        firstLexeme.findNext(LexemeIdentity.TEST_OR_EXCERCISE, (match) ->{
+        firstLexeme.findNext(LexemeIdentity.ADVISORY_STATUS, (match) ->{
             builder.setPermissibleUsageReason(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
         });
+
+        conversionIssues.addAll(this.withFoundIssueTime(lexed, new LexemeIdentity[]{LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
+                        LexemeIdentity.SWX_EFFECT, LexemeIdentity.NEXT_ADVISORY}, hints,
+                builder::setIssueTime));
 
         firstLexeme.findNext(LexemeIdentity.SWX_CENTRE, (match) -> {
             IssuingCenterImpl.Builder issuingCenter = IssuingCenterImpl.builder();
@@ -95,11 +108,9 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }, () -> {
             conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "The name of the issuing space weather center is missing"));
         });
-System.out.println(lexed);
+
         firstLexeme.findNext(LexemeIdentity.ADVISORY_NUMBER, (match) -> {
             builder.setAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
-        }, () -> {
-            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "The advisory number is missing"));
         });
 
         firstLexeme.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER, (match) -> {
@@ -113,9 +124,37 @@ System.out.println(lexed);
                 phenomena.add(phenomenon);
                 match = match.findNext(LexemeIdentity.SWX_EFFECT);
             }
+            //TODO: add warning if multiple effects are found
             builder.addAllPhenomena(phenomena);
         }, () -> {
-            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "The space weather effect is missing"));
+            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA, "Advisory should contain at least 1 valid "
+                    + "space wather effect."));
+        });
+        
+        List<LexemeSequence> analysisList = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
+        List<SpaceWeatherAdvisoryAnalysis> analyses = new ArrayList<>();
+
+        analysisList.stream().forEach(analysisSequence -> {
+            Lexeme analysis = analysisSequence.getFirstLexeme();
+            //TODO: CHeck if it works
+            if (analysis.getIdentity().equals(LexemeIdentity.ADVISORY_PHENOMENA_LABEL)) {
+                SpaceWeatherAdvisoryAnalysis processedAnalysis = processAnalysis(analysisSequence.getFirstLexeme(), conversionIssues);
+                if(processedAnalysis != null) {
+                    analyses.add(processedAnalysis);
+                }
+            }
+        });
+        if(analyses.size() != 5) {
+            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING,
+                    "Advisories should contain 5 observation/forecasts but "  + analyses.size()
+                    + " were recognized in advisory:\n" + lexed.getTAC()));
+        }
+
+        firstLexeme.findNext(LexemeIdentity.REMARKS_START, (match) -> {
+            final List<String> remarks = getRemarks(match, hints);
+            if (!remarks.isEmpty()) {
+                builder.setRemarks(remarks);
+            }
         });
 
         firstLexeme.findNext(LexemeIdentity.NEXT_ADVISORY, (match) -> {
@@ -125,26 +164,6 @@ System.out.println(lexed);
             builder.setNextAdvisory(nxt.build());
         }, () -> {
             conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "Next advisory information is missing"));
-        });
-
-        List<LexemeSequence> analysisList = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
-        List<SpaceWeatherAdvisoryAnalysis> analyses = new ArrayList<>();
-
-        for (LexemeSequence analysisSequence : analysisList) {
-            Lexeme analysis = analysisSequence.getFirstLexeme();
-            if (analysis.getIdentity().equals(LexemeIdentity.ADVISORY_PHENOMENA_LABEL)) {
-                SpaceWeatherAdvisoryAnalysis processedAnalysis = processAnalysis(analysisSequence.getFirstLexeme(), conversionIssues);
-                if(processedAnalysis != null) {
-                    analyses.add(processedAnalysis);
-                }
-            }
-        }
-
-        firstLexeme.findNext(LexemeIdentity.REMARKS_START, (match) -> {
-            final List<String> remarks = getRemarks(match, hints);
-            if (!remarks.isEmpty()) {
-                builder.setRemarks(remarks);
-            }
         });
 
         try {
@@ -159,14 +178,12 @@ System.out.println(lexed);
         return retval;
     }
 
-    protected List<ConversionIssue> setSWXIssueTime(final SpaceWeatherAdvisoryImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
-        LexemeIdentity[] before = {LexemeIdentity.ADVISORY_NUMBER};
-
-        return new ArrayList<>(withFoundIssueTime(lexed, before, hints, builder::setIssueTime));
-    }
-
     protected SpaceWeatherAdvisoryAnalysis processAnalysis(final Lexeme lexeme, final List<ConversionIssue> issues) {
         SpaceWeatherAdvisoryAnalysisImpl.Builder builder = SpaceWeatherAdvisoryAnalysisImpl.builder();
+        List<ConversionIssue> issue = checkAnalysisLexemes(lexeme);
+        if(issue.size() > 0) {
+            issues.addAll(issue);
+        }
 
         if (lexeme.getParsedValue(Lexeme.ParsedValueName.TYPE, SWXPhenomena.Type.class) == SWXPhenomena.Type.OBS) {
             builder.setAnalysisType(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
@@ -178,11 +195,8 @@ System.out.println(lexed);
         if(analysisLexeme != null) {
             createPartialTimeInstant(analysisLexeme, builder::setTime);
         } else {
-            issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "Advisory time is missing\n"));
             return null;
         }
-
-
 
         analysisLexeme = lexeme.findNext(LexemeIdentity.SWX_NOT_EXPECTED);
         if (analysisLexeme != null) {
@@ -200,6 +214,24 @@ System.out.println(lexed);
         builder.addAllRegions(regionList);
 
         return builder.build();
+    }
+
+    private List<ConversionIssue> checkAnalysisLexemes(Lexeme lexeme) {
+        List<ConversionIssue> conversionIssues = new ArrayList<>();
+        List<ConversionIssue> exactlyOne = checkExactlyOne(lexeme.getTailSequence(), new LexemeIdentity[]{LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP});
+        if(exactlyOne.size() > 0) {
+            conversionIssues.addAll(exactlyOne);
+        }
+
+        LexemeIdentity[] zeroOrOne = new LexemeIdentity[] {
+                LexemeIdentity.SWX_NOT_EXPECTED, LexemeIdentity.SWX_NOT_AVAILABLE
+        };
+        List<ConversionIssue> issues = checkZeroOrOne(lexeme.getTailSequence(), zeroOrOne);
+        if(issues.size() > 0) {
+            conversionIssues.addAll(issues);
+        }
+
+        return conversionIssues;
     }
 
     protected List<SpaceWeatherRegion> handleRegion(final Lexeme lexeme, final List<ConversionIssue> issues) {
