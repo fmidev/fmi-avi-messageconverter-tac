@@ -247,8 +247,8 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SPACE_WEATHER_ADVISORY_START, new SWXAdvisoryStart.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_ISSUE_TIME_LABEL, new SWXIssueTimeLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
-        s.addReconstructor(LexemeIdentity.TEST_OR_EXCERCISE_LABEL, new AdvisoryStatusLabel.Reconstructor());
-        s.addReconstructor(LexemeIdentity.TEST_OR_EXCERCISE, new AdvisoryStatus.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ADVISORY_STATUS_LABEL, new AdvisoryStatusLabel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ADVISORY_STATUS, new AdvisoryStatus.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_CENTRE_LABEL, new SWXCenterLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_CENTRE, new SWXCenter.Reconstructor());
         s.addReconstructor(LexemeIdentity.ADVISORY_NUMBER_LABEL, new AdvisoryNumberLabel.Reconstructor());
