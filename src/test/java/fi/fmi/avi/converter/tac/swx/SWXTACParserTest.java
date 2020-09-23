@@ -125,6 +125,7 @@ public class SWXTACParserTest {
         assertTrue(result.getConvertedMessage().isPresent());
 
         SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertEquals(AviationCodeListUser.PermissibleUsageReason.TEST, swx.getPermissibleUsageReason().get());
         assertEquals(swx.getIssuingCenter().getName().get(), "DONLON");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2016);
