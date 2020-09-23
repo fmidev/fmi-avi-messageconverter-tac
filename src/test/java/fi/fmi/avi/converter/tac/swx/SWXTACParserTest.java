@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 import fi.fmi.avi.converter.ConversionIssue;
+import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.swx.immutable.SpaceWeatherPhenomenonImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -73,6 +74,7 @@ public class SWXTACParserTest {
         assertTrue(result.getConvertedMessage().isPresent());
 
         SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertEquals(swx.getPermissibleUsageReason().get(), AviationCodeListUser.PermissibleUsageReason.EXERCISE);
         assertEquals(swx.getIssuingCenter().getName().get(), "DONLON");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2016);
@@ -123,6 +125,7 @@ public class SWXTACParserTest {
         assertTrue(result.getConvertedMessage().isPresent());
 
         SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertEquals(AviationCodeListUser.PermissibleUsageReason.TEST, swx.getPermissibleUsageReason().get());
         assertEquals(swx.getIssuingCenter().getName().get(), "DONLON");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2016);
