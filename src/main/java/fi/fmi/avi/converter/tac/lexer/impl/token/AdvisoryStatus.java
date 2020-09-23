@@ -16,7 +16,7 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
 public class AdvisoryStatus extends RegexMatchingLexemeVisitor {
     public AdvisoryStatus(final OccurrenceFrequency prio) {
-        super("^(?<status>TEST|EXERCISE){1}$", prio);
+        super("^(?<status>TEST|EXER){1}$", prio);
     }
 
     @Override
