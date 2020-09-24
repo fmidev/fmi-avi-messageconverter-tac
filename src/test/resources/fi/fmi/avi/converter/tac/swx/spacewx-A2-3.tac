@@ -1,5 +1,5 @@
 SWX ADVISORY
-STATUS:             TEST
+STATUS:             EXER
 DTG:                20161108/0100Z
 SWXC:               DONLON
 ADVISORY NR:        2016/2
