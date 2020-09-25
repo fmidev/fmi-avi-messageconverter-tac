@@ -305,6 +305,13 @@ public class SWXTACParserTest {
     }
 
     @Test
+    public void testInvalidEmptyStatus() throws IOException {
+        final String input = getInput("spacewx-invalid-status-empty.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConversionIssues().size() > 0);
+    }
+
+    @Test
     public void testInvalidRemarkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-remark-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
