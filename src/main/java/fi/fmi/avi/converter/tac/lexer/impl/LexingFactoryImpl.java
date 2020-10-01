@@ -84,7 +84,7 @@ public class LexingFactoryImpl implements LexingFactory {
         if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
             final Lexeme artificialStartToken = this.startTokens.get(hints.get(ConversionHints.KEY_MESSAGE_TYPE));
             if (artificialStartToken != null) {
-                if (!input.startsWith(artificialStartToken.getTACToken() + " ")) {
+                if (!input.startsWith(artificialStartToken.getTACToken() + " ") && !input.startsWith(artificialStartToken.getTACToken() + "\n")) {
                     result.addAsFirst(new LexemeImpl(this, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE));
                     result.addAsFirst(artificialStartToken);
                 }
