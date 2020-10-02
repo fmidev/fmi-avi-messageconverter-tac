@@ -1,17 +1,17 @@
 package fi.fmi.avi.converter.tac.taf;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.NIL;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TAF_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AERODROME_DESIGNATOR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.END_TOKEN;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ISSUE_TIME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.NIL;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TAF_START;
 
-import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.model.taf.TAF;
-import fi.fmi.avi.model.taf.impl.TAFImpl;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.conf.TACConverter;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.model.taf.TAF;
+import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 public class Taf7Test extends AbstractAviMessageTest<String, TAF> {
 
@@ -27,13 +27,8 @@ public class Taf7Test extends AbstractAviMessageTest<String, TAF> {
 	}
 	
 	@Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
-
-	@Override
-	public Identity[] getLexerTokenSequenceIdentity() {
-		return spacify(new Identity[] {
+	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+		return spacify(new LexemeIdentity[] {
 				TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, NIL, END_TOKEN
 		});
 	}

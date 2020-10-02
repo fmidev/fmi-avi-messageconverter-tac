@@ -1,17 +1,19 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.COLOR_CODE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.COLOR_CODE;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
+import fi.fmi.avi.model.metar.TrendForecast;
 
 /**
  * Created by rinne on 10/02/17.
@@ -56,7 +58,7 @@ public class ColorCode extends RegexMatchingLexemeVisitor {
 
     }
 
-    public ColorCode(final Priority prio) {
+    public ColorCode(final OccurrenceFrequency prio) {
         super("^(BLU|WHT|YLO1|YLO2|AMB|RED)|(BLACK(BLU|WHT|YLO1|YLO2|AMB|RED)?)$", prio);
     }
 
@@ -75,27 +77,17 @@ public class ColorCode extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
-            Lexeme retval = null;
-            
-            fi.fmi.avi.model.AviationCodeListUser.ColorState color = null;
-            
-            if (clz.isAssignableFrom(METAR.class)) {
-            	METAR metar = (METAR)msg;
-            	
-            	TrendForecast trend = getAs(specifier, TrendForecast.class);
-            	if (trend == null) {
-            		color = metar.getColorState();
-            	} else {
-            		color = trend.getColorState();
-            	}
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                MeteorologicalTerminalAirReport metar = (MeteorologicalTerminalAirReport) msg;
+                Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
+                Optional<fi.fmi.avi.model.AviationCodeListUser.ColorState> color = trend.map(TrendForecast::getColorState).orElse(metar.getColorState());
+                if (color.isPresent()) {
+                    return Optional.of(this.createLexeme(color.get().name(), COLOR_CODE));
+                }
             }
-            
-            if (color != null) {
-            	retval = this.createLexeme(color.name(), COLOR_CODE);
-            }
-            
-        	return retval;
+            return Optional.empty();
         }
 
     }

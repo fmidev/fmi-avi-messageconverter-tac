@@ -14,7 +14,7 @@ import fi.fmi.avi.converter.ConversionHints;
  * A typical implementation tests an unrecognized {@link Lexeme} against a pattern or relative
  * position in the {@link LexemeSequence}, in order to identify it as a particular type of
  * {@link Lexeme}. If the recognized, the {@link LexemeVisitor} modifies the visited
- * {@link Lexeme} by calling the {@link Lexeme#identify(Lexeme.Identity)} and possibly
+ * {@link Lexeme} by calling the {@link Lexeme#identify(LexemeIdentity)} and possibly
  * {@link Lexeme#setParsedValue(Lexeme.ParsedValueName, Object)} to store pre-parsed
  * content to be used later.
  *

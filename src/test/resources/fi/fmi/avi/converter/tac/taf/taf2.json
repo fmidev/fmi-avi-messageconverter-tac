@@ -1,48 +1,58 @@
 {
-	"status": "NORMAL",
-	"partialIssueTime": "190815Z",
-	"aerodrome": {
-	    "designator": "EFAB"
+	"status" : "NORMAL",
+	"issueTime" : {
+      "partialTime" : "--19T08:15Z"
 	},
-	"partialValidityTimePeriod": "1909/1915",
-	"baseForecast": {
-	  "surfaceWind": {
+	"aerodrome" : {
+	    "designator" : "EFAB"
+	},
+	"validityTime" : {
+		"startTime" : {
+          "partialTime" : "--19T09:"
+		},
+		"endTime" : {
+          "partialTime" : "--19T15:"
+		}
+	},
+	"baseForecast" : {
+	  "surfaceWind" : {
 	  	"variableDirection": false,
-	  	"meanWindDirection": {
+	  	"meanWindDirection" : {
 	  	  "value": 140.0,
-	  	  "uom": "deg"
+	  	  "uom" : "deg"
 	  	},
-	  	"meanWindSpeed": {
+	  	"meanWindSpeed" : {
 	  	  "value": 8.0,
-	  	  "uom": "mps"
+          "uom": "m/s"
 	  	},
-	  	"windGust": {
+	  	"windGust" : {
 	  	  "value": 15.0,
-	  	  "uom": "mps"
+          "uom": "m/s"
 	  	}
 	  },
-	  "prevailingVisibility": {
+	  "prevailingVisibility" : {
 	  	"value": 10000.0,
-	  	"uom": "m"
+	  	"uom" : "m"
 	  },
-	  "prevailingVisibilityOperator": "ABOVE",
-	  "cloud": {
+	  "prevailingVisibilityOperator" : "ABOVE",
+	  "cloud" : {
 	    "layers": [
 	      {
-	        "amount": "BKN",
-	      	"base": {
+	        "amount" : "BKN",
+	      	"base" : {
 	      	  "value": 1000,
-	      	  "uom": "[ft_i]"
+	      	  "uom" : "[ft_i]"
 	      	}
 	      },
 	      {
-	        "amount": "BKN",
-	      	"base": {
+	        "amount" : "BKN",
+	      	"base" : {
 	      	  "value": 1500,
-	      	  "uom": "[ft_i]"
+	      	  "uom" : "[ft_i]"
 	      	}
 	      }
 	    ]
 	  }
-	}
+	},
+    "translatedTAC" : "TAF EFAB 190815Z 1909/1915 14008G15MPS 9999 BKN010 BKN015="
 }

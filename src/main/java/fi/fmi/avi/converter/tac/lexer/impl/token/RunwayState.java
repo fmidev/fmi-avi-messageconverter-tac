@@ -1,29 +1,27 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.RUNWAY_STATE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.RUNWAY_STATE;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationCodeListUser.RunwayContamination;
 import fi.fmi.avi.model.AviationCodeListUser.RunwayDeposit;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.RunwayDirection;
-import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
 /**
  * Created by rinne on 10/02/17.
@@ -80,7 +78,6 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     }
 
     public enum RunwayStateReportType {
-        SNOW_CLOSURE,
         DEPOSITS,
         CONTAMINATION,
         DEPTH_OF_DEPOSIT,
@@ -122,15 +119,16 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 
     private static final Map<RunwayStateContamination, RunwayContamination> runwayStateContaminationToAPI;
     private static final Map<RunwayContamination, RunwayStateContamination> apiToRunwayStateContamination;
-    
-    private static final Map<BreakingAction, AviationCodeListUser.BreakingAction> breakingActionToAPI;
-    private static final Map<AviationCodeListUser.BreakingAction, BreakingAction> apiTobreakingAction;
+
+    private static final Map<BreakingAction, AviationCodeListUser.BrakingAction> breakingActionToAPI;
+    private static final Map<AviationCodeListUser.BrakingAction, BreakingAction> apiTobreakingAction;
 
     static {
     	{
-	    	BiMap<RunwayStateDeposit, RunwayDeposit> tmp = HashBiMap.create();
-	    	
-	    	tmp.put(RunwayStateDeposit.CLEAR_AND_DRY, RunwayDeposit.CLEAR_AND_DRY);
+            HashMap<RunwayStateDeposit, RunwayDeposit> tmp = new HashMap<>();
+            HashMap<RunwayDeposit, RunwayStateDeposit> tmp2 = new HashMap<>();
+
+            tmp.put(RunwayStateDeposit.CLEAR_AND_DRY, RunwayDeposit.CLEAR_AND_DRY);
 	    	tmp.put(RunwayStateDeposit.COMPACTED_OR_ROLLED_SNOW, RunwayDeposit.COMPACT_OR_ROLLED_SNOW);
 	    	tmp.put(RunwayStateDeposit.DAMP, RunwayDeposit.DAMP);
 	    	tmp.put(RunwayStateDeposit.DRY_SNOW, RunwayDeposit.DRY_SNOW);
@@ -143,44 +141,56 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 	    	tmp.put(RunwayStateDeposit.WET_SNOW, RunwayDeposit.WET_SNOW);
 	    	
 	    	runwayStateDepositToAPI = Collections.unmodifiableMap(tmp);
-	    	apiToRunwayStateDeposit = Collections.unmodifiableMap(tmp.inverse());
-    	}
+            tmp.forEach((lexemeDeposit, apiDeposit) -> {
+                tmp2.put(apiDeposit, lexemeDeposit);
+            });
+            apiToRunwayStateDeposit = Collections.unmodifiableMap(tmp2);
+        }
     	
     	{
-	    	BiMap<RunwayStateContamination, RunwayContamination> tmp = HashBiMap.create();
-	    	
-	    	tmp.put(RunwayStateContamination.LESS_OR_EQUAL_TO_10PCT, RunwayContamination.PCT_COVERED_LESS_THAN_10);
+            HashMap<RunwayStateContamination, RunwayContamination> tmp = new HashMap<>();
+            HashMap<RunwayContamination, RunwayStateContamination> tmp2 = new HashMap<>();
+
+            tmp.put(RunwayStateContamination.LESS_OR_EQUAL_TO_10PCT, RunwayContamination.PCT_COVERED_LESS_THAN_10);
 	    	tmp.put(RunwayStateContamination.FROM_11_TO_25PCT, RunwayContamination.PCT_COVERED_11_25);
 	    	tmp.put(RunwayStateContamination.FROM_26_TO_50PCT, RunwayContamination.PCT_COVERED_26_50);
 	    	tmp.put(RunwayStateContamination.FROM_51_TO_100PCT, RunwayContamination.PCT_COVERED_51_100);
 	    	tmp.put(RunwayStateContamination.NOT_REPORTED, RunwayContamination.MISSING_OR_NOT_REPORTED);
 
 	    	runwayStateContaminationToAPI = Collections.unmodifiableMap(tmp);
-	    	apiToRunwayStateContamination = Collections.unmodifiableMap(tmp.inverse());
-    	}
+            tmp.forEach((lexemeContamination, apiContamination) -> {
+                tmp2.put(apiContamination, lexemeContamination);
+            });
+            apiToRunwayStateContamination = Collections.unmodifiableMap(tmp2);
+        }
     	
     	{
-    		BiMap<BreakingAction, AviationCodeListUser.BreakingAction> tmp = HashBiMap.create();
-    		
-    		tmp.put(BreakingAction.POOR, AviationCodeListUser.BreakingAction.POOR);
-    		tmp.put(BreakingAction.MEDIUM_POOR, AviationCodeListUser.BreakingAction.MEDIUM_POOR);
-    		tmp.put(BreakingAction.MEDIUM, AviationCodeListUser.BreakingAction.MEDIUM);
-    		tmp.put(BreakingAction.MEDIUM_GOOD, AviationCodeListUser.BreakingAction.MEDIUM_GOOD);
-    		tmp.put(BreakingAction.GOOD, AviationCodeListUser.BreakingAction.GOOD);
-    		
-    		breakingActionToAPI = Collections.unmodifiableMap(tmp);
-    		apiTobreakingAction = Collections.unmodifiableMap(tmp.inverse());
-    	}
+            HashMap<BreakingAction, AviationCodeListUser.BrakingAction> tmp = new HashMap<>();
+            HashMap<AviationCodeListUser.BrakingAction, BreakingAction> tmp2 = new HashMap<>();
+
+            tmp.put(BreakingAction.POOR, AviationCodeListUser.BrakingAction.POOR);
+            tmp.put(BreakingAction.MEDIUM_POOR, AviationCodeListUser.BrakingAction.MEDIUM_POOR);
+            tmp.put(BreakingAction.MEDIUM, AviationCodeListUser.BrakingAction.MEDIUM);
+            tmp.put(BreakingAction.MEDIUM_GOOD, AviationCodeListUser.BrakingAction.MEDIUM_GOOD);
+            tmp.put(BreakingAction.GOOD, AviationCodeListUser.BrakingAction.GOOD);
+
+            breakingActionToAPI = Collections.unmodifiableMap(tmp);
+            tmp.forEach((lexemeBreakingAction, apiBreakingAction) -> {
+                tmp2.put(apiBreakingAction, lexemeBreakingAction);
+            });
+            apiTobreakingAction = Collections.unmodifiableMap(tmp2);
+        }
     }
+
     
     
-    
-    public RunwayState(final Priority prio) {
-    	// 16th ed: 99421594 or 14CLRD//
-    	// 19th ed: R99/421594 or R14L/CLRD//
-    	// (snow closures are handled by a different lexer token)
-    	
-        super("^(?:R?(?<RunwayDesignator19th>[0-9]{2}[LCR]?)/|(?<RunwayDesignator16th>[0-9]{2}[LCR]?))((([0-9/])([1259/])([0-9]{2}|//))|(CLRD))([0-9]{2}|//)$", prio);
+    public RunwayState(final OccurrenceFrequency prio) {
+        // 16th ed: 99421594 or 14CLRD//
+        // 19th ed: R99/421594 or R14L/CLRD//
+        // (snow closures are handled by a different lexer token)
+
+        super("^(?:R?(?<RunwayDesignator19th>[0-9]{2}[LCR]?)/|(?<RunwayDesignator16th>[0-9]{2}[LCR]?))((([0-9/])([1259/])([0-9]{2}|//))|(CLRD))([0-9]{2}|//)$",
+                prio);
     }
 
     protected String getRunwayDesignationMatch(Matcher match) {
@@ -307,7 +317,7 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     public static RunwayStateDeposit convertAPIToRunwayStateDeposit(RunwayDeposit deposit) {
     	return apiToRunwayStateDeposit.get(deposit);
 	}
-    
+
     public static RunwayContamination convertRunwayStateContaminationToAPI(RunwayStateContamination contamination) {
     	return runwayStateContaminationToAPI.get(contamination);
     }
@@ -315,15 +325,14 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     public static RunwayStateContamination convertAPIToRunwayStateContamination(RunwayContamination contamination) {
     	return apiToRunwayStateContamination.get(contamination);
     }
-    
-    public static AviationCodeListUser.BreakingAction convertBreakingActionToAPI(BreakingAction breakingAction) {
-    	return breakingActionToAPI.get(breakingAction);
-    }
-    
-    public static BreakingAction convertAPIToBreakingAction(AviationCodeListUser.BreakingAction breakingAction) {
-    	return apiTobreakingAction.get(breakingAction);
+
+    public static AviationCodeListUser.BrakingAction convertBreakingActionToAPI(BreakingAction breakingAction) {
+        return breakingActionToAPI.get(breakingAction);
     }
 
+    public static BreakingAction convertAPIToBreakingAction(AviationCodeListUser.BrakingAction brakingAction) {
+        return apiTobreakingAction.get(brakingAction);
+    }
     
     private static void appendFrictionCoeffOrBreakingAction(final String coded, HashMap<RunwayStateReportType, Object> values) throws IllegalArgumentException {
         if ("//".equals(coded)) {
@@ -334,7 +343,7 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
             if (fcbaValue == 99) {
                 values.put(RunwayStateReportType.FRICTION_COEFFICIENT, RunwayStateReportSpecialValue.MEASUREMENT_UNRELIABLE);
             } else if (fcbaValue < 91) {
-                values.put(RunwayStateReportType.FRICTION_COEFFICIENT, fcbaValue);
+                values.put(RunwayStateReportType.FRICTION_COEFFICIENT, fcbaValue / 100.0);
             } else {
                 BreakingAction ba = BreakingAction.forCode(fcbaValue);
                 if (ba != null) {
@@ -348,68 +357,59 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     
     public static class Reconstructor extends FactoryBasedReconstructor {
     	@Override
-    	public <T extends AviationWeatherMessage> Lexeme getAsLexeme(T msg, Class<T> clz, ConversionHints hints,
-    			Object... specifier) throws SerializingException {
-    		Lexeme retval = null;
-    		fi.fmi.avi.model.metar.RunwayState state = null;
-    		
-            if (METAR.class.isAssignableFrom(clz)) {
-                state = getAs(specifier, fi.fmi.avi.model.metar.RunwayState.class);
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
+                throws SerializingException {
+            Optional<fi.fmi.avi.model.metar.RunwayState> state = ctx.getParameter("state", fi.fmi.avi.model.metar.RunwayState.class);
+            if (state.isPresent()) {
+                boolean annex3_16th = ctx.getHints().containsValue(ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
+                String str = buildRunwayStateToken(state.get(), annex3_16th);
+                return Optional.of(this.createLexeme(str, RUNWAY_STATE));
             }
-            
-            
-            if (state != null) {
-                boolean annex3_16th = hints.containsValue(ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
-                String str = buildRunwayStateToken(state, annex3_16th);
-            	
-            	retval = this.createLexeme(str, RUNWAY_STATE);
-            }
-            
-            return retval;
-    	}
+            return Optional.empty();
+        }
 
 		private String buildRunwayStateToken(fi.fmi.avi.model.metar.RunwayState state, boolean annex3_16th)
 				throws SerializingException {
 			StringBuilder builder = new StringBuilder();
-			
-			if (state.isSnowClosure()) {
-				builder.append("R/SNOCLO");
-			} else {
-				
-				// Runway designator
-				builder.append(getRunwayDesignator(state, annex3_16th));
-				
-				if (state.isCleared()) {
-					builder.append("CLRD");
-				} else {
-			    	// Deposit
-			    	RunwayStateDeposit deposit = convertAPIToRunwayStateDeposit(state.getDeposit());
-			    	if (deposit == null) {
-			    		throw new SerializingException("RunwayState deposit ("+state.getDeposit()+") missing or unable to convert it");
-			    	}
-			    	builder.append(deposit.code);
-			    	
-			    	// Contamination
-			    	RunwayStateContamination contamination = convertAPIToRunwayStateContamination(state.getContamination());
-			    	if (contamination == null) {
-			    		throw new SerializingException("RunwayState contamination ("+state.getContamination()+") missing or unable to convert it");
-			    	}
-			    	builder.append(contamination.code);
-			    	
-			    	// Depth of deposit
-			    	builder.append(getDepthOfDeposit(state));
-			    	
-				}
-				
-				// Friction coefficient - appending it after CLRD is not 100% as spec, but we have real world test cases where this is done
-				builder.append(getFrictionCoefficient(state));
-			}
+
+            // Runway designator
+            builder.append(getRunwayDesignator(state, annex3_16th));
+
+            if (state.isCleared()) {
+                builder.append("CLRD");
+            } else {
+                // Deposit
+                if (state.getDeposit().isPresent()) {
+                    RunwayStateDeposit deposit = convertAPIToRunwayStateDeposit(state.getDeposit().get());
+                    if (deposit == null) {
+                        throw new SerializingException("RunwayState deposit (" + state.getDeposit() + ") missing or unable to convert it");
+                    }
+                    builder.append(deposit.code);
+                }
+
+                // Contamination
+                if (state.getContamination().isPresent()) {
+                    RunwayStateContamination contamination = convertAPIToRunwayStateContamination(state.getContamination().get());
+                    if (contamination == null) {
+                        throw new SerializingException("RunwayState contamination (" + state.getContamination() + ") missing or unable to convert it");
+                    }
+                    builder.append(contamination.code);
+                }
+
+                // Depth of deposit
+                builder.append(getDepthOfDeposit(state));
+
+            }
+
+            // Friction coefficient - appending it after CLRD is not 100% as spec, but we have real world test cases where this is done
+            builder.append(getFrictionCoefficient(state));
+
 			return builder.toString();
 		}
 
 		private String getFrictionCoefficient(fi.fmi.avi.model.metar.RunwayState state) throws SerializingException {
-			fi.fmi.avi.model.AviationCodeListUser.BreakingAction action = state.getBreakingAction();
-			Double friction = state.getEstimatedSurfaceFriction();
+            Optional<AviationCodeListUser.BrakingAction> action = state.getBrakingAction();
+            Optional<Double> friction = state.getEstimatedSurfaceFriction();
 
 			if (state.isEstimatedSurfaceFrictionUnreliable()) {
 				return "99";
@@ -419,56 +419,57 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 				return "//";
 			}
 
-			if (action != null) {
-				BreakingAction tmp = convertAPIToBreakingAction(action);
-				if (tmp == null) {
+            if (action.isPresent()) {
+                BreakingAction tmp = convertAPIToBreakingAction(action.get());
+                if (tmp == null) {
 					throw new SerializingException("RunwayState has unknown breaking action "+action);
 				}
 				return String.format("%02d", tmp.code);
 			}
-			
-			if (friction == null) {
-				throw new SerializingException("RunwayState estimated surface friction missing");
-			}
-			
-			int value = friction.intValue();
-			if (value < 0 || value >= 91) {
-				throw new SerializingException("RunwayState friction coefficient "+friction+" is out of bounds (should be between 0 and 90)");
-			}
-			
-			return String.format("%02d", value);
-		}
+
+            if (friction.isPresent()) {
+                Double value = friction.get();
+                if (value < 0 || value >= 0.91) {
+                    throw new SerializingException("RunwayState friction coefficient " + friction + " is out of bounds (should be between 0 and .91)");
+                }
+                return String.format("%02d", Math.round(value * 100));
+            } else {
+                throw new SerializingException("RunwayState estimated surface friction missing");
+            }
+        }
 
 		private String getDepthOfDeposit(fi.fmi.avi.model.metar.RunwayState state) throws SerializingException {
-			NumericMeasure measure = state.getDepthOfDeposit();
-			fi.fmi.avi.model.AviationCodeListUser.RelationalOperator operator = state.getDepthOperator();
-			
-			if (state.isDepthNotMeasurable()) {
+            Optional<NumericMeasure> measure = state.getDepthOfDeposit();
+            Optional<fi.fmi.avi.model.AviationCodeListUser.RelationalOperator> operator = state.getDepthOperator();
+
+            if (state.isDepthNotMeasurable()) {
 				return "//";
 			}
 
 			if (state.isRunwayNotOperational()) {
 				return "99";
 			}
-			
-			if (measure == null) {
-				throw new SerializingException("Depth is measurable, but depthOfDeposit is null. Unable to serialize");
+
+            if (!measure.isPresent()) {
+                throw new SerializingException("Depth is measurable, but depthOfDeposit is null. Unable to serialize");
 			}
 			
 			boolean millimeters;
-			if ("mm".equals(measure.getUom())) {
-				millimeters = true;
-			} else if ("cm".equals(measure.getUom())) {
-				millimeters = false;
+            if ("mm".equals(measure.get().getUom())) {
+                millimeters = true;
+            } else if ("cm".equals(measure.get().getUom())) {
+                millimeters = false;
 			} else {
 				throw new SerializingException("Unit of measure for depth of deposit can only be mm or cm");
 			}
-			
-			int value = measure.getValue().intValue();
-			if (operator == null) {
-				if (millimeters) {
+
+			//TODO: should probably allow other depth values than the exact integers.
+            //But: round to the nearest (12.0 => 10, 13.0 => 15), use ceiling values (12.0 => 15) or floor values (14.0 => 10)?
+            int value = measure.get().getValue().intValue();
+            if (!operator.isPresent()) {
+                if (millimeters) {
 					if (value < 0 || value > 90) {
-						throw new SerializingException("Depth of deposit mm depth "+value+" is out of bounds. It should be between 0 and 90");
+						throw new SerializingException("Depth of deposit mm depth " + value + " is out of bounds. It should be between 0 and 90");
 					}
 					return String.format("%02d", value);
 				} else {
@@ -485,13 +486,13 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 					}
 					return ret;
 				}
-			} else if (operator == fi.fmi.avi.model.AviationCodeListUser.RelationalOperator.BELOW) {
-				if ( (millimeters && measure.getValue() <= 1.0) || measure.getValue() <= 0.1) {
-					return "00";
+            } else if (operator.get() == fi.fmi.avi.model.AviationCodeListUser.RelationalOperator.BELOW) {
+                if ((millimeters && measure.get().getValue() <= 1.0) || measure.get().getValue() <= 0.1) {
+                    return "00";
 				}
 				throw new SerializingException("Depth of deposit operator is BELOW, but measure is not 1mm or under, but: "+measure);
-			} else if (operator == fi.fmi.avi.model.AviationCodeListUser.RelationalOperator.ABOVE) {
-				if (millimeters && value < 400) {
+            } else if (operator.get() == fi.fmi.avi.model.AviationCodeListUser.RelationalOperator.ABOVE) {
+                if (millimeters && value < 400) {
 					throw new SerializingException("Depth of deposit with operator ABOVE needs to be 400mm or more");
 				} else if (!millimeters && value < 40) {
 					throw new SerializingException("Depth of deposit with operator ABOVE needs to be 40cm or more");
@@ -499,7 +500,7 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 				return "98";
 			} else {
 				
-				throw new SerializingException("Unknown depth of deposit operator "+operator);
+				throw new SerializingException("Unknown depth of deposit operator " + operator);
 			}
 		}
 
@@ -507,17 +508,19 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 			String runwayDesignator;
 			if (state.isRepetition()) {
 				runwayDesignator = "99";
-			} else if (state.isAllRunways()) {
-				runwayDesignator = "88";
+            } else if (state.isAppliedToAllRunways()) {
+                runwayDesignator = "88";
 			} else {
-				
-				if (annex3_16th) {
-					RunwayDirection rwd = state.getRunwayDirection();
-					if (rwd == null || !rwd.getDesignator().matches("[0-9][0-9]R?")) {
-						throw new SerializingException("Illegal runway designator in RunwayState: "+rwd);
-					}
-					String designator = rwd.getDesignator();
-					boolean rightSide = designator.endsWith("R");
+                Optional<RunwayDirection> rwd = state.getRunwayDirection();
+                if (!rwd.isPresent()) {
+                    throw new SerializingException("Runway direction missing in RunwayState");
+                }
+                if (annex3_16th) {
+                    if (!rwd.get().getDesignator().matches("[0-9][0-9]R?")) {
+                        throw new SerializingException("Illegal runway designator in RunwayState: " + rwd);
+                    }
+                    String designator = rwd.get().getDesignator();
+                    boolean rightSide = designator.endsWith("R");
 					
 					if (rightSide) {
 						designator = designator.substring(0, designator.length()-1);
@@ -533,8 +536,8 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
 					}
 					runwayDesignator = String.format("%02d", code);
 				} else {
-					runwayDesignator = "R"+state.getRunwayDirection().getDesignator()+"/";
-				}
+                    runwayDesignator = "R" + rwd.get().getDesignator() + "/";
+                }
 			}
 			return runwayDesignator;
 		}

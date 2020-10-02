@@ -1,0 +1,52 @@
+{
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--11T08:20Z"
+  },
+  "aerodrome" : {
+    "designator" : "EFTU"
+  },
+  "automatedStation": true,
+  "airTemperature" : {
+    "value": 7.0,
+    "uom" : "degC"
+  },
+  "dewpointTemperature" : {
+    "value": 6.0,
+    "uom" : "degC"
+  },
+  "altimeterSettingQNH" : {
+    "value": 999.0,
+    "uom" : "hPa"
+  },
+  "surfaceWind" : {
+    "meanWindDirection" : {
+      "value": 350.0,
+      "uom" : "deg"
+    },
+    "meanWindSpeed" : {
+      "value": 4.0,
+      "uom" : "[kn_i]"
+    },
+    "extremeClockwiseWindDirection" : {
+      "value": 30,
+      "uom" : "deg"
+    },
+    "extremeCounterClockwiseWindDirection" : {
+      "value": 310.0,
+      "uom" : "deg"
+    }
+  },
+  "visibility" : {
+    "prevailingVisibility" : {
+      "value": 10000,
+      "uom" : "m"
+    },
+    "prevailingVisibilityOperator" : "ABOVE"
+  },
+  "clouds" : {
+    "verticalVisibilityUnobservableByAutoSystem": true
+  },
+  "translatedTAC" : "METAR EFTU 110820Z AUTO 35004KT 310V030 9999 VV/// 07/06 Q0999=",
+  "translated": true
+}

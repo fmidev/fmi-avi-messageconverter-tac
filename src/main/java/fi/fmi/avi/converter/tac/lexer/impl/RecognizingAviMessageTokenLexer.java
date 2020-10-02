@@ -6,7 +6,9 @@ import java.util.List;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeVisitor;
+import fi.fmi.avi.model.MessageType;
 
 /**
  * Created by rinne on 01/02/17.
@@ -51,24 +53,41 @@ public class RecognizingAviMessageTokenLexer implements LexemeVisitor {
         }
     }
 
-    private List<PrioritizedLexemeVisitor> visitors = new ArrayList<PrioritizedLexemeVisitor>();
+    private SuitabilityTester matcher;
 
-    public void teach(PrioritizedLexemeVisitor lexer) {
+    private final List<PrioritizedLexemeVisitor> visitors = new ArrayList<PrioritizedLexemeVisitor>();
+
+    public MessageType getMessageType() {
+        return this.matcher.getMessageType();
+    }
+
+    public SuitabilityTester getSuitablityTester() {
+        return this.matcher;
+    }
+
+    public void setSuitabilityTester(final SuitabilityTester matcher) {
+        this.matcher = matcher;
+    }
+
+    public void teach(final PrioritizedLexemeVisitor lexer) {
         this.visitors.add(lexer);
         Collections.sort(this.visitors);
     }
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if (visitors != null) {
-            for (LexemeVisitor v : visitors) {
-            	if (token.getIdentificationCertainty() < 1.0) {
-            		token.accept(v, hints);
-            	} else {
-            		break;
-            	}
+            for (final LexemeVisitor v : visitors) {
+                if (token.getIdentificationCertainty() < 1.0) {
+                    token.accept(v, hints);
+                } else {
+                    break;
+                }
             }
-        }
+    }
+
+    public interface SuitabilityTester {
+        boolean test(LexemeSequence sequence);
+        MessageType getMessageType();
     }
 
 }

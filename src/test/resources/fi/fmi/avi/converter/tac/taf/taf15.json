@@ -1,50 +1,67 @@
 {
-  "status": "NORMAL",
-  "partialIssueTime": "062331Z",
-  "aerodrome": {
-     "designator": "EFRO"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--06T23:31Z"
   },
-  "partialValidityTimePeriod": "0700/0724",
-  "baseForecast": {
+  "aerodrome" : {
+     "designator" : "EFRO"
+  },
+  "validityTime" : {
+    "startTime" : {
+      "partialTime" : "--07T00:"
+    },
+    "endTime" : {
+      "partialTime" : "--07T24:"
+    }
+  },
+  "baseForecast" : {
   	"ceilingAndVisibilityOk": true,
-    "surfaceWind": {
+    "surfaceWind" : {
 	  "variableDirection": false,
-	  "meanWindDirection": {
+	  "meanWindDirection" : {
 	    "value": 200,
-	    "uom": "deg"
+	    "uom" : "deg"
 	  },
-	  "meanWindSpeed": {
+	  "meanWindSpeed" : {
 	    "value": 9.0,
-	    "uom": "kt"
+	    "uom" : "[kn_i]"
 	  }
 	}
   },
   
   "changeForecasts": [
     {
-      "changeIndicator": "PROBABILITY_30",
-      "partialValidityTimePeriod": "0702/0706",
-     "prevailingVisibility": {
+      "changeIndicator" : "PROBABILITY_30",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--07T02:"
+        },
+        "endTime" : {
+          "partialTime" : "--07T06:"
+        }
+      },
+     "prevailingVisibility" : {
 	    "value": 1000.0,
-	    "uom": "m"
+	    "uom" : "m"
 	  },
 	  "forecastWeather": [
 	    {
-          "code": "BCFG",
-          "description": "Patches of fog"
+          "code" : "BCFG",
+          "description" : "Patches of fog"
 	    }
 	  ],
-	  "cloud": {
+	  "cloud" : {
 	    "layers": [
 	      {
-	        "amount": "BKN",
-            "base": {
+	        "amount" : "BKN",
+            "base" : {
               "value": 100.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             }
 	      }
 	    ]
 	  }
     }
-  ]
+  ],
+  "translatedTAC": "TAF EFRO 062331Z 0700/0724 20009KT CAVOK\r\nPROB30 0702/0706 1000 BCFG BKN001="
 }

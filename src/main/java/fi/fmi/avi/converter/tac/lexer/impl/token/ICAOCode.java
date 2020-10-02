@@ -1,20 +1,22 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COUNTRY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AERODROME_DESIGNATOR;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
+import fi.fmi.avi.model.taf.TAF;
 
 /**
  * Created by rinne on 10/02/17.
@@ -252,7 +254,7 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
 
     private final static Map<String, ICAOCodeCountryPrefix> codeToCountryMap = ICAOCodeCountryPrefix.getCodeToCountryMap();
 
-    public ICAOCode(final Priority prio) {
+    public ICAOCode(final OccurrenceFrequency prio) {
         super("^[A-Z]{4,}$", prio);
     }
 
@@ -275,21 +277,19 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
-            Lexeme retval = null;
-            if (METAR.class.isAssignableFrom(clz)) {
-                METAR m = (METAR) msg;
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                MeteorologicalTerminalAirReport m = (MeteorologicalTerminalAirReport) msg;
                 if (m.getAerodrome() != null) {
-                    retval = this.createLexeme(m.getAerodrome().getDesignator(), AERODROME_DESIGNATOR);
+                    return Optional.of(this.createLexeme(m.getAerodrome().getDesignator(), AERODROME_DESIGNATOR));
                 }
-
             } else if (TAF.class.isAssignableFrom(clz)) {
                 TAF t = (TAF) msg;
                 if (t.getAerodrome() != null) {
-                    retval = this.createLexeme(t.getAerodrome().getDesignator(), AERODROME_DESIGNATOR);
+                    return Optional.of(this.createLexeme(t.getAerodrome().getDesignator(), AERODROME_DESIGNATOR));
                 }
             }
-            return retval;
+            return Optional.empty();
         }
     }
 }

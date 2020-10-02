@@ -1,27 +1,29 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AIR_DEWPOINT_TEMPERATURE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIR_DEWPOINT_TEMPERATURE;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 
 /**
  * Created by rinne on 10/02/17.
  */
 public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
 
-    public AirDewpointTemperature(final Priority prio) {
+    public AirDewpointTemperature(final OccurrenceFrequency prio) {
         super("^(M)?([0-9]{2}|//)/(M)?([0-9]{2}|//)$", prio);
     }
 
@@ -74,46 +76,41 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ReconstructorContext<T> ctx)
                 throws SerializingException {
-            Lexeme retval = null;
+            Optional<Lexeme> retval = Optional.empty();
 
-            NumericMeasure air = null;
-            NumericMeasure dew = null;
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                Optional<NumericMeasure> airTemp = ((MeteorologicalTerminalAirReport)msg).getAirTemperature();
+                Optional<NumericMeasure> dewpointTemp = ((MeteorologicalTerminalAirReport)msg).getDewpointTemperature();
+                if (airTemp.isPresent() && dewpointTemp.isPresent()) {
+                    NumericMeasure air = airTemp.get();
+                    NumericMeasure dew = dewpointTemp.get();
 
-            if (clz.isAssignableFrom(METAR.class)) {
+                    if (air.getValue() == null) {
+                        throw new SerializingException("AirTemperature exists, but no value");
+                    }
 
-                METAR metar = (METAR) msg;
+                    if (dew.getValue() == null) {
+                        throw new SerializingException("DewpointTemperature exists, but no value");
+                    }
 
-                air = metar.getAirTemperature();
-                dew = metar.getDewpointTemperature();
+                    if (!"degC" .equals(air.getUom())) {
+                        throw new SerializingException("AirTemperature unit of measure is not degC, but '" + air.getUom() + "'");
+                    }
 
-            }
+                    if (!"degC" .equals(dew.getUom())) {
+                        throw new SerializingException("DewpointTemperature unit of measure is not degC, but '" + dew.getUom() + "'");
+                    }
 
-            if (air != null && dew != null) {
-                if (air.getValue() == null) {
-                    throw new SerializingException("AirTemperature exists, but no value");
+                    StringBuilder builder = new StringBuilder();
+
+                    appendValue(air.getValue(), builder);
+                    builder.append("/");
+                    appendValue(dew.getValue(), builder);
+
+                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.AIR_DEWPOINT_TEMPERATURE));
                 }
-
-                if (dew.getValue() == null) {
-                    throw new SerializingException("DewpointTemperature exists, but no value");
-                }
-
-                if (!"degC".equals(air.getUom())) {
-                    throw new SerializingException("AirTemperature unit of measure is not degC, but '" + air.getUom() + "'");
-                }
-
-                if (!"degC".equals(dew.getUom())) {
-                    throw new SerializingException("DewpointTemperature unit of measure is not degC, but '" + dew.getUom() + "'");
-                }
-
-                StringBuilder builder = new StringBuilder();
-
-                appendValue(air.getValue(), builder);
-                builder.append("/");
-                appendValue(dew.getValue(), builder);
-
-                retval = this.createLexeme(builder.toString(), Identity.AIR_DEWPOINT_TEMPERATURE);
             }
 
             return retval;

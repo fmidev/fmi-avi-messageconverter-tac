@@ -1,28 +1,31 @@
 package fi.fmi.avi.converter.tac;
 
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fi.fmi.avi.converter.AviMessageSpecificConverter;
+import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.CloudLayer;
-import fi.fmi.avi.converter.AviMessageSpecificConverter;
-import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.TACTokenReconstructor;
+import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.CloudLayer;
 
 /**
  * Created by rinne on 07/06/17.
  */
-public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> implements AviMessageSpecificConverter<S, String>, AviMessageTACTokenizer {
+public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCollection>
+        implements AviMessageSpecificConverter<S, String>, AviMessageTACTokenizer {
 
-    private Map<Lexeme.Identity, TACTokenReconstructor> reconstructors = new HashMap<Lexeme.Identity, TACTokenReconstructor>();
+    private Map<LexemeIdentity, TACTokenReconstructor> reconstructors = new HashMap<>();
 
     private LexingFactory factory;
 
@@ -34,45 +37,44 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
         return this.factory;
     }
 
-    public void addReconstructor(final Lexeme.Identity id, TACTokenReconstructor reconstructor) {
+    public void addReconstructor(final LexemeIdentity id, TACTokenReconstructor reconstructor) {
         reconstructor.setLexingFactory(this.factory);
         this.reconstructors.put(id, reconstructor);
     }
 
-    @Override
-    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessage msg) throws SerializingException;
+    public TACTokenReconstructor removeReconstructor(final LexemeIdentity id) {
+        return this.reconstructors.remove(id);
+    }
 
     @Override
-    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessage msg, final ConversionHints hints) throws SerializingException;
+    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException;
 
-    public TACTokenReconstructor getReconstructor(final Lexeme.Identity id) {
+    @Override
+    public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException;
+
+    public TACTokenReconstructor getReconstructor(final LexemeIdentity id) {
         return this.reconstructors.get(id);
     }
 
     protected <V extends AviationWeatherMessage> int appendCloudLayers(final LexemeSequenceBuilder builder, final V msg, final Class<V> clz,
-            final List<CloudLayer> layers, final ConversionHints hints, final Object... specifier) throws SerializingException {
+            final List<? extends CloudLayer> layers, final ReconstructorContext<V> ctx) throws SerializingException {
         int retval = 0;
         if (layers != null) {
             for (CloudLayer layer : layers) {
-                Object[] params = new Object[specifier.length + 1];
-                params[0] = layer;
-                for (int i = 0; i < specifier.length; i++) {
-                    params[i + 1] = specifier[i];
-                }
-
-                retval += appendToken(builder, Lexeme.Identity.CLOUD, msg, clz, hints, params);
-                retval += appendWhitespace(builder, ' ', hints);
+                ctx.setParameter("layer", layer);
+                retval += appendToken(builder, LexemeIdentity.CLOUD, msg, clz, ctx);
+                retval += appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
         }
         return retval;
     }
 
-    protected <V extends AviationWeatherMessage> int appendToken(final LexemeSequenceBuilder builder, final Lexeme.Identity id, final V msg, final Class<V> clz,
-            final ConversionHints hints, final Object... specifier) throws SerializingException {
+    protected <V extends AviationWeatherMessageOrCollection> int appendToken(final LexemeSequenceBuilder builder, final LexemeIdentity id, final V msg,
+            final Class<V> clz, final ReconstructorContext<V> ctx) throws SerializingException {
         TACTokenReconstructor rec = this.reconstructors.get(id);
         int retval = 0;
         if (rec != null) {
-            List<Lexeme> list = rec.getAsLexemes(msg, clz, hints, specifier);
+            List<Lexeme> list = rec.getAsLexemes(msg, clz, ctx);
             if (list != null) {
                 for (Lexeme l : list) {
                     builder.append(l);
@@ -83,13 +85,17 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessage> im
         return retval;
     }
 
-    protected int appendWhitespace(final LexemeSequenceBuilder builder, final char toAppend, final ConversionHints hints) {
-        if (Character.isWhitespace(toAppend)) {
-            builder.append(factory.createLexeme(String.valueOf(toAppend), Lexeme.Identity.WHITE_SPACE));
-        } else {
-            throw new IllegalArgumentException("Character '" + toAppend + "' is not whitespace");
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final Lexeme.MeteorologicalBulletinSpecialCharacter toAppend) {
+        return appendWhitespace(builder, toAppend, 1);
+    }
+
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final Lexeme.MeteorologicalBulletinSpecialCharacter toAppend, final int count) {
+        for (int i = 0; i < count; i++) {
+            Lexeme l = factory.createLexeme(toAppend.getContent(), LexemeIdentity.WHITE_SPACE);
+            l.setParsedValue(Lexeme.ParsedValueName.TYPE, toAppend);
+            builder.append(l);
         }
-        return 1;
+        return count;
     }
 
 }

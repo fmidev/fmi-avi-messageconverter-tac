@@ -1,0 +1,56 @@
+{
+  "status": "NORMAL",
+  "issueTime": {
+    "partialTime": "--17T11:50Z"
+  },
+  "automatedStation": "true",
+  "aerodrome": {
+    "designator": "ENFB"
+  },
+  "airTemperature": {
+    "value": 11.0,
+    "uom": "degC"
+  },
+  "dewpointTemperature": {
+    "value": 6.0,
+    "uom": "degC"
+  },
+  "altimeterSettingQNH": {
+    "value": 1009.0,
+    "uom": "hPa"
+  },
+  "surfaceWind": {
+    "meanWindDirection": {
+      "value": 220.0,
+      "uom": "deg"
+    },
+    "meanWindSpeed": {
+      "value": 25.0,
+      "uom": "[kn_i]"
+    }
+  },
+  "visibility": {
+    "prevailingVisibility": {
+      "value": 10000,
+      "uom": "m"
+    },
+    "prevailingVisibilityOperator": "ABOVE"
+  },
+  "clouds": {
+    "layers": [
+      {
+        "amount": "FEW",
+        "base": {
+          "value": 2600.0,
+          "uom": "[ft_i]"
+        },
+        "cloudTypeUnobservableByAutoSystem": true
+      }
+    ]
+  },
+  "seaState": {
+    "seaSurfaceState": "ROUGH"
+  },
+  "translatedTAC": "METAR ENFB 171150Z AUTO 22025KT 9999NDV FEW026/// 11/06 Q1009 W///S5=",
+  "translated": true
+}

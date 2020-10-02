@@ -1,0 +1,70 @@
+{
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--30T11:30Z"
+  },
+  "aerodrome" : {
+    "designator" : "ESNS"
+  },
+  "validityTime" : {
+    "startTime" : {
+      "partialTime" : "--30T12:"
+    },
+    "endTime" : {
+      "partialTime" : "--30T21:"
+    }
+  },
+  "baseForecast" : {
+    "surfaceWind" : {
+      "variableDirection": false,
+      "meanWindDirection" : {
+        "value": 150.0,
+        "uom" : "deg"
+      },
+      "meanWindSpeed" : {
+        "value": 8.0,
+        "uom" : "[kn_i]"
+      }
+    },
+    "prevailingVisibility" : {
+      "value": 10000.0,
+      "uom" : "m"
+    },
+    "prevailingVisibilityOperator" : "ABOVE",
+    "cloud" : {
+      "layers": [
+        {
+          "amount" : "OVC",
+          "base" : {
+            "value": 800.0,
+            "uom" : "[ft_i]"
+          }
+        }
+      ]
+    }
+  },
+  "changeForecasts": [
+    {
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--30T18:"
+        },
+        "endTime" : {
+          "partialTime" : "--30T21:"
+        }
+      },
+      "prevailingVisibility" : {
+        "value": 900.0,
+        "uom" : "m"
+      },
+      "forecastWeather": [
+        {
+          "code" : "SNRA",
+          "description" : "Precipitation of snow and rain"
+        }
+      ]
+    }
+  ],
+  "translatedTAC": "TAF ESNS 301130Z 3012/3021 15008KT 9999 OVC008\r\nTEMPO 3018/3021 0900 SNRA VV002TCU="
+}

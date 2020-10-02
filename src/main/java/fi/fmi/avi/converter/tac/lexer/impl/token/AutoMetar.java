@@ -1,19 +1,23 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AUTOMATED;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AUTOMATED;
 
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.metar.METAR;
+import java.util.Optional;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 
 /**
  * Created by rinne on 10/02/17.
  */
 public class AutoMetar extends PrioritizedLexemeVisitor {
-    public AutoMetar(final Priority prio) {
+    public AutoMetar(final OccurrenceFrequency prio) {
         super(prio);
     }
 
@@ -27,17 +31,14 @@ public class AutoMetar extends PrioritizedLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessage> Lexeme getAsLexeme(final T msg, Class<T> clz, final ConversionHints hints, final Object... specifier) {
-            if (METAR.class.isAssignableFrom(clz)) {
-                METAR m = (METAR) msg;
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                MeteorologicalTerminalAirReport m = (MeteorologicalTerminalAirReport) msg;
                 if (m.isAutomatedStation()) {
-                    return this.createLexeme("AUTO", Lexeme.Identity.AUTOMATED);
-                } else {
-                    return null;
+                    return Optional.of(this.createLexeme("AUTO", LexemeIdentity.AUTOMATED));
                 }
-            } else {
-                return null;
             }
+            return Optional.empty();
         }
     }
 }

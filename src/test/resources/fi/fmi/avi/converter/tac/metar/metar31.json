@@ -1,46 +1,50 @@
 {
-  "status": "NORMAL",
-  "partialIssueTime": "181420Z",
-  "automatedStation": "true",
-  "aerodrome": {
-    "designator": "EFIV"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--18T14:20Z"
+  },
+  "automatedStation" : "true",
+  "aerodrome" : {
+    "designator" : "EFIV"
   },
   "presentWeather": [
     {
-      "code": "-SN",
-      "description": "Light precipitation of snow"
+      "code" : "-SN",
+      "description" : "Light precipitation of snow"
     }
   ],
-  "airTemperature": {
+  "airTemperature" : {
     "value": -18.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "dewpointTemperature": {
+  "dewpointTemperature" : {
     "value": -20.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "altimeterSettingQNH": {
+  "altimeterSettingQNH" : {
     "value": 1008.0,
-    "uom": "hPa"
+    "uom" : "hPa"
   },
-  "surfaceWind": {
-    "meanWindDirection": {
+  "surfaceWind" : {
+    "meanWindDirection" : {
       "value": 210.0,
-      "uom": "deg"
+      "uom" : "deg"
     },
-    "meanWindSpeed": {
+    "meanWindSpeed" : {
       "value": 11.0,
-      "uom": "kt"
+      "uom" : "[kn_i]"
     }
   },
-  "visibility": {
-    "prevailingVisibility": {
+  "visibility" : {
+    "prevailingVisibility" : {
       "value": 10000,
-      "uom": "m"
+      "uom" : "m"
     },
-    "prevailingVisibilityOperator": "ABOVE"
+    "prevailingVisibilityOperator" : "ABOVE"
   },
-  "clouds": {
+  "clouds" : {
     "noSignificantCloud": true
-  }
+  },
+  "translatedTAC" : "METAR EFIV 181420Z AUTO 21011KT 9999 -SN SKC M18/M20 Q1008=",
+  "translated": true
 }

@@ -1,22 +1,37 @@
 {
-	"status": "AMENDMENT",
-	"partialIssueTime": "191000Z",
-	"aerodrome": {
-	    "designator": "EFAB"
+	"status" : "AMENDMENT",
+	"issueTime" : {
+      "partialTime" : "--19T10:00Z"
+    },
+	"aerodrome" : {
+	    "designator" : "EFAB"
 	},
-	"partialValidityTimePeriod": "1909/1915",
-	"baseForecast": {
-	  "surfaceWind": {
+	"baseForecast" : {
+	  "surfaceWind" : {
 	    "variableDirection": false,
-	    "meanWindDirection": {
+	    "meanWindDirection" : {
 	      "value": 200.0,
-	      "uom": "deg"
+	      "uom" : "deg"
 	    },
-	    "meanWindSpeed": {
+	    "meanWindSpeed" : {
 	      "value": 8.0,
-	      "uom": "kt"
+	      "uom" : "[kn_i]"
 	    }
 	  },
 	  "ceilingAndVisibilityOk": true
-	}
+	},
+	"referredReport": {
+		"aerodrome" : {
+			"designator" : "EFAB"
+		},
+		"validityTime" : {
+			"startTime" : {
+				"partialTime" : "--19T09:"
+			},
+			"endTime" : {
+				"partialTime" : "--19T15:"
+			}
+		}
+	},
+    "translatedTAC" : "TAF AMD EFAB 191000Z 1909/1915 20008KT CAVOK="
 }

@@ -1,53 +1,62 @@
 {
-  "status": "NORMAL",
-  "partialIssueTime": "270930Z",
-  "aerodrome": {
-     "designator": "EFVA"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--27T09:30Z"
   },
-  "partialValidityTimePeriod": "2712/2812",
-  "baseForecast": {
-    "surfaceWind": {
+  "aerodrome" : {
+     "designator" : "EFVA"
+  },
+  "validityTime" : {
+    "startTime" : {
+      "partialTime" : "--27T12:"
+    },
+    "endTime" : {
+      "partialTime" : "--28T12:"
+    }
+  },
+  "baseForecast" : {
+    "surfaceWind" : {
 	  "variableDirection": false,
-	  "meanWindDirection": {
+	  "meanWindDirection" : {
 	    "value": 140.0,
-	    "uom": "deg"
+	    "uom" : "deg"
 	  },
-	  "meanWindSpeed": {
+	  "meanWindSpeed" : {
 	    "value": 15.0,
-	    "uom": "kt"
+	    "uom" : "[kn_i]"
 	  },
-	  "windGust": {
+	  "windGust" : {
 	    "value": 25,
-	    "uom": "kt"
+	    "uom" : "[kn_i]"
 	  }
 	},
 	
-    "prevailingVisibility": {
+    "prevailingVisibility" : {
 	  "value": 8000.0,
-	  "uom": "m"
+	  "uom" : "m"
 	},
 	
 	"forecastWeather": [
 	  {
-        "code": "-RA",
-        "description": "Light precipitation of rain"
+        "code" : "-RA",
+        "description" : "Light precipitation of rain"
 	  }
 	],
 	
-	"cloud": {
+	"cloud" : {
 	  "layers": [
 	    {
-	      "amount": "SCT",
-          "base": {
+	      "amount" : "SCT",
+          "base" : {
             "value": 2000.0,
-            "uom": "[ft_i]"
+            "uom" : "[ft_i]"
           }
 	    },
 	    {
-	      "amount": "OVC",
-          "base": {
+	      "amount" : "OVC",
+          "base" : {
             "value": 5000.0,
-            "uom": "[ft_i]"
+            "uom" : "[ft_i]"
           }
 	    }
 	  ]
@@ -56,27 +65,34 @@
   
   "changeForecasts": [
     {
-      "changeIndicator": "BECOMING",
-      "partialValidityTimePeriod": "2715/2717",
-      "prevailingVisibility": {
+      "changeIndicator" : "BECOMING",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--27T15:"
+        },
+        "endTime" : {
+          "partialTime" : "--27T17:"
+        }
+      },
+      "prevailingVisibility" : {
 	    "value": 5000.0,
-	    "uom": "m"
+	    "uom" : "m"
 	  },
 	  
 	  "forecastWeather": [
 	    {
-          "code": "-RA",
-          "description": "Light precipitation of rain"
+          "code" : "-RA",
+          "description" : "Light precipitation of rain"
 	    }
 	  ],
 	  
-	  "cloud": {
+	  "cloud" : {
 	    "layers": [
 	      {
-	        "amount": "BKN",
-            "base": {
+	        "amount" : "BKN",
+            "base" : {
               "value": 700.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             }
 	      }
 	    ]
@@ -84,71 +100,99 @@
 	      
     },
     {
-      "changeIndicator": "PROBABILITY_40",
-      "partialValidityTimePeriod": "2715/2720",
-      "prevailingVisibility": {
+      "changeIndicator" : "PROBABILITY_40",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--27T15:"
+        },
+        "endTime" : {
+          "partialTime" : "--27T20:"
+        }
+      },
+      "prevailingVisibility" : {
 	    "value": 4000.0,
-	    "uom": "m"
+	    "uom" : "m"
 	  },
 	  
 	  "forecastWeather": [
 	    {
-          "code": "RASN",
-          "description": "Precipitation of rain and snow"
+          "code" : "RASN",
+          "description" : "Precipitation of rain and snow"
 	    }
 	  ]
     },
     {
-      "changeIndicator": "BECOMING",
-      "partialValidityTimePeriod": "2720/2722",
-      "surfaceWind": {
+      "changeIndicator" : "BECOMING",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--27T20:"
+        },
+        "endTime" : {
+          "partialTime" : "--27T22:"
+        }
+      },
+      "surfaceWind" : {
 	    "variableDirection": false,
-	    "meanWindDirection": {
+	    "meanWindDirection" : {
 	      "value": 160.0,
-	      "uom": "deg"
+	      "uom" : "deg"
 	    },
-	    "meanWindSpeed": {
+	    "meanWindSpeed" : {
 	      "value": 12.0,
-	      "uom": "kt"
+	      "uom" : "[kn_i]"
 	    }
 	  }
     },
     {
-      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
-      "partialValidityTimePeriod": "2720/2724",
-      "prevailingVisibility": {
+      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--27T20:"
+        },
+        "endTime" : {
+          "partialTime" : "--27T24:"
+        }
+      },
+      "prevailingVisibility" : {
 	    "value": 8000.0,
-	    "uom": "m"
+	    "uom" : "m"
 	  }
     },
     {
-      "changeIndicator": "PROBABILITY_40",
-      "partialValidityTimePeriod": "2802/2806",
-      "prevailingVisibility": {
+      "changeIndicator" : "PROBABILITY_40",
+      "periodOfChange" : {
+        "startTime" : {
+          "partialTime" : "--28T02:"
+        },
+        "endTime" : {
+          "partialTime" : "--28T06:"
+        }
+      },
+      "prevailingVisibility" : {
 	    "value": 3000.0,
-	    "uom": "m"
+	    "uom" : "m"
 	  },
 	  
 	  "forecastWeather": [
 	    {
-          "code": "RASN",
-          "description": "Precipitation of rain and snow"
+          "code" : "RASN",
+          "description" : "Precipitation of rain and snow"
 	    }
 	  ],
 	  
-	  "cloud": {
+	  "cloud" : {
 	    "layers": [
 	      {
-	        "amount": "BKN",
-            "base": {
+	        "amount" : "BKN",
+            "base" : {
               "value": 400.0,
-              "uom": "[ft_i]"
+              "uom" : "[ft_i]"
             }
 	      }
 	    ]
 	  }
 	      
     }
-  ]
-  
+  ],
+  "translatedTAC": "TAF EFVA 270930Z 2712/2812 14015G25KT 8000 -RA SCT020 OVC050\r\nBECMG 2715/2717 5000 -RA BKN007\r\nPROB40 2715/2720 4000 RASN\r\nBECMG 2720/2722 16012KT\r\nTEMPO 2720/2724 8000\r\nPROB40 2802/2806 3000 RASN BKN004="
 }

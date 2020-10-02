@@ -1,35 +1,40 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.VARIABLE_WIND_DIRECTION;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_DIRECTION;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_DIRECTION;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.VARIABLE_WIND_DIRECTION;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.ObservedSurfaceWind;
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
+import fi.fmi.avi.model.metar.ObservedSurfaceWind;
 
 /**
  * Created by rinne on 10/02/17.
+ *
+ * NOTE: Occurring of multiple VariableSurfaceWinds is not checked
  */
 public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
 
-    public VariableSurfaceWind(final Priority prio) {
+    public VariableSurfaceWind(final OccurrenceFrequency prio) {
         super("^([0-9]{3})V([0-9]{3})$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         boolean formatOk = true;
-        int minDirection, maxDirection;
+        final int minDirection;
+        final int maxDirection;
         minDirection = Integer.parseInt(match.group(1));
         maxDirection = Integer.parseInt(match.group(2));
         if (minDirection < 0 || minDirection > 360 || maxDirection < 0 || maxDirection > 360) {
@@ -48,31 +53,25 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
     
     public static class Reconstructor extends FactoryBasedReconstructor {
     	@Override
-    	public <T extends AviationWeatherMessage> Lexeme getAsLexeme(T msg, Class<T> clz, ConversionHints hints,
-    			Object... specifier) throws SerializingException {
-    		Lexeme retval = null;
-    		
-    		NumericMeasure clockwise = null, counter = null;
-    		
-            if (METAR.class.isAssignableFrom(clz)) {
-                METAR m = (METAR) msg;
-                ObservedSurfaceWind wind = m.getSurfaceWind();
-                
-                if (wind != null) {
-                	clockwise = wind.getExtremeClockwiseWindDirection();
-                	counter = wind.getExtremeCounterClockwiseWindDirection();
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
+                throws SerializingException {
+
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                final MeteorologicalTerminalAirReport m = (MeteorologicalTerminalAirReport) msg;
+                final Optional<ObservedSurfaceWind> wind = m.getSurfaceWind();
+
+                if (wind.isPresent()) {
+                    final Optional<NumericMeasure> clockwise = wind.get().getExtremeClockwiseWindDirection();
+                    final Optional<NumericMeasure> counter = wind.get().getExtremeCounterClockwiseWindDirection();
+                    if (clockwise.isPresent() && counter.isPresent()) {
+                        return Optional.of(this.createLexeme(createString(clockwise.get(), counter.get()), VARIABLE_WIND_DIRECTION));
+                    }
                 }
             }
-        	
-            if (clockwise != null || counter != null) {
-        		String str = createString(clockwise, counter);
-        	    retval = this.createLexeme(str, VARIABLE_WIND_DIRECTION);
-        	}
+            return Optional.empty();
+        }
 
-            return retval;
-    	}
-
-		private String createString(NumericMeasure clockwise, NumericMeasure counter) throws SerializingException
+        private String createString(final NumericMeasure clockwise, final NumericMeasure counter) throws SerializingException
 		{
 			// Both must be set
 			if (clockwise == null || counter == null) {
@@ -84,8 +83,8 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
 			}
 
 			if (!"deg".equals(clockwise.getUom())) {
-				throw new SerializingException("Clockwise extreme wind direction is not in degress (but in '"+clockwise.getUom()+"'), unable to serialize");
-			}
+                throw new SerializingException("Clockwise extreme wind direction is not in degrees (but in '" + clockwise.getUom() + "'), unable to serialize");
+            }
 
 			if (counter.getValue() < 0.0 || counter.getValue() > 360.0) {
 				throw new SerializingException("Illegal counter-clockwise extreme wind direction "+counter.getValue()+" "+counter.getUom());
@@ -96,9 +95,7 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
 			}
 
 			
-			String ret = String.format("%03dV%03d", counter.getValue().intValue(), clockwise.getValue().intValue());
-			
-			return ret;
+			return String.format("%03dV%03d", counter.getValue().intValue(), clockwise.getValue().intValue());
 		}
     }
 }

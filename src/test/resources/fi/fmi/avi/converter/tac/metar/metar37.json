@@ -1,0 +1,49 @@
+{
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--26T03:50Z"
+  },
+  "aerodrome" : {
+    "designator" : "EFTU"
+  },
+  "surfaceWind" : {
+    "meanWindDirection" : {
+      "value": 280.0,
+      "uom" : "deg"
+    },
+    "meanWindSpeed" : {
+      "value": 4,
+      "uom" : "[kn_i]"
+    }
+  },
+  "visibility" : {
+    "prevailingVisibility" : {
+      "value": 10000.0,
+      "uom" : "m"
+    },
+    "prevailingVisibilityOperator" : "ABOVE"
+  },
+  "clouds" : {
+    "layers": [
+      {
+        "amountUnobservableByAutoSystem": true,
+        "heightUnobservableByAutoSystem": true,
+        "cloudType": "CB"
+      }
+    ]
+  },
+  "altimeterSettingQNH" : {
+    "value": 1031.0,
+    "uom" : "hPa"
+  },
+  "airTemperature" : {
+    "value": 7.0,
+    "uom" : "degC"
+  },
+  "dewpointTemperature" : {
+    "value": 7.0,
+    "uom" : "degC"
+  },
+  "translatedTAC": "METAR EFTU 260350Z 28004KT 9999 //////CB 07/07 Q1031=",
+  "translated": true
+}

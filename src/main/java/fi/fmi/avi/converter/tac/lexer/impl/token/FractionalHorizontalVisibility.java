@@ -1,9 +1,9 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.HORIZONTAL_VISIBILITY;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.HORIZONTAL_VISIBILITY;
 
 import java.util.regex.Matcher;
 
@@ -18,8 +18,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
  */
 public class FractionalHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
-    public FractionalHorizontalVisibility(final Priority prio) {
-        super("^([PM])?((([0-9]{1,3}\\s)(([1-9]{1})/([1-9]{1,2})))|([0-9]{1,3})|(([0-9]{1})/([0-9]{1,2})))([A-Z]{1,2})$", prio);
+    public FractionalHorizontalVisibility(final OccurrenceFrequency prio) {
+        super("^([PM])?((([0-9]{1,3}\\s)(([1-9]{1})/([1-9]{1,2})))|([0-9]{1,3})|(([0-9]{1})/([0-9]{1,2})))(?!KT)([A-Z]{1,2})$", prio);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class FractionalHorizontalVisibility extends RegexMatchingLexemeVisitor {
         	fractionNumenator = Integer.parseInt(match.group(10));
             fractionDenumenator = Integer.parseInt(match.group(11));
         }
-        if (fractionDenumenator > -1 && fractionDenumenator > -1) {
+        if (fractionNumenator > -1 && fractionDenumenator > -1) {
         	if (fractionDenumenator != 0) {
         		token.identify(HORIZONTAL_VISIBILITY);
         		token.setParsedValue(VALUE, Double.valueOf(wholePart + (double) fractionNumenator / (double) fractionDenumenator));

@@ -15,6 +15,8 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.taf.TAF;
 
+import java.util.Optional;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
 
@@ -32,13 +34,15 @@ public class PositiveNegativeZeroTempTest {
                 "BECMG 3104/3106 21016G30KT=";
         ConversionResult<TAF> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_TAF_POJO);
         assertTrue(ConversionResult.Status.SUCCESS == result.getStatus());
-        TAF t = result.getConvertedMessage();
-        assertTrue(1.0d/t.getBaseForecast().getTemperatures().get(0).getMinTemperature().getValue().doubleValue() == Double.NEGATIVE_INFINITY);
-        assertTrue(1.0d/t.getBaseForecast().getTemperatures().get(0).getMaxTemperature().getValue().doubleValue() == Double.NEGATIVE_INFINITY);
-        ConversionResult<String> result2 = this.converter.convertMessage(t, TACConverter.TAF_POJO_TO_TAC);
+        Optional<TAF> t = result.getConvertedMessage();
+        assertTrue(t.isPresent());
+        assertTrue(1.0d/t.get().getBaseForecast().get().getTemperatures().get().get(0).getMinTemperature().getValue().doubleValue() == Double.NEGATIVE_INFINITY);
+        assertTrue(1.0d/t.get().getBaseForecast().get().getTemperatures().get().get(0).getMaxTemperature().getValue().doubleValue() == Double.NEGATIVE_INFINITY);
+        ConversionResult<String> result2 = this.converter.convertMessage(t.get(), TACConverter.TAF_POJO_TO_TAC);
         assertTrue(ConversionResult.Status.SUCCESS == result2.getStatus());
-        assertTrue(result2.getConvertedMessage().indexOf("TXM00/3015Z") > -1);
-        assertTrue(result2.getConvertedMessage().indexOf("TNM00/3103Z") > -1);
+        assertTrue(result2.getConvertedMessage().isPresent());
+        assertTrue(result2.getConvertedMessage().get().indexOf("TXM00/3015Z") > -1);
+        assertTrue(result2.getConvertedMessage().get().indexOf("TNM00/3103Z") > -1);
 
     }
     
@@ -51,13 +55,15 @@ public class PositiveNegativeZeroTempTest {
                 "BECMG 3104/3106 21016G30KT=";
         ConversionResult<TAF> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_TAF_POJO);
         assertTrue(ConversionResult.Status.SUCCESS == result.getStatus());
-        TAF t = result.getConvertedMessage();
-        assertTrue(1.0d/t.getBaseForecast().getTemperatures().get(0).getMinTemperature().getValue().doubleValue() == Double.POSITIVE_INFINITY);
-        assertTrue(1.0d/t.getBaseForecast().getTemperatures().get(0).getMaxTemperature().getValue().doubleValue() == Double.POSITIVE_INFINITY);
-        ConversionResult<String> result2 = this.converter.convertMessage(t, TACConverter.TAF_POJO_TO_TAC);
+        Optional<TAF> t = result.getConvertedMessage();
+        assertTrue(t.isPresent());
+        assertTrue(1.0d/t.get().getBaseForecast().get().getTemperatures().get().get(0).getMinTemperature().getValue().doubleValue() == Double.POSITIVE_INFINITY);
+        assertTrue(1.0d/t.get().getBaseForecast().get().getTemperatures().get().get(0).getMaxTemperature().getValue().doubleValue() == Double.POSITIVE_INFINITY);
+        ConversionResult<String> result2 = this.converter.convertMessage(t.get(), TACConverter.TAF_POJO_TO_TAC);
         assertTrue(ConversionResult.Status.SUCCESS == result2.getStatus());
-        assertTrue(result2.getConvertedMessage().indexOf("TX00/3015Z") > -1);
-        assertTrue(result2.getConvertedMessage().indexOf("TN00/3103Z") > -1);
+        assertTrue(result2.getConvertedMessage().isPresent());
+        assertTrue(result2.getConvertedMessage().get().indexOf("TX00/3015Z") > -1);
+        assertTrue(result2.getConvertedMessage().get().indexOf("TN00/3103Z") > -1);
 
     }
   

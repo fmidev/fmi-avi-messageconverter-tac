@@ -1,29 +1,43 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.RUNWAY_STATE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SNOW_CLOSURE;
 
-import java.util.HashMap;
+import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 
 /**
  * Created by rinne on 10/02/17.
  */
 public class SnowClosure extends PrioritizedLexemeVisitor {
-    public SnowClosure(final Priority prio) {
+    public SnowClosure(final OccurrenceFrequency prio) {
         super(prio);
     }
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
         if ("SNOCLO".equalsIgnoreCase(token.getTACToken()) || "R/SNOCLO".equals(token.getTACToken())) {
-            HashMap<RunwayState.RunwayStateReportType, Object> values = new HashMap<RunwayState.RunwayStateReportType, Object>();
-            values.put(RunwayState.RunwayStateReportType.SNOW_CLOSURE, Boolean.TRUE);
-            token.identify(RUNWAY_STATE);
-            token.setParsedValue(VALUE, values);
+            token.identify(SNOW_CLOSURE);
+        }
+    }
+
+    public static class Reconstructor extends FactoryBasedReconstructor {
+
+        @Override
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+            if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
+                if (((MeteorologicalTerminalAirReport) msg).isSnowClosure()) {
+                    return Optional.of(createLexeme("R/SNOCLO", LexemeIdentity.SNOW_CLOSURE));
+                }
+            }
+            return Optional.empty();
         }
     }
 }

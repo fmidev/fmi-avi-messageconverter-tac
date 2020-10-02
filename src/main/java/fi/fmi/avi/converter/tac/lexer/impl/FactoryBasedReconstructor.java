@@ -2,38 +2,19 @@ package fi.fmi.avi.converter.tac.lexer.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import fi.fmi.avi.model.AviationWeatherMessage;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
 /**
  * Created by rinne on 01/03/17.
  */
 public abstract class FactoryBasedReconstructor implements TACTokenReconstructor {
-	
-	protected static <T> T getAs(Object[] specifiers, Class<T> clz) {
-		T ret = null;
-		for (int i = 0; i < specifiers.length; i++) {
-			ret = getAs(specifiers, i, clz);
-			if (ret != null) {
-				break;
-			}
-		}
-		return ret;
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected static <T> T getAs(Object[] specifiers, final int index, Class<T> clz) {
-		T retval = null;
-		if (specifiers != null && specifiers.length > index && specifiers[index] != null && clz.isAssignableFrom(specifiers[index].getClass())) {
-			retval = (T) specifiers[index];
-		}
-		return retval;
-	}
-	
+
 	private LexingFactory factory;
 
     public void setLexingFactory(final LexingFactory factory) {
@@ -48,11 +29,11 @@ public abstract class FactoryBasedReconstructor implements TACTokenReconstructor
 		return this.createLexeme(token, null, Lexeme.Status.UNRECOGNIZED);
 	}
 
-	protected Lexeme createLexeme(final String token, final Lexeme.Identity identity) {
+	protected Lexeme createLexeme(final String token, final LexemeIdentity identity) {
 		return this.createLexeme(token, identity, Lexeme.Status.OK);
 	}
 
-	protected Lexeme createLexeme(final String token, final Lexeme.Identity identity, final Lexeme.Status status) {
+	protected Lexeme createLexeme(final String token, final LexemeIdentity identity, final Lexeme.Status status) {
 		if (this.factory != null) {
 			return this.factory.createLexeme(token, identity, status);
 		} else {
@@ -61,28 +42,31 @@ public abstract class FactoryBasedReconstructor implements TACTokenReconstructor
 	}
 
     @Override
-	public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+    public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ReconstructorContext<T> ctx)
 			throws SerializingException {
 		List<Lexeme> retval = new ArrayList<>();
-		Lexeme lexeme = getAsLexeme(msg, clz, hints, specifier);
-		if (lexeme != null) {
-    		retval.add(lexeme);
-    	}
+        Optional<Lexeme> lexeme = getAsLexeme(msg, clz, ctx);
+        lexeme.ifPresent(retval::add);
     	return retval;
     }
-    
+
     /**
-     * Override this unless the class overrides getAsLexemes()
+     * Override this unless the class overrides getAsLexemes(). The default implementation always throws RuntimeException.
      *
 	 * @param msg the source message
 	 * @param clz the class of the source message
-	 * @param hints conversion hints to guide the reconstructor implementation
-	 * @param specifier additional specifiers for selecting the Lexeme to produce
+	 * @param ctx context to guide the reconstructor
 	 * @param <T> the type of the source message
-	 * @return the reconstructed Lexeme
-	 * @throws SerializingException when the Lexeme cannot be constructed
+     * @return the reconstructed Lexeme, if one could be created
+     * @throws SerializingException when the Lexeme cannot be constructed
 	 */
-	public <T extends AviationWeatherMessage> Lexeme getAsLexeme(T msg, Class<T> clz, ConversionHints hints, Object... specifier) throws SerializingException {
-		return null;
+    public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ReconstructorContext<T> ctx)
+            throws SerializingException {
+		throw new RuntimeException("Reconstructor does not implement getAsLexeme");
+	}
+	public static void appendWhiteSpaceToString(StringBuilder builder, int endIndex) {
+		for(int i = builder.length(); i < endIndex; i++) {
+			builder.append(" ");
+		}
 	}
 }

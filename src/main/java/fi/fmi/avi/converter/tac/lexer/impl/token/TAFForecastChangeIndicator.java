@@ -1,20 +1,24 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.TAF_FORECAST_CHANGE_INDICATOR;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 
@@ -23,35 +27,8 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
  */
 public class TAFForecastChangeIndicator extends TimeHandlingRegex {
 
-	public enum ForecastChangeIndicatorType {
-        TEMPORARY_FLUCTUATIONS("TEMPO"),
-        BECOMING("BECMG"),
-        WITH_40_PCT_PROBABILITY("PROB40"),
-        WITH_30_PCT_PROBABILITY("PROB30"),
-        TEMPO_WITH_40_PCT_PROBABILITY("PROB40 TEMPO"),
-        TEMPO_WITH_30_PCT_PROBABILITY("PROB30 TEMPO"),
-        FROM("FM");
-
-        private String code;
-
-        ForecastChangeIndicatorType(final String code) {
-            this.code = code;
-        }
-
-        public static ForecastChangeIndicatorType forCode(final String code) {
-            for (ForecastChangeIndicatorType w : values()) {
-                if (w.code.equals(code)) {
-                    return w;
-                }
-            }
-            return null;
-        }
-
-    }
-
-    public TAFForecastChangeIndicator(final Priority prio) {
-        super("^(TEMPO|BECMG|PROB40|PROB30|PROB30 TEMPO|PROB40 TEMPO)|(FM([0-9]{2})?([0-9]{2})([0-9]{2}))$",
-                prio);
+    public TAFForecastChangeIndicator(final OccurrenceFrequency prio) {
+        super("^(TEMPO|BECMG|PROB40|PROB30|PROB30 TEMPO|PROB40 TEMPO)|(FM([0-9]{2})?([0-9]{2})([0-9]{2}))$", prio);
     }
 
     @Override
@@ -82,20 +59,64 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
             }
         }
     }
-    
+
+    public enum ForecastChangeIndicatorType {
+        TEMPORARY_FLUCTUATIONS("TEMPO"),
+        BECOMING("BECMG"),
+        WITH_40_PCT_PROBABILITY("PROB40"),
+        WITH_30_PCT_PROBABILITY("PROB30"),
+        TEMPO_WITH_40_PCT_PROBABILITY("PROB40 TEMPO"),
+        TEMPO_WITH_30_PCT_PROBABILITY("PROB30 TEMPO"),
+        FROM("FM");
+
+        private final String code;
+
+        ForecastChangeIndicatorType(final String code) {
+            this.code = code;
+        }
+
+        public static ForecastChangeIndicatorType forCode(final String code) {
+            for (ForecastChangeIndicatorType w : values()) {
+                if (w.code.equals(code)) {
+                    return w;
+                }
+            }
+            return null;
+        }
+
+    }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
 
-		@Override
-        public <T extends AviationWeatherMessage> List<Lexeme> getAsLexemes(T msg, Class<T> clz, ConversionHints hints, Object... specifier)
+        private static String encodeValidityTimeFrom(final PartialOrCompleteTimeInstant instant, final ConversionHints hints) {
+            String retval = null;
+            boolean useShortFormat = false;
+            if (hints != null) {
+                Object hint = hints.get(ConversionHints.KEY_VALIDTIME_FORMAT);
+                if (ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT.equals(hint)) {
+                    useShortFormat = true;
+                }
+            }
+
+            if (!instant.getDay().isPresent() || useShortFormat) {
+                retval = String.format("%02d%02d", instant.getHour().orElse(-1), instant.getMinute().orElse(-1));
+            } else {
+                // Otherwise produce validity in the long format
+                retval = String.format("%02d%02d%02d", instant.getDay().orElse(-1), instant.getHour().orElse(-1), instant.getMinute().orElse(-1));
+            }
+            return retval;
+        }
+
+        @Override
+        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             List<Lexeme> retval = new ArrayList<>();
 
-            if (msg instanceof TAF) {
-                TAFChangeForecast changeForecast = getAs(specifier, TAFChangeForecast.class);
+            if (TAF.class.isAssignableFrom(clz)) {
+                Optional<TAFChangeForecast> changeForecast = ctx.getParameter("forecast", TAFChangeForecast.class);
 
-                if (changeForecast != null) {
-                    switch (changeForecast.getChangeIndicator()) {
+                if (changeForecast.isPresent()) {
+                    switch (changeForecast.get().getChangeIndicator()) {
                         case BECOMING:
                             retval.add(this.createLexeme("BECMG", TAF_FORECAST_CHANGE_INDICATOR));
                             break;
@@ -110,23 +131,22 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
                             break;
                         case PROBABILITY_30_TEMPORARY_FLUCTUATIONS:
                             retval.add(this.createLexeme("PROB30", TAF_FORECAST_CHANGE_INDICATOR));
-                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
+                            retval.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
                             retval.add(this.createLexeme("TEMPO", TAF_FORECAST_CHANGE_INDICATOR));
                             break;
                         case PROBABILITY_40_TEMPORARY_FLUCTUATIONS:
                             retval.add(this.createLexeme("PROB40", TAF_FORECAST_CHANGE_INDICATOR));
-                            retval.add(this.createLexeme(" ", Lexeme.Identity.WHITE_SPACE));
+                            retval.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
                             retval.add(this.createLexeme("TEMPO", TAF_FORECAST_CHANGE_INDICATOR));
                             break;
                         case FROM:
-                            StringBuilder ret = new StringBuilder("FM");
-                            if (changeForecast.getValidityStartDayOfMonth() > -1) {
-                                ret.append(String.format("%02d%02d%02d", changeForecast.getValidityStartDayOfMonth(), changeForecast.getValidityStartHour(),
-                                        changeForecast.getValidityStartMinute()));
+                            if (changeForecast.get().getPeriodOfChange().getStartTime().isPresent()) {
+                                StringBuilder ret = new StringBuilder("FM");
+                                ret.append(encodeValidityTimeFrom(changeForecast.get().getPeriodOfChange().getStartTime().get(), ctx.getHints()));
+                                retval.add(this.createLexeme(ret.toString(), TAF_FORECAST_CHANGE_INDICATOR));
                             } else {
-                                ret.append(String.format("%02d%02d", changeForecast.getValidityStartHour(), changeForecast.getValidityStartMinute()));
+                                throw new SerializingException("Validity time start is not available in TAF change forecast");
                             }
-                            retval.add(this.createLexeme(ret.toString(), TAF_FORECAST_CHANGE_INDICATOR));
                             break;
                     }
                 }

@@ -1,0 +1,127 @@
+{
+  "status": "NORMAL",
+  "issueTime": {
+    "partialTime": "--26T12:30Z"
+  },
+  "aerodrome": {
+    "designator": "URKA"
+  },
+  "presentWeather": [
+    {
+      "code": "-SHRA",
+      "description": "Light showery precipitation of rain"
+    }
+  ],
+  "airTemperature": {
+    "value": 11.0,
+    "uom": "degC"
+  },
+  "dewpointTemperature": {
+    "value": 9.0,
+    "uom": "degC"
+  },
+  "altimeterSettingQNH": {
+    "value": 1010.0,
+    "uom": "hPa"
+  },
+  "surfaceWind": {
+    "meanWindDirection": {
+      "value": 280.0,
+      "uom": "deg"
+    },
+    "meanWindSpeed": {
+      "value": 5.0,
+      "uom": "m/s"
+    }
+  },
+  "visibility": {
+    "prevailingVisibility": {
+      "value": 10000,
+      "uom": "m"
+    },
+    "prevailingVisibilityOperator": "ABOVE"
+  },
+  "clouds": {
+    "layers": [
+      {
+        "amount": "FEW",
+        "heightUnobservableByAutoSystem": true
+      },
+      {
+        "amount": "SCT",
+        "base": {
+          "value": 5100.0,
+          "uom": "[ft_i]"
+        },
+        "cloudType": "CB"
+      }
+    ]
+  },
+  "runwayStates": [
+    {
+      "runwayDirection": {
+        "associatedAirportHeliport": {
+          "designator": "URKA"
+        },
+        "designator": "22"
+      },
+      "deposit": "WET_WITH_WATER_PATCHES",
+      "contamination": "PCT_COVERED_51_100",
+      "depthOfDeposit": {
+        "value": 1.0,
+        "uom": "mm"
+      },
+      "estimatedSurfaceFriction": 0.6
+    }
+  ],
+  "trends": [
+    {
+      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
+      "prevailingVisibility": {
+        "value": 500.0,
+        "uom": "m"
+      },
+      "forecastWeather": [
+        {
+          "code": "+TSRA",
+          "description": "Thunderstorm with heavy precipitation of rain"
+        }
+      ],
+      "surfaceWind": {
+        "variableDirection": true,
+        "meanWindSpeed": {
+          "value": 10.0,
+          "uom": "m/s"
+        },
+        "windGust": {
+          "value": 16.0,
+          "uom": "m/s"
+        }
+      },
+      "cloud": {
+        "layers": [
+          {
+            "amount": "BKN",
+            "base": {
+              "value": 300.0,
+              "uom": "[ft_i]"
+            }
+          },
+          {
+            "amount": "BKN",
+            "base": {
+              "value": 2000.0,
+              "uom": "[ft_i]"
+            },
+            "cloudType": "CB"
+          }
+        ]
+      }
+    }
+  ],
+  "remarks": [
+    "QFE752/1003"
+  ],
+  "translatedTAC": "METAR URKA 261230Z 28005MPS 9999 -SHRA FEW/// SCT051CB 11/09 Q1010 R22/290160 TEMPO VRB10G16MPS 0500 +TSRA BKN003 BKN020CB RMK QFE752/1003=",
+  "translated": true
+}

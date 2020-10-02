@@ -1,0 +1,32 @@
+{
+  "status": "NORMAL",
+  "issueTime": {
+    "partialTime": "--01T13:50Z"
+  },
+  "aerodrome": {
+    "designator": "EFTU"
+  },
+  "automatedStation": true,
+  "surfaceWind": {
+    "variableDirection": true,
+    "meanWindSpeed": {
+      "value": 2.0,
+      "uom": "[kn_i]"
+    }
+  },
+  "ceilingAndVisibilityOk": true,
+  "airTemperature": {
+    "value": 22.0,
+    "uom": "degC"
+  },
+  "dewpointTemperature": {
+    "value": 12.0,
+    "uom": "degC"
+  },
+  "altimeterSettingQNH": {
+    "value": 1008.0,
+    "uom": "hPa"
+  },
+  "translatedTAC": "EFTU 011350Z AUTO VRB02KT CAVOK 22/12 Q1008=",
+  "translated": true
+}

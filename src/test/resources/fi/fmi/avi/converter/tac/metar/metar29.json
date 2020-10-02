@@ -1,55 +1,61 @@
 {
-  "status": "NORMAL",
-  "partialIssueTime": "230320Z",
-  "aerodrome": {
-    "designator": "EFTU"
+  "status" : "NORMAL",
+  "issueTime" : {
+    "partialTime" : "--23T03:20Z"
+  },
+  "aerodrome" : {
+    "designator" : "EFTU"
   },
   "automatedStation": true,
-  "airTemperature": {
+  "airTemperature" : {
     "value": 0.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "dewpointTemperature": {
+  "dewpointTemperature" : {
     "value": 0.0,
-    "uom": "degC"
+    "uom" : "degC"
   },
-  "altimeterSettingQNH": {
+  "altimeterSettingQNH" : {
     "value": 1023.0,
-    "uom": "hPa"
+    "uom" : "hPa"
   },
-  "surfaceWind": {
-    "meanWindDirection": {
+  "surfaceWind" : {
+    "meanWindDirection" : {
       "value": 50.0,
-      "uom": "deg"
+      "uom" : "deg"
     },
-    "meanWindSpeed": {
+    "meanWindSpeed" : {
       "value": 4.0,
-      "uom": "kt"
+      "uom" : "[kn_i]"
     }
   },
-  "visibility": {
-    "prevailingVisibility": {
+  "visibility" : {
+    "prevailingVisibility" : {
       "value": 10000,
-      "uom": "m"
+      "uom" : "m"
     },
-    "prevailingVisibilityOperator": "ABOVE"
+    "prevailingVisibilityOperator" : "ABOVE"
   },
-  "clouds": {
+  "clouds" : {
     "layers": [
       {
-        "amount": "BKN",
-        "base": {
+        "amount" : "BKN",
+        "base" : {
           "value": 300.0,
-          "uom": "[ft_i]"
-        }
+          "uom" : "[ft_i]"
+        },
+        "cloudTypeUnobservableByAutoSystem": "true"
       },
       {
-        "amount": "OVC",
-        "base": {
+        "amount" : "OVC",
+        "base" : {
           "value": 5200.0,
-          "uom": "[ft_i]"
-        }
+          "uom" : "[ft_i]"
+        },
+        "cloudTypeUnobservableByAutoSystem": "true"
       }
     ]
-  }
+  },
+  "translatedTAC" : "METAR EFTU 230320Z AUTO 05004KT 9999 BKN003/// OVC052/// 00/M00 Q1023=",
+  "translated": true
 }

@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
 /**
  * AviMessageTACTokenizer creates a {@link LexemeSequence} of TAC encoded tokens from the
@@ -12,7 +12,7 @@ import fi.fmi.avi.model.AviationWeatherMessage;
 public interface AviMessageTACTokenizer {
 
     /**
-     * Returns a {@link LexemeSequence} containing the TAC {@link Lexeme}s for the given {@link AviationWeatherMessage}.
+     * Returns a {@link LexemeSequence} containing the TAC {@link Lexeme}s for the given {@link AviationWeatherMessageOrCollection}.
      * Uses the default tokenizing rules.
      *
      * @param msg
@@ -23,10 +23,10 @@ public interface AviMessageTACTokenizer {
      * @throws SerializingException
      *         if tokenizing cannot be carried out due to missing or incorrect input message data content.
      */
-    LexemeSequence tokenizeMessage(AviationWeatherMessage msg) throws SerializingException;
+    LexemeSequence tokenizeMessage(AviationWeatherMessageOrCollection msg) throws SerializingException;
 
     /**
-     * Returns a {@link LexemeSequence} containing the TAC {@link Lexeme}s for the given {@link AviationWeatherMessage}.
+     * Returns a {@link LexemeSequence} containing the TAC {@link Lexeme}s for the given {@link AviationWeatherMessageOrCollection}.
      * Uses the provided tokenizing hints.
      *
      * @param msg the input message
@@ -34,5 +34,5 @@ public interface AviMessageTACTokenizer {
      * @return sequence of TAC tokens
      * @throws SerializingException if tokenizing cannot be carried out due to missing or incorrect input message data content.
      */
-    LexemeSequence tokenizeMessage(AviationWeatherMessage msg, ConversionHints hints) throws SerializingException;
+    LexemeSequence tokenizeMessage(AviationWeatherMessageOrCollection msg, ConversionHints hints) throws SerializingException;
 }

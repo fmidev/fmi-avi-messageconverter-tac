@@ -1,17 +1,17 @@
 package fi.fmi.avi.converter.tac.metar;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.AERODROME_DESIGNATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.END_TOKEN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.ISSUE_TIME;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.METAR_START;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.Identity.NIL;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AERODROME_DESIGNATOR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.END_TOKEN;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ISSUE_TIME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.METAR_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.NIL;
 
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.Identity;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
-import fi.fmi.avi.model.metar.impl.METARImpl;
+import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class NILMETARTest extends AbstractAviMessageTest<String, METAR> {
 
@@ -22,18 +22,12 @@ public class NILMETARTest extends AbstractAviMessageTest<String, METAR> {
 	
 	@Override
 	public String getMessage() {
-		return
-				"METAR EFIV 221320Z NIL=";
-	}
-
-    @Override
-	public String getTokenizedMessagePrefix() {
-		return "";
-	}
+        return "METAR EFIV 221320Z NIL=";
+    }
 
 	@Override
-	public Identity[] getLexerTokenSequenceIdentity() {
-		return spacify(new Identity[] {
+	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+		return spacify(new LexemeIdentity[] {
 				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, NIL, END_TOKEN
 		});
 	}
@@ -51,7 +45,7 @@ public class NILMETARTest extends AbstractAviMessageTest<String, METAR> {
 
 	@Override
 	public Class<? extends METAR> getTokenizerImplmentationClass() {
-		return METARImpl.class;
-	}
+        return METARImpl.class;
+    }
 
 }
