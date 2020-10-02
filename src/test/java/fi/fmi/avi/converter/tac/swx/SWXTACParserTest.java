@@ -26,11 +26,11 @@ import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
+import fi.fmi.avi.model.swx.EnumSpaceWeatherPhenomenon;
 import fi.fmi.avi.model.swx.NextAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 import fi.fmi.avi.model.swx.SpaceWeatherRegion;
-import fi.fmi.avi.model.swx.immutable.SpaceWeatherPhenomenonImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -61,7 +61,7 @@ public class SWXTACParserTest {
 
     @Test
     public void testParser1() throws Exception {
-        String input = getInput("spacewx-A2-3.tac");
+        final String input = getInput("spacewx-A2-3.tac");
 
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
 
@@ -69,14 +69,14 @@ public class SWXTACParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         assertTrue(result.getConvertedMessage().isPresent());
 
-        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
         assertEquals(swx.getPermissibleUsageReason().get(), AviationCodeListUser.PermissibleUsageReason.EXERCISE);
         assertEquals(swx.getIssuingCenter().getName().get(), "DONLON");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2016);
         assertEquals(2, swx.getPhenomena().size());
-        assertEquals(swx.getPhenomena().get(0), SpaceWeatherPhenomenonImpl.builder().fromCombinedCode("HF COM MOD").build());
-        assertEquals(swx.getPhenomena().get(1), SpaceWeatherPhenomenonImpl.builder().fromCombinedCode("GNSS MOD").build());
+        assertEquals(swx.getPhenomena().get(0), EnumSpaceWeatherPhenomenon.fromCombinedCode("HF COM MOD"));
+        assertEquals(swx.getPhenomena().get(1), EnumSpaceWeatherPhenomenon.fromCombinedCode("GNSS MOD"));
 
         final String[] expectedRemarks = { "LOW", "LVL", "GEOMAGNETIC", "STORMING", "CAUSING", "INCREASED", "AURORAL", "ACT", "AND", "SUBSEQUENT", "MOD",
                 "DEGRADATION", "OF", "GNSS", "AND", "HF", "COM", "AVBL", "IN", "THE", "AURORAL", "ZONE.", "THIS", "STORMING", "EXP", "TO", "SUBSIDE", "IN",
@@ -84,7 +84,7 @@ public class SWXTACParserTest {
         assertTrue(Arrays.deepEquals(swx.getRemarks().get().toArray(new String[33]), expectedRemarks));
         assertEquals(swx.getNextAdvisory().getTimeSpecifier(), NextAdvisory.Type.NO_FURTHER_ADVISORIES);
 
-        List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
+        final List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
         assertEquals(5, analyses.size());
         SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
         assertEquals(analysis.getAnalysisType(), SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
@@ -95,9 +95,9 @@ public class SWXTACParserTest {
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().isPresent());
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        PolygonGeometry poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        Double[] expected = { -90d, -180d, -60d, -180d, -60d, 180d, -90d, 180d, -90d, -180d };
-        Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
+        final PolygonGeometry poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        final Double[] expected = { -90d, -180d, -60d, -180d, -60d, 180d, -90d, 180d, -90d, -180d };
+        final Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
         analysis = analyses.get(4);
@@ -111,7 +111,7 @@ public class SWXTACParserTest {
 
     @Test
     public void testParser2() throws Exception {
-        String input = getInput("spacewx-A2-4.tac");
+        final String input = getInput("spacewx-A2-4.tac");
 
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
 
@@ -119,21 +119,21 @@ public class SWXTACParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         assertTrue(result.getConvertedMessage().isPresent());
 
-        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
         assertEquals(AviationCodeListUser.PermissibleUsageReason.TEST, swx.getPermissibleUsageReason().get());
         assertEquals(swx.getIssuingCenter().getName().get(), "DONLON");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2016);
         assertEquals(1, swx.getPhenomena().size());
-        assertEquals(swx.getPhenomena().get(0), SpaceWeatherPhenomenonImpl.builder().fromCombinedCode("RADIATION MOD").build());
+        assertEquals(swx.getPhenomena().get(0), EnumSpaceWeatherPhenomenon.fromCombinedCode("RADIATION MOD"));
         final String[] expectedRemarks = { "RADIATION", "LVL", "EXCEEDED", "100", "PCT", "OF", "BACKGROUND", "LVL", "AT", "FL340", "AND", "ABV.", "THE",
                 "CURRENT", "EVENT", "HAS", "PEAKED", "AND", "LVL", "SLW", "RTN", "TO", "BACKGROUND", "LVL.", "SEE", "WWW.SPACEWEATHERPROVIDER.WEB" };
         assertTrue(Arrays.deepEquals(swx.getRemarks().get().toArray(new String[26]), expectedRemarks));
         assertEquals(swx.getNextAdvisory().getTimeSpecifier(), NextAdvisory.Type.NO_FURTHER_ADVISORIES);
 
-        List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
+        final List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
         assertEquals(5, analyses.size());
-        SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
+        final SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
         assertEquals(analysis.getAnalysisType(), SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
         assertEquals(2, analysis.getRegions().size());
 
@@ -187,8 +187,8 @@ public class SWXTACParserTest {
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 1);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2019);
         assertEquals(2, swx.getPhenomena().size());
-        assertEquals(swx.getPhenomena().get(0), SpaceWeatherPhenomenonImpl.builder().fromCombinedCode("SATCOM MOD").build());
-        assertEquals(swx.getPhenomena().get(1), SpaceWeatherPhenomenonImpl.builder().fromCombinedCode("RADIATION SEV").build());
+        assertEquals(swx.getPhenomena().get(0), EnumSpaceWeatherPhenomenon.fromCombinedCode("SATCOM MOD"));
+        assertEquals(swx.getPhenomena().get(1), EnumSpaceWeatherPhenomenon.fromCombinedCode("RADIATION SEV"));
         assertTrue(swx.getRemarks().isPresent());
         final String[] expectedRemarks = { "TEST", "TEST", "TEST", "TEST", "THIS", "IS", "A", "TEST", "MESSAGE", "FOR", "TECHNICAL", "TEST.", "SEE",//
                 "WWW.PECASUS.ORG" };
@@ -346,7 +346,7 @@ public class SWXTACParserTest {
         assertTrue(result.getConversionIssues().size() > 0);
     }
 
-    private String getInput(String fileName) throws IOException {
+    private String getInput(final String fileName) throws IOException {
         InputStream is = null;
         try {
             is = SWXReconstructorTest.class.getResourceAsStream(fileName);
