@@ -12,7 +12,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.swx.EnumSpaceWeatherPhenomenon;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
 
@@ -24,7 +23,7 @@ public class SWXEffect extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(LexemeIdentity.SWX_EFFECT);
-        final SpaceWeatherPhenomenon phenomenon = EnumSpaceWeatherPhenomenon.fromCombinedCode(match.group("phenomenon"));
+        final SpaceWeatherPhenomenon phenomenon = SpaceWeatherPhenomenon.fromCombinedCode(match.group("phenomenon"));
         token.setParsedValue(Lexeme.ParsedValueName.VALUE, phenomenon);
     }
 

@@ -26,10 +26,10 @@ import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
-import fi.fmi.avi.model.swx.EnumSpaceWeatherPhenomenon;
 import fi.fmi.avi.model.swx.NextAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
+import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
 import fi.fmi.avi.model.swx.SpaceWeatherRegion;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -75,8 +75,8 @@ public class SWXTACParserTest {
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2016);
         assertEquals(2, swx.getPhenomena().size());
-        assertEquals(swx.getPhenomena().get(0), EnumSpaceWeatherPhenomenon.fromCombinedCode("HF COM MOD"));
-        assertEquals(swx.getPhenomena().get(1), EnumSpaceWeatherPhenomenon.fromCombinedCode("GNSS MOD"));
+        assertEquals(swx.getPhenomena().get(0), SpaceWeatherPhenomenon.fromCombinedCode("HF COM MOD"));
+        assertEquals(swx.getPhenomena().get(1), SpaceWeatherPhenomenon.fromCombinedCode("GNSS MOD"));
 
         final String[] expectedRemarks = { "LOW", "LVL", "GEOMAGNETIC", "STORMING", "CAUSING", "INCREASED", "AURORAL", "ACT", "AND", "SUBSEQUENT", "MOD",
                 "DEGRADATION", "OF", "GNSS", "AND", "HF", "COM", "AVBL", "IN", "THE", "AURORAL", "ZONE.", "THIS", "STORMING", "EXP", "TO", "SUBSIDE", "IN",
@@ -125,7 +125,7 @@ public class SWXTACParserTest {
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2016);
         assertEquals(1, swx.getPhenomena().size());
-        assertEquals(swx.getPhenomena().get(0), EnumSpaceWeatherPhenomenon.fromCombinedCode("RADIATION MOD"));
+        assertEquals(swx.getPhenomena().get(0), SpaceWeatherPhenomenon.fromCombinedCode("RADIATION MOD"));
         final String[] expectedRemarks = { "RADIATION", "LVL", "EXCEEDED", "100", "PCT", "OF", "BACKGROUND", "LVL", "AT", "FL340", "AND", "ABV.", "THE",
                 "CURRENT", "EVENT", "HAS", "PEAKED", "AND", "LVL", "SLW", "RTN", "TO", "BACKGROUND", "LVL.", "SEE", "WWW.SPACEWEATHERPROVIDER.WEB" };
         assertTrue(Arrays.deepEquals(swx.getRemarks().get().toArray(new String[26]), expectedRemarks));
@@ -187,8 +187,8 @@ public class SWXTACParserTest {
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 1);
         assertEquals(swx.getAdvisoryNumber().getYear(), 2019);
         assertEquals(2, swx.getPhenomena().size());
-        assertEquals(swx.getPhenomena().get(0), EnumSpaceWeatherPhenomenon.fromCombinedCode("SATCOM MOD"));
-        assertEquals(swx.getPhenomena().get(1), EnumSpaceWeatherPhenomenon.fromCombinedCode("RADIATION SEV"));
+        assertEquals(swx.getPhenomena().get(0), SpaceWeatherPhenomenon.fromCombinedCode("SATCOM MOD"));
+        assertEquals(swx.getPhenomena().get(1), SpaceWeatherPhenomenon.fromCombinedCode("RADIATION SEV"));
         assertTrue(swx.getRemarks().isPresent());
         final String[] expectedRemarks = { "TEST", "TEST", "TEST", "TEST", "THIS", "IS", "A", "TEST", "MESSAGE", "FOR", "TECHNICAL", "TEST.", "SEE",//
                 "WWW.PECASUS.ORG" };
