@@ -202,7 +202,8 @@ public class LexemeIdentity {
      */
     public enum IdentityProperty {
         /**
-         * Indicates that this {@code LexemeIdentity} represents a label.
+         * Indicates that this {@code LexemeIdentity} represents a label in a message containing labels.
+         * On other message types this property is obsolete.
          */
         LABEL
     }
