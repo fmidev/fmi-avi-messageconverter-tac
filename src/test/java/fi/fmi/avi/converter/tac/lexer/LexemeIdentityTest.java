@@ -6,7 +6,9 @@ import static org.junit.Assert.fail;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -46,9 +48,11 @@ public class LexemeIdentityTest {
 
     @Test
     public void labelIdentitiesAreSuffixedLabelByConvention() {
+        final Set<LexemeIdentity> exceptions = Collections.singleton(LexemeIdentity.REMARKS_START);
         lexemeIdentityConstants()//
                 .forEach(lexemeIdentity -> {
-                    final boolean expectSuffix = lexemeIdentity.getIdentityProperties().contains(LexemeIdentity.IdentityProperty.LABEL);
+                    final boolean expectSuffix = lexemeIdentity.getIdentityProperties().contains(LexemeIdentity.IdentityProperty.LABEL)//
+                            && !exceptions.contains(lexemeIdentity);
                     assertEquals("Expected <" + lexemeIdentity.name() + "> " + (expectSuffix ? "" : "NOT ") + "to end in <_LABEL>", expectSuffix,
                             lexemeIdentity.name().endsWith("_LABEL"));
                 });

@@ -100,7 +100,7 @@ public class LexemeIdentity {
             Collections.emptySet());
     public static final LexemeIdentity MIN_TEMPERATURE = new LexemeIdentity("MIN_TEMPERATURE", EnumSet.of(DAY1, HOUR1, VALUE), Collections.emptySet());
     public static final LexemeIdentity MAX_TEMPERATURE = new LexemeIdentity("MAX_TEMPERATURE", EnumSet.of(DAY1, HOUR1, VALUE), Collections.emptySet());
-    public static final LexemeIdentity REMARKS_START = new LexemeIdentity("REMARKS_START");
+    public static final LexemeIdentity REMARKS_START = new LexemeIdentity("REMARKS_START", Collections.emptySet(), EnumSet.of(IdentityProperty.LABEL));
     public static final LexemeIdentity REMARK = new LexemeIdentity("REMARK", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity COLOR_CODE = new LexemeIdentity("COLOR_CODE", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity WHITE_SPACE = new LexemeIdentity("WHITE_SPACE", EnumSet.of(TYPE, VALUE), Collections.emptySet());
