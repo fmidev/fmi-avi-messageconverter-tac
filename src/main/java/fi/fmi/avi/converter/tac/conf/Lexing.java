@@ -140,7 +140,6 @@ public class Lexing {
         f.addTokenCombiningRule(sigmetValidTimeCombinationRule());
         f.addTokenCombiningRule(usSigmetValidTimeCombinationRule());
         f.addTokenCombiningRule(advisoryStartCombinationRule());
-        //f.addTokenCombiningRule(dtgCombinationRule());
         f.addTokenCombiningRule(advisoryFctOffsetCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryPhenomenaCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryForecastTimeCombinationRule());
@@ -1145,7 +1144,6 @@ public class Lexing {
         l.teach(new DTGIssueTimeLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new DTGIssueTime(OccurrenceFrequency.AVERAGE));
         l.teach(new IssueTime(OccurrenceFrequency.RARE));
-        //l.teach(new AdvisoryIssueTimeLabel(OccurrenceFrequency.RARE));
         l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
@@ -1194,7 +1192,6 @@ public class Lexing {
         l.teach(new VolcanicAshAdvisoryStart(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTimeLabel(OccurrenceFrequency.RARE));
-        //l.teach(new AdvisoryIssueTime(OccurrenceFrequency.RARE));
         l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
