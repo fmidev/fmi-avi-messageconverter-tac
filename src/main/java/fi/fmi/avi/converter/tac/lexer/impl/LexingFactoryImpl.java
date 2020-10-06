@@ -415,10 +415,6 @@ public class LexingFactoryImpl implements LexingFactory {
                 LexemeImpl preceedingToken = null;
                 for (int i = 0; i < toMatch.size(); i++) {
                     firstCombined = this.removeLast();
-                    //TODO: Check with Ilkka and/or Petri
-                    while(firstCombined.getIdentity() != null) {
-                        firstCombined = this.removeLast();
-                    }
                     sb.insert(0, firstCombined.getTACToken()); //the last token
                     preceedingToken = this.removeLast();
                     if (i < toMatch.size() - 1) {
