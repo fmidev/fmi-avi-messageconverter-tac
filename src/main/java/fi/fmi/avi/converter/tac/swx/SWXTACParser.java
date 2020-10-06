@@ -85,9 +85,12 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }
 
         firstLexeme.findNext(LexemeIdentity.ADVISORY_STATUS_LABEL, (match) -> {
-            final Lexeme value = match.getNext();
             builder.setPermissibleUsage(AviationCodeListUser.PermissibleUsage.NON_OPERATIONAL);
-            if (LexemeIdentity.ADVISORY_STATUS == value.getIdentity()) {
+            final Lexeme value = match.findNext(LexemeIdentity.ADVISORY_STATUS);
+            if(value == null) {
+                conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Advisory status label was found, but the status could not be "
+                        + "parsed in message\n" + input));
+            } else {
                 builder.setPermissibleUsageReason(value.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
             }
         });
@@ -106,7 +109,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             issuingCenter.setDesignator("SWXC");
             builder.setIssuingCenter(issuingCenter.build());
         }, () -> {
-            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "The name of the issuing space weather center is missing"));
+            conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "The name of the issuing space weather center is missing"));
         });
 
         firstLexeme.findNext(LexemeIdentity.ADVISORY_NUMBER, (match) -> {
@@ -127,8 +130,8 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             //TODO: add warning if multiple effects are found
             builder.addAllPhenomena(phenomena);
         }, () -> {
-            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA, "Advisory should contain at least 1 valid "
-                    + "space wather effect."));
+            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA, "At least 1 valid "
+                    + "space wather effect is reuired."));
         });
 
         List<LexemeSequence> analysisList = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
@@ -147,7 +150,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         if(analyses.size() != 5) {
             conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING,
                     "Advisories should contain 5 observation/forecasts but "  + analyses.size()
-                    + " were recognized in advisory:\n" + lexed.getTAC()));
+                    + " were found in message:\n" + lexed.getTAC()));
         }
 
         firstLexeme.findNext(LexemeIdentity.REMARKS_START, (match) -> {
@@ -163,7 +166,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             createCompleteTimeInstant(match, nxt::setTime);
             builder.setNextAdvisory(nxt.build());
         }, () -> {
-            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, "Next advisory information is missing"));
+            conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Next advisory is required but was missing in message\n" + input));
         });
 
         try {

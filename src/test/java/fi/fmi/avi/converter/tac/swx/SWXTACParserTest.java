@@ -309,7 +309,9 @@ public class SWXTACParserTest {
     public void testInvalidEmptyStatus() throws IOException {
         final String input = getInput("spacewx-invalid-status-empty.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(10, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(3).getType());
+        assertTrue(result.getConversionIssues().get(4).getMessage().contains("Advisory status label was found, but the status could not be parsed in message"));
     }
 
     @Test
