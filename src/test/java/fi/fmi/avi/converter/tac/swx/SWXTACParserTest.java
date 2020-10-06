@@ -20,6 +20,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
 
 import fi.fmi.avi.converter.AviMessageConverter;
+import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
@@ -336,7 +337,12 @@ public class SWXTACParserTest {
     public void testInvalidAdvisoryNumber() throws IOException {
         final String input = getInput("spacewx-invalid-advisory-number.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(1, result.getConversionIssues().size());
+        ConversionIssue issue = result.getConversionIssues().get(0);
+        assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
+        assertEquals(ConversionIssue.Severity.ERROR, issue.getSeverity());
+        Assert.assertTrue(issue.getMessage().contains("One of ADVISORY_NUMBER missing in message"));
+
     }
 
     @Test

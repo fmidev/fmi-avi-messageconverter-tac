@@ -180,7 +180,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
         }
         for(int i = 0; i < oneFound.length; i++) {
             if(!oneFound[i]) {
-                retval.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "One of " + ids[i] + " not recognized in " + lexed.getTAC()));
+                retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "One of " + ids[i] + " missing in message " + lexed.getTAC()));
             }
         }
         return retval;
