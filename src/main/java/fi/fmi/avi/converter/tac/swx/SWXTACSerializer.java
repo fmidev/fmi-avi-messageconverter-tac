@@ -58,7 +58,7 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
-        if (appendToken(retval, LexemeIdentity.SWX_ISSUE_TIME_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.DTG_ISSUE_TIME_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
         if (appendToken(retval, LexemeIdentity.ISSUE_TIME, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {

@@ -119,7 +119,8 @@ public class LexemeIdentity {
     public static final LexemeIdentity SWX_PHENOMENON_POLYGON_LIMIT = new LexemeIdentity("SWX_PHENOMENON_POLYGON_LIMIT", VALUE);
     public static final LexemeIdentity POLYGON_COORDINATE_PAIR_SEPARATOR = new LexemeIdentity("POLYGON_COORDINATE_PAIR_SEPARATOR");
     public static final LexemeIdentity POLYGON_COORDINATE_PAIR = new LexemeIdentity("POLYGON_COORDINATE_PAIR", VALUE, VALUE2);
-    public static final LexemeIdentity SWX_ISSUE_TIME_LABEL = new LexemeIdentity("SWX_ISSUE_TIME_LABEL", VALUE);
+    public static final LexemeIdentity DTG_ISSUE_TIME_LABEL = new LexemeIdentity("DTG_ISSUE_TIME_LABEL", VALUE);
+    public static final LexemeIdentity ADVISORY_ISSUE_TIME = new LexemeIdentity("ADVISORY_ISSUE_TIME", YEAR, MONTH, DAY1, HOUR1, MINUTE1);
     public static final LexemeIdentity NEXT_ADVISORY = new LexemeIdentity("NEXT_ADVISORY", TYPE, YEAR, MONTH, DAY1, HOUR1, MINUTE1);
     public static final LexemeIdentity NEXT_ADVISORY_LABEL = new LexemeIdentity("NEXT_ADVISORY_LABEL");
 

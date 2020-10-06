@@ -96,9 +96,23 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             builder.setPermissibleUsageReason(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
         });
 
-        conversionIssues.addAll(this.withFoundIssueTime(lexed, new LexemeIdentity[]{LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
-                        LexemeIdentity.SWX_EFFECT, LexemeIdentity.NEXT_ADVISORY}, hints,
-                builder::setIssueTime));
+        firstLexeme.findNext(LexemeIdentity.ISSUE_TIME, (match) -> {
+            final Integer day = match.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+            final Integer minute = match.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+            final Integer hour = match.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+            final Integer month = match.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
+            final Integer year = match.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
+            if (year != null && month != null && day != null && minute != null && hour != null) {
+                builder.setIssueTime(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
+            } else {
+                conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
+                        "Missing at least some of the issue time components in " + lexed.getTAC()));
+            }
+        });
+
+        //conversionIssues.addAll(this.withFoundIssueTime(lexed, new LexemeIdentity[]{LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
+          //              LexemeIdentity.SWX_EFFECT, LexemeIdentity.NEXT_ADVISORY}, hints,
+            //    builder::setIssueTime));
 
         firstLexeme.findNext(LexemeIdentity.SWX_CENTRE, (match) -> {
             IssuingCenterImpl.Builder issuingCenter = IssuingCenterImpl.builder();
