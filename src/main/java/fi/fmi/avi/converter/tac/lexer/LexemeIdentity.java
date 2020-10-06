@@ -139,7 +139,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity POLYGON_COORDINATE_PAIR_SEPARATOR = new LexemeIdentity("POLYGON_COORDINATE_PAIR_SEPARATOR");
     public static final LexemeIdentity POLYGON_COORDINATE_PAIR = new LexemeIdentity("POLYGON_COORDINATE_PAIR", EnumSet.of(VALUE, VALUE2),
             Collections.emptySet());
-    public static final LexemeIdentity SWX_ISSUE_TIME_LABEL = new LexemeIdentity("SWX_ISSUE_TIME_LABEL", EnumSet.of(VALUE), EnumSet.of(IdentityProperty.LABEL));
+    public static final LexemeIdentity DTG_ISSUE_TIME_LABEL = new LexemeIdentity("DTG_ISSUE_TIME_LABEL", EnumSet.of(VALUE), EnumSet.of(IdentityProperty.LABEL));
     public static final LexemeIdentity NEXT_ADVISORY = new LexemeIdentity("NEXT_ADVISORY", EnumSet.of(TYPE, YEAR, MONTH, DAY1, HOUR1, MINUTE1),
             Collections.emptySet());
     public static final LexemeIdentity NEXT_ADVISORY_LABEL = new LexemeIdentity("NEXT_ADVISORY_LABEL", Collections.emptySet(),
