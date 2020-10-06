@@ -60,7 +60,7 @@ public class DTGIssueTime extends TimeHandlingRegex {
                     PartialOrCompleteTimeInstant time = swx.getIssueTime().get();
                     StringBuilder builder = new StringBuilder();
                     builder.append(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
-                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_ISSUE_TIME));
+                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ISSUE_TIME));
                 }
             }
             return retval;

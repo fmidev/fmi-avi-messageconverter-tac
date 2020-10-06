@@ -14,7 +14,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
-import fi.fmi.avi.model.swx.immutable.SpaceWeatherPhenomenonImpl;
 
 public class SWXEffect extends RegexMatchingLexemeVisitor {
     public SWXEffect(final OccurrenceFrequency prio) {
@@ -24,7 +23,7 @@ public class SWXEffect extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(LexemeIdentity.SWX_EFFECT);
-        SpaceWeatherPhenomenon phenomenon = SpaceWeatherPhenomenonImpl.Builder.fromCombinedCode(match.group("phenomenon")).build();
+        final SpaceWeatherPhenomenon phenomenon = SpaceWeatherPhenomenon.fromCombinedCode(match.group("phenomenon"));
         token.setParsedValue(Lexeme.ParsedValueName.VALUE, phenomenon);
     }
 
@@ -32,24 +31,24 @@ public class SWXEffect extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            List<Lexeme> retval = new ArrayList<>();
+            final List<Lexeme> retval = new ArrayList<>();
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                List<SpaceWeatherPhenomenon> phenomena = ((SpaceWeatherAdvisory) msg).getPhenomena();
+                final List<SpaceWeatherPhenomenon> phenomena = ((SpaceWeatherAdvisory) msg).getPhenomena();
 
                 if (phenomena.size() < 1) {
                     throw new SerializingException("There are no space weather phenomena");
                 }
 
                 int index = 0;
-                for (SpaceWeatherPhenomenon phenomenon : phenomena) {
+                for (final SpaceWeatherPhenomenon phenomenon : phenomena) {
                     if (index > 0) {
                         retval.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
 
                         retval.add(this.createLexeme("AND", LexemeIdentity.SWX_EFFECT_CONJUCTION, Lexeme.Status.OK));
                         retval.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));
                     }
-                    Lexeme lexeme = this.createLexeme(phenomenon.asCombinedCode(), LexemeIdentity.SWX_EFFECT);
+                    final Lexeme lexeme = this.createLexeme(phenomenon.asCombinedCode(), LexemeIdentity.SWX_EFFECT);
                     retval.add(lexeme);
                     index++;
                 }
