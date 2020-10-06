@@ -295,7 +295,9 @@ public class SWXTACParserTest {
     public void testInvalidMissingEndToken() throws IOException {
         final String input = getInput("spacewx-invalid-missing-end-token.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(1, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(0).getType());
+        assertTrue(result.getConversionIssues().get(0).getMessage().contains("One of END_TOKEN missing in message"));
     }
 
     @Test

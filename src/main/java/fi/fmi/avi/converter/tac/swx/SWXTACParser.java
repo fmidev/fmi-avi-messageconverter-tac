@@ -71,7 +71,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         LexemeIdentity[] exactkyOne = new LexemeIdentity[]{
                 LexemeIdentity.ISSUE_TIME, LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
-                /*LexemeIdentity.SWX_EFFECT,*/ LexemeIdentity.NEXT_ADVISORY
+                /*LexemeIdentity.SWX_EFFECT,*/ LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.END_TOKEN
         };
         final List<ConversionIssue> checkIssues = checkExactlyOne(firstLexeme.getTailSequence(), exactkyOne);
         if(checkIssues != null) {
