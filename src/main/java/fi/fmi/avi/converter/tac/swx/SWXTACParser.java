@@ -116,8 +116,14 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             builder.setAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
         });
 
-        firstLexeme.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER, (match) -> {
-            builder.setReplaceAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
+        firstLexeme.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, (match) -> {
+            Lexeme value = match.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
+            if(value == null) {
+                conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Replace Advisory number label was found, but the data "
+                        + "could not be parsed in message\n" + input));
+            } else {
+                builder.setReplaceAdvisoryNumber(value.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
+            }
         });
 
         firstLexeme.findNext(LexemeIdentity.SWX_EFFECT, (match) -> {
