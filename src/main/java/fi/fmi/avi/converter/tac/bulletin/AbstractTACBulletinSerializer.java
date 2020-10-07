@@ -19,7 +19,10 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
 public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMessage, T extends MeteorologicalBulletin<S>> extends AbstractTACSerializer<T> {
 
-    public static final int MAX_ROW_LENGTH = 60;
+    /**
+     * Maximum number of characters per line (inclusive).
+     */
+    public static final int MAX_ROW_LENGTH = 59;
 
     private static final int DEFAULT_LINE_WRAP_INDENTATION_LENGTH = 5;
 
@@ -99,7 +102,7 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
                                 }
                                 charsOnRow = 0;
-                            } else if (charsOnRow + tokenLength >= MAX_ROW_LENGTH) {
+                            } else if (charsOnRow + tokenLength > MAX_ROW_LENGTH) {
                                 while (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                                     retval.removeLast();
                                 }
@@ -111,7 +114,7 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                         }
                     } else {
                         if (!LexemeIdentity.WHITE_SPACE.equals(l.getIdentity()) && !LexemeIdentity.END_TOKEN.equals(l.getIdentity())) {
-                            if (charsOnRow + tokenLength >= MAX_ROW_LENGTH) {
+                            if (charsOnRow + tokenLength > MAX_ROW_LENGTH) {
                                 if (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                                     retval.removeLast();
                                 }
@@ -136,7 +139,7 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
         return retval.build();
     }
 
-    private void appendLineWrap(final LexemeSequenceBuilder builder, int indentLength) {
+    private void appendLineWrap(final LexemeSequenceBuilder builder, final int indentLength) {
         appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
         appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE, indentLength);
