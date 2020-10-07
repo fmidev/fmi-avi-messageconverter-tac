@@ -297,7 +297,7 @@ public class SWXTACParserTest {
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(1, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(0).getType());
-        assertTrue(result.getConversionIssues().get(0).getMessage().contains("One of END_TOKEN missing in message"));
+        assertTrue(result.getConversionIssues().get(0).getMessage().contains("One of END_TOKEN required in message"));
     }
 
     @Test
@@ -353,7 +353,7 @@ public class SWXTACParserTest {
         ConversionIssue issue = result.getConversionIssues().get(2);
         assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
         assertEquals(ConversionIssue.Severity.ERROR, issue.getSeverity());
-        Assert.assertTrue(issue.getMessage().contains("One of ADVISORY_NUMBER missing in message"));
+        Assert.assertTrue(issue.getMessage().contains("One of ADVISORY_NUMBER required in message"));
 
     }
 
