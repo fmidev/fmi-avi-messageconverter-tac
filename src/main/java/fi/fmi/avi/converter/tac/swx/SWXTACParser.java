@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
@@ -43,6 +44,10 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
     private AviMessageLexer lexer;
 
+    private final LexemeIdentity[] oneRequired = new LexemeIdentity[]{
+            LexemeIdentity.ISSUE_TIME, LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
+            LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.END_TOKEN };
+
     @Override
     public void setTACLexer(final AviMessageLexer lexer) {
         this.lexer = lexer;
@@ -67,18 +72,11 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                     "Message does not start with a start token: " + firstLexeme.getTACToken()));
         }
 
-        List<ConversionIssue> conversionIssues = new ArrayList<>();
-
-        LexemeIdentity[] exactkyOne = new LexemeIdentity[]{
-                LexemeIdentity.ISSUE_TIME, LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
-                /*LexemeIdentity.SWX_EFFECT,*/ LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.END_TOKEN
-        };
-        final List<ConversionIssue> checkIssues = checkExactlyOne(firstLexeme.getTailSequence(), exactkyOne);
-        if(checkIssues != null) {
-            conversionIssues.addAll(checkIssues);
-        }
+        List<ConversionIssue> conversionIssues = checkExactlyOne(firstLexeme.getTailSequence(), oneRequired);
 
         SpaceWeatherAdvisoryImpl.Builder builder = SpaceWeatherAdvisoryImpl.builder();
+
+        checkAndReportLexingResult(lexed, hints, retval);
 
         if (lexed.getTAC() != null) {
             builder.setTranslatedTAC(lexed.getTAC());
@@ -112,10 +110,6 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                         "Missing at least some of the issue time components in " + lexed.getTAC()));
             }
         });
-
-        //conversionIssues.addAll(this.withFoundIssueTime(lexed, new LexemeIdentity[]{LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
-          //              LexemeIdentity.SWX_EFFECT, LexemeIdentity.NEXT_ADVISORY}, hints,
-            //    builder::setIssueTime));
 
         firstLexeme.findNext(LexemeIdentity.SWX_CENTRE, (match) -> {
             IssuingCenterImpl.Builder issuingCenter = IssuingCenterImpl.builder();
