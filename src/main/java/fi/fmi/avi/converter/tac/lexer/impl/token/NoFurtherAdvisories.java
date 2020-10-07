@@ -22,13 +22,12 @@ public class NoFurtherAdvisories extends RegexMatchingLexemeVisitor {
     }
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        Lexeme previous = token.getPrevious();
-        while (previous != null && previous.getIdentity().equals(LexemeIdentity.WHITE_SPACE)) {
-            previous = previous.getPrevious();
-        }
-        if (previous.getIdentity().equals(NEXT_ADVISORY_LABEL)) {
-            token.identify(NEXT_ADVISORY);
-            token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES);
+
+        if (token != null && token.hasPrevious()) {
+            if (token.getPrevious().getIdentity() != null && token.getPrevious().getIdentity().equals(LexemeIdentity.NEXT_ADVISORY_LABEL)) {
+                token.identify(NEXT_ADVISORY);
+                token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES);
+            }
         }
     }
 

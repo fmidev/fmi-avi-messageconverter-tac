@@ -20,6 +20,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
 
 import fi.fmi.avi.converter.AviMessageConverter;
+import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
@@ -279,7 +280,7 @@ public class SWXTACParserTest {
         final String input = getInput("spacewx-pecasus-notavbl.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.FAIL, result.getStatus());
-        assertEquals(6, result.getConversionIssues().size());
+        assertEquals(14, result.getConversionIssues().size());
         assertFalse(result.getConvertedMessage().isPresent());
     }
 
@@ -294,56 +295,76 @@ public class SWXTACParserTest {
     public void testInvalidMissingEndToken() throws IOException {
         final String input = getInput("spacewx-invalid-missing-end-token.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(1, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(0).getType());
+        assertTrue(result.getConversionIssues().get(0).getMessage().contains("One of END_TOKEN required in message"));
     }
 
     @Test
     public void testInvalidStatusLabel() throws IOException {
         final String input = getInput("spacewx-invalid-status-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(3, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
+        assertTrue(result.getConversionIssues().get(0).getMessage().contains("Input message lexing was not fully successful"));
     }
 
     @Test
     public void testInvalidEmptyStatus() throws IOException {
         final String input = getInput("spacewx-invalid-status-empty.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(9, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(3).getType());
+        assertTrue(result.getConversionIssues().get(4).getMessage().contains("Advisory status label was found, but the status could not be parsed in message"));
     }
 
     @Test
     public void testInvalidRemarkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-remark-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(35, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
+        assertTrue(result.getConversionIssues().get(0).getMessage().contains("Input message lexing was not fully successful"));
     }
 
     @Test
     public void testInvalidReplaceNumberLabel() throws IOException {
         final String input = getInput("spacewx-invalid-replace-number-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(4, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
+        assertTrue(result.getConversionIssues().get(0).getMessage().contains("Input message lexing was not fully successful"));
     }
 
     @Test
     public void testInvalidNextAdvisoryLabelWithoutRemarks() throws IOException {
         final String input = getInput("spacewx-invalid-next-advisory-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(6, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
+        assertTrue(result.getConversionIssues().get(0).getMessage().contains("Input message lexing was not fully successful"));
     }
 
     @Test
     public void testInvalidAdvisoryNumber() throws IOException {
         final String input = getInput("spacewx-invalid-advisory-number.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(3, result.getConversionIssues().size());
+        ConversionIssue issue = result.getConversionIssues().get(2);
+        assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
+        assertEquals(ConversionIssue.Severity.ERROR, issue.getSeverity());
+        Assert.assertTrue(issue.getMessage().contains("One of ADVISORY_NUMBER required in message"));
+
     }
 
     @Test
     public void testInvalidReplaceNumber() throws IOException {
         final String input = getInput("spacewx-invalid-replace-number.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue(result.getConversionIssues().size() > 0);
+        assertEquals(3, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(2).getType());
+        assertTrue(result.getConversionIssues().get(2).getMessage().contains("Replace Advisory number label was found, but the data could not be parsed in "
+                + "message"));
     }
 
     private String getInput(final String fileName) throws IOException {
