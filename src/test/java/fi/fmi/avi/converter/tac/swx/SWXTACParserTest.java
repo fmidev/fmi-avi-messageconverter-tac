@@ -367,6 +367,13 @@ public class SWXTACParserTest {
                 + "message"));
     }
 
+    @Test
+    public void testInvalidEndTokenMisplaced() throws IOException {
+        final String input = getInput("spacewx-invalid-misplaced-end-token.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConversionIssues().size() > 0);
+    }
+
     private String getInput(final String fileName) throws IOException {
         InputStream is = null;
         try {
