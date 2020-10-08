@@ -175,8 +175,8 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         try {
             builder.addAllAnalyses(analyses);
             retval.setConvertedMessage(builder.build());
-        } catch (final IllegalStateException ignored) {
-            System.out.println(ignored.getMessage());
+        } catch (final IllegalStateException exception) {
+            conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, exception.getMessage()));
         }
 
         retval.addIssue(conversionIssues);
