@@ -155,7 +155,7 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
     private enum Layout {
         STANDARD(5), //
         WHITESPACE_PASSTHROUGH(0), //
-        ADVISORY(20);
+        ADVISORY(0);
 
         private final int defaultIndentation;
 
