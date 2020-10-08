@@ -91,15 +91,9 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                     if (layout == Layout.WHITESPACE_PASSTHROUGH || layout == Layout.ADVISORY) {
                         if (!LexemeIdentity.END_TOKEN.equals(lexeme.getIdentity())) {
                             //Append CR before an LF if the CR was not already added:
-                            if (LexemeIdentity.WHITE_SPACE.equals(lexeme.getIdentity()) //
-                                    && lexeme.getParsedValues().containsKey(Lexeme.ParsedValueName.TYPE) //
-                                    && lexeme.getParsedValue(Lexeme.ParsedValueName.TYPE, Lexeme.MeteorologicalBulletinSpecialCharacter.class)
-                                    .equals(Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED)) {
+                            if (isSpecialCharacterLexeme(lexeme, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED)) {
                                 if (retval.getLast()//
-                                        .map(last -> !(LexemeIdentity.WHITE_SPACE.equals(last.getIdentity()) //
-                                                && last.getParsedValues().containsKey(Lexeme.ParsedValueName.TYPE) //
-                                                && last.getParsedValue(Lexeme.ParsedValueName.TYPE, Lexeme.MeteorologicalBulletinSpecialCharacter.class)
-                                                .equals(Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN)))//
+                                        .map(last -> !isSpecialCharacterLexeme(last, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN))//
                                         .orElse(false)) {
                                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
                                 }
@@ -109,10 +103,11 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                                     retval.removeLast();
                                 }
                                 appendLineWrap(retval, lineWrapIndent);
-                                charsOnRow = lineWrapIndent;
+                                charsOnRow = lineWrapIndent + tokenLength;
+                            } else {
+                                charsOnRow += tokenLength;
                             }
                             retval.append(lexeme);
-                            charsOnRow += tokenLength;
                         }
                     } else {
                         if (!LexemeIdentity.WHITE_SPACE.equals(lexeme.getIdentity()) && !LexemeIdentity.END_TOKEN.equals(lexeme.getIdentity())) {
@@ -143,6 +138,12 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
 
     private boolean isAdvisory(final S message) {
         return SpaceWeatherAdvisory.class.isAssignableFrom(message.getClass());
+    }
+
+    private boolean isSpecialCharacterLexeme(final Lexeme lexeme, final Lexeme.MeteorologicalBulletinSpecialCharacter specialCharacter) {
+        return LexemeIdentity.WHITE_SPACE.equals(lexeme.getIdentity()) //
+                && lexeme.getParsedValues().containsKey(Lexeme.ParsedValueName.TYPE) //
+                && lexeme.getParsedValue(Lexeme.ParsedValueName.TYPE, Lexeme.MeteorologicalBulletinSpecialCharacter.class).equals(specialCharacter);
     }
 
     private void appendLineWrap(final LexemeSequenceBuilder builder, final int indentLength) {
