@@ -159,7 +159,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         firstLexeme.findNext(LexemeIdentity.REMARKS_START, (match) -> {
             final List<String> remarks = getRemarks(match, hints);
-            if (!remarks.isEmpty()) {
+            if (!remarks.isEmpty() && !remarks.get(0).equalsIgnoreCase("NIL")) {
                 builder.setRemarks(remarks);
             }
         });
