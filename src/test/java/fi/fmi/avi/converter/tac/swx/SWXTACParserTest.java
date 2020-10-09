@@ -313,16 +313,16 @@ public class SWXTACParserTest {
     public void testInvalidEmptyStatus() throws IOException {
         final String input = getInput("spacewx-invalid-status-empty.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertEquals(10, result.getConversionIssues().size());
+        assertEquals(11, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(3).getType());
-        assertTrue(result.getConversionIssues().get(4).getMessage().contains("Advisory status label was found, but the status could not be parsed in message"));
+        assertTrue(result.getConversionIssues().get(5).getMessage().contains("Advisory status label was found, but the status could not be parsed in message"));
     }
 
     @Test
     public void testInvalidRemarkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-remark-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertEquals(35, result.getConversionIssues().size());
+        assertEquals(36, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
         assertTrue(result.getConversionIssues().get(0).getMessage().contains("Input message lexing was not fully successful"));
     }
@@ -340,7 +340,7 @@ public class SWXTACParserTest {
     public void testInvalidNextAdvisoryLabelWithoutRemarks() throws IOException {
         final String input = getInput("spacewx-invalid-next-advisory-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertEquals(7, result.getConversionIssues().size());
+        assertEquals(8, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
         assertTrue(result.getConversionIssues().get(0).getMessage().contains("Input message lexing was not fully successful"));
     }
