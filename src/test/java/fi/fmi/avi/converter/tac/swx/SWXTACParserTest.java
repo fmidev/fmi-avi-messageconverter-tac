@@ -328,6 +328,15 @@ public class SWXTACParserTest {
     }
 
     @Test
+    public void testInvalidRmkLabel() throws IOException {
+        final String input = getInput("spacewx-invalid-rmk-label.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertEquals(5, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(1).getType());
+        assertEquals("Lexing problem with 'RMK'", result.getConversionIssues().get(1).getMessage());
+    }
+
+    @Test
     public void testInvalidReplaceNumberLabel() throws IOException {
         final String input = getInput("spacewx-invalid-replace-number-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
