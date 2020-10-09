@@ -130,9 +130,9 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
+        appendToken(retval, LexemeIdentity.REMARKS_START, input, SpaceWeatherAdvisory.class, baseCtx);
+        appendSpacePadding(retval, labelColumnWidth);
         if (input.getRemarks().isPresent()) {
-            appendToken(retval, LexemeIdentity.REMARKS_START, input, SpaceWeatherAdvisory.class, baseCtx);
-            appendSpacePadding(retval, labelColumnWidth);
             for (final String remark : input.getRemarks().get()) {
                 this.appendToken(retval, LexemeIdentity.REMARK, input, SpaceWeatherAdvisory.class, baseCtx.copyWithParameter("remark", remark));
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
@@ -140,9 +140,11 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
             if (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                 retval.removeLast(); // last whitespace removed
             }
-            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
-            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
+        } else {
+            this.appendToken(retval, LexemeIdentity.REMARK, input, SpaceWeatherAdvisory.class, baseCtx.copyWithParameter("remark", "NIL"));
         }
+        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
+        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         if (appendToken(retval, LexemeIdentity.NEXT_ADVISORY_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
