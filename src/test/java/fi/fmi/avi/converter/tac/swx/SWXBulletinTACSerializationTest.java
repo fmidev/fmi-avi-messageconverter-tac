@@ -49,7 +49,7 @@ public class SWXBulletinTACSerializationTest {
                 + "RMK: TEST TEST TEST TEST\n" //
                 + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" //
                 + "SEE WWW.PECASUS.ORG \n" //
-                + "NXT ADVISORY: WILL BE ISSUED BY 20161108/0700Z=\n \n";
+                + "NXT ADVISORY: WILL BE ISSUED BY 20161108/0700Z=";
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_SWX_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final Optional<SpaceWeatherAdvisory> pojo = result.getConvertedMessage();
