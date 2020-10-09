@@ -69,6 +69,11 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                     "Message does not start with a start token: " + firstLexeme.getTACToken()));
         }
 
+        if (!endsInEndToken(lexed, hints)) {
+            retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Message does not end in end token"));
+            return retval;
+        }
+
         final List<ConversionIssue> conversionIssues = checkExactlyOne(firstLexeme.getTailSequence(), oneRequired);
 
         final SpaceWeatherAdvisoryImpl.Builder builder = SpaceWeatherAdvisoryImpl.builder();
