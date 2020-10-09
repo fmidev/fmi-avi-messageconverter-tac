@@ -18,6 +18,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.AviMessageTACTokenizerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumberLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryRemarkStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatus;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatusLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
@@ -266,7 +267,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT, new SWXVerticalLimit.Reconstructor());
         s.addReconstructor(LexemeIdentity.POLYGON_COORDINATE_PAIR, new PolygonCoordinatePair.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, new SWXPhenonmenonLongitudeLimit.Reconstructor());
-        s.addReconstructor(LexemeIdentity.REMARKS_START, new RemarkStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.REMARKS_START, new AdvisoryRemarkStart.Reconstructor());
         s.addReconstructor(LexemeIdentity.REMARK, new Remark.Reconstructor());
         s.addReconstructor(LexemeIdentity.NEXT_ADVISORY, new NextAdvisory.Reconstructor());
         s.addReconstructor(LexemeIdentity.NEXT_ADVISORY_LABEL, new NextAdvisoryLabel.Reconstructor());
