@@ -373,6 +373,15 @@ public class SWXTACParserTest {
         assertTrue(result.getConversionIssues().size() > 0);
     }
 
+    @Test
+    public void testNilRemark() throws IOException {
+        final String input = getInput("spacewx-nil-remark.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConvertedMessage().isPresent());
+        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertFalse(swx.getRemarks().isPresent());
+    }
+
     private String getInput(final String fileName) throws IOException {
         InputStream is = null;
         try {
