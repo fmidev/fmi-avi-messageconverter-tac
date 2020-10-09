@@ -28,7 +28,7 @@ public class AdvisoryRemarkStart extends PrioritizedLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            return Optional.of(this.createLexeme(new StringBuilder("RMK:").toString(), REMARKS_START));
+            return Optional.of(this.createLexeme("RMK:", REMARKS_START));
 
         }
     }
