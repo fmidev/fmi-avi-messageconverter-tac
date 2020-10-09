@@ -42,7 +42,7 @@ import fi.fmi.avi.model.swx.immutable.SpaceWeatherRegionImpl;
 public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
     private final LexemeIdentity[] oneRequired = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.ADVISORY_NUMBER,
-            LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.END_TOKEN };
+            LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY };
     private AviMessageLexer lexer;
 
     @Override
