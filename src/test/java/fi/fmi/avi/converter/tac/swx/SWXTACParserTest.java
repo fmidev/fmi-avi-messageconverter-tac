@@ -331,9 +331,12 @@ public class SWXTACParserTest {
     public void testInvalidRmkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-rmk-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertEquals(5, result.getConversionIssues().size());
+        assertEquals(6, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(1).getType());
         assertEquals("Lexing problem with 'RMK'", result.getConversionIssues().get(1).getMessage());
+
+        assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(5).getType());
+        assertTrue(result.getConversionIssues().get(5).getMessage().contains("One of REMARKS_START required in message"));
     }
 
     @Test
