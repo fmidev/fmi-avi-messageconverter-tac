@@ -25,6 +25,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumberLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryRemarkStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatus;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatusLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
@@ -1168,7 +1169,7 @@ public class Lexing {
         l.teach(new SWXVerticalLimit(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumberLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumber(OccurrenceFrequency.AVERAGE));
-        l.teach(new RemarkStart(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryRemarkStart(OccurrenceFrequency.AVERAGE));
         l.teach(new Remark(OccurrenceFrequency.FREQUENT));
 
         return l;
