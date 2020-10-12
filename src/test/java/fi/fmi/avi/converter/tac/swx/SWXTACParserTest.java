@@ -121,6 +121,8 @@ public class SWXTACParserTest {
         assertTrue(result.getConvertedMessage().isPresent());
 
         final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertTrue(swx.getPermissibleUsage().isPresent());
+        assertEquals(AviationCodeListUser.PermissibleUsage.NON_OPERATIONAL, swx.getPermissibleUsage().get());
         assertEquals(AviationCodeListUser.PermissibleUsageReason.TEST, swx.getPermissibleUsageReason().get());
         assertEquals(swx.getIssuingCenter().getName().get(), "DONLON");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
@@ -395,6 +397,17 @@ public class SWXTACParserTest {
         assertTrue(result.getConvertedMessage().isPresent());
         SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
         assertFalse(swx.getRemarks().isPresent());
+    }
+
+    @Test
+    public void testOperationalPermissibleUsage() throws IOException {
+        final String input = getInput("spacewx-pecasus-noswx.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConvertedMessage().isPresent());
+        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertFalse(swx.getPermissibleUsageReason().isPresent());
+        assertTrue(swx.getPermissibleUsage().isPresent());
+        assertEquals(AviationCodeListUser.PermissibleUsage.OPERATIONAL, swx.getPermissibleUsage().get());
     }
 
     private String getInput(final String fileName) throws IOException {

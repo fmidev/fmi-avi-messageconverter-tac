@@ -93,6 +93,8 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             } else {
                 builder.setPermissibleUsageReason(value.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
             }
+        }, () -> {
+            builder.setPermissibleUsage(AviationCodeListUser.PermissibleUsage.OPERATIONAL);
         });
 
         firstLexeme.findNext(LexemeIdentity.ADVISORY_STATUS, (match) -> builder.setPermissibleUsageReason(
