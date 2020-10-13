@@ -400,6 +400,15 @@ public class SWXTACParserTest {
     }
 
     @Test
+    public void testDoubleNilRemark() throws IOException {
+        final String input = getInput("spacewx-double-nil-remark.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConvertedMessage().isPresent());
+        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertTrue(swx.getRemarks().isPresent());
+    }
+
+    @Test
     public void testOperationalPermissibleUsage() throws IOException {
         final String input = getInput("spacewx-pecasus-noswx.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
