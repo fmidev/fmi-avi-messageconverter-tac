@@ -2,8 +2,13 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -14,6 +19,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.CoordinateReferenceSystem;
 import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.swx.AirspaceVolume;
@@ -22,6 +28,9 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 import fi.fmi.avi.model.swx.SpaceWeatherRegion;
 
 public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
+    private static final Set<String> LATITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lat", "latitude")));
+    private static final Set<String> LONGITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lon", "long", "longitude")));
+
     public PolygonCoordinatePair(final OccurrenceFrequency prio) {
         super("^(?<latitude>[NS]\\d+)\\s+(?<longitude>[WE]\\d+)$", prio);
     }
@@ -59,32 +68,28 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            List<Lexeme> retval = new ArrayList<>();
+            final List<Lexeme> retval = new ArrayList<>();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(analysisIndex.get());
+                    final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(analysisIndex.get());
                     if (analysis.getRegions() != null && analysis.getRegions().size() > 0) {
-                        SpaceWeatherRegion region = analysis.getRegions().get(0);
+                        final SpaceWeatherRegion region = analysis.getRegions().get(0);
                         if (!region.getLocationIndicator().isPresent() && region.getAirSpaceVolume().isPresent()) {
-                            AirspaceVolume volume = region.getAirSpaceVolume().get();
+                            final AirspaceVolume volume = region.getAirSpaceVolume().get();
                             if (volume.getHorizontalProjection().isPresent()) {
-                                Geometry geom = volume.getHorizontalProjection().get();
+                                final Geometry geom = volume.getHorizontalProjection().get();
                                 if (geom instanceof PolygonGeometry) {
                                     //Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
                                     int latOffset = -1;
                                     int lonOffset = -1;
-                                    if (geom.getAxisLabels().isPresent()) {
-                                        latOffset = geom.getAxisLabels().get().indexOf("lat");
-                                        if (latOffset == -1) {
-                                            latOffset = geom.getAxisLabels().get().indexOf("latitude");
-                                        }
-                                        lonOffset = geom.getAxisLabels().get().indexOf("lon");
-                                        if (lonOffset == -1) {
-                                            lonOffset = geom.getAxisLabels().get().indexOf("longitude");
-                                        }
-                                        if (lonOffset == -1) {
-                                            lonOffset = geom.getAxisLabels().get().indexOf("long");
+                                    final List<String> axisLabels = geom.getCrs().map(CoordinateReferenceSystem::getAxisLabels).orElse(Collections.emptyList());
+                                    for (int i = axisLabels.size() - 1; i >= 0; i--) {
+                                        final String axisLabel = axisLabels.get(i).toLowerCase(Locale.US);
+                                        if (LATITUDE_AXIS_LABELS.contains(axisLabel)) {
+                                            latOffset = i;
+                                        } else if (LONGITUDE_AXIS_LABELS.contains(axisLabel)) {
+                                            lonOffset = i;
                                         }
                                     }
                                     //defaults to EPSG:4326 (lat,lon) order:
