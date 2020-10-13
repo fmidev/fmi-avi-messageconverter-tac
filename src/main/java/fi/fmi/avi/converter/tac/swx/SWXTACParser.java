@@ -1,10 +1,8 @@
 package fi.fmi.avi.converter.tac.swx;
 
-import java.math.BigInteger;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -23,6 +21,7 @@ import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PolygonGeometry;
+import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
 import fi.fmi.avi.model.swx.AdvisoryNumber;
@@ -283,9 +282,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         l = lexeme.findNext(LexemeIdentity.POLYGON_COORDINATE_PAIR);
         if (l != null) {
             final PolygonGeometryImpl.Builder polyBuilder = PolygonGeometryImpl.builder()//
-                    .setSrsName(AviationCodeListUser.CODELIST_VALUE_EPSG_4326)//
-                    .setAxisLabels(Arrays.asList("lat", "lon"))//
-                    .setSrsDimension(BigInteger.valueOf(2));
+                    .setCrs(CoordinateReferenceSystemImpl.wgs84());
             while (l != null) {
                 polyBuilder.addExteriorRingPositions(l.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class));
                 polyBuilder.addExteriorRingPositions(l.getParsedValue(Lexeme.ParsedValueName.VALUE2, Double.class));
@@ -350,9 +347,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                         coordinates.add(minLongitude.orElse(-180d));
                         final PolygonGeometry polygon = PolygonGeometryImpl.builder()
                                 .addAllExteriorRingPositions(coordinates)
-                                .setSrsName(AviationCodeListUser.CODELIST_VALUE_EPSG_4326)
-                                .setSrsDimension(BigInteger.valueOf(2))
-                                .setAxisLabels(Arrays.asList("lat", "lon"))
+                                .setCrs(CoordinateReferenceSystemImpl.wgs84())//
                                 .build();
                         final AirspaceVolume volume = buildAirspaceVolume(polygon, lowerLimit, upperLimit, verticalLimitOperator, issues);
                         regionBuilder.setAirSpaceVolume(volume);

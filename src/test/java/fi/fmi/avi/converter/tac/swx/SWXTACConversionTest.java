@@ -34,14 +34,14 @@ public class SWXTACConversionTest {
 
     @Test
     public void parseAndSerialize() throws Exception {
-        String input = getInput("spacewx-A2-4.tac");
+        final String input = getInput("spacewx-A2-4.tac");
 
         final ConversionResult<SpaceWeatherAdvisory> parseResult = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(0, parseResult.getConversionIssues().size());
         assertEquals(ConversionResult.Status.SUCCESS, parseResult.getStatus());
         assertTrue(parseResult.getConvertedMessage().isPresent());
 
-        SpaceWeatherAdvisory msg = parseResult.getConvertedMessage().get();
+        final SpaceWeatherAdvisory msg = parseResult.getConvertedMessage().get();
 
         Assert.assertEquals("DONLON", msg.getIssuingCenter().getName().get());
         Assert.assertEquals(2, msg.getAdvisoryNumber().getSerialNumber());
@@ -53,7 +53,7 @@ public class SWXTACConversionTest {
         Assert.assertEquals(5, msg.getAnalyses().size());
         Assert.assertEquals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION, msg.getAnalyses().get(0).getAnalysisType());
 
-        ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, new ConversionHints());
+        final ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, new ConversionHints());
         Assert.assertTrue(SerializeResult.getConvertedMessage().isPresent());
 
         //Assert.assertEquals(input.replace("\n", "\r\n").trim().getBytes(), SerializeResult.getConvertedMessage().get().trim().getBytes());
@@ -61,8 +61,8 @@ public class SWXTACConversionTest {
 
     @Test
     public void compareParsedObjects() throws Exception {
-        String input = getInput("spacewx-pecasus-mnhmsh.tac");
-        ConversionHints hints = new ConversionHints();
+        final String input = getInput("spacewx-pecasus-mnhmsh.tac");
+        final ConversionHints hints = new ConversionHints();
         hints.put(ConversionHints.KEY_ADVISORY_LABEL_WIDTH, 19);
 
         final ConversionResult<SpaceWeatherAdvisory> parseResult = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
@@ -70,7 +70,7 @@ public class SWXTACConversionTest {
         assertEquals(ConversionResult.Status.SUCCESS, parseResult.getStatus());
         assertTrue(parseResult.getConvertedMessage().isPresent());
 
-        SpaceWeatherAdvisory msg = parseResult.getConvertedMessage().get();
+        final SpaceWeatherAdvisory msg = parseResult.getConvertedMessage().get();
 
         Assert.assertEquals("PECASUS", msg.getIssuingCenter().getName().get());
         Assert.assertEquals(9, msg.getAdvisoryNumber().getSerialNumber());
@@ -89,20 +89,19 @@ public class SWXTACConversionTest {
         Assert.assertTrue(analysis.getNilPhenomenonReason().isPresent());
         Assert.assertEquals(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_INFORMATION_AVAILABLE, analysis.getNilPhenomenonReason().get());
 
-        ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, hints);
+        final ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, hints);
         Assert.assertTrue(SerializeResult.getConvertedMessage().isPresent());
 
         final ConversionResult<SpaceWeatherAdvisory> reparseResult = this.converter.convertMessage(SerializeResult.getConvertedMessage().get(),
                 TACConverter.TAC_TO_SWX_POJO);
 
-        SpaceWeatherAdvisory adv1 = parseResult.getConvertedMessage().get();
-        SpaceWeatherAdvisory adv2 = parseResult.getConvertedMessage().get();
+        final SpaceWeatherAdvisory adv1 = parseResult.getConvertedMessage().get();
+        final SpaceWeatherAdvisory adv2 = parseResult.getConvertedMessage().get();
 
         Assert.assertEquals(adv1.getIssuingCenter().getName(), adv2.getIssuingCenter().getName());
         Assert.assertEquals(adv1.getRemarks().get(), adv2.getRemarks().get());
         Assert.assertEquals(adv1.getReplaceAdvisoryNumber().get().getSerialNumber(), adv2.getReplaceAdvisoryNumber().get().getSerialNumber());
         Assert.assertEquals(adv1.getReplaceAdvisoryNumber().get().getYear(), adv2.getReplaceAdvisoryNumber().get().getYear());
-
 
         Assert.assertEquals(adv1.getNextAdvisory().getTimeSpecifier(), adv2.getNextAdvisory().getTimeSpecifier());
         Assert.assertEquals(adv1.getNextAdvisory().getTime().get(), adv2.getNextAdvisory().getTime().get());
@@ -110,26 +109,25 @@ public class SWXTACConversionTest {
         Assert.assertEquals(adv1.getPhenomena(), adv2.getPhenomena());
         Assert.assertEquals(adv1.getTranslatedTAC().get(), adv2.getTranslatedTAC().get());
 
-        for(int i = 0; i < adv1.getAnalyses().size(); i++) {
-            SpaceWeatherAdvisoryAnalysis analysis1 = adv1.getAnalyses().get(i);
-            SpaceWeatherAdvisoryAnalysis analysis2 = adv2.getAnalyses().get(i);
+        for (int i = 0; i < adv1.getAnalyses().size(); i++) {
+            final SpaceWeatherAdvisoryAnalysis analysis1 = adv1.getAnalyses().get(i);
+            final SpaceWeatherAdvisoryAnalysis analysis2 = adv2.getAnalyses().get(i);
 
             Assert.assertEquals(analysis1.getAnalysisType(), analysis2.getAnalysisType());
             Assert.assertEquals(analysis1.getTime(), analysis2.getTime());
             Assert.assertEquals(analysis1.getNilPhenomenonReason(), analysis2.getNilPhenomenonReason());
             Assert.assertEquals(analysis1.getRegions().size(), analysis2.getRegions().size());
-            if(analysis1.getRegions() != null) {
+            if (analysis1.getRegions() != null) {
                 for (int a = 0; a < analysis1.getRegions().size(); a++) {
-                    SpaceWeatherRegion region1 = analysis1.getRegions().get(a);
-                    SpaceWeatherRegion region2 = analysis2.getRegions().get(a);
+                    final SpaceWeatherRegion region1 = analysis1.getRegions().get(a);
+                    final SpaceWeatherRegion region2 = analysis2.getRegions().get(a);
 
                     Assert.assertEquals(region1.getLocationIndicator().get(), region2.getLocationIndicator().get());
 
-                    PolygonGeometry geo1 = (PolygonGeometry) region1.getAirSpaceVolume().get().getHorizontalProjection().get();
-                    PolygonGeometry geo2 = (PolygonGeometry) region2.getAirSpaceVolume().get().getHorizontalProjection().get();
+                    final PolygonGeometry geo1 = (PolygonGeometry) region1.getAirSpaceVolume().get().getHorizontalProjection().get();
+                    final PolygonGeometry geo2 = (PolygonGeometry) region2.getAirSpaceVolume().get().getHorizontalProjection().get();
 
-                    Assert.assertEquals(geo1.getSrsDimension(), geo2.getSrsDimension());
-                    Assert.assertEquals(geo1.getSrsName().get(), geo2.getSrsName().get());
+                    Assert.assertEquals(geo1.getCrs(), geo2.getCrs());
                     for (int b = 0; b < geo1.getExteriorRingPositions().size(); b++) {
                         Assert.assertEquals(geo1.getExteriorRingPositions().get(b), geo2.getExteriorRingPositions().get(b));
                     }
@@ -138,7 +136,7 @@ public class SWXTACConversionTest {
         }
     }
 
-    private String getInput(String fileName) throws IOException {
+    private String getInput(final String fileName) throws IOException {
         InputStream is = null;
         try {
             is = SWXReconstructorTest.class.getResourceAsStream(fileName);
