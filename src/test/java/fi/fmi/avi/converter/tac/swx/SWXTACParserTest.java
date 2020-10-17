@@ -385,6 +385,17 @@ public class SWXTACParserTest {
         assertEquals("Message does not end in end token", result.getConversionIssues().get(0).getMessage());
     }
 
+    @Test
+    public void testLatitudeBands() throws IOException {
+        final String input = getInput("spacewx-latitude-bands.tac");
+        final List<Double> expected = Arrays.asList(30.0, -150.0, 0.0, -150.0, 0.0, -30.0, 30.0, -30.0, 30.0, -150.0);
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue( result.getConversionIssues().isEmpty());
+        SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
+        PolygonGeometry geom = (PolygonGeometry)analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        assertEquals(expected, geom.getExteriorRingPositions());
+    }
+
     private String getInput(final String fileName) throws IOException {
         InputStream is = null;
         try {
