@@ -36,19 +36,20 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
         token.setParsedValue(Lexeme.ParsedValueName.MAX_VALUE, maxLimit);
     }
 
-    private Double parseLimit(final String value) {
-        StringBuilder builder = new StringBuilder();
-        if (value.startsWith("E")) {
-            builder.append("-");
-        }
-        return Double.parseDouble(addDecimal(builder, value.substring(1)));
-    }
+    private Double parseLimit(final String param) {
+        Double latitude;
 
-    private String addDecimal(final StringBuilder builder, final String value) {
-        builder.append(value.substring(0, value.length() - 2));
-        builder.append(".");
-        builder.append(value.substring(value.length() - 2));
-        return builder.toString();
+        if (param.length() > 4) {
+            latitude = Double.parseDouble(param.substring(1, 4) + "." + param.substring(4));
+        } else {
+            latitude = Double.parseDouble(param.substring(1));
+        }
+
+        if (param.charAt(0) == 'W') {
+            latitude *= -1;
+        }
+
+        return latitude;
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
