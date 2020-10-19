@@ -37,19 +37,25 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
     }
 
     private Double parseLimit(final String param) {
-        Double latitude;
+        Double longitude;
 
-        if (param.length() > 4) {
-            latitude = Double.parseDouble(param.substring(1, 4) + "." + param.substring(4));
-        } else {
-            latitude = Double.parseDouble(param.substring(1));
-        }
+        int decimalOffset = param.length() > 4 ? 4 : param.length();
+
+        longitude = parseLongitude(decimalOffset, param);
 
         if (param.charAt(0) == 'W') {
-            latitude *= -1;
+            longitude *= -1;
         }
 
-        return latitude;
+        return longitude;
+    }
+
+    private Double parseLongitude(int offset, String value) {
+        Double longitude = Double.parseDouble(value.substring(1, offset) + "." + value.substring(offset));
+        if(longitude > 180) {
+            longitude = parseLongitude(offset - 1, value);
+        }
+        return longitude;
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -80,9 +86,9 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
         private String parseLimit(final Double limit) {
             StringBuilder builder = new StringBuilder();
             if (limit < 0) {
-                builder.append("E");
-            } else {
                 builder.append("W");
+            } else {
+                builder.append("E");
             }
             String[] limtArray = Double.toString(Math.abs(limit)).split("\\.");
             builder.append(limtArray[0]);
@@ -92,6 +98,5 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
             }
             return builder.toString();
         }
-            //return retval;
     }
 }
