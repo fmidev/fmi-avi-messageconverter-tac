@@ -41,7 +41,7 @@ import fi.fmi.avi.model.swx.immutable.SpaceWeatherRegionImpl;
 public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
     private final LexemeIdentity[] oneRequired = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.ADVISORY_NUMBER,
-            LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START, LexemeIdentity.END_TOKEN };
+            LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START };
     private AviMessageLexer lexer;
 
     @Override
@@ -70,6 +70,9 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         if (!endsInEndToken(lexed, hints)) {
             retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Message does not end in end token"));
+            return retval;
+        } else if (lexed.getFirstLexeme().findNext(LexemeIdentity.END_TOKEN).hasNext()) {
+            retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Message has an extra end token"));
             return retval;
         }
 
