@@ -41,7 +41,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         Double longitude;
         final String latStr = match.group("latitude");
         final String lonStr = match.group("longitude");
-        if (match.group("latitude").length() > 4) {
+        if (latStr.length() > 4) {
             latitude = Double.parseDouble(latStr.substring(1, 4) + "." + latStr.substring(4));
         } else {
             latitude = Double.parseDouble(latStr.substring(1));
@@ -49,7 +49,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         if (latStr.charAt(0) == 'S') {
             latitude *= -1;
         }
-        if (match.group("longitude").length() > 4) {
+        if (lonStr.length() > 4) {
             longitude = Double.parseDouble(lonStr.substring(1, 4) + "." + lonStr.substring(4));
         } else {
             longitude = Double.parseDouble(lonStr.substring(1));
