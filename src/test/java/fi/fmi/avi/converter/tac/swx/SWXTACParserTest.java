@@ -419,6 +419,7 @@ public class SWXTACParserTest {
         assertEquals(AviationCodeListUser.PermissibleUsage.OPERATIONAL, swx.getPermissibleUsage().get());
     }
 
+    @Test
     public void testCoordinatePair() throws Exception {
         String input = getInput("spacewx-coordinate-list.tac");
         List<Double> expected = Arrays.asList(20.0, -105.0, 20.0, 30.0, -40.0, 30.0, -40.0, -105.0, 20.0, -105.0);
