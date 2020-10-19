@@ -121,6 +121,8 @@ public class SWXTACParserTest {
         assertTrue(result.getConvertedMessage().isPresent());
 
         final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertTrue(swx.getPermissibleUsage().isPresent());
+        assertEquals(AviationCodeListUser.PermissibleUsage.NON_OPERATIONAL, swx.getPermissibleUsage().get());
         assertEquals(AviationCodeListUser.PermissibleUsageReason.TEST, swx.getPermissibleUsageReason().get());
         assertEquals(swx.getIssuingCenter().getName().get(), "DONLON");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
@@ -334,6 +336,9 @@ public class SWXTACParserTest {
         assertEquals(6, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(1).getType());
         assertEquals("Lexing problem with 'RMK'", result.getConversionIssues().get(1).getMessage());
+
+        assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(5).getType());
+        assertTrue(result.getConversionIssues().get(5).getMessage().contains("One of REMARKS_START required in message"));
     }
 
     @Test
@@ -386,6 +391,34 @@ public class SWXTACParserTest {
     }
 
     @Test
+    public void testNilRemark() throws IOException {
+        final String input = getInput("spacewx-nil-remark.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConvertedMessage().isPresent());
+        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertFalse(swx.getRemarks().isPresent());
+    }
+
+    @Test
+    public void testDoubleNilRemark() throws IOException {
+        final String input = getInput("spacewx-double-nil-remark.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConvertedMessage().isPresent());
+        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertTrue(swx.getRemarks().isPresent());
+    }
+
+    @Test
+    public void testOperationalPermissibleUsage() throws IOException {
+        final String input = getInput("spacewx-pecasus-noswx.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConvertedMessage().isPresent());
+        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertFalse(swx.getPermissibleUsageReason().isPresent());
+        assertTrue(swx.getPermissibleUsage().isPresent());
+        assertEquals(AviationCodeListUser.PermissibleUsage.OPERATIONAL, swx.getPermissibleUsage().get());
+    }
+
     public void testCoordinatePair() throws Exception {
         String input = getInput("spacewx-coordinate-list.tac");
         List<Double> expected = Arrays.asList(20.0, -105.0, 20.0, 30.0, -40.0, 30.0, -40.0, -105.0, 20.0, -105.0);
