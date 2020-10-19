@@ -97,7 +97,7 @@ public class SWXTACParserTest {
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
         final PolygonGeometry poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        final Double[] expected = { -90d, -180d, -60d, -180d, -60d, 180d, -90d, 180d, -90d, -180d };
+        final Double[] expected = { -90d, 180d, -60d, 180d, -60d, -180d, -90d, -180d, -90d, 180d };
         final Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
@@ -121,6 +121,8 @@ public class SWXTACParserTest {
         assertTrue(result.getConvertedMessage().isPresent());
 
         final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertTrue(swx.getPermissibleUsage().isPresent());
+        assertEquals(AviationCodeListUser.PermissibleUsage.NON_OPERATIONAL, swx.getPermissibleUsage().get());
         assertEquals(AviationCodeListUser.PermissibleUsageReason.TEST, swx.getPermissibleUsageReason().get());
         assertEquals(swx.getIssuingCenter().getName().get(), "DONLON");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
@@ -148,7 +150,7 @@ public class SWXTACParserTest {
         assertTrue(PolygonGeometry.class.isAssignableFrom(r.getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
         PolygonGeometry poly = (PolygonGeometry) r.getAirSpaceVolume().get().getHorizontalProjection().get();
 
-        Double[] expected = { -90d, -180d, -60d, -180d, -60d, 180d, -90d, 180d, -90d, -180d };
+        Double[] expected = { -90d, 180d, -60d, 180d, -60d, -180d, -90d, -180d, -90d, 180d };
         Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
@@ -165,7 +167,7 @@ public class SWXTACParserTest {
         assertTrue(PolygonGeometry.class.isAssignableFrom(r.getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
         poly = (PolygonGeometry) r.getAirSpaceVolume().get().getHorizontalProjection().get();
 
-        expected = new Double[] { 60d, -180d, 90d, -180d, 90d, 180d, 60d, 180d, 60d, -180d };
+        expected = new Double[] { 60d, 180d, 90d, 180d, 90d, -180d, 60d, -180d, 60d, 180d };
         actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
@@ -209,7 +211,7 @@ public class SWXTACParserTest {
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
         PolygonGeometry poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        Double[] expected = { -90d, -160d, -60d, -160d, -60d, 20d, -90d, 20d, -90d, -160d };
+        Double[] expected = { -90d, 160d, -60d, 160d, -60d, -20d, -90d, -20d, -90d, 160d };
         Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
@@ -223,7 +225,7 @@ public class SWXTACParserTest {
         assertTrue(analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
         poly = (PolygonGeometry) analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
-        expected = new Double[] { 60d, -160d, 90d, -160d, 90d, 20d, 60d, 20d, 60d, -160d };
+        expected = new Double[] { 60d, 160d, 90d, 160d, 90d, -20d, 60d, -20d, 60d, 160d };
         actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
@@ -235,7 +237,7 @@ public class SWXTACParserTest {
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
         poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        expected = new Double[] { -80d, -180d, -70d, -75d, -60d, 15d, -70d, 75d, -80d, -180d };
+        expected = new Double[] { 80d, -180d, 70d, -75d, 60d, 15d, 70d, 75d, 80d, -180d };
         actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
@@ -264,7 +266,7 @@ public class SWXTACParserTest {
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
         assertTrue(PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
         poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        expected = new Double[] { -90d, -160d, -60d, -160d, -60d, 20d, -90d, 20d, -90d, -160d };
+        expected = new Double[] { -90d, 160d, -60d, 160d, -60d, -20d, -90d, -20d, -90d, 160d };
         actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
@@ -331,9 +333,12 @@ public class SWXTACParserTest {
     public void testInvalidRmkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-rmk-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertEquals(5, result.getConversionIssues().size());
+        assertEquals(6, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(1).getType());
         assertEquals("Lexing problem with 'RMK'", result.getConversionIssues().get(1).getMessage());
+
+        assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(5).getType());
+        assertTrue(result.getConversionIssues().get(5).getMessage().contains("One of REMARKS_START required in message"));
     }
 
     @Test
@@ -390,9 +395,49 @@ public class SWXTACParserTest {
         final String input = getInput("spacewx-latitude-bands.tac");
         final List<Double> expected = Arrays.asList(30.0, -150.0, 0.0, -150.0, 0.0, -30.0, 30.0, -30.0, 30.0, -150.0);
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertTrue( result.getConversionIssues().isEmpty());
+        assertTrue(result.getConversionIssues().isEmpty());
         SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        PolygonGeometry geom = (PolygonGeometry)analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+    }
+
+    @Test
+    public void testNilRemark() throws IOException {
+        final String input = getInput("spacewx-nil-remark.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConvertedMessage().isPresent());
+        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertFalse(swx.getRemarks().isPresent());
+    }
+
+    @Test
+    public void testDoubleNilRemark() throws IOException {
+        final String input = getInput("spacewx-double-nil-remark.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConvertedMessage().isPresent());
+        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertTrue(swx.getRemarks().isPresent());
+    }
+
+    @Test
+    public void testOperationalPermissibleUsage() throws IOException {
+        final String input = getInput("spacewx-pecasus-noswx.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConvertedMessage().isPresent());
+        SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        assertFalse(swx.getPermissibleUsageReason().isPresent());
+        assertTrue(swx.getPermissibleUsage().isPresent());
+        assertEquals(AviationCodeListUser.PermissibleUsage.OPERATIONAL, swx.getPermissibleUsage().get());
+    }
+
+    @Test
+    public void testCoordinatePair() throws Exception {
+        String input = getInput("spacewx-coordinate-list.tac");
+        List<Double> expected = Arrays.asList(20.0, -105.0, 20.0, 30.0, -40.0, 30.0, -40.0, -105.0, 20.0, -105.0);
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConversionIssues().isEmpty());
+        SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
+        assertEquals(1, analysis.getRegions().size());
+        PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         assertEquals(expected, geom.getExteriorRingPositions());
     }
 
