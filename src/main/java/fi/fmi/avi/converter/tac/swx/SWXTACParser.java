@@ -92,6 +92,8 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             } else {
                 builder.setPermissibleUsageReason(value.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
             }
+        }, () -> {
+            builder.setPermissibleUsage(AviationCodeListUser.PermissibleUsage.OPERATIONAL);
         });
 
         firstLexeme.findNext(LexemeIdentity.ADVISORY_STATUS, (match) -> builder.setPermissibleUsageReason(
@@ -163,7 +165,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         firstLexeme.findNext(LexemeIdentity.REMARKS_START, (match) -> {
             final List<String> remarks = getRemarks(match, hints);
-            if (!remarks.isEmpty()) {
+            if (!remarks.isEmpty() && (remarks.size() != 1 || !remarks.get(0).equalsIgnoreCase("NIL"))) {
                 builder.setRemarks(remarks);
             }
         });
