@@ -71,6 +71,9 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         if (!endsInEndToken(lexed, hints)) {
             retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Message does not end in end token"));
             return retval;
+        } else if (firstLexeme.findNext(LexemeIdentity.END_TOKEN).hasNext()) {
+            retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Message has an extra end token"));
+            return retval;
         }
 
         final List<ConversionIssue> conversionIssues = checkExactlyOne(firstLexeme.getTailSequence(), oneRequired);

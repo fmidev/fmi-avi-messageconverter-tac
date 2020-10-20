@@ -303,6 +303,17 @@ public class SWXTACParserTest {
     }
 
     @Test
+    public void testEndTokenAtEndAndRandomPlace() throws IOException {
+        final String input = getInput("spacewx-invalid-end-token-at-end-and-elsewhere.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertFalse(result.getConvertedMessage().isPresent());
+        assertEquals(1, result.getConversionIssues().size());
+        assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
+        assertTrue(result.getConversionIssues().get(0).getMessage().startsWith("Message has an extra end token"));
+    }
+
+
+    @Test
     public void testInvalidStatusLabel() throws IOException {
         final String input = getInput("spacewx-invalid-status-label.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
