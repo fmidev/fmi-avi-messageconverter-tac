@@ -398,6 +398,7 @@ public class SWXTACParserTest {
         assertTrue(result.getConversionIssues().isEmpty());
         SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        assertEquals(expected, geom.getExteriorRingPositions());
     }
 
     @Test
