@@ -94,9 +94,10 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
             } else {
                 builder.append("E");
             }
+            Double absLimit = Math.abs(limit);
             DecimalFormat formatter = (DecimalFormat) NumberFormat.getNumberInstance();
-            formatter.applyPattern("000.00");
-            Arrays.asList(formatter.format(Math.abs(limit)).split("\\.")).stream().filter(val -> !val.isEmpty()).forEach((item) -> {
+            formatter.applyPattern(absLimit % 1.0 == 0.0 ? "000" : "000.00");
+            Arrays.asList(formatter.format(absLimit).split("\\.")).stream().filter(val -> !val.isEmpty()).forEach((item) -> {
                 builder.append(item);
             });
             return builder.toString();

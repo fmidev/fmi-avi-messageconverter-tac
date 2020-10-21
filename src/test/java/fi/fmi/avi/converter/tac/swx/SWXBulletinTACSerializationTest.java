@@ -41,7 +41,7 @@ public class SWXBulletinTACSerializationTest {
                 + "SWXC: PECASUS\n" //
                 + "ADVISORY NR: 2019/1\n"//
                 + "SWX EFFECT: SATCOM MOD AND RADIATION SEV\n" //
-                + "OBS SWX: 08/1200Z HNH HSH E16000 - W2000 ABV FL340\n"//
+                + "OBS SWX: 08/1200Z HNH HSH E1601 - W2025 ABV FL340\n"//
                 + "FCST SWX +6 HR: 08/1800Z ABV FL370 N08050 W180 - N07001 W75 - N60 E15 - N70 E75 - N80 W180 \n"//
                 + "FCST SWX +12 HR: 09/0000Z NO SWX EXP\n"//
                 + "FCST SWX +18 HR: 09/0600Z DAYLIGHT SIDE\n"//
@@ -79,7 +79,7 @@ public class SWXBulletinTACSerializationTest {
                         + "SWXC:               PECASUS" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
                         + "ADVISORY NR:        2019/1" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
                         + "SWX EFFECT:         SATCOM MOD AND RADIATION SEV" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "OBS SWX:            08/1200Z HNH HSH E16000 - W2000" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
+                        + "OBS SWX:            08/1200Z HNH HSH E16010 - W02025" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
                         + "ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
                         + "FCST SWX +6 HR:     08/1800Z ABV FL370 N08050 W180 -" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
                         + "N07001 W075 - N060 E015 - N070 E075 - N080 W180" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
