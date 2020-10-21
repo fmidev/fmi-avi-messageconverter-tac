@@ -427,7 +427,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(W|E)\\d{3,5}$");
+                return s.matches("^(W|E)\\d{1,5}$");
             }
         });
         retval.add(new Predicate<String>() {
@@ -439,7 +439,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(W|E)\\d{3,5}$");
+                return s.matches("^(W|E)\\d{1,5}$");
             }
         });
         return retval;
