@@ -2,9 +2,13 @@ package fi.fmi.avi.converter.tac.swx;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import org.junit.Assert;
@@ -28,7 +32,10 @@ import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
+import fi.fmi.avi.model.Geometry;
+import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
+import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -93,12 +100,77 @@ public class SWXTACSerializerTest {
         final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(expected, TACConverter.TAC_TO_SWX_POJO);
         Assert.assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         Assert.assertTrue(pojoResult.getConvertedMessage().isPresent());
-        Assert.assertFalse(pojoResult.getConvertedMessage().get().getRemarks().isPresent());
+        assertFalse(pojoResult.getConvertedMessage().get().getRemarks().isPresent());
 
         ConversionResult<String> stringResult = this.converter.convertMessage(pojoResult.getConvertedMessage().get(), TACConverter.SWX_POJO_TO_TAC,
                 new ConversionHints());
         Assert.assertEquals(ConversionResult.Status.SUCCESS, stringResult.getStatus());
         Assert.assertTrue(stringResult.getConvertedMessage().isPresent());
         Assert.assertEquals(expected, stringResult.getConvertedMessage().get());
+    }
+
+    @Test
+    public void testDecimalHandling() {
+        String original = "SWX ADVISORY" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "STATUS:             TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "DTG:                20161108/0000Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "SWXC:               DONLON" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "ADVISORY NR:        2016/2" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "NR RPLC:            2016/1" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "SWX EFFECT:         RADIATION MOD" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "OBS SWX:            08/0100Z HNH HSH E020 - W1720 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +6 HR:     08/0700Z HNH HSH E150 - W40 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +12 HR:    08/1300Z HNH HSH E5 - W160 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +18 HR:    08/1900Z HNH HSH E17952 - W02050 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +24 HR:    09/0100Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "RMK:                NIL" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
+
+        String expected = "SWX ADVISORY" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "STATUS:             TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "DTG:                20161108/0000Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "SWXC:               DONLON" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "ADVISORY NR:        2016/2" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "NR RPLC:            2016/1" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "SWX EFFECT:         RADIATION MOD" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "OBS SWX:            08/0100Z HNH HSH E02000 - W17200 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +6 HR:     08/0700Z HNH HSH E15000 - W04000 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +12 HR:    08/1300Z HNH HSH E00500 - W16000 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +18 HR:    08/1900Z HNH HSH E17952 - W02050 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +24 HR:    09/0100Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "RMK:                NIL" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
+
+        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(original, TACConverter.TAC_TO_SWX_POJO);
+        Assert.assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
+        Assert.assertTrue(pojoResult.getConvertedMessage().isPresent());
+        List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
+        List<Double> geom1 = Arrays.asList(90.0, 20.0, 60.0, 20.0, 60.0, -172.0, 90.0, -172.0, 90.0, 20.0);
+        List<Double> geom2 = Arrays.asList(90.0, 150.0, 60.0, 150.0, 60.0, -40.0, 90.0, -40.0, 90.0, 150.0);
+        List<Double> geom3 = Arrays.asList(90.0, 5.0, 60.0, 5.0, 60.0, -160.0, 90.0, -160.0, 90.0, 5.0);
+        List<Double> geom4 = Arrays.asList(90.0, 179.52, 60.0, 179.52, 60.0, -20.5, 90.0, -20.5, 90.0, 179.52);
+
+
+        checkLatitudes(analyses.get(0), geom1);
+        checkLatitudes(analyses.get(1), geom2);
+        checkLatitudes(analyses.get(2), geom3);
+        checkLatitudes(analyses.get(3), geom4);
+
+
+
+        ConversionResult<String> stringResult = this.converter.convertMessage(pojoResult.getConvertedMessage().get(), TACConverter.SWX_POJO_TO_TAC,
+                new ConversionHints());
+        Assert.assertEquals(ConversionResult.Status.SUCCESS, stringResult.getStatus());
+        Assert.assertTrue(stringResult.getConvertedMessage().isPresent());
+        Assert.assertEquals(expected, stringResult.getConvertedMessage().get());
+    }
+
+    private void checkLatitudes(SpaceWeatherAdvisoryAnalysis analysis, List<Double> expected) {
+        assertFalse(analysis.getRegions().isEmpty());
+        PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        List<Double> positions = geom.getExteriorRingPositions();
+
+        assertEquals(expected, positions);
+
     }
 }
