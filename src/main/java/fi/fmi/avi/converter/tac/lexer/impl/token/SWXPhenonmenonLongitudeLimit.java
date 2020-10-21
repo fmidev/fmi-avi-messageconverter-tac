@@ -1,10 +1,14 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.core.PrettyPrinter;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -90,12 +94,11 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
             } else {
                 builder.append("E");
             }
-            String[] limtArray = Double.toString(Math.abs(limit)).split("\\.");
-            builder.append(limtArray[0]);
-            builder.append(limtArray[1]);
-            if (limtArray[1].length() < 2) {
-                builder.append("0");
-            }
+            DecimalFormat formatter = (DecimalFormat) NumberFormat.getNumberInstance();
+            formatter.applyPattern("000.00");
+            Arrays.asList(formatter.format(Math.abs(limit)).split("\\.")).stream().filter(val -> !val.isEmpty()).forEach((item) -> {
+                builder.append(item);
+            });
             return builder.toString();
         }
     }
