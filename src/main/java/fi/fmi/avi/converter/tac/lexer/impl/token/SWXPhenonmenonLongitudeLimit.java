@@ -4,11 +4,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.core.PrettyPrinter;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -31,10 +30,10 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
-        List<String> limits = Arrays.asList(token.getTACToken().split("-")).stream().map(String::trim).collect(Collectors.toList());
+        final List<String> limits = Arrays.asList(token.getTACToken().split("-")).stream().map(String::trim).collect(Collectors.toList());
 
-        Double minLimit = parseLimit(limits.get(0));
-        Double maxLimit = parseLimit(limits.get(1));
+        final Double minLimit = parseLimit(limits.get(0));
+        final Double maxLimit = parseLimit(limits.get(1));
 
         token.setParsedValue(Lexeme.ParsedValueName.MIN_VALUE, minLimit);
         token.setParsedValue(Lexeme.ParsedValueName.MAX_VALUE, maxLimit);
@@ -43,7 +42,7 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
     private Double parseLimit(final String param) {
         Double longitude;
 
-        int decimalOffset = param.length() > 4 ? 4 : param.length();
+        final int decimalOffset = param.length() > 4 ? 4 : param.length();
 
         longitude = parseLongitude(decimalOffset, param);
 
@@ -54,9 +53,9 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
         return longitude;
     }
 
-    private Double parseLongitude(int offset, String value) {
+    private Double parseLongitude(final int offset, final String value) {
         Double longitude = Double.parseDouble(value.substring(1, offset) + "." + value.substring(offset));
-        if(longitude > 180) {
+        if (longitude > 180) {
             longitude = parseLongitude(offset - 1, value);
         }
         return longitude;
@@ -70,11 +69,11 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(analysisIndex.get());
+                    final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(analysisIndex.get());
                     if (analysis.getRegions() != null && analysis.getRegions().size() > 0) {
-                        SpaceWeatherRegion region = analysis.getRegions().get(0);
+                        final SpaceWeatherRegion region = analysis.getRegions().get(0);
                         if (region.getLongitudeLimitMinimum().isPresent() && region.getLongitudeLimitMaximum().isPresent()) {
-                            StringBuilder builder = new StringBuilder();
+                            final StringBuilder builder = new StringBuilder();
                             builder.append(parseLimit(region.getLongitudeLimitMinimum().get()));
                             builder.append(" - ");
                             builder.append(parseLimit(region.getLongitudeLimitMaximum().get()));
@@ -88,14 +87,14 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
         }
 
         private String parseLimit(final Double limit) {
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
             if (limit < 0) {
                 builder.append("W");
             } else {
                 builder.append("E");
             }
-            Double absLimit = Math.abs(limit);
-            DecimalFormat formatter = (DecimalFormat) NumberFormat.getNumberInstance();
+            final Double absLimit = Math.abs(limit);
+            final DecimalFormat formatter = (DecimalFormat) NumberFormat.getNumberInstance(Locale.US);
             formatter.applyPattern(absLimit % 1.0 == 0.0 ? "000" : "000.00");
             Arrays.asList(formatter.format(absLimit).split("\\.")).stream().filter(val -> !val.isEmpty()).forEach((item) -> {
                 builder.append(item);
