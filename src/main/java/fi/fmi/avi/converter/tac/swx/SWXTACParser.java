@@ -17,11 +17,13 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
 import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
+import fi.fmi.avi.model.immutable.MultiPolygonGeometryImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
 import fi.fmi.avi.model.swx.AdvisoryNumber;
@@ -40,7 +42,7 @@ import fi.fmi.avi.model.swx.immutable.SpaceWeatherRegionImpl;
 
 public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
-    private final LexemeIdentity[] oneRequired = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.ADVISORY_NUMBER,
+    private final LexemeIdentity[] oneRequired = new LexemeIdentity[] {LexemeIdentity.ISSUE_TIME, LexemeIdentity.ADVISORY_NUMBER,
             LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START };
     private AviMessageLexer lexer;
 
@@ -153,7 +155,6 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         analysisList.forEach(analysisSequence -> {
             final Lexeme analysis = analysisSequence.getFirstLexeme();
-            //TODO: CHeck if it works
             if (LexemeIdentity.ADVISORY_PHENOMENA_LABEL.equals(analysis.getIdentity())) {
                 final SpaceWeatherAdvisoryAnalysis processedAnalysis = processAnalysis(analysisSequence.getFirstLexeme(), conversionIssues);
                 if (processedAnalysis != null) {
@@ -329,32 +330,10 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                     }
 
                     if (!location.get().equals(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE)) {
-                        final List<Double> coordinates = new ArrayList<>();
+                        final Geometry geometry = buildMultiPolygon(location.get().getLatitudeBandMinCoordinate().get(), minLongitude.orElse(-180d),
+                                location.get().getLatitudeBandMaxCoordinate().get(), maxLongitude.orElse(180d));
 
-                        //Upper left corner:
-                        location.get().getLatitudeBandMinCoordinate().ifPresent(coordinates::add);
-                        coordinates.add(minLongitude.orElse(-180d));
-
-                        //Lower left corner:
-                        location.get().getLatitudeBandMaxCoordinate().ifPresent(coordinates::add);
-                        coordinates.add(minLongitude.orElse(-180d));
-
-                        //lower right corner:
-                        location.get().getLatitudeBandMaxCoordinate().ifPresent(coordinates::add);
-                        coordinates.add(maxLongitude.orElse(180d));
-
-                        //Upper right corner:
-                        location.get().getLatitudeBandMinCoordinate().ifPresent(coordinates::add);
-                        coordinates.add(maxLongitude.orElse(180d));
-
-                        //Upper left corner (again, to close the ring):
-                        location.get().getLatitudeBandMinCoordinate().ifPresent(coordinates::add);
-                        coordinates.add(minLongitude.orElse(-180d));
-                        final PolygonGeometry polygon = PolygonGeometryImpl.builder()
-                                .addAllExteriorRingPositions(coordinates)
-                                .setCrs(CoordinateReferenceSystemImpl.wgs84())//
-                                .build();
-                        final AirspaceVolume volume = buildAirspaceVolume(polygon, lowerLimit, upperLimit, verticalLimitOperator, issues);
+                        final AirspaceVolume volume = buildAirspaceVolume(geometry, lowerLimit, upperLimit, verticalLimitOperator, issues);
                         regionBuilder.setAirSpaceVolume(volume);
                     }
                     regionList.add(regionBuilder.build());
@@ -368,12 +347,55 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         return regionList;
     }
 
+    private Geometry buildMultiPolygon(final double minLatitude, final double minLongitude, final double maxLatitude, final double maxLongitude) {
+        if (minLongitude > maxLongitude) {
+            List<List<Double>> polygons = new ArrayList<>();
+            //Set minLongitude ending at 180
+            polygons.add(createPolygon(minLatitude, minLongitude, maxLatitude, 180.0));
+            //Set maxLongitude starting at -180
+            polygons.add(createPolygon(minLatitude, -180.0, maxLatitude, maxLongitude));
+
+            return MultiPolygonGeometryImpl.builder().addAllExteriorRingPositions(polygons).setCrs(CoordinateReferenceSystemImpl.wgs84()).build();
+        } else {
+            return PolygonGeometryImpl.builder()
+                    .setCrs(CoordinateReferenceSystemImpl.wgs84())
+                    .addAllExteriorRingPositions(createPolygon(minLatitude, minLongitude, maxLatitude, maxLongitude))
+                    .build();
+        }
+    }
+
+    private List<Double> createPolygon(final double  minLat, final double  minLon, final double  maxLat, final double  maxLon) {
+        final List<Double> coordinates = new ArrayList<>();
+
+        //Upper left corner:
+        coordinates.add(minLat);
+        coordinates.add(minLon);
+
+        //Lower left corner:
+        coordinates.add(maxLat);
+        coordinates.add(minLon);
+
+        //lower right corner:
+        coordinates.add(maxLat);
+        coordinates.add(maxLon);
+
+        //Upper right corner:
+        coordinates.add(minLat);
+        coordinates.add(maxLon);
+
+        //Upper left corner (again, to close the ring):
+        coordinates.add(minLat);
+        coordinates.add(minLon);
+
+        return coordinates;
+    }
+
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private AirspaceVolume buildAirspaceVolume(final PolygonGeometry polygon, final Optional<NumericMeasure> lowerLimit,
+    private AirspaceVolume buildAirspaceVolume(final Geometry geometry, final Optional<NumericMeasure> lowerLimit,
             final Optional<NumericMeasure> upperLimit, final Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator,
             final List<ConversionIssue> issues) {
         final AirspaceVolumeImpl.Builder volumeBuilder = AirspaceVolumeImpl.builder()//
-                .setHorizontalProjection(polygon)//
+                .setHorizontalProjection(geometry)//
                 .setLowerLimitReference("STD");
         if (lowerLimit.isPresent()) {
             if (upperLimit.isPresent()) {
