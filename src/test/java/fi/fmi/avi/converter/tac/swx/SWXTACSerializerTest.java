@@ -4,9 +4,13 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecia
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +37,7 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.model.Geometry;
+import fi.fmi.avi.model.MultiPolygonGeometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
@@ -166,6 +171,75 @@ public class SWXTACSerializerTest {
         Assert.assertTrue(stringResult.getConvertedMessage().isPresent());
         Assert.assertEquals(expected, stringResult.getConvertedMessage().get());
     }
+
+    @Test
+    public void testHemisphereExceeding180() throws Exception {
+        String tacMessage = "SWX ADVISORY" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "STATUS:             TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "DTG:                20161108/0000Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "SWXC:               DONLON" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "ADVISORY NR:        2016/2" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "NR RPLC:            2016/1" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "SWX EFFECT:         RADIATION MOD" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "OBS SWX:            08/0100Z HNH W180 - E120" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +6 HR:     08/0700Z HNH W020 - W100 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +12 HR:    08/1300Z EQS E180 - E090 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +18 HR:    08/1900Z EQN W060 - E060 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +24 HR:    09/0100Z MNH W100 - W030" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "RMK:                NIL" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
+
+        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
+        Assert.assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
+        Assert.assertTrue(pojoResult.getConvertedMessage().isPresent());
+        List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
+
+        //Analysis 1
+        checkGeometryType(analyses.get(0), PolygonGeometry.class);
+        assertEquals(Arrays.asList(90d, -180d, 60d, -180d, 60d, 120d, 90d, 120d, 90d, -180d),
+                ((PolygonGeometry) analyses.get(0).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
+
+        //Analysis 2
+        checkGeometryType(analyses.get(1), MultiPolygonGeometry.class);
+        List<List<Double>> expected = Arrays.asList(
+                Arrays.asList(90d, -20d, 60d, -20d, 60d, 180d, 90d, 180d, 90d, -20d),
+                Arrays.asList(90d, -180d, 60d, -180d, 60d, -100d, 90d, -100d, 90d, -180d));
+
+        assertEquals(expected,
+                ((MultiPolygonGeometry) analyses.get(1).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
+
+        //Analysis 3
+        checkGeometryType(analyses.get(2), MultiPolygonGeometry.class);
+        expected = Arrays.asList(
+                Arrays.asList(0d, 180d, -30d, 180d, -30d, 180d, 0d, 180d, 0d, 180d),
+                Arrays.asList(0d, -180d, -30d, -180d, -30d, 90d, 0d, 90d, 0d, -180d));
+
+        assertEquals(expected,
+                ((MultiPolygonGeometry) analyses.get(2).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
+        //Analysis 4
+        checkGeometryType(analyses.get(3), PolygonGeometry.class);
+
+        assertEquals(Arrays.asList(30d, -60d, 0d, -60d, 0d, 60d, 30d, 60d, 30d, -60d),
+                ((PolygonGeometry) analyses.get(3).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
+
+        //Analysis 5
+        checkGeometryType(analyses.get(4), PolygonGeometry.class);
+        assertEquals(Arrays.asList(60d, -100d, 30d, -100d, 30d, -30d, 60d, -30d, 60d, -100d),
+                ((PolygonGeometry) analyses.get(4).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
+
+        ConversionResult<String> stringResult = this.converter.convertMessage(pojoResult.getConvertedMessage().get(), TACConverter.SWX_POJO_TO_TAC,
+                new ConversionHints());
+        Assert.assertEquals(ConversionResult.Status.SUCCESS, stringResult.getStatus());
+        Assert.assertTrue(stringResult.getConvertedMessage().isPresent());
+        Assert.assertEquals(tacMessage, stringResult.getConvertedMessage().get());
+    }
+
+    private void checkGeometryType(SpaceWeatherAdvisoryAnalysis analysis, Class<?> clazz) {
+        assertFalse(analysis.getRegions().isEmpty());
+        Geometry geom = analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        assertTrue(clazz.isInstance(geom));
+    }
+
 
     private void checkLatitudes(SpaceWeatherAdvisoryAnalysis analysis, List<Double> expected) {
         assertFalse(analysis.getRegions().isEmpty());
