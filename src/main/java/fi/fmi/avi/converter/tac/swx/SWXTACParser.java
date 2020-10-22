@@ -348,7 +348,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
     }
 
     private Geometry buildMultiPolygon(final double minLatitude, final double minLongitude, final double maxLatitude, final double maxLongitude) {
-        if (minLongitude > maxLongitude) {
+        if (minLongitude > maxLongitude && (Math.abs(minLongitude) != 180d && Math.abs(maxLongitude) != 180d)) {
             List<List<Double>> polygons = new ArrayList<>();
             //Set minLongitude ending at 180
             polygons.add(createPolygon(minLatitude, minLongitude, maxLatitude, 180.0));

@@ -147,17 +147,25 @@ public class SWXTACSerializerTest {
         Assert.assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         Assert.assertTrue(pojoResult.getConvertedMessage().isPresent());
         List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
-        List<Double> geom1 = Arrays.asList(90.0, 20.0, 60.0, 20.0, 60.0, -172.0, 90.0, -172.0, 90.0, 20.0);
-        List<Double> geom2 = Arrays.asList(90.0, 150.0, 60.0, 150.0, 60.0, -40.0, 90.0, -40.0, 90.0, 150.0);
-        List<Double> geom3 = Arrays.asList(90.0, 5.0, 60.0, 5.0, 60.0, -160.0, 90.0, -160.0, 90.0, 5.0);
-        List<Double> geom4 = Arrays.asList(90.0, 179.52, 60.0, 179.52, 60.0, -20.5, 90.0, -20.5, 90.0, 179.52);
-        List<Double> geom5 = Arrays.asList(80.0, -150.1, 1.0, -75.0, 60.0, 15.0, 70.0, 75.0, 80.0, -160.25);
+        List<List<Double>> geom1 = Arrays.asList(
+                Arrays.asList(90d, 20d, 60d, 20d, 60d, 180d, 90d, 180d, 90d, 20d),
+                Arrays.asList(90d, -180d, 60d, -180d, 60d, -172d, 90d, -172d, 90d, -180d));
+        List<List<Double>> geom2 = Arrays.asList(
+                Arrays.asList(90d, 150d, 60d, 150d, 60d, 180d, 90d, 180d, 90d, 150d),
+                Arrays.asList(90d, -180d, 60d, -180d, 60d, -40d, 90d, -40d, 90d, -180d));
+        List<List<Double>> geom3 = Arrays.asList(
+                Arrays.asList(90d, 5d, 60d, 5d, 60d, 180d, 90d, 180d, 90d, 5d),
+                Arrays.asList(90d, -180d, 60d, -180d, 60d, -160d, 90d, -160d, 90d, -180d));
+        List<List<Double>> geom4 = Arrays.asList(
+                Arrays.asList(90d, 179.52, 60d, 179.52, 60d, 180d, 90d, 180d, 90d, 179.52),
+                Arrays.asList(90d, -180d, 60d, -180d, 60d, -20.5, 90d, -20.5, 90d, -180d));
+        List<Double> geom5 = Arrays.asList(80d, -150.1, 1d, -75d, 60d, 15d, 70d, 75d, 80d, -160.25);
 
 
-        checkLatitudes(analyses.get(0), geom1);
-        checkLatitudes(analyses.get(1), geom2);
-        checkLatitudes(analyses.get(2), geom3);
-        checkLatitudes(analyses.get(3), geom4);
+        checkLatitudes(analyses.get(0), geom1);//
+        checkLatitudes(analyses.get(1), geom2);//
+        checkLatitudes(analyses.get(2), geom3);//
+        checkLatitudes(analyses.get(3), geom4);//
         checkLatitudes(analyses.get(4), geom5);
 
 
@@ -206,13 +214,10 @@ public class SWXTACSerializerTest {
                 ((MultiPolygonGeometry) analyses.get(1).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
 
         //Analysis 3
-        checkGeometryType(analyses.get(2), MultiPolygonGeometry.class);
-        expected = Arrays.asList(
-                Arrays.asList(0d, 180d, -30d, 180d, -30d, 180d, 0d, 180d, 0d, 180d),
-                Arrays.asList(0d, -180d, -30d, -180d, -30d, 90d, 0d, 90d, 0d, -180d));
+        checkGeometryType(analyses.get(2), PolygonGeometry.class);
+        assertEquals(Arrays.asList(0d, 180d, -30d, 180d, -30d, 90d, 0d, 90d, 0d, 180d),
+                ((PolygonGeometry) analyses.get(2).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
 
-        assertEquals(expected,
-                ((MultiPolygonGeometry) analyses.get(2).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
         //Analysis 4
         checkGeometryType(analyses.get(3), PolygonGeometry.class);
 
@@ -231,19 +236,67 @@ public class SWXTACSerializerTest {
         Assert.assertEquals(tacMessage, stringResult.getConvertedMessage().get());
     }
 
-    private void checkGeometryType(SpaceWeatherAdvisoryAnalysis analysis, Class<?> clazz) {
+    @Test
+    public void testHemisphereExceeding180SpecialCase() throws Exception {
+        String tacMessage = "SWX ADVISORY" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() + "STATUS:             TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "DTG:                20161108/0000Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "SWXC:               DONLON" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() + "ADVISORY NR:        2016/2" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "NR RPLC:            2016/1" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "SWX EFFECT:         RADIATION MOD" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "OBS SWX:            08/0100Z HNH W180 - E180" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +6 HR:     08/0700Z HNH E180 - W100 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +12 HR:    08/1300Z EQS E000 - W180 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +18 HR:    08/1900Z EQN W180 - E000 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "FCST SWX +24 HR:    09/0100Z MNH W000 - W180" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "RMK:                NIL" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
+
+        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
+        Assert.assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
+        Assert.assertTrue(pojoResult.getConvertedMessage().isPresent());
+        List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
+
+        //Analysis 1
+        checkGeometryType(analyses.get(0), PolygonGeometry.class);
+        assertEquals(Arrays.asList(90d, -180d, 60d, -180d, 60d, 180d, 90d, 180d, 90d, -180d),
+                ((PolygonGeometry) analyses.get(0).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
+
+        //Analysis 2
+        checkGeometryType(analyses.get(1), PolygonGeometry.class);
+        assertEquals(Arrays.asList(90d, 180d, 60d, 180d, 60d, -100d, 90d, -100d, 90d, 180d),
+                ((PolygonGeometry) analyses.get(1).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
+
+        //Analysis 3
+        checkGeometryType(analyses.get(2), PolygonGeometry.class);
+        assertEquals(Arrays.asList(0d, 0d, -30d, 0d, -30d, -180d, 0d, -180d, 0d, 0d),
+                ((PolygonGeometry) analyses.get(2).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
+
+        checkGeometryType(analyses.get(3), PolygonGeometry.class);
+        assertEquals(Arrays.asList(30d, -180d, 0d, -180d, 0d, 0d, 30d, 0d, 30d, -180d),
+                ((PolygonGeometry) analyses.get(3).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
+
+        //Analysis 5
+        checkGeometryType(analyses.get(4), PolygonGeometry.class);
+        assertEquals(Arrays.asList(60d, -0d, 30d, -0d, 30d, -180d, 60d, -180d, 60d, -0d),
+                ((PolygonGeometry) analyses.get(4).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
+    }
+
+        private void checkGeometryType(SpaceWeatherAdvisoryAnalysis analysis, Class<?> clazz) {
         assertFalse(analysis.getRegions().isEmpty());
         Geometry geom = analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         assertTrue(clazz.isInstance(geom));
     }
 
 
-    private void checkLatitudes(SpaceWeatherAdvisoryAnalysis analysis, List<Double> expected) {
+    private void checkLatitudes(SpaceWeatherAdvisoryAnalysis analysis, List<?> expected) {
         assertFalse(analysis.getRegions().isEmpty());
-        PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        List<Double> positions = geom.getExteriorRingPositions();
-
-        assertEquals(expected, positions);
-
+        Geometry geom = analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        if(geom instanceof PolygonGeometry) {
+            List<Double> positions = ((PolygonGeometry) geom).getExteriorRingPositions();
+            assertEquals(expected, positions);
+        } else if (geom instanceof MultiPolygonGeometry) {
+            List<List<Double>> positions = ((MultiPolygonGeometry) geom).getExteriorRingPositions();
+            assertEquals(expected, positions);
+        }
     }
 }

@@ -21,6 +21,7 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
+import fi.fmi.avi.model.MultiPolygonGeometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
@@ -124,8 +125,8 @@ public class SWXTACConversionTest {
 
                     Assert.assertEquals(region1.getLocationIndicator().get(), region2.getLocationIndicator().get());
 
-                    final PolygonGeometry geo1 = (PolygonGeometry) region1.getAirSpaceVolume().get().getHorizontalProjection().get();
-                    final PolygonGeometry geo2 = (PolygonGeometry) region2.getAirSpaceVolume().get().getHorizontalProjection().get();
+                    final MultiPolygonGeometry geo1 = (MultiPolygonGeometry) region1.getAirSpaceVolume().get().getHorizontalProjection().get();
+                    final MultiPolygonGeometry geo2 = (MultiPolygonGeometry) region2.getAirSpaceVolume().get().getHorizontalProjection().get();
 
                     Assert.assertEquals(geo1.getCrs(), geo2.getCrs());
                     for (int b = 0; b < geo1.getExteriorRingPositions().size(); b++) {
