@@ -277,7 +277,7 @@ public class SWXTACSerializerTest {
 
         //Analysis 5
         checkGeometryType(analyses.get(4), PolygonGeometry.class);
-        assertEquals(Arrays.asList(60d, -0d, 30d, -0d, 30d, -180d, 60d, -180d, 60d, -0d),
+        assertEquals(Arrays.asList(60d, 0d, 30d, 0d, 30d, -180d, 60d, -180d, 60d, 0d),
                 ((PolygonGeometry) analyses.get(4).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
     }
 
@@ -317,14 +317,14 @@ public class SWXTACSerializerTest {
         checkGeometryType(analyses.get(index), MultiPolygonGeometry.class);
         assertEquals(Arrays.asList(
                 Arrays.asList(90d, 0d, 60d, 0d, 60d, 180d, 90d, 180d, 90d, 0d),
-                Arrays.asList(90d, -180d, 60d, -180d, 60d, -0d, 90d, -0d, 90d, -180d)),
+                Arrays.asList(90d, -180d, 60d, -180d, 60d, 0d, 90d, 0d, 90d, -180d)),
                 ((MultiPolygonGeometry) analyses.get(index).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
 
         index++;
         checkGeometryType(analyses.get(index), MultiPolygonGeometry.class);
         assertEquals(Arrays.asList(
                 Arrays.asList(90d, 0d, 60d, 0d, 60d, 180d, 90d, 180d, 90d, 0d),
-                Arrays.asList(90d, -180d, 60d, -180d, 60d, -0d, 90d, -0d, 90d, -180d)),
+                Arrays.asList(90d, -180d, 60d, -180d, 60d, 0d, 90d, 0d, 90d, -180d)),
                 ((MultiPolygonGeometry) analyses.get(index).getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get()).getExteriorRingPositions());
 
         index++;

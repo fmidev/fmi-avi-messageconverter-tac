@@ -46,7 +46,7 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
 
         longitude = parseLongitude(decimalOffset, param);
 
-        if (param.charAt(0) == 'W') {
+        if (param.charAt(0) == 'W' && longitude != 0) {
             longitude *= -1;
         }
 
