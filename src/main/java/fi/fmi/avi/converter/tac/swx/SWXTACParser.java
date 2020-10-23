@@ -348,18 +348,29 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
     }
 
     private Geometry buildMultiPolygon(final double minLatitude, final double minLongitude, final double maxLatitude, final double maxLongitude) {
-        if (minLongitude > maxLongitude && (Math.abs(minLongitude) != 180d && Math.abs(maxLongitude) != 180d)) {
+        if (minLongitude >= maxLongitude && (Math.abs(minLongitude) != 180d && Math.abs(maxLongitude) != 180d)) {
             List<List<Double>> polygons = new ArrayList<>();
-            //Set minLongitude ending at 180
-            polygons.add(createPolygon(minLatitude, minLongitude, maxLatitude, 180.0));
-            //Set maxLongitude starting at -180
-            polygons.add(createPolygon(minLatitude, -180.0, maxLatitude, maxLongitude));
+             if(Math.abs(minLongitude) == 0 && Math.abs(maxLongitude) == 0) {
+                 polygons.add(createPolygon(minLatitude, 0d, maxLatitude, 180d));
+                 polygons.add(createPolygon(minLatitude, -180d, maxLatitude, -0d));
+             } else {
+                 polygons.add(createPolygon(minLatitude, minLongitude, maxLatitude, 180d));
+                 polygons.add(createPolygon(minLatitude, -180d, maxLatitude, maxLongitude));
+             }
+
 
             return MultiPolygonGeometryImpl.builder().addAllExteriorRingPositions(polygons).setCrs(CoordinateReferenceSystemImpl.wgs84()).build();
         } else {
+            List<Double> polygon;
+            if(Math.abs(minLongitude) == 180d && Math.abs(maxLongitude) == 180d) {
+                polygon = createPolygon(minLatitude, -180d, maxLatitude, 180d);
+            } else {
+                polygon = createPolygon(minLatitude, minLongitude, maxLatitude, maxLongitude);
+            }
+
             return PolygonGeometryImpl.builder()
                     .setCrs(CoordinateReferenceSystemImpl.wgs84())
-                    .addAllExteriorRingPositions(createPolygon(minLatitude, minLongitude, maxLatitude, maxLongitude))
+                    .addAllExteriorRingPositions(polygon)
                     .build();
         }
     }
