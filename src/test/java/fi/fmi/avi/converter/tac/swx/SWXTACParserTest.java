@@ -312,7 +312,6 @@ public class SWXTACParserTest {
         assertTrue(result.getConversionIssues().get(0).getMessage().startsWith("Message has an extra end token"));
     }
 
-
     @Test
     public void testInvalidStatusLabel() throws IOException {
         final String input = getInput("spacewx-invalid-status-label.tac");
@@ -326,9 +325,12 @@ public class SWXTACParserTest {
     public void testInvalidEmptyStatus() throws IOException {
         final String input = getInput("spacewx-invalid-status-empty.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertEquals(11, result.getConversionIssues().size());
+        assertEquals(12, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(3).getType());
-        assertTrue(result.getConversionIssues().get(5).getMessage().contains("Advisory status label was found, but the status could not be parsed in message"));
+        assertTrue(result.getConversionIssues()
+                .stream()
+                .map(ConversionIssue::getMessage)
+                .anyMatch(s -> s.contains("Advisory status label was found, but the status could not be parsed in message")));
     }
 
     @Test
@@ -387,18 +389,31 @@ public class SWXTACParserTest {
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(3, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(2).getType());
-        assertTrue(result.getConversionIssues().get(2).getMessage().contains("Replace Advisory number label was found, but the data could not be parsed in "
-                + "message"));
+        assertTrue(result.getConversionIssues()
+                .get(2)
+                .getMessage()
+                .contains("Replace Advisory number label was found, but the data could not be parsed in " + "message"));
     }
 
     @Test
     public void testInvalidEndTokenMisplaced() throws IOException {
         final String input = getInput("spacewx-invalid-misplaced-end-token.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
-        assertEquals(1, result.getConversionIssues().size() );
+        assertEquals(1, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Severity.ERROR, result.getConversionIssues().get(0).getSeverity());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
         assertEquals("Message does not end in end token", result.getConversionIssues().get(0).getMessage());
+    }
+
+    @Test
+    public void testInvalidDuplicateSwxc() throws IOException {
+        final String input = getInput("spacewx-invalid-duplicate-swxc.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertEquals(1, result.getConversionIssues().size());
+        final ConversionIssue issue = result.getConversionIssues().get(0);
+        assertEquals(ConversionIssue.Severity.ERROR, issue.getSeverity());
+        assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
+        assertTrue(issue.getMessage().contains("More than one of SWX_CENTRE"));
     }
 
     @Test
