@@ -364,6 +364,12 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             List<Double> polygon;
             if(Math.abs(minLongitude) == 180d && Math.abs(maxLongitude) == 180d) {
                 polygon = createPolygon(minLatitude, -180d, maxLatitude, 180d);
+            } else if(Math.abs(minLongitude) == 180d || Math.abs(maxLongitude) == 180d){
+                if(Math.abs(minLongitude) == 180d) {
+                    polygon = createPolygon(minLatitude, -180d, maxLatitude, maxLongitude);
+                } else {
+                    polygon = createPolygon(minLatitude, minLongitude, maxLatitude, 180d);
+                }
             } else {
                 polygon = createPolygon(minLatitude, minLongitude, maxLatitude, maxLongitude);
             }
