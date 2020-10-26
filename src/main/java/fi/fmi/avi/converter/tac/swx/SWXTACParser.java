@@ -349,17 +349,17 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
     private Geometry buildMultiPolygon(final double minLatitude, final double minLongitude, final double maxLatitude, final double maxLongitude) {
         if (minLongitude >= maxLongitude && (Math.abs(minLongitude) != 180d && Math.abs(maxLongitude) != 180d)) {
-            List<List<Double>> polygons = new ArrayList<>();
+            MultiPolygonGeometryImpl.Builder multiPolygon = MultiPolygonGeometryImpl.builder().setCrs(CoordinateReferenceSystemImpl.wgs84());
+
              if(Math.abs(minLongitude) == 0 && Math.abs(maxLongitude) == 0) {
-                 polygons.add(createPolygon(minLatitude, 0d, maxLatitude, 180d));
-                 polygons.add(createPolygon(minLatitude, -180d, maxLatitude, 0d));
+                 multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, 0d, maxLatitude, 180d));
+                 multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, -180d, maxLatitude, 0d));
              } else {
-                 polygons.add(createPolygon(minLatitude, minLongitude, maxLatitude, 180d));
-                 polygons.add(createPolygon(minLatitude, -180d, maxLatitude, maxLongitude));
+                 multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, minLongitude, maxLatitude, 180d));
+                 multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, -180d, maxLatitude, maxLongitude));
              }
 
-
-            return MultiPolygonGeometryImpl.builder().addAllExteriorRingPositions(polygons).setCrs(CoordinateReferenceSystemImpl.wgs84()).build();
+            return multiPolygon.build();
         } else {
             List<Double> polygon;
             if(Math.abs(minLongitude) == 180d && Math.abs(maxLongitude) == 180d) {
