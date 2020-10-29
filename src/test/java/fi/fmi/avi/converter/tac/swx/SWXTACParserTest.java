@@ -221,6 +221,9 @@ public class SWXTACParserTest {
         assertEquals(expectedMultiPoly, actualMultiPoly);
 
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimitReference().isPresent());
+        assertFalse(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit().isPresent());
+        assertFalse(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimitReference().isPresent());
         assertEquals(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build(),
                 analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().get());
 
@@ -249,6 +252,9 @@ public class SWXTACParserTest {
         Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimitReference().isPresent());
+        assertFalse(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit().isPresent());
+        assertFalse(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimitReference().isPresent());
         assertEquals(NumericMeasureImpl.builder().setValue(370d).setUom("FL").build(),
                 analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().get());
 
@@ -282,9 +288,12 @@ public class SWXTACParserTest {
         assertEquals(expectedMultiPoly, actualMultiPoly);
         assertTrue(Arrays.deepEquals(expected, actual));
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimitReference().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit().isPresent());
+        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimitReference().isPresent());
+
         assertEquals(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build(),
                 analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().get());
-        assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit().isPresent());
         assertEquals(NumericMeasureImpl.builder().setValue(370d).setUom("FL").build(),
                 analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit().get());
     }

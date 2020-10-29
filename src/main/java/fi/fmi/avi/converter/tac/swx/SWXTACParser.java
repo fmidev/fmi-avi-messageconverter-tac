@@ -42,6 +42,13 @@ import fi.fmi.avi.model.swx.immutable.SpaceWeatherRegionImpl;
 
 public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
+    /**
+     * The vertical distance is measured with an altimeter set to the standard atmosphere.
+     * See
+     * <a href="http://aixm.aero/sites/aixm.aero/files/imce/AIXM511HTML/AIXM/DataType_CodeVerticalReferenceType.html">AIXM 5.1.1 CodeVerticalReferenceType</a>.
+     */
+    private static final String STANDARD_ATMOSPHERE = "STD";
+
     private final LexemeIdentity[] oneRequired = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER,
             LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START };
     private AviMessageLexer lexer;
@@ -351,21 +358,21 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         if (minLongitude >= maxLongitude && (Math.abs(minLongitude) != 180d && Math.abs(maxLongitude) != 180d)) {
             MultiPolygonGeometryImpl.Builder multiPolygon = MultiPolygonGeometryImpl.builder().setCrs(CoordinateReferenceSystemImpl.wgs84());
 
-             if(Math.abs(minLongitude) == 0 && Math.abs(maxLongitude) == 0) {
-                 multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, 0d, maxLatitude, 180d));
-                 multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, -180d, maxLatitude, 0d));
-             } else {
-                 multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, minLongitude, maxLatitude, 180d));
-                 multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, -180d, maxLatitude, maxLongitude));
-             }
+            if (Math.abs(minLongitude) == 0 && Math.abs(maxLongitude) == 0) {
+                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, 0d, maxLatitude, 180d));
+                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, -180d, maxLatitude, 0d));
+            } else {
+                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, minLongitude, maxLatitude, 180d));
+                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, -180d, maxLatitude, maxLongitude));
+            }
 
             return multiPolygon.build();
         } else {
             List<Double> polygon;
-            if(Math.abs(minLongitude) == 180d && Math.abs(maxLongitude) == 180d) {
+            if (Math.abs(minLongitude) == 180d && Math.abs(maxLongitude) == 180d) {
                 polygon = createPolygon(minLatitude, -180d, maxLatitude, 180d);
-            } else if(Math.abs(minLongitude) == 180d || Math.abs(maxLongitude) == 180d){
-                if(Math.abs(minLongitude) == 180d) {
+            } else if (Math.abs(minLongitude) == 180d || Math.abs(maxLongitude) == 180d) {
+                if (Math.abs(minLongitude) == 180d) {
                     polygon = createPolygon(minLatitude, -180d, maxLatitude, maxLongitude);
                 } else {
                     polygon = createPolygon(minLatitude, minLongitude, maxLatitude, 180d);
@@ -374,14 +381,11 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                 polygon = createPolygon(minLatitude, minLongitude, maxLatitude, maxLongitude);
             }
 
-            return PolygonGeometryImpl.builder()
-                    .setCrs(CoordinateReferenceSystemImpl.wgs84())
-                    .addAllExteriorRingPositions(polygon)
-                    .build();
+            return PolygonGeometryImpl.builder().setCrs(CoordinateReferenceSystemImpl.wgs84()).addAllExteriorRingPositions(polygon).build();
         }
     }
 
-    private List<Double> createPolygon(final double  minLat, final double  minLon, final double  maxLat, final double  maxLon) {
+    private List<Double> createPolygon(final double minLat, final double minLon, final double maxLat, final double maxLon) {
         final List<Double> coordinates = new ArrayList<>();
 
         //Upper left corner:
@@ -408,14 +412,14 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private AirspaceVolume buildAirspaceVolume(final Geometry geometry, final Optional<NumericMeasure> lowerLimit,
-            final Optional<NumericMeasure> upperLimit, final Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator,
-            final List<ConversionIssue> issues) {
+    private AirspaceVolume buildAirspaceVolume(final Geometry geometry, final Optional<NumericMeasure> lowerLimit, final Optional<NumericMeasure> upperLimit,
+            final Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator, final List<ConversionIssue> issues) {
         final AirspaceVolumeImpl.Builder volumeBuilder = AirspaceVolumeImpl.builder()//
-                .setHorizontalProjection(geometry)//
-                .setLowerLimitReference("STD");
+                .setHorizontalProjection(geometry);
         if (lowerLimit.isPresent()) {
+            volumeBuilder.setLowerLimitReference(STANDARD_ATMOSPHERE);
             if (upperLimit.isPresent()) {
+                volumeBuilder.setUpperLimitReference(STANDARD_ATMOSPHERE);
                 volumeBuilder.setLowerLimit(lowerLimit);
                 volumeBuilder.setUpperLimit(upperLimit);
             } else if (verticalLimitOperator.isPresent() && AviationCodeListUser.RelationalOperator.ABOVE == verticalLimitOperator.get()) {
@@ -427,6 +431,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         } else {
             if (upperLimit.isPresent()) {
                 if (verticalLimitOperator.isPresent() && AviationCodeListUser.RelationalOperator.BELOW == verticalLimitOperator.get()) {
+                    volumeBuilder.setUpperLimitReference(STANDARD_ATMOSPHERE);
                     volumeBuilder.setUpperLimit(upperLimit);
                 } else {
                     issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
