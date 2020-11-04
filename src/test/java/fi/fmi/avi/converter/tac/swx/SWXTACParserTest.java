@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,6 +30,7 @@ import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.MultiPolygonGeometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
+import fi.fmi.avi.model.swx.AirspaceVolume;
 import fi.fmi.avi.model.swx.NextAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
@@ -210,12 +213,11 @@ public class SWXTACParserTest {
         assertEquals(analysis.getRegions().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().isPresent());
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
-        assertTrue(MultiPolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        assertTrue(
+                MultiPolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
         MultiPolygonGeometry Multipoly = (MultiPolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        List<List<Double>> expectedMultiPoly = Arrays.asList(
-                Arrays.asList(90d, 160d, 60d, 160d, 60d, 180d, 90d, 180d, 90d, 160d),
-                Arrays.asList(90d, -180d, 60d, -180d, 60d, -20d, 90d, -20d, 90d, -180d)
-        );
+        List<List<Double>> expectedMultiPoly = Arrays.asList(Arrays.asList(90d, 160d, 60d, 160d, 60d, 180d, 90d, 180d, 90d, 160d),
+                Arrays.asList(90d, -180d, 60d, -180d, 60d, -20d, 90d, -20d, 90d, -180d));
         //Double[] expected = { 90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d };
         List<List<Double>> actualMultiPoly = Multipoly.getExteriorRingPositions();
         assertEquals(expectedMultiPoly, actualMultiPoly);
@@ -231,12 +233,11 @@ public class SWXTACParserTest {
         assertEquals(analysis.getRegions().get(1).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
         assertTrue(analysis.getRegions().get(1).getAirSpaceVolume().isPresent());
         assertTrue(analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
-        assertTrue(MultiPolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        assertTrue(
+                MultiPolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
         Multipoly = (MultiPolygonGeometry) analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
-        expectedMultiPoly = Arrays.asList(
-                Arrays.asList(-60d, 160d, -90d, 160d, -90d, 180d, -60d, 180d, -60d, 160d),
-                Arrays.asList(-60d, -180d, -90d, -180d, -90d, -20d, -60d, -20d, -60d, -180d)
-        );
+        expectedMultiPoly = Arrays.asList(Arrays.asList(-60d, 160d, -90d, 160d, -90d, 180d, -60d, 180d, -60d, 160d),
+                Arrays.asList(-60d, -180d, -90d, -180d, -90d, -20d, -60d, -20d, -60d, -180d));
         actualMultiPoly = Multipoly.getExteriorRingPositions();
         assertEquals(expectedMultiPoly, actualMultiPoly);
 
@@ -278,12 +279,11 @@ public class SWXTACParserTest {
         assertEquals(analysis.getRegions().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().isPresent());
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
-        assertTrue(MultiPolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        assertTrue(
+                MultiPolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
         Multipoly = (MultiPolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        expectedMultiPoly = Arrays.asList(
-                Arrays.asList(90d, 160d, 60d, 160d, 60d, 180d, 90d, 180d, 90d, 160d),
-                Arrays.asList(90d, -180d, 60d, -180d, 60d, -20d, 90d, -20d, 90d, -180d)
-        );
+        expectedMultiPoly = Arrays.asList(Arrays.asList(90d, 160d, 60d, 160d, 60d, 180d, 90d, 180d, 90d, 160d),
+                Arrays.asList(90d, -180d, 60d, -180d, 60d, -20d, 90d, -20d, 90d, -180d));
         actualMultiPoly = Multipoly.getExteriorRingPositions();
         assertEquals(expectedMultiPoly, actualMultiPoly);
         assertTrue(Arrays.deepEquals(expected, actual));
@@ -435,6 +435,73 @@ public class SWXTACParserTest {
         assertEquals(ConversionIssue.Severity.ERROR, issue.getSeverity());
         assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
         assertTrue(issue.getMessage().contains("More than one of SWX_CENTRE"));
+    }
+
+    @Test
+    public void testInvalidMissingLatitudeBands() throws IOException {
+        final String input = getInput("spacewx-invalid-missing-latitude-bands.tac");
+        final List<Double> worldPolygonCoords = Arrays.asList(-90d, -180d, 90d, -180d, 90d, 180d, -90d, 180d, -90d, -180d);
+
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertEquals(4, result.getConversionIssues().size());
+        assertTrue(result.getConversionIssues().stream()//
+                .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.WARNING && issue.getType() == ConversionIssue.Type.MISSING_DATA));
+        assertTrue(result.getConvertedMessage().isPresent());
+
+        final List<AirspaceVolume> airspaceVolumes = result.getConvertedMessage().get().getAnalyses().stream()//
+                .flatMap(analysis -> analysis.getRegions().stream())//
+                .map(SpaceWeatherRegion::getAirSpaceVolume).map(Optional::get)//
+                .collect(Collectors.toList());
+
+        final AirspaceVolume obsVolume = airspaceVolumes.get(0);
+        assertEquals("STD", obsVolume.getUpperLimitReference().get());
+        assertEquals("STD", obsVolume.getLowerLimitReference().get());
+        assertEquals(NumericMeasureImpl.builder().setValue(250d).setUom("FL").build(), obsVolume.getLowerLimit().get());
+        assertEquals(NumericMeasureImpl.builder().setValue(350d).setUom("FL").build(), obsVolume.getUpperLimit().get());
+        assertEquals(Arrays.asList(-90d, -150d, 90d, -150d, 90d, -30d, -90d, -30d, -90d, -150d),
+                ((PolygonGeometry) obsVolume.getHorizontalProjection().get()).getExteriorRingPositions());
+
+        for (int i = 1; i < 4; i++) {
+            final AirspaceVolume forecastVolume = airspaceVolumes.get(i);
+            assertFalse(forecastVolume.getUpperLimitReference().isPresent());
+            assertFalse(forecastVolume.getUpperLimit().isPresent());
+            assertEquals("STD", forecastVolume.getLowerLimitReference().get());
+            assertEquals(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build(), forecastVolume.getLowerLimit().get());
+            assertEquals(worldPolygonCoords, ((PolygonGeometry) forecastVolume.getHorizontalProjection().get()).getExteriorRingPositions());
+        }
+    }
+
+    @Test
+    public void testInvalidMissingLatitudeBandsAndLongitudes() throws IOException {
+        final String input = getInput("spacewx-invalid-missing-latitude-bands-longitudes.tac");
+        final List<Double> worldPolygonCoords = Arrays.asList(-90d, -180d, 90d, -180d, 90d, 180d, -90d, 180d, -90d, -180d);
+
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertEquals(4, result.getConversionIssues().size());
+        assertTrue(result.getConversionIssues().stream()//
+                .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.WARNING && issue.getType() == ConversionIssue.Type.MISSING_DATA));
+        assertTrue(result.getConvertedMessage().isPresent());
+
+        final List<AirspaceVolume> airspaceVolumes = result.getConvertedMessage().get().getAnalyses().stream()//
+                .flatMap(analysis -> analysis.getRegions().stream())//
+                .map(SpaceWeatherRegion::getAirSpaceVolume).map(Optional::get)//
+                .collect(Collectors.toList());
+
+        final AirspaceVolume obsVolume = airspaceVolumes.get(0);
+        assertEquals("STD", obsVolume.getUpperLimitReference().get());
+        assertEquals("STD", obsVolume.getLowerLimitReference().get());
+        assertEquals(NumericMeasureImpl.builder().setValue(250d).setUom("FL").build(), obsVolume.getLowerLimit().get());
+        assertEquals(NumericMeasureImpl.builder().setValue(350d).setUom("FL").build(), obsVolume.getUpperLimit().get());
+        assertEquals(worldPolygonCoords, ((PolygonGeometry) obsVolume.getHorizontalProjection().get()).getExteriorRingPositions());
+
+        for (int i = 1; i < 4; i++) {
+            final AirspaceVolume forecastVolume = airspaceVolumes.get(i);
+            assertFalse(forecastVolume.getUpperLimitReference().isPresent());
+            assertFalse(forecastVolume.getUpperLimit().isPresent());
+            assertEquals("STD", forecastVolume.getLowerLimitReference().get());
+            assertEquals(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build(), forecastVolume.getLowerLimit().get());
+            assertEquals(worldPolygonCoords, ((PolygonGeometry) forecastVolume.getHorizontalProjection().get()).getExteriorRingPositions());
+        }
     }
 
     @Test

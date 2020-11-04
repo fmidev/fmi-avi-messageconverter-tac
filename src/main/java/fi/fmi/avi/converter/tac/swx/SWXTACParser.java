@@ -257,7 +257,6 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
     }
 
     protected List<SpaceWeatherRegion> handleRegion(final Lexeme lexeme, final List<ConversionIssue> issues) {
-
         //1. Discover limits
         Optional<PolygonGeometry> polygonLimit = Optional.empty();
         Optional<Double> minLongitude = Optional.empty();
@@ -323,6 +322,20 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         } else {
             //Create regions from each preset location (if any)
             l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
+            if (l == null) {
+                if (minLongitude.isPresent() && maxLongitude.isPresent()) {
+                    // No latitude bands given, but polygon(s) can be created based on the given longitudes
+                    issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                            "Missing latitude band(s) in " + lexeme.getFirst().getTACToken()));
+                } else {
+                    // No polygon or latitude bands given and longitudes are completely or partially missing
+                    issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                            "Missing effect extent in " + lexeme.getFirst().getTACToken()));
+                }
+                final Geometry geometry = buildMultiPolygon(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d));
+                final AirspaceVolume volume = buildAirspaceVolume(geometry, lowerLimit, upperLimit, verticalLimitOperator, issues);
+                regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
+            }
             while (l != null) {
                 final Optional<SpaceWeatherRegion.SpaceWeatherLocation> location = Optional.ofNullable(
                         l.getParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.class));
