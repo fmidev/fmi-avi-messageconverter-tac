@@ -84,7 +84,7 @@ public class SWXBulletinTACSerializationTest {
                         + "FCST SWX +6 HR:     08/1800Z ABV FL370 N08050 W180 -" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
                         + "N07001 W075 - N060 E015 - N070 E075 - N080 W180" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
                         + "FCST SWX +12 HR:    09/0000Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "FCST SWX +18 HR:    09/0600Z DAYLIGHT_SIDE" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
+                        + "FCST SWX +18 HR:    09/0600Z DAYLIGHT SIDE" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
                         + "FCST SWX +24 HR:    09/1200Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
                         + "RMK:                TEST TEST TEST TEST THIS IS A TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
                         + "MESSAGE FOR TECHNICAL TEST. SEE WWW.PECASUS.ORG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //

@@ -489,6 +489,20 @@ public class SWXTACParserTest {
         assertEquals(expected, geom.getExteriorRingPositions());
     }
 
+    @Test
+    public void testDaylightSide() throws Exception {
+        String input = getInput("spacewx-daylight-side.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertTrue(result.getConversionIssues().isEmpty());
+        SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
+        assertEquals(1, analysis.getRegions().size());
+        final SpaceWeatherRegion region = analysis.getRegions().get(0);
+        assertEquals(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE, region.getLocationIndicator().get());
+        assertFalse(region.getAirSpaceVolume().isPresent());
+        assertFalse(region.getLongitudeLimitMinimum().isPresent());
+        assertFalse(region.getLongitudeLimitMaximum().isPresent());
+    }
+
     private String getInput(final String fileName) throws IOException {
         InputStream is = null;
         try {
