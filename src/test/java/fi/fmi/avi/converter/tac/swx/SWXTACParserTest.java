@@ -36,6 +36,7 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
 import fi.fmi.avi.model.swx.SpaceWeatherRegion;
+import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -557,6 +558,23 @@ public class SWXTACParserTest {
     }
 
     @Test
+    public void testLongitudesWithoutSpacesAroundDashes() throws Exception {
+        final String spacedInput = getInput("spacewx-latitude-bands.tac");
+        final String spacelessInput = getInput("spacewx-latitude-bands-longitudes-spaceless.tac");
+        final ConversionResult<SpaceWeatherAdvisory> spacedResult = this.converter.convertMessage(spacedInput, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisory> spacelessResult = this.converter.convertMessage(spacelessInput, TACConverter.TAC_TO_SWX_POJO);
+
+        assertTrue(spacedResult.getConversionIssues().isEmpty());
+        assertTrue(spacelessResult.getConversionIssues().isEmpty());
+        assertTrue(spacedResult.getConvertedMessage().isPresent());
+        assertTrue(spacelessResult.getConvertedMessage().isPresent());
+
+        final SpaceWeatherAdvisory spaced = SpaceWeatherAdvisoryImpl.Builder.from(spacedResult.getConvertedMessage().get()).setTranslatedTAC("").build();
+        final SpaceWeatherAdvisory spaceless = SpaceWeatherAdvisoryImpl.Builder.from(spacelessResult.getConvertedMessage().get()).setTranslatedTAC("").build();
+        assertEquals(spaced, spaceless);
+    }
+
+    @Test
     public void testDaylightSide() throws Exception {
         String input = getInput("spacewx-daylight-side.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
@@ -583,3 +601,4 @@ public class SWXTACParserTest {
         }
     }
 }
+
