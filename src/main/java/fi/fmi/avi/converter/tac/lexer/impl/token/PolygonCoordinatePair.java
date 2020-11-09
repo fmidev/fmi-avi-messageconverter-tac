@@ -37,19 +37,19 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        Double latitude;
-        Double longitude;
+        double latitude;
+        double longitude;
         final String latStr = match.group("latitude");
         final String lonStr = match.group("longitude");
         if (latStr.length() > 4) {
-            latitude = Double.parseDouble(latStr.substring(1, 4) + "." + latStr.substring(4));
+            latitude = Double.parseDouble(latStr.substring(1, 3) + "." + latStr.substring(3));
         } else {
             latitude = Double.parseDouble(latStr.substring(1));
         }
         if (latStr.charAt(0) == 'S') {
             latitude *= -1;
         }
-        if (lonStr.length() > 4) {
+        if (lonStr.length() > 5) {
             longitude = Double.parseDouble(lonStr.substring(1, 4) + "." + lonStr.substring(4));
         } else {
             longitude = Double.parseDouble(lonStr.substring(1));
@@ -123,7 +123,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                                             }
                                             final BigDecimal latDecimalPart = lat.subtract(BigDecimal.valueOf(lat.intValue()));
                                             final BigDecimal lonDecimalPart = lon.subtract(BigDecimal.valueOf(lon.intValue()));
-                                            latBuilder.append(String.format("%03d", lat.abs().intValue()));
+                                            latBuilder.append(String.format("%02d", lat.abs().intValue()));
                                             lonBuilder.append(String.format("%03d", lon.abs().intValue()));
                                             if (latDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
                                                 latBuilder.append(String.format("%02d", latDecimalPart.abs().multiply(BigDecimal.valueOf(100d)).intValue()));
