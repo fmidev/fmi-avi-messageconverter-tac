@@ -5,7 +5,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
@@ -112,16 +111,11 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                 match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class)));
 
         firstLexeme.findNext(LexemeIdentity.ISSUE_TIME, (match) -> {
-            final Integer day = match.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-            final Integer minute = match.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-            final Integer hour = match.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-            final Integer month = match.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
-            final Integer year = match.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
-            if (year != null && month != null && day != null && minute != null && hour != null) {
-                builder.setIssueTime(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
+            final Optional<PartialOrCompleteTimeInstant> completeTimeInstant = createCompleteTimeInstant(match);
+            if (completeTimeInstant.isPresent()) {
+                builder.setIssueTime(completeTimeInstant.get());
             } else {
-                conversionIssues.add(
-                        new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing at least some of the issue time components in " + lexed.getTAC()));
+                conversionIssues.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Invalid issue time"));
             }
         });
 
@@ -184,7 +178,15 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         firstLexeme.findNext(LexemeIdentity.NEXT_ADVISORY, (match) -> {
             final NextAdvisoryImpl.Builder nxt = NextAdvisoryImpl.builder();
             nxt.setTimeSpecifier(match.getParsedValue(Lexeme.ParsedValueName.TYPE, NextAdvisory.Type.class));
-            createCompleteTimeInstant(match, nxt::setTime);
+
+            if (nxt.getTimeSpecifier() != NextAdvisory.Type.NO_FURTHER_ADVISORIES) {
+                final Optional<PartialOrCompleteTimeInstant> completeTimeInstant = createCompleteTimeInstant(match);
+                if (completeTimeInstant.isPresent()) {
+                    nxt.setTime(completeTimeInstant.get());
+                } else {
+                    conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Missing at least some of the next advisory time components"));
+                }
+            }
             builder.setNextAdvisory(nxt.build());
         }, () -> conversionIssues.add(
                 new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Next advisory is required but was missing in message\n" + input)));
@@ -216,8 +218,15 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         Lexeme analysisLexeme = lexeme.findNext(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP);
         if (analysisLexeme != null) {
-            createPartialTimeInstant(analysisLexeme, builder::setTime);
+            final Optional<PartialOrCompleteTimeInstant> analysisTime = createPartialTimeInstant(analysisLexeme);
+            if (analysisTime.isPresent()) {
+                builder.setTime(analysisTime.get());
+            } else {
+                issues.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Invalid analysis time in " + lexeme.getTACToken()));
+                return null;
+            }
         } else {
+            issues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Analysis time missing in " + lexeme.getTACToken()));
             return null;
         }
 
@@ -455,17 +464,18 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         return volumeBuilder.build();
     }
 
-    protected void createPartialTimeInstant(final Lexeme lexeme, final Consumer<PartialOrCompleteTimeInstant> consumer) {
+    private static Optional<PartialOrCompleteTimeInstant> createPartialTimeInstant(final Lexeme lexeme) {
         final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
         final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
         final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+
         if (day != null && minute != null && hour != null) {
-            consumer.accept(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"))));
+            return Optional.of(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"))));
         }
+        return Optional.empty();
     }
 
-    protected void createCompleteTimeInstant(final Lexeme lexeme, final Consumer<PartialOrCompleteTimeInstant> consumer) {
-
+    private static Optional<PartialOrCompleteTimeInstant> createCompleteTimeInstant(final Lexeme lexeme) {
         final Integer year = lexeme.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
         final Integer month = lexeme.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
         final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
@@ -473,7 +483,9 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
 
         if (year != null && month != null && day != null && minute != null && hour != null) {
-            consumer.accept(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
+            return Optional.of(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
         }
+        return Optional.empty();
     }
+
 }
