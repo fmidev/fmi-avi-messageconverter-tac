@@ -119,7 +119,8 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
                 toCheck = toCheck.getPrevious();
                 for (final LexemeIdentity i : toMatch) {
                     if (i.equals(toCheck.getIdentity())) {
-                        retval = new ConversionIssue(ConversionIssue.Type.SYNTAX, "Token '" + lexeme + "' was found before one of type " + i);
+                        retval = new ConversionIssue(ConversionIssue.Type.SYNTAX,
+                                "Invalid token order: '" + lexeme + "' was found after one of type " + i);
                         break;
                     }
                 }

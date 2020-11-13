@@ -96,6 +96,16 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }
 
         firstLexeme.findNext(LexemeIdentity.ADVISORY_STATUS_LABEL, (match) -> {
+            final LexemeIdentity[] before = { LexemeIdentity.ADVISORY_STATUS, LexemeIdentity.DTG_ISSUE_TIME_LABEL, LexemeIdentity.ISSUE_TIME,
+                    LexemeIdentity.SWX_CENTRE_LABEL, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER_LABEL, LexemeIdentity.ADVISORY_NUMBER,
+                    LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
+                    LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP,
+                    LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL, LexemeIdentity.NEXT_ADVISORY };
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+
             builder.setPermissibleUsage(AviationCodeListUser.PermissibleUsage.NON_OPERATIONAL);
             final Lexeme value = match.findNext(LexemeIdentity.ADVISORY_STATUS);
             if (value == null) {
@@ -108,10 +118,31 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             builder.setPermissibleUsage(AviationCodeListUser.PermissibleUsage.OPERATIONAL);
         });
 
-        firstLexeme.findNext(LexemeIdentity.ADVISORY_STATUS, (match) -> builder.setPermissibleUsageReason(
-                match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class)));
+        firstLexeme.findNext(LexemeIdentity.ADVISORY_STATUS, (match) -> {
+            final LexemeIdentity[] before = { LexemeIdentity.DTG_ISSUE_TIME_LABEL, LexemeIdentity.ISSUE_TIME, LexemeIdentity.SWX_CENTRE_LABEL,
+                    LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER_LABEL, LexemeIdentity.ADVISORY_NUMBER,
+                    LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
+                    LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP,
+                    LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL, LexemeIdentity.NEXT_ADVISORY };
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+
+            builder.setPermissibleUsageReason(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
+        });
 
         firstLexeme.findNext(LexemeIdentity.ISSUE_TIME, (match) -> {
+            final LexemeIdentity[] before = { LexemeIdentity.SWX_CENTRE_LABEL, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER_LABEL,
+                    LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER,
+                    LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL,
+                    LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
+                    LexemeIdentity.NEXT_ADVISORY };
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+
             final Integer day = match.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
             final Integer minute = match.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
             final Integer hour = match.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
@@ -126,16 +157,43 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         });
 
         firstLexeme.findNext(LexemeIdentity.SWX_CENTRE, (match) -> {
+            final LexemeIdentity[] before = { LexemeIdentity.ADVISORY_NUMBER_LABEL, LexemeIdentity.ADVISORY_NUMBER,
+                    LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
+                    LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP,
+                    LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL, LexemeIdentity.NEXT_ADVISORY };
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+
             final IssuingCenterImpl.Builder issuingCenter = IssuingCenterImpl.builder();
             issuingCenter.setName(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
             issuingCenter.setDesignator("SWXC");
             builder.setIssuingCenter(issuingCenter.build());
         }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "The name of the issuing space weather center is missing")));
 
-        firstLexeme.findNext(LexemeIdentity.ADVISORY_NUMBER,
-                (match) -> builder.setAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class)));
+        firstLexeme.findNext(LexemeIdentity.ADVISORY_NUMBER, (match) -> {
+            final LexemeIdentity[] before = { LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER,
+                    LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL,
+                    LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
+                    LexemeIdentity.NEXT_ADVISORY };
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+
+            builder.setAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
+        });
 
         firstLexeme.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, (match) -> {
+            final LexemeIdentity[] before = { LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL,
+                    LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
+                    LexemeIdentity.NEXT_ADVISORY };
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+
             final Lexeme value = match.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
             if (value == null) {
                 conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
@@ -146,6 +204,13 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         });
 
         firstLexeme.findNext(LexemeIdentity.SWX_EFFECT, (match) -> {
+            final LexemeIdentity[] before = { LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP,
+                    LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL, LexemeIdentity.NEXT_ADVISORY };
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+
             final List<SpaceWeatherPhenomenon> phenomena = new ArrayList<>();
             while (match != null) {
                 final SpaceWeatherPhenomenon phenomenon = match.getParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherPhenomenon.class);
@@ -175,6 +240,12 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }
 
         firstLexeme.findNext(LexemeIdentity.REMARKS_START, (match) -> {
+            final LexemeIdentity[] before = { LexemeIdentity.NEXT_ADVISORY_LABEL, LexemeIdentity.NEXT_ADVISORY };
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+
             final List<String> remarks = getRemarks(match, hints);
             if (!remarks.isEmpty() && (remarks.size() != 1 || !remarks.get(0).equalsIgnoreCase("NIL"))) {
                 builder.setRemarks(remarks);
@@ -267,12 +338,24 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
         if (l != null) {
+            final LexemeIdentity[] before = { LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT };
+            final ConversionIssue issue = checkBeforeAnyOf(l, before);
+            if (issue != null) {
+                issues.add(issue);
+            }
+
             minLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Double.class));
             maxLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Double.class));
         }
 
         l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
         if (l != null) {
+            final LexemeIdentity[] before = { LexemeIdentity.POLYGON_COORDINATE_PAIR };
+            final ConversionIssue issue = checkBeforeAnyOf(l, before);
+            if (issue != null) {
+                issues.add(issue);
+            }
+
             final Integer minValue = l.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Integer.class);
             final Integer maxValue = l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
             final String unit = l.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
@@ -340,6 +423,12 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                 final Optional<SpaceWeatherRegion.SpaceWeatherLocation> location = Optional.ofNullable(
                         l.getParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.class));
                 if (location.isPresent()) {
+                    final LexemeIdentity[] before = { LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT };
+                    final ConversionIssue issue = checkBeforeAnyOf(l, before);
+                    if (issue != null) {
+                        issues.add(issue);
+                    }
+
                     regionBuilder = SpaceWeatherRegionImpl.builder();
                     regionBuilder.setLocationIndicator(location);
                     if (minLongitude.isPresent()) {

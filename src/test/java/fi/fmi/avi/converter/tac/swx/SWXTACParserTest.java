@@ -506,6 +506,35 @@ public class SWXTACParserTest {
     }
 
     @Test
+    public void testInvalidTokenOrder() throws IOException {
+        final String input = getInput("spacewx-invalid-token-order.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertEquals(4, result.getConversionIssues().size());
+        assertTrue(result.getConversionIssues().stream()//
+                .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.ERROR && issue.getType() == ConversionIssue.Type.SYNTAX && issue.getMessage()
+                        .contains("Invalid token order")));
+    }
+
+    @Test
+    public void testInvalidPhenomenonTokenOrder() throws IOException {
+        final String input = getInput("spacewx-invalid-phenomenon-token-order.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertEquals(2, result.getConversionIssues().size());
+
+        final ConversionIssue obsIssue = result.getConversionIssues().get(0);
+        assertEquals(obsIssue.getSeverity(), ConversionIssue.Severity.ERROR);
+        assertEquals(obsIssue.getType(), ConversionIssue.Type.SYNTAX);
+        assertEquals("Invalid token order: ''HSH'(SWX_PHENOMENON_PRESET_LOCATION,OK)' was found after one of type SWX_PHENOMENON_LONGITUDE_LIMIT",
+                obsIssue.getMessage());
+
+        final ConversionIssue forecastIssue = result.getConversionIssues().get(1);
+        assertEquals(forecastIssue.getSeverity(), ConversionIssue.Severity.ERROR);
+        assertEquals(forecastIssue.getType(), ConversionIssue.Type.SYNTAX);
+        assertEquals("Invalid token order: ''ABV FL340'(SWX_PHENOMENON_VERTICAL_LIMIT,OK)' was found after one of type POLYGON_COORDINATE_PAIR",
+                forecastIssue.getMessage());
+    }
+
+    @Test
     public void testLatitudeBands() throws IOException {
         final String input = getInput("spacewx-latitude-bands.tac");
         final List<Double> expected = Arrays.asList(30.0, -150.0, 0.0, -150.0, 0.0, -30.0, 30.0, -30.0, 30.0, -150.0);
