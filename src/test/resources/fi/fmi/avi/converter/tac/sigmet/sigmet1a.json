@@ -1,0 +1,36 @@
+{
+  "status": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM FIR",
+    "type": "FIR",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "issueTime": {
+    "completeTime": "2020-10-11T11:30:00Z"
+  },
+  "airspace": {
+    "designator":"EHAA",
+    "name":"AMSTERDAM",
+    "type":"FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "completeTime": "2020-10-11T11:30:00Z"
+    },
+    "endTime": {
+      "completeTime": "2020-10-11T15:30:00Z"
+    }
+  },
+  "sigmetPhenomenon": "EMBD_TS",
+  "analysisType": "OBSERVATION",
+  "sequenceNumber": "M01",
+  "intensityChange": "NO_CHANGE",
+  "analysisGeometries": [{}],
+  "forecastGeometries":[{}],
+  "translated": false
+}

@@ -1,5 +1,7 @@
 package fi.fmi.avi.converter.tac.conf;
 
+import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
+import fi.fmi.avi.model.sigmet.SIGMET;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -141,6 +143,14 @@ public class Serializing {
     }
 
     @Bean
+    @Qualifier("igmetTACSerializer")
+    AviMessageSpecificConverter<SIGMET, String> sigmetTACSerializer() {
+        final SIGMETTACSerializer s = new SIGMETTACSerializer();
+        addCommonBulletinReconstructors(s);
+        return s;
+    }
+
+    @Bean
     AviMessageSpecificConverter<GenericMeteorologicalBulletin, String> genericBulletinTACSerializer() {
         final GenericMeteorologicalBulletinTACSerializer s = new GenericMeteorologicalBulletinTACSerializer();
         addCommonBulletinReconstructors(s);
@@ -162,6 +172,7 @@ public class Serializing {
         return s;
     }
 
+
     @Bean
     public AviMessageTACTokenizer tacTokenizer() {
         final AviMessageTACTokenizerImpl tokenizer = new AviMessageTACTokenizerImpl();
@@ -172,6 +183,7 @@ public class Serializing {
         tokenizer.setSIGMETBulletinSerializer((SIGMETBulletinTACSerializer) sigmetBulletinTACSerializer());
         tokenizer.setGenericBulletinSerializer((GenericMeteorologicalBulletinTACSerializer) genericBulletinTACSerializer());
         tokenizer.setSWXTacSerializer((SWXTACSerializer) swxTACSerializer());
+        tokenizer.setSIGMETTacSerializer((SIGMETTACSerializer) sigmetTACSerializer());
 
         return tokenizer;
     }

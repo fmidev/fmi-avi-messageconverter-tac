@@ -1,31 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COUNTRY;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COVER;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DIRECTION;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_DIRECTION;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_VALUE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MEAN_VALUE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_DIRECTION;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_VALUE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MONTH;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SEQUENCE_NUMBER;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TENDENCY_OPERATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.YEAR;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,6 +8,8 @@ import java.util.function.Consumer;
 
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionHints;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
 
 /**
  * Lexeme is a basic lexical unit of an aviation weather message.
@@ -567,7 +543,8 @@ public interface Lexeme {
         END_TOKEN,
         BULLETIN_HEADING_DATA_DESIGNATORS(VALUE),
         BULLETIN_HEADING_LOCATION_INDICATOR(VALUE),
-        BULLETIN_HEADING_BBB_INDICATOR(VALUE, SEQUENCE_NUMBER);
+        BULLETIN_HEADING_BBB_INDICATOR(VALUE, SEQUENCE_NUMBER),
+        AIRSPACE_DESIGNATOR(VALUE);
 
         private final Set<ParsedValueName> possibleParameters = new HashSet<>();
 
@@ -615,7 +592,12 @@ public interface Lexeme {
         RELATIONAL_OPERATOR2,
         TENDENCY_OPERATOR,
         RUNWAY,
-        SEQUENCE_NUMBER
+        SEQUENCE_NUMBER,
+        SEQUENCE_DESCRIPTOR,
+        FIR_TYPE,
+        WITHHAIL,
+        TS_ADJECTIVE,
+        SEV_ICE_FZRA
     }
 
     enum MeteorologicalBulletinSpecialCharacter {

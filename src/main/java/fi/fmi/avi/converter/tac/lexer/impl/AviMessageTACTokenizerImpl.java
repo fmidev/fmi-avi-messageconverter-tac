@@ -8,6 +8,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.metar.METARTACSerializer;
 import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
 import fi.fmi.avi.converter.tac.swx.SWXTACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
@@ -15,6 +16,7 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
+import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.taf.TAF;
@@ -28,6 +30,7 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
     private SIGMETBulletinTACSerializer sigmetBulletinSerializer;
     private GenericMeteorologicalBulletinTACSerializer genericBulletinSerializer;
     private SWXTACSerializer swxTACSerializer;
+    private SIGMETTACSerializer sigmetTACSerializer;
 
     public AviMessageTACTokenizerImpl() {
     }
@@ -60,6 +63,10 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
         this.swxTACSerializer = serializer;
     }
 
+    public void setSIGMETTacSerializer(SIGMETTACSerializer serializer) {
+        this.sigmetTACSerializer = serializer;
+    }
+
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {
         return this.tokenizeMessage(msg, null);
@@ -81,7 +88,9 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
             return this.genericBulletinSerializer.tokenizeMessage(msg, hints);
         } else if (msg instanceof SpaceWeatherAdvisory && this.swxTACSerializer != null) {
             return this.swxTACSerializer.tokenizeMessage(msg, hints);
-        }
+        } else if (msg instanceof SIGMET && this.sigmetTACSerializer != null) {
+            return this.sigmetTACSerializer.tokenizeMessage(msg, hints);
+        } else
         throw new IllegalArgumentException("Do not know how to tokenize message of type " + msg.getClass().getCanonicalName());
     }
 

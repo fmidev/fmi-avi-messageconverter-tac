@@ -1,5 +1,9 @@
 package fi.fmi.avi.converter.tac.conf;
 
+import fi.fmi.avi.converter.tac.sigmet.ImmutableSIGMETTACParser;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETTACParser;
+import fi.fmi.avi.model.sigmet.SIGMET;
+import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,6 +72,19 @@ public class Parsing {
         return p;
     }
 
+    @Bean
+   AviMessageSpecificConverter<String, SIGMET> sigmetTACParser() {
+        final TACParser<SIGMET> p = new SIGMETTACParser();
+        p.setTACLexer(aviMessageLexer);
+        return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<String, SIGMETImpl> immutableSigmetTACParser() {
+        final TACParser<SIGMETImpl> p = new ImmutableSIGMETTACParser();
+        p.setTACLexer(aviMessageLexer);
+        return p;
+    }
     @Bean
     AviMessageSpecificConverter<String, GenericMeteorologicalBulletin> genericBulletinTACParser() {
         final TACParser<GenericMeteorologicalBulletin> p = new GenericMeteorologicalBulletinParser();

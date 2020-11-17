@@ -1,5 +1,6 @@
 package fi.fmi.avi.converter.tac;
 
+import fi.fmi.avi.model.sigmet.SIGMET;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -75,6 +76,13 @@ public class TACTestConfiguration {
     @Autowired
     private AviMessageSpecificConverter<SpaceWeatherBulletin, String> swxBulletinTACSerializer;
 
+    @Autowired
+    private AviMessageSpecificConverter<String, SIGMET> sigmetTACParser;
+
+    @Autowired
+    @Qualifier("sigmetTACSerializer")
+    private AviMessageSpecificConverter<SIGMET, String> sigmetTACSerializer;
+
     @Bean
     public AviMessageConverter aviMessageConverter() {
         final AviMessageConverter p = new AviMessageConverter();
@@ -99,6 +107,9 @@ public class TACTestConfiguration {
 
         p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_POJO, swxTACParser);
         p.setMessageSpecificConverter(TACConverter.SWX_POJO_TO_TAC, swxTACSerializer);
+
+        p.setMessageSpecificConverter(TACConverter.TAC_TO_SIGMET_POJO, sigmetTACParser);
+        p.setMessageSpecificConverter(TACConverter.SIGMET_POJO_TO_TAC, sigmetTACSerializer);
 
         return p;
     }
