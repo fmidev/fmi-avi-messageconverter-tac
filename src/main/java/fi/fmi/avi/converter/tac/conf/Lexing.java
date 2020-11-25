@@ -23,6 +23,83 @@ import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.OccurrenceFrequency;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumberLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryRemarkStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatus;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatusLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
+import fi.fmi.avi.converter.tac.lexer.impl.token.Amendment;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AutoMetar;
+import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeaderDataDesignators;
+import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeadingBBBIndicator;
+import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinLocationIndicator;
+import fi.fmi.avi.converter.tac.lexer.impl.token.CAVOK;
+import fi.fmi.avi.converter.tac.lexer.impl.token.Cancellation;
+import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ColorCode;
+import fi.fmi.avi.converter.tac.lexer.impl.token.Correction;
+import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTime;
+import fi.fmi.avi.converter.tac.lexer.impl.token.EndToken;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ForecastMaxMinTemperature;
+import fi.fmi.avi.converter.tac.lexer.impl.token.FractionalHorizontalVisibility;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ICAOCode;
+import fi.fmi.avi.converter.tac.lexer.impl.token.IssueTime;
+import fi.fmi.avi.converter.tac.lexer.impl.token.LowWindStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.MetarStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisoryLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NoFurtherAdvisories;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
+import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
+import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePair;
+import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePairSeparator;
+import fi.fmi.avi.converter.tac.lexer.impl.token.REP;
+import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
+import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumber;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumberLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
+import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
+import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXAdvisoryStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenter;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenterLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffect;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffectConjuction;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffectLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTimeLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotAvailable;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotExpected;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenonmenonLongitudeLimit;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPresetLocation;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SWXVerticalLimit;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
+import fi.fmi.avi.converter.tac.lexer.impl.token.TAFChangeForecastTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
+import fi.fmi.avi.converter.tac.lexer.impl.token.TAFStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator;
+import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetValidUntil;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
+import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
+import fi.fmi.avi.converter.tac.lexer.impl.token.VolcanicAshAdvisoryStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
+import fi.fmi.avi.converter.tac.lexer.impl.token.Whitespace;
+import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
 import fi.fmi.avi.model.MessageType;
 
 /**
@@ -65,7 +142,6 @@ public class Lexing {
         f.addTokenCombiningRule(sigmetValidTimeCombinationRule());
         f.addTokenCombiningRule(usSigmetValidTimeCombinationRule());
         f.addTokenCombiningRule(advisoryStartCombinationRule());
-        f.addTokenCombiningRule(dtgCombinationRule());
         f.addTokenCombiningRule(advisoryFctOffsetCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryPhenomenaCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryForecastTimeCombinationRule());
@@ -304,23 +380,6 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> dtgCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "DTG:".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[0-9]{8}/[0-9]{4}Z$");
-            }
-        });
-        return retval;
-    }
-
     private List<Predicate<String>> advisoryFctOffsetCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -377,7 +436,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(W|E)\\d{3,5}$");
+                return s.matches("^(W|E)\\d{1,5}$");
             }
         });
         retval.add(new Predicate<String>() {
@@ -389,7 +448,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(W|E)\\d{3,5}$");
+                return s.matches("^(W|E)\\d{1,5}$");
             }
         });
         return retval;
@@ -1290,9 +1349,9 @@ public class Lexing {
         });
 
         l.teach(new SWXAdvisoryStart(OccurrenceFrequency.RARE));
-        l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
+        l.teach(new DTGIssueTimeLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new DTGIssueTime(OccurrenceFrequency.AVERAGE));
         l.teach(new IssueTime(OccurrenceFrequency.RARE));
-        l.teach(new SWXIssueTimeLabel(OccurrenceFrequency.RARE));
         l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
@@ -1317,9 +1376,9 @@ public class Lexing {
         l.teach(new SWXVerticalLimit(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumberLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumber(OccurrenceFrequency.AVERAGE));
-        l.teach(new RemarkStart(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryRemarkStart(OccurrenceFrequency.AVERAGE));
         l.teach(new Remark(OccurrenceFrequency.FREQUENT));
-        l.teach(new SWXIssueTimeLabel(OccurrenceFrequency.RARE));
+
 
         return l;
     }
@@ -1341,6 +1400,7 @@ public class Lexing {
 
         l.teach(new VolcanicAshAdvisoryStart(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
+        l.teach(new DTGIssueTimeLabel(OccurrenceFrequency.RARE));
         l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));

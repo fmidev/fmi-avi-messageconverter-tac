@@ -19,9 +19,10 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
 public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMessage, T extends MeteorologicalBulletin<S>> extends AbstractTACSerializer<T> {
 
-    public static final int MAX_ROW_LENGTH = 60;
-
-    private static final int DEFAULT_LINE_WRAP_INDENTATION_LENGTH = 5;
+    /**
+     * Maximum number of characters per line (inclusive).
+     */
+    public static final int MAX_ROW_LENGTH = 59;
 
     @Override
     public ConversionResult<String> convertMessage(final T input, final ConversionHints hints) {
@@ -70,55 +71,54 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
         LexemeSequence messageSequence;
         if (messages.size() > 0) {
             for (final S message : messages) {
-                final boolean advisoryStyleLayout = SpaceWeatherAdvisory.class.isAssignableFrom(message.getClass());
-                int lineWrapIndentLength = advisoryStyleLayout ? 20 : DEFAULT_LINE_WRAP_INDENTATION_LENGTH;
-                if (hints != null && hints.containsKey(ConversionHints.KEY_ADVISORY_LABEL_WIDTH)) {
-                    lineWrapIndentLength = (Integer) hints.get(ConversionHints.KEY_ADVISORY_LABEL_WIDTH);
+                final Layout layout;
+                if (whitespacePassthrough) {
+                    layout = Layout.WHITESPACE_PASSTHROUGH;
+                } else if (isAdvisory(message)) {
+                    layout = Layout.ADVISORY;
+                } else {
+                    layout = Layout.STANDARD;
                 }
+                final int lineWrapIndent = layout.lineWrapIndent(hints);
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN, 2);
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
                 messageSequence = tokenizeSingleMessage(message, hints);
 
                 int charsOnRow = 0;
                 final List<Lexeme> lexemes = messageSequence.getLexemes();
-                for (final Lexeme l : lexemes) {
-                    final int tokenLength = l.getTACToken().length();
-                    if (whitespacePassthrough || advisoryStyleLayout) {
-                        if (!LexemeIdentity.END_TOKEN.equals(l.getIdentity())) {
+                for (final Lexeme lexeme : lexemes) {
+                    final int tokenLength = lexeme.getTACToken().length();
+                    if (layout == Layout.WHITESPACE_PASSTHROUGH || layout == Layout.ADVISORY) {
+                        if (!LexemeIdentity.END_TOKEN.equals(lexeme.getIdentity())) {
                             //Append CR before an LF if the CR was not already added:
-                            if (LexemeIdentity.WHITE_SPACE.equals(l.getIdentity()) //
-                                    && l.getParsedValues().containsKey(Lexeme.ParsedValueName.TYPE) //
-                                    && l.getParsedValue(Lexeme.ParsedValueName.TYPE, Lexeme.MeteorologicalBulletinSpecialCharacter.class)
-                                    .equals(Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED)) {
+                            if (isSpecialCharacterLexeme(lexeme, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED)) {
                                 if (retval.getLast()//
-                                        .map(last -> !(LexemeIdentity.WHITE_SPACE.equals(last.getIdentity()) //
-                                                && last.getParsedValues().containsKey(Lexeme.ParsedValueName.TYPE) //
-                                                && last.getParsedValue(Lexeme.ParsedValueName.TYPE, Lexeme.MeteorologicalBulletinSpecialCharacter.class)
-                                                .equals(Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN)))//
+                                        .map(last -> !isSpecialCharacterLexeme(last, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN))//
                                         .orElse(false)) {
                                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
                                 }
                                 charsOnRow = 0;
-                            } else if (charsOnRow + tokenLength >= MAX_ROW_LENGTH) {
+                            } else if (charsOnRow + tokenLength > MAX_ROW_LENGTH) {
                                 while (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                                     retval.removeLast();
                                 }
-                                appendLineWrap(retval, lineWrapIndentLength);
-                                charsOnRow = lineWrapIndentLength;
+                                appendLineWrap(retval, lineWrapIndent);
+                                charsOnRow = lineWrapIndent + tokenLength;
+                            } else {
+                                charsOnRow += tokenLength;
                             }
-                            retval.append(l);
-                            charsOnRow += tokenLength;
+                            retval.append(lexeme);
                         }
                     } else {
-                        if (!LexemeIdentity.WHITE_SPACE.equals(l.getIdentity()) && !LexemeIdentity.END_TOKEN.equals(l.getIdentity())) {
-                            if (charsOnRow + tokenLength >= MAX_ROW_LENGTH) {
+                        if (!LexemeIdentity.WHITE_SPACE.equals(lexeme.getIdentity()) && !LexemeIdentity.END_TOKEN.equals(lexeme.getIdentity())) {
+                            if (charsOnRow + tokenLength > MAX_ROW_LENGTH) {
                                 if (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                                     retval.removeLast();
                                 }
-                                appendLineWrap(retval, lineWrapIndentLength);
-                                charsOnRow = lineWrapIndentLength;
+                                appendLineWrap(retval, lineWrapIndent);
+                                charsOnRow = lineWrapIndent;
                             }
-                            retval.append(l);
+                            retval.append(lexeme);
                             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                             charsOnRow += tokenLength + 1;
                         }
@@ -136,10 +136,45 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
         return retval.build();
     }
 
-    private void appendLineWrap(final LexemeSequenceBuilder builder, int indentLength) {
+    private boolean isAdvisory(final S message) {
+        return SpaceWeatherAdvisory.class.isAssignableFrom(message.getClass());
+    }
+
+    private boolean isSpecialCharacterLexeme(final Lexeme lexeme, final Lexeme.MeteorologicalBulletinSpecialCharacter specialCharacter) {
+        return LexemeIdentity.WHITE_SPACE.equals(lexeme.getIdentity()) //
+                && lexeme.getParsedValues().containsKey(Lexeme.ParsedValueName.TYPE) //
+                && lexeme.getParsedValue(Lexeme.ParsedValueName.TYPE, Lexeme.MeteorologicalBulletinSpecialCharacter.class).equals(specialCharacter);
+    }
+
+    private void appendLineWrap(final LexemeSequenceBuilder builder, final int indentLength) {
         appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
         appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE, indentLength);
     }
 
+    private enum Layout {
+        STANDARD(5), //
+        WHITESPACE_PASSTHROUGH(0), //
+        ADVISORY(0);
+
+        private final int defaultIndentation;
+
+        Layout(final int defaultIndentation) {
+            this.defaultIndentation = defaultIndentation;
+        }
+
+        int lineWrapIndent(final ConversionHints conversionHints) {
+            if (conversionHints != null) {
+                final Integer indent = conversionHints.tryGet(ConversionHints.KEY_INDENT_ON_LINE_WRAP, Integer.class);
+                if (indent != null) {
+                    return indent;
+                }
+            }
+            return getDefaultIndentation();
+        }
+
+        int getDefaultIndentation() {
+            return defaultIndentation;
+        }
+    }
 }

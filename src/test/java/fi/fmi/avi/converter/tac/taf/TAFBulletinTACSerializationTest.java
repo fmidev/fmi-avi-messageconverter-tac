@@ -34,7 +34,7 @@ public class TAFBulletinTACSerializationTest {
     private AviMessageConverter converter;
 
     @Test
-    public void testTokenizingAmendment() throws Exception {
+    public void testTokenizingAmendment() {
         final String tac = "TAF AMD EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004\r\n"//
                 + "BECMG 0206/0208 FEW005 BKN020\r\n"//
                 + "TEMPO 0206/0215 4000 SHRA BKN010 SCT030CB=";
@@ -63,13 +63,13 @@ public class TAFBulletinTACSerializationTest {
                         + "FCFI33 EFPP 020500 AAA"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF AMD EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "     BKN010 SCT030CB=", //
+                        + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "     SHRA BKN010 SCT030CB=", //
                 stringResult.getConvertedMessage().get());
     }
 
     @Test
-    public void testTokenizingDelayed() throws Exception {
+    public void testTokenizingDelayed() {
         final String tac = "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004\r\n"//
                 + "BECMG 0206/0208 FEW005 BKN020\r\n"//
                 + "TEMPO 0206/0215 4000 SHRA BKN010 SCT030CB=";
@@ -98,14 +98,14 @@ public class TAFBulletinTACSerializationTest {
                         + "FCFI33 EFPP 020500 RRZ" //
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004 BECMG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA BKN010" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "     SCT030CB=", //
+                        + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "     BKN010 SCT030CB=", //
                 stringResult.getConvertedMessage().get());
     }
 
     //TODO: move to fmi-avi-messageconverter project
     @Test(expected = IllegalArgumentException.class)
-    public void testBuildingWithTooManyAugmentations() throws Exception {
+    public void testBuildingWithTooManyAugmentations() {
         final String tac = "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004\r\n"//
                 + "BECMG 0206/0208 FEW005 BKN020\r\n"//
                 + "TEMPO 0206/0215 4000 SHRA BKN010 SCT030CB=";
@@ -128,7 +128,7 @@ public class TAFBulletinTACSerializationTest {
     }
 
     @Test
-    public void testTokenizingCorrection() throws Exception {
+    public void testTokenizingCorrection() {
         final String tac = "TAF COR EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004\r\n"//
                 + "BECMG 0206/0208 FEW005 BKN020\r\n"//
                 + "TEMPO 0206/0215 4000 SHRA BKN010 SCT030CB=";
@@ -157,8 +157,8 @@ public class TAFBulletinTACSerializationTest {
                         + "FCFI33 EFPP 020500 CCB"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF COR EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "     BKN010 SCT030CB=", //
+                        + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "     SHRA BKN010 SCT030CB=", //
                 stringResult.getConvertedMessage().get());
     }
 
@@ -191,8 +191,8 @@ public class TAFBulletinTACSerializationTest {
                         + "FCFI33 EFPP 020500"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004 BECMG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA BKN010" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "     SCT030CB=", //
+                        + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "     BKN010 SCT030CB=", //
                 tacBulletin.get());
     }
 
@@ -225,8 +225,8 @@ public class TAFBulletinTACSerializationTest {
                         + "FTFI33 EFPP 020500"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA BKN010" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "     SCT030CB=", //
+                        + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "     BKN010 SCT030CB=", //
                 tacBulletin.get());
     }
 }
