@@ -10,35 +10,26 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
-import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
-/**
- * Created by rinne on 10/02/17.
- */
-public class RemarkStart extends PrioritizedLexemeVisitor {
-    public RemarkStart(final OccurrenceFrequency prio) {
+public class AdvisoryRemarkStart extends PrioritizedLexemeVisitor {
+    public AdvisoryRemarkStart(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
         super(prio);
     }
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if ("RMK".equalsIgnoreCase(token.getTACToken())) {
+        if ("RMK:".equals(token.getTACToken())) {
             token.identify(REMARKS_START);
         }
     }
-    
+
     public static class Reconstructor extends FactoryBasedReconstructor {
-    	@Override
+        @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            if (msg instanceof AviationWeatherMessage) {
-                AviationWeatherMessage aviMsg = (AviationWeatherMessage) msg;
-                if (aviMsg.getRemarks().isPresent() && !aviMsg.getRemarks().get().isEmpty()) {
-                    return Optional.of(this.createLexeme("RMK", REMARKS_START));
-                }
-            }
-            return Optional.empty();
+            return Optional.of(this.createLexeme("RMK:", REMARKS_START));
+
         }
     }
 }

@@ -25,6 +25,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumberLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryRemarkStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatus;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatusLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
@@ -70,7 +71,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenterLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffect;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffectConjuction;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffectLabel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXIssueTimeLabel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTimeLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotAvailable;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotExpected;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
@@ -140,7 +141,6 @@ public class Lexing {
         f.addTokenCombiningRule(sigmetValidTimeCombinationRule());
         f.addTokenCombiningRule(usSigmetValidTimeCombinationRule());
         f.addTokenCombiningRule(advisoryStartCombinationRule());
-        f.addTokenCombiningRule(dtgCombinationRule());
         f.addTokenCombiningRule(advisoryFctOffsetCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryPhenomenaCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryForecastTimeCombinationRule());
@@ -371,23 +371,6 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> dtgCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "DTG:".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[0-9]{8}/[0-9]{4}Z$");
-            }
-        });
-        return retval;
-    }
-
     private List<Predicate<String>> advisoryFctOffsetCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -444,7 +427,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(W|E)\\d{3,5}$");
+                return s.matches("^(W|E)\\d{1,5}$");
             }
         });
         retval.add(new Predicate<String>() {
@@ -456,7 +439,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(W|E)\\d{3,5}$");
+                return s.matches("^(W|E)\\d{1,5}$");
             }
         });
         return retval;
@@ -1159,9 +1142,9 @@ public class Lexing {
         });
 
         l.teach(new SWXAdvisoryStart(OccurrenceFrequency.RARE));
-        l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
+        l.teach(new DTGIssueTimeLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new DTGIssueTime(OccurrenceFrequency.AVERAGE));
         l.teach(new IssueTime(OccurrenceFrequency.RARE));
-        l.teach(new SWXIssueTimeLabel(OccurrenceFrequency.RARE));
         l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
@@ -1186,9 +1169,8 @@ public class Lexing {
         l.teach(new SWXVerticalLimit(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumberLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new ReplaceAdvisoryNumber(OccurrenceFrequency.AVERAGE));
-        l.teach(new RemarkStart(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryRemarkStart(OccurrenceFrequency.AVERAGE));
         l.teach(new Remark(OccurrenceFrequency.FREQUENT));
-        l.teach(new SWXIssueTimeLabel(OccurrenceFrequency.AVERAGE));
 
         return l;
     }
@@ -1210,6 +1192,7 @@ public class Lexing {
 
         l.teach(new VolcanicAshAdvisoryStart(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
+        l.teach(new DTGIssueTimeLabel(OccurrenceFrequency.RARE));
         l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));

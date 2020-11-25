@@ -100,7 +100,7 @@ public class LexemeIdentity {
             Collections.emptySet());
     public static final LexemeIdentity MIN_TEMPERATURE = new LexemeIdentity("MIN_TEMPERATURE", EnumSet.of(DAY1, HOUR1, VALUE), Collections.emptySet());
     public static final LexemeIdentity MAX_TEMPERATURE = new LexemeIdentity("MAX_TEMPERATURE", EnumSet.of(DAY1, HOUR1, VALUE), Collections.emptySet());
-    public static final LexemeIdentity REMARKS_START = new LexemeIdentity("REMARKS_START");
+    public static final LexemeIdentity REMARKS_START = new LexemeIdentity("REMARKS_START", Collections.emptySet(), EnumSet.of(IdentityProperty.LABEL));
     public static final LexemeIdentity REMARK = new LexemeIdentity("REMARK", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity COLOR_CODE = new LexemeIdentity("COLOR_CODE", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity WHITE_SPACE = new LexemeIdentity("WHITE_SPACE", EnumSet.of(TYPE, VALUE), Collections.emptySet());
@@ -139,7 +139,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity POLYGON_COORDINATE_PAIR_SEPARATOR = new LexemeIdentity("POLYGON_COORDINATE_PAIR_SEPARATOR");
     public static final LexemeIdentity POLYGON_COORDINATE_PAIR = new LexemeIdentity("POLYGON_COORDINATE_PAIR", EnumSet.of(VALUE, VALUE2),
             Collections.emptySet());
-    public static final LexemeIdentity SWX_ISSUE_TIME_LABEL = new LexemeIdentity("SWX_ISSUE_TIME_LABEL", EnumSet.of(VALUE), EnumSet.of(IdentityProperty.LABEL));
+    public static final LexemeIdentity DTG_ISSUE_TIME_LABEL = new LexemeIdentity("DTG_ISSUE_TIME_LABEL", EnumSet.of(VALUE), EnumSet.of(IdentityProperty.LABEL));
     public static final LexemeIdentity NEXT_ADVISORY = new LexemeIdentity("NEXT_ADVISORY", EnumSet.of(TYPE, YEAR, MONTH, DAY1, HOUR1, MINUTE1),
             Collections.emptySet());
     public static final LexemeIdentity NEXT_ADVISORY_LABEL = new LexemeIdentity("NEXT_ADVISORY_LABEL", Collections.emptySet(),
@@ -202,7 +202,8 @@ public class LexemeIdentity {
      */
     public enum IdentityProperty {
         /**
-         * Indicates that this {@code LexemeIdentity} represents a label.
+         * Indicates that this {@code LexemeIdentity} represents a label in a message containing labels.
+         * On other message types this property is obsolete.
          */
         LABEL
     }

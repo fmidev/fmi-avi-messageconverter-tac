@@ -12,14 +12,14 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 
-public class SWXIssueTimeLabel extends RegexMatchingLexemeVisitor {
-    public SWXIssueTimeLabel(final OccurrenceFrequency prio) {
+public class DTGIssueTimeLabel extends RegexMatchingLexemeVisitor {
+    public DTGIssueTimeLabel(final OccurrenceFrequency prio) {
         super("^DTG\\:$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(LexemeIdentity.SWX_ISSUE_TIME_LABEL);
+        token.identify(LexemeIdentity.DTG_ISSUE_TIME_LABEL);
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -29,7 +29,7 @@ public class SWXIssueTimeLabel extends RegexMatchingLexemeVisitor {
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 StringBuilder builder = new StringBuilder("DTG:");
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_ISSUE_TIME_LABEL));
+                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.DTG_ISSUE_TIME_LABEL));
             }
             return retval;
         }

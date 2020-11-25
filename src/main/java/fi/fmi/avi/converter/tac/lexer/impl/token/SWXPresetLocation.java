@@ -26,12 +26,8 @@ public class SWXPresetLocation extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
-
-        String locationCode = match.group("type");
-        if (locationCode.equals("DAYLIGHT SIDE")) {
-            locationCode = "DAYLIGHT_SIDE";
-        }
-        token.setParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.fromCode(locationCode));
+        final String locationCode = match.group("type");
+        token.setParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.fromTacCode(locationCode));
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
