@@ -21,7 +21,7 @@ public class AdvisoryStatus extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if(token != null && token.hasPrevious()) {
+        if (token != null && token.hasPrevious()) {
             if (token.getPrevious().getIdentity() != null && token.getPrevious().getIdentity().equals(LexemeIdentity.ADVISORY_STATUS_LABEL)) {
                 token.identify(LexemeIdentity.ADVISORY_STATUS);
                 String status = match.group("status");
@@ -44,10 +44,13 @@ public class AdvisoryStatus extends RegexMatchingLexemeVisitor {
                 SpaceWeatherAdvisory advisory = (SpaceWeatherAdvisory) msg;
 
                 if (advisory.getPermissibleUsageReason().isPresent()) {
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(advisory.getPermissibleUsageReason().get().toString());
-
-                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_STATUS));
+                    final StringBuilder builder = new StringBuilder();
+                    if (advisory.getPermissibleUsageReason().get() == AviationCodeListUser.PermissibleUsageReason.EXERCISE) {
+                        builder.append("EXER");
+                    } else {
+                        builder.append(advisory.getPermissibleUsageReason().get().toString());
+                    }
+                    retval = Optional.of(createLexeme(builder.toString(), LexemeIdentity.ADVISORY_STATUS));
                 }
             }
             return retval;
