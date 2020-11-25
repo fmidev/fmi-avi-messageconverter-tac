@@ -165,6 +165,7 @@ public class Lexing {
         f.addTokenCombiningRule(spaceWeatherAdvisoryNoAdvisoriesCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryCombinationRules());
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules());
+        f.addTokenCombiningRule(intlSigmetStartRule());
         f.addTokenCombiningRule(intlSigmetFirName3CombinationRule());
         f.addTokenCombiningRule(intlSigmetFirNameCombinationRule());
         f.addTokenCombiningRule(intlSigmetEntireFirCombinationRule());
@@ -187,7 +188,7 @@ public class Lexing {
         f.setMessageStartToken(MessageType.SPACE_WEATHER_ADVISORY,
                 f.createLexeme("SWX ADVISORY", LexemeIdentity.SPACE_WEATHER_ADVISORY_START, Lexeme.Status.OK, true));
         f.setMessageStartToken(MessageType.SIGMET,
-                f.createLexeme("SIGMET", LexemeIdentity.SIGMET_START, Lexeme.Status.OK, true));
+                f.createLexeme("XXXX SIGMET", LexemeIdentity.SIGMET_START, Lexeme.Status.OK, true));
 
         //Non-standard types:
         f.setMessageStartToken(lowWind(),
@@ -975,6 +976,23 @@ public class Lexing {
             return retval;
     }
 
+    private List<Predicate<String>> intlSigmetStartRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[A-Z]{4,}");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("SIGMET");
+            }
+        });
+       return retval;
+    }
+
     private List<Predicate<String>> intlSigmetFirName3CombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -1271,7 +1289,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().getTACToken().equals("SIGMET");
+                System.err.println("testing "+sequence.getFirstLexeme().getTACToken());
+                return sequence.getFirstLexeme().getIdentity().equals(LexemeIdentity.SIGMET_START);
                 //&& sequence.getFirstLexeme().getNext().getIdentity().equals(LexemeIdentity.AIRSPACE_DESIGNATOR);
             }
 
@@ -1280,7 +1299,7 @@ public class Lexing {
                 return MessageType.SIGMET;
             }
         });
-        l.teach(new SigmetStart(OccurrenceFrequency.FREQUENT));
+        l.teach(new SigmetStart(OccurrenceFrequency.RARE));
         l.teach(new SigmetSequenceDescriptor(OccurrenceFrequency.AVERAGE));
         l.teach(new AirspaceDesignator(OccurrenceFrequency.RARE));
         l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));

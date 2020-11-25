@@ -16,8 +16,9 @@ public class SigmetSequenceDescriptor extends TimeHandlingRegex {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        System.err.println("prev:"+token.getPrevious().getIdentity()+" "+LexemeIdentity.SIGMET_START.equals(token.getPrevious().getIdentity()));
-        if (LexemeIdentity.SIGMET_START.equals(token.getPrevious(true))) {
+        System.err.println(token+"seq prev:"+token.getPrevious().getIdentity()+" "+LexemeIdentity.SIGMET_START.equals(token.getPrevious().getIdentity()));
+        if (LexemeIdentity.SIGMET_START.equals(token.getPrevious().getIdentity())) {
+            System.err.println("found seq "+token);
             final String id = match.group(0);
 
             token.identify(LexemeIdentity.SEQUENCE_DESCRIPTOR);

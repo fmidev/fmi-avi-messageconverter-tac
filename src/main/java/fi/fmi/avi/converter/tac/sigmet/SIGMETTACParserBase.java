@@ -24,7 +24,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
 
 public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACParser<T> {
 
-    protected static final LexemeIdentity[] zeroOrOneAllowed = {/*LexemeIdentity.SIGMET_START,*/ LexemeIdentity.AIRSPACE_DESIGNATOR, LexemeIdentity.SEQUENCE_DESCRIPTOR, LexemeIdentity.ISSUE_TIME, LexemeIdentity.VALID_TIME,
+    protected static final LexemeIdentity[] zeroOrOneAllowed = {/* LexemeIdentity.SIGMET_START,  LexemeIdentity.AIRSPACE_DESIGNATOR, */ LexemeIdentity.SEQUENCE_DESCRIPTOR, LexemeIdentity.ISSUE_TIME, LexemeIdentity.VALID_TIME,
             LexemeIdentity.CORRECTION, LexemeIdentity.AMENDMENT, LexemeIdentity.CANCELLATION, LexemeIdentity.NIL, LexemeIdentity.MIN_TEMPERATURE,
             LexemeIdentity.MAX_TEMPERATURE, LexemeIdentity.REMARKS_START };
     protected AviMessageLexer lexer;
