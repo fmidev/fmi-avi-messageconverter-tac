@@ -304,7 +304,7 @@ public class SWXTACParserTest {
         final String input = getInput("spacewx-pecasus-notavbl.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.FAIL, result.getStatus());
-        assertEquals(15, result.getConversionIssues().size());
+        assertEquals(16, result.getConversionIssues().size());
         assertFalse(result.getConvertedMessage().isPresent());
     }
 
@@ -651,6 +651,94 @@ public class SWXTACParserTest {
         assertEquals(1, analysis.getRegions().size());
         PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         assertEquals(expected, geom.getExteriorRingPositions());
+    }
+
+    @Test
+    public void testInvalidIssueTimeDay() throws IOException {
+        final String input = getInput("spacewx-invalid-issue-time-day.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertFalse(result.getConversionIssues().isEmpty());
+        assertTrue(result.getConversionIssues().stream()//
+                .anyMatch(issue -> issue.getType() == ConversionIssue.Type.SYNTAX //
+                        && issue.getSeverity() == ConversionIssue.Severity.ERROR //
+                        && issue.getMessage().equals("Lexing problem with '20200100/1310Z'")));
+    }
+
+    @Test
+    public void testInvalidIssueTimeHour() throws IOException {
+        final String input = getInput("spacewx-invalid-issue-time-hour.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertFalse(result.getConversionIssues().isEmpty());
+        assertTrue(result.getConversionIssues().stream()//
+                .anyMatch(issue -> issue.getType() == ConversionIssue.Type.SYNTAX //
+                        && issue.getSeverity() == ConversionIssue.Severity.ERROR //
+                        && issue.getMessage().equals("Lexing problem with '20200101/2400Z'")));
+    }
+
+    @Test
+    public void testInvalidNextAdvisoryMonth() throws IOException {
+        final String input = getInput("spacewx-invalid-nxt-advisory-month.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertFalse(result.getConversionIssues().isEmpty());
+        assertTrue(result.getConversionIssues().stream()//
+                .anyMatch(issue -> issue.getType() == ConversionIssue.Type.MISSING_DATA//
+                        && issue.getSeverity() == ConversionIssue.Severity.ERROR //
+                        && issue.getMessage().equals("Missing at least some of the next advisory time components")));
+    }
+
+    @Test
+    public void testInvalidNextAdvisoryDayZero() throws IOException {
+        final String input = getInput("spacewx-invalid-nxt-advisory-day-zero.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertFalse(result.getConversionIssues().isEmpty());
+        assertTrue(result.getConversionIssues().stream()//
+                .anyMatch(issue -> issue.getType() == ConversionIssue.Type.MISSING_DATA//
+                        && issue.getSeverity() == ConversionIssue.Severity.ERROR //
+                        && issue.getMessage().equals("Missing at least some of the next advisory time components")));
+    }
+
+    @Test
+    public void testInvalidNextAdvisoryDay33() throws IOException {
+        final String input = getInput("spacewx-invalid-nxt-advisory-day-33.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertFalse(result.getConversionIssues().isEmpty());
+        assertTrue(result.getConversionIssues().stream()//
+                .anyMatch(issue -> issue.getType() == ConversionIssue.Type.MISSING_DATA//
+                        && issue.getSeverity() == ConversionIssue.Severity.ERROR //
+                        && issue.getMessage().equals("Missing at least some of the next advisory time components")));
+    }
+
+    @Test
+    public void testInvalidNextAdvisoryHour() throws IOException {
+        final String input = getInput("spacewx-invalid-nxt-advisory-hour.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertFalse(result.getConversionIssues().isEmpty());
+        assertTrue(result.getConversionIssues().stream()//
+                .anyMatch(issue -> issue.getType() == ConversionIssue.Type.MISSING_DATA//
+                        && issue.getSeverity() == ConversionIssue.Severity.ERROR //
+                        && issue.getMessage().equals("Missing at least some of the next advisory time components")));
+    }
+
+    @Test
+    public void testInvalidObservationDay() throws IOException {
+        final String input = getInput("spacewx-invalid-obs-day.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertFalse(result.getConversionIssues().isEmpty());
+        assertTrue(result.getConversionIssues().stream()//
+                .anyMatch(issue -> issue.getType() == ConversionIssue.Type.SYNTAX//
+                        && issue.getSeverity() == ConversionIssue.Severity.ERROR //
+                        && issue.getMessage().equals("Invalid analysis time in OBS SWX:")));
+    }
+
+    @Test
+    public void testInvalidObservationTime() throws IOException {
+        final String input = getInput("spacewx-invalid-obs-hour.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertFalse(result.getConversionIssues().isEmpty());
+        assertTrue(result.getConversionIssues().stream()//
+                .anyMatch(issue -> issue.getType() == ConversionIssue.Type.SYNTAX//
+                        && issue.getSeverity() == ConversionIssue.Severity.ERROR //
+                        && issue.getMessage().equals("Invalid analysis time in OBS SWX:")));
     }
 
     private String getInput(final String fileName) throws IOException {
