@@ -52,6 +52,30 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START };
     private AviMessageLexer lexer;
 
+    private static Optional<PartialOrCompleteTimeInstant> createPartialTimeInstant(final Lexeme lexeme) {
+        final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+        final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+        final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+
+        if (day != null && minute != null && hour != null) {
+            return Optional.of(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"))));
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<PartialOrCompleteTimeInstant> createCompleteTimeInstant(final Lexeme lexeme) {
+        final Integer year = lexeme.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
+        final Integer month = lexeme.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
+        final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+        final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+        final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+
+        if (year != null && month != null && day != null && minute != null && hour != null) {
+            return Optional.of(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
+        }
+        return Optional.empty();
+    }
+
     @Override
     public void setTACLexer(final AviMessageLexer lexer) {
         this.lexer = lexer;
@@ -122,7 +146,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         firstLexeme.findNext(LexemeIdentity.SWX_CENTRE, (match) -> {
             final IssuingCenterImpl.Builder issuingCenter = IssuingCenterImpl.builder();
             issuingCenter.setName(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
-            issuingCenter.setDesignator("SWXC");
+            issuingCenter.setType("OTHER:SWXC");
             builder.setIssuingCenter(issuingCenter.build());
         }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "The name of the issuing space weather center is missing")));
 
@@ -378,7 +402,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
     private Geometry buildMultiPolygon(final double minLatitude, final double minLongitude, final double maxLatitude, final double maxLongitude) {
         if (minLongitude >= maxLongitude && (Math.abs(minLongitude) != 180d && Math.abs(maxLongitude) != 180d)) {
-            MultiPolygonGeometryImpl.Builder multiPolygon = MultiPolygonGeometryImpl.builder().setCrs(CoordinateReferenceSystemImpl.wgs84());
+            final MultiPolygonGeometryImpl.Builder multiPolygon = MultiPolygonGeometryImpl.builder().setCrs(CoordinateReferenceSystemImpl.wgs84());
 
             if (Math.abs(minLongitude) == 0 && Math.abs(maxLongitude) == 0) {
                 multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, 0d, maxLatitude, 180d));
@@ -390,7 +414,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
             return multiPolygon.build();
         } else {
-            List<Double> polygon;
+            final List<Double> polygon;
             if (Math.abs(minLongitude) == 180d && Math.abs(maxLongitude) == 180d) {
                 polygon = createPolygon(minLatitude, -180d, maxLatitude, 180d);
             } else if (Math.abs(minLongitude) == 180d || Math.abs(maxLongitude) == 180d) {
@@ -462,30 +486,6 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             }
         }
         return volumeBuilder.build();
-    }
-
-    private static Optional<PartialOrCompleteTimeInstant> createPartialTimeInstant(final Lexeme lexeme) {
-        final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-        final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-        final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-
-        if (day != null && minute != null && hour != null) {
-            return Optional.of(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"))));
-        }
-        return Optional.empty();
-    }
-
-    private static Optional<PartialOrCompleteTimeInstant> createCompleteTimeInstant(final Lexeme lexeme) {
-        final Integer year = lexeme.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
-        final Integer month = lexeme.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
-        final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-        final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-        final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-
-        if (year != null && month != null && day != null && minute != null && hour != null) {
-            return Optional.of(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
-        }
-        return Optional.empty();
     }
 
 }
