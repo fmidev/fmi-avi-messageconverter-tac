@@ -56,7 +56,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity US_SIGMET_START = new LexemeIdentity("US_SIGMET_START");
     public static final LexemeIdentity REP = new LexemeIdentity("REP");
     public static final LexemeIdentity SPACE_WEATHER_ADVISORY_START = new LexemeIdentity("SPACE_WEATHER_ADVISORY_START");
-    public static final LexemeIdentity ADVISORY_PHENOMENA_LABEL = new LexemeIdentity("ADVISORY_PHENOMENA_LABEL", EnumSet.of(TYPE),
+    public static final LexemeIdentity ADVISORY_PHENOMENA_LABEL = new LexemeIdentity("ADVISORY_PHENOMENA_LABEL", EnumSet.of(TYPE, HOUR1),
             EnumSet.of(IdentityProperty.LABEL));
     public static final LexemeIdentity ADVISORY_PHENOMENA_TIME_GROUP = new LexemeIdentity("ADVISORY_PHENOMENA_TIME_GROUP", EnumSet.of(DAY1, HOUR1, MINUTE1),
             Collections.emptySet());

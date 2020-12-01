@@ -1,12 +1,15 @@
 package fi.fmi.avi.converter.tac.swx;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,7 +43,6 @@ import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
-
 public class SWXTACParserTest {
 
     @Autowired
@@ -411,10 +413,7 @@ public class SWXTACParserTest {
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(3, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(2).getType());
-        assertTrue(result.getConversionIssues()
-                .get(2)
-                .getMessage()
-                .contains("Replace Advisory number label was found, but the data could not be parsed in " + "message"));
+        assertTrue(result.getConversionIssues().get(2).getMessage().contains("Replace advisory number is missing"));
     }
 
     @Test
@@ -507,7 +506,48 @@ public class SWXTACParserTest {
 
     @Test
     public void testInvalidTokenOrder() throws IOException {
+        final String tac = getInput("spacewx-token-order.tac");
+        final List<String> originalList = Arrays.asList(tac.split("\n"));
+        final String comparisonTac = tac + "=";
+
+        for (int x = 0; x < originalList.size(); x++) {
+            final LinkedList<String> modifiedList = new LinkedList<>(originalList);
+            modifiedList.addFirst(modifiedList.get(x));
+            modifiedList.remove(x + 1);
+
+            for (int i = 0; i < modifiedList.size() - 1; i++) {
+                Collections.rotate(modifiedList.subList(i, i + 2), -1);
+
+                if (modifiedList.get(i).startsWith("RMK:") //
+                        && (modifiedList.get(i + 1).startsWith("STATUS:") || modifiedList.get(i + 1).startsWith("NR RPLC:"))) {
+                    // Skip cases where optional labels are interpreted as a continuation of a remark
+                    continue;
+                }
+
+                final String modifiedTac = String.join("\n", modifiedList) + "=";
+                if (!comparisonTac.equals(modifiedTac)) {
+                    final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(modifiedTac, TACConverter.TAC_TO_SWX_POJO);
+                    if (result.getConversionIssues().isEmpty()) {
+                        fail("Invalid token order not detected for TAC:\n" + modifiedTac);
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testInvalidTokenOrder2() throws IOException {
         final String input = getInput("spacewx-invalid-token-order.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertEquals(10, result.getConversionIssues().size());
+        assertTrue(result.getConversionIssues().stream()//
+                .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.ERROR && issue.getType() == ConversionIssue.Type.SYNTAX && issue.getMessage()
+                        .contains("Invalid token order")));
+    }
+
+    @Test
+    public void testInvalidTokenOrder3() throws IOException {
+        final String input = getInput("spacewx-invalid-token-order-fcst.tac");
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(4, result.getConversionIssues().size());
         assertTrue(result.getConversionIssues().stream()//
@@ -532,6 +572,19 @@ public class SWXTACParserTest {
         assertEquals(forecastIssue.getType(), ConversionIssue.Type.SYNTAX);
         assertEquals("Invalid token order: ''ABV FL340'(SWX_PHENOMENON_VERTICAL_LIMIT,OK)' was found after one of type POLYGON_COORDINATE_PAIR",
                 forecastIssue.getMessage());
+    }
+
+    @Test
+    public void testInvalidForecastHours() throws IOException {
+        final String input = getInput("spacewx-invalid-forecast-hours.tac");
+        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        assertEquals(4, result.getConversionIssues().size());
+        assertTrue(result.getConversionIssues().stream()//
+                .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.ERROR && issue.getType() == ConversionIssue.Type.SYNTAX));
+        assertEquals(result.getConversionIssues().get(0).getMessage(), "Invalid forecast hour: +0 HR");
+        assertEquals(result.getConversionIssues().get(1).getMessage(), "Invalid forecast hour: +15 HR");
+        assertEquals(result.getConversionIssues().get(2).getMessage(), "Invalid token order: forecast +12 HR after forecast +15 HR");
+        assertEquals(result.getConversionIssues().get(3).getMessage(), "Invalid forecast hour: +27 HR");
     }
 
     @Test

@@ -3,8 +3,15 @@ package fi.fmi.avi.converter.tac.swx;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
+import javax.annotation.Nullable;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
@@ -47,6 +54,12 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
      * <a href="http://aixm.aero/sites/aixm.aero/files/imce/AIXM511HTML/AIXM/DataType_CodeVerticalReferenceType.html">AIXM 5.1.1 CodeVerticalReferenceType</a>.
      */
     private static final String STANDARD_ATMOSPHERE = "STD";
+    private static final Set<LexemeIdentity> SWX_LEXEME_IDENTITIES = Collections.unmodifiableSet(new HashSet<>(
+            Arrays.asList(LexemeIdentity.ADVISORY_STATUS_LABEL, LexemeIdentity.ADVISORY_STATUS, LexemeIdentity.DTG_ISSUE_TIME_LABEL, LexemeIdentity.ISSUE_TIME,
+                    LexemeIdentity.SWX_CENTRE_LABEL, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER_LABEL, LexemeIdentity.ADVISORY_NUMBER,
+                    LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
+                    LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
+                    LexemeIdentity.NEXT_ADVISORY)));
 
     private final LexemeIdentity[] oneRequired = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER,
             LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START };
@@ -94,15 +107,13 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             builder.setTranslatedTAC(lexed.getTAC());
         }
 
+        final Set<LexemeIdentity> remainingLexemeIdentities = new HashSet<>(SWX_LEXEME_IDENTITIES);
+
         firstLexeme.findNext(LexemeIdentity.ADVISORY_STATUS_LABEL, (match) -> {
-            final LexemeIdentity[] before = { LexemeIdentity.ADVISORY_STATUS, LexemeIdentity.DTG_ISSUE_TIME_LABEL, LexemeIdentity.ISSUE_TIME,
-                    LexemeIdentity.SWX_CENTRE_LABEL, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER_LABEL, LexemeIdentity.ADVISORY_NUMBER,
-                    LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
-                    LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP,
-                    LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL, LexemeIdentity.NEXT_ADVISORY };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            remainingLexemeIdentities.remove(LexemeIdentity.ADVISORY_STATUS_LABEL);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
             if (issue != null) {
-                retval.addIssue(issue);
+                conversionIssues.add(issue);
             }
 
             builder.setPermissibleUsage(AviationCodeListUser.PermissibleUsage.NON_OPERATIONAL);
@@ -118,12 +129,8 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         });
 
         firstLexeme.findNext(LexemeIdentity.ADVISORY_STATUS, (match) -> {
-            final LexemeIdentity[] before = { LexemeIdentity.DTG_ISSUE_TIME_LABEL, LexemeIdentity.ISSUE_TIME, LexemeIdentity.SWX_CENTRE_LABEL,
-                    LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER_LABEL, LexemeIdentity.ADVISORY_NUMBER,
-                    LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
-                    LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP,
-                    LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL, LexemeIdentity.NEXT_ADVISORY };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            remainingLexemeIdentities.remove(LexemeIdentity.ADVISORY_STATUS);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
             if (issue != null) {
                 retval.addIssue(issue);
             }
@@ -131,13 +138,17 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             builder.setPermissibleUsageReason(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
         });
 
+        firstLexeme.findNext(LexemeIdentity.DTG_ISSUE_TIME_LABEL, (match) -> {
+            remainingLexemeIdentities.remove(LexemeIdentity.DTG_ISSUE_TIME_LABEL);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+        });
+
         firstLexeme.findNext(LexemeIdentity.ISSUE_TIME, (match) -> {
-            final LexemeIdentity[] before = { LexemeIdentity.SWX_CENTRE_LABEL, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER_LABEL,
-                    LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER,
-                    LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL,
-                    LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
-                    LexemeIdentity.NEXT_ADVISORY };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            remainingLexemeIdentities.remove(LexemeIdentity.ISSUE_TIME);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
             if (issue != null) {
                 retval.addIssue(issue);
             }
@@ -150,12 +161,17 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             }
         });
 
+        firstLexeme.findNext(LexemeIdentity.SWX_CENTRE_LABEL, (match) -> {
+            remainingLexemeIdentities.remove(LexemeIdentity.SWX_CENTRE_LABEL);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+        });
+
         firstLexeme.findNext(LexemeIdentity.SWX_CENTRE, (match) -> {
-            final LexemeIdentity[] before = { LexemeIdentity.ADVISORY_NUMBER_LABEL, LexemeIdentity.ADVISORY_NUMBER,
-                    LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
-                    LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP,
-                    LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL, LexemeIdentity.NEXT_ADVISORY };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            remainingLexemeIdentities.remove(LexemeIdentity.SWX_CENTRE);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
             if (issue != null) {
                 retval.addIssue(issue);
             }
@@ -166,12 +182,17 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             builder.setIssuingCenter(issuingCenter.build());
         }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "The name of the issuing space weather center is missing")));
 
+        firstLexeme.findNext(LexemeIdentity.ADVISORY_NUMBER_LABEL, (match) -> {
+            remainingLexemeIdentities.remove(LexemeIdentity.ADVISORY_NUMBER_LABEL);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
+            if (issue != null) {
+                retval.addIssue(issue);
+            }
+        });
+
         firstLexeme.findNext(LexemeIdentity.ADVISORY_NUMBER, (match) -> {
-            final LexemeIdentity[] before = { LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER,
-                    LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL,
-                    LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
-                    LexemeIdentity.NEXT_ADVISORY };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            remainingLexemeIdentities.remove(LexemeIdentity.ADVISORY_NUMBER);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
             if (issue != null) {
                 retval.addIssue(issue);
             }
@@ -180,27 +201,33 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         });
 
         firstLexeme.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, (match) -> {
-            final LexemeIdentity[] before = { LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL,
-                    LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
-                    LexemeIdentity.NEXT_ADVISORY };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            remainingLexemeIdentities.remove(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
             if (issue != null) {
                 retval.addIssue(issue);
             }
 
-            final Lexeme value = match.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
-            if (value == null) {
-                conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
-                        "Replace Advisory number label was found, but the data could not be parsed in message\n" + input));
-            } else {
-                builder.setReplaceAdvisoryNumber(value.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
+            firstLexeme.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER, (advisoryNumberMatch) -> {
+                remainingLexemeIdentities.remove(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
+                final ConversionIssue advisoryNumberIssue = checkBeforeAnyOf(advisoryNumberMatch, remainingLexemeIdentities);
+                if (advisoryNumberIssue != null) {
+                    retval.addIssue(advisoryNumberIssue);
+                }
+                builder.setReplaceAdvisoryNumber(advisoryNumberMatch.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
+            }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Replace advisory number is missing")));
+        });
+
+        firstLexeme.findNext(LexemeIdentity.SWX_EFFECT_LABEL, (match) -> {
+            remainingLexemeIdentities.remove(LexemeIdentity.SWX_EFFECT_LABEL);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
+            if (issue != null) {
+                retval.addIssue(issue);
             }
         });
 
         firstLexeme.findNext(LexemeIdentity.SWX_EFFECT, (match) -> {
-            final LexemeIdentity[] before = { LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP,
-                    LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL, LexemeIdentity.NEXT_ADVISORY };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            remainingLexemeIdentities.remove(LexemeIdentity.SWX_EFFECT);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
             if (issue != null) {
                 retval.addIssue(issue);
             }
@@ -216,7 +243,9 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
                 "At least 1 valid space weather effect is required.")));
 
+        conversionIssues.addAll(checkPhenomenaLabelOrder(firstLexeme, remainingLexemeIdentities));
         final List<LexemeSequence> analysisList = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
+        conversionIssues.addAll(checkPhenomenaLabels(analysisList));
         final List<SpaceWeatherAdvisoryAnalysis> analyses = new ArrayList<>();
 
         analysisList.forEach(analysisSequence -> {
@@ -228,14 +257,15 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                 }
             }
         });
+
         if (analyses.size() != 5) {
-            conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING,
+            retval.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING,
                     "Advisories should contain 5 observation/forecasts but " + analyses.size() + " were found in message:\n" + lexed.getTAC()));
         }
 
         firstLexeme.findNext(LexemeIdentity.REMARKS_START, (match) -> {
-            final LexemeIdentity[] before = { LexemeIdentity.NEXT_ADVISORY_LABEL, LexemeIdentity.NEXT_ADVISORY };
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            remainingLexemeIdentities.remove(LexemeIdentity.REMARKS_START);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
             if (issue != null) {
                 retval.addIssue(issue);
             }
@@ -270,15 +300,57 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }
 
         retval.addIssue(conversionIssues);
-
         return retval;
     }
 
-    protected SpaceWeatherAdvisoryAnalysis processAnalysis(final Lexeme lexeme, final List<ConversionIssue> issues) {
+    private Collection<ConversionIssue> checkPhenomenaLabelOrder(final Lexeme firstLexeme, final Set<LexemeIdentity> remainingLexemeIdentities) {
+        final List<ConversionIssue> issues = new ArrayList<>();
+        remainingLexemeIdentities.remove(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
+        Lexeme phenomenaLabel = firstLexeme.findNext(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
+        while (phenomenaLabel != null) {
+            final ConversionIssue issue = checkBeforeAnyOf(phenomenaLabel, remainingLexemeIdentities);
+            if (issue != null) {
+                issues.add(issue);
+            }
+            phenomenaLabel = phenomenaLabel.findNext(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
+        }
+        return issues;
+    }
+
+    private Collection<ConversionIssue> checkPhenomenaLabels(final List<LexemeSequence> analysisList) {
+        final List<ConversionIssue> issues = new ArrayList<>();
+        int previousHour = 0;
+        for (LexemeSequence lexemeSequence : analysisList) {
+            final Lexeme analysis = lexemeSequence.getFirstLexeme();
+            if (LexemeIdentity.ADVISORY_PHENOMENA_LABEL.equals(analysis.getIdentity())) {
+                if (analysis.getParsedValue(Lexeme.ParsedValueName.TYPE, SWXPhenomena.Type.class) == SWXPhenomena.Type.OBS && previousHour > 0) {
+                    issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX,
+                            "Invalid token order: observation after forecast(s)"));
+                } else {
+                    @Nullable
+                    final Integer hour = analysis.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+                    if (hour != null) {
+                        if (hour < 6 || hour > 24 || hour % 6 != 0) {
+                            issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX,
+                                    "Invalid forecast hour: +" + hour + " HR"));
+                        }
+                        if (hour < previousHour) {
+                            issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX,
+                                    "Invalid token order: forecast +" + hour + " HR after forecast +" + previousHour + " HR"));
+                        }
+                        previousHour = hour;
+                    }
+                }
+            }
+        }
+        return issues;
+    }
+
+    private SpaceWeatherAdvisoryAnalysis processAnalysis(final Lexeme lexeme, final List<ConversionIssue> issues) {
         final SpaceWeatherAdvisoryAnalysisImpl.Builder builder = SpaceWeatherAdvisoryAnalysisImpl.builder();
-        final List<ConversionIssue> issue = checkAnalysisLexemes(lexeme);
-        if (issue.size() > 0) {
-            issues.addAll(issue);
+        final List<ConversionIssue> analysisLexemeCountIssues = checkAnalysisLexemes(lexeme);
+        if (analysisLexemeCountIssues.size() > 0) {
+            issues.addAll(analysisLexemeCountIssues);
         }
 
         if (lexeme.getParsedValue(Lexeme.ParsedValueName.TYPE, SWXPhenomena.Type.class) == SWXPhenomena.Type.OBS) {
@@ -313,9 +385,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }
 
         final List<SpaceWeatherRegion> regionList = handleRegion(lexeme, issues);
-
         builder.addAllRegions(regionList);
-
         return builder.build();
     }
 
