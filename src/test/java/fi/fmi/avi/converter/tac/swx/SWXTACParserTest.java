@@ -27,7 +27,6 @@ import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.AviationCodeListUser;
-import fi.fmi.avi.model.MultiPolygonGeometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.swx.AirspaceVolume;
@@ -215,14 +214,12 @@ public class SWXTACParserTest {
         assertEquals(analysis.getRegions().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().isPresent());
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
-        assertTrue(
-                MultiPolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        MultiPolygonGeometry Multipoly = (MultiPolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        List<List<Double>> expectedMultiPoly = Arrays.asList(Arrays.asList(90d, 160d, 60d, 160d, 60d, 180d, 90d, 180d, 90d, 160d),
-                Arrays.asList(90d, -180d, 60d, -180d, 60d, -20d, 90d, -20d, 90d, -180d));
+        assertTrue(PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        PolygonGeometry geometry = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        List<Double> expectedExteriorRingPositions = Arrays.asList(90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d);
         //Double[] expected = { 90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d };
-        List<List<Double>> actualMultiPoly = Multipoly.getExteriorRingPositions();
-        assertEquals(expectedMultiPoly, actualMultiPoly);
+        List<Double> actualExteriorRingPositions = geometry.getExteriorRingPositions();
+        assertEquals(expectedExteriorRingPositions, actualExteriorRingPositions);
 
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimitReference().isPresent());
@@ -235,13 +232,11 @@ public class SWXTACParserTest {
         assertEquals(analysis.getRegions().get(1).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
         assertTrue(analysis.getRegions().get(1).getAirSpaceVolume().isPresent());
         assertTrue(analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
-        assertTrue(
-                MultiPolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        Multipoly = (MultiPolygonGeometry) analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
-        expectedMultiPoly = Arrays.asList(Arrays.asList(-60d, 160d, -90d, 160d, -90d, 180d, -60d, 180d, -60d, 160d),
-                Arrays.asList(-60d, -180d, -90d, -180d, -90d, -20d, -60d, -20d, -60d, -180d));
-        actualMultiPoly = Multipoly.getExteriorRingPositions();
-        assertEquals(expectedMultiPoly, actualMultiPoly);
+        assertTrue(PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        geometry = (PolygonGeometry) analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
+        expectedExteriorRingPositions = Arrays.asList(-60d, 160d, -90d, 160d, -90d, -20d, -60d, -20d, -60d, 160d);
+        actualExteriorRingPositions = geometry.getExteriorRingPositions();
+        assertEquals(expectedExteriorRingPositions, actualExteriorRingPositions);
 
         analysis = analyses.get(1);
         assertEquals(analysis.getAnalysisType(), SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
@@ -281,13 +276,11 @@ public class SWXTACParserTest {
         assertEquals(analysis.getRegions().get(0).getLocationIndicator().get(), SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().isPresent());
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().isPresent());
-        assertTrue(
-                MultiPolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
-        Multipoly = (MultiPolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        expectedMultiPoly = Arrays.asList(Arrays.asList(90d, 160d, 60d, 160d, 60d, 180d, 90d, 180d, 90d, 160d),
-                Arrays.asList(90d, -180d, 60d, -180d, 60d, -20d, 90d, -20d, 90d, -180d));
-        actualMultiPoly = Multipoly.getExteriorRingPositions();
-        assertEquals(expectedMultiPoly, actualMultiPoly);
+        assertTrue(PolygonGeometry.class.isAssignableFrom(analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get().getClass()));
+        geometry = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        expectedExteriorRingPositions = Arrays.asList(90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d);
+        actualExteriorRingPositions = geometry.getExteriorRingPositions();
+        assertEquals(expectedExteriorRingPositions, actualExteriorRingPositions);
         assertTrue(Arrays.deepEquals(expected, actual));
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit().isPresent());
         assertTrue(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimitReference().isPresent());
@@ -728,16 +721,9 @@ public class SWXTACParserTest {
     }
 
     private String getInput(final String fileName) throws IOException {
-        InputStream is = null;
-        try {
-            is = SWXReconstructorTest.class.getResourceAsStream(fileName);
+        try (InputStream is = SWXReconstructorTest.class.getResourceAsStream(fileName)) {
             Objects.requireNonNull(is);
             return IOUtils.toString(is, "UTF-8");
-        } finally {
-            if (is != null) {
-                is.close();
-            }
         }
     }
 }
-
