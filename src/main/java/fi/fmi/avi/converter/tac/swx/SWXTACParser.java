@@ -22,7 +22,6 @@ import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
-import fi.fmi.avi.model.immutable.MultiPolygonGeometryImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
 import fi.fmi.avi.model.swx.AdvisoryNumber;
@@ -365,7 +364,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                     issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
                             "Missing effect extent in " + lexeme.getFirst().getTACToken()));
                 }
-                final Geometry geometry = buildMultiPolygon(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d));
+                final Geometry geometry = buildGeometry(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d));
                 final AirspaceVolume volume = buildAirspaceVolume(geometry, lowerLimit, upperLimit, verticalLimitOperator, issues);
                 regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
             }
@@ -383,7 +382,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                     }
 
                     if (!location.get().equals(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE)) {
-                        final Geometry geometry = buildMultiPolygon(location.get().getLatitudeBandMinCoordinate().get(), minLongitude.orElse(-180d),
+                        final Geometry geometry = buildGeometry(location.get().getLatitudeBandMinCoordinate().get(), minLongitude.orElse(-180d),
                                 location.get().getLatitudeBandMaxCoordinate().get(), maxLongitude.orElse(180d));
 
                         final AirspaceVolume volume = buildAirspaceVolume(geometry, lowerLimit, upperLimit, verticalLimitOperator, issues);
@@ -400,40 +399,26 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         return regionList;
     }
 
-    private Geometry buildMultiPolygon(final double minLatitude, final double minLongitude, final double maxLatitude, final double maxLongitude) {
-        if (minLongitude >= maxLongitude && (Math.abs(minLongitude) != 180d && Math.abs(maxLongitude) != 180d)) {
-            final MultiPolygonGeometryImpl.Builder multiPolygon = MultiPolygonGeometryImpl.builder().setCrs(CoordinateReferenceSystemImpl.wgs84());
-
-            if (Math.abs(minLongitude) == 0 && Math.abs(maxLongitude) == 0) {
-                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, 0d, maxLatitude, 180d));
-                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, -180d, maxLatitude, 0d));
-            } else {
-                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, minLongitude, maxLatitude, 180d));
-                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, -180d, maxLatitude, maxLongitude));
-            }
-
-            return multiPolygon.build();
-        } else {
-            final List<Double> polygon;
-            if (Math.abs(minLongitude) == 180d && Math.abs(maxLongitude) == 180d) {
-                polygon = createPolygon(minLatitude, -180d, maxLatitude, 180d);
-            } else if (Math.abs(minLongitude) == 180d || Math.abs(maxLongitude) == 180d) {
-                if (Math.abs(minLongitude) == 180d) {
-                    polygon = createPolygon(minLatitude, -180d, maxLatitude, maxLongitude);
-                } else {
-                    polygon = createPolygon(minLatitude, minLongitude, maxLatitude, 180d);
-                }
-            } else {
-                polygon = createPolygon(minLatitude, minLongitude, maxLatitude, maxLongitude);
-            }
-
-            return PolygonGeometryImpl.builder().setCrs(CoordinateReferenceSystemImpl.wgs84()).addAllExteriorRingPositions(polygon).build();
-        }
+    private Geometry buildGeometry(final double minLatitude, final double minLongitude, final double maxLatitude, final double maxLongitude) {
+        final double absMinLongitude = Math.abs(minLongitude);
+        final double absMaxLongitude = Math.abs(maxLongitude);
+        return PolygonGeometryImpl.builder()//
+                .setCrs(CoordinateReferenceSystemImpl.wgs84())//
+                .mutateExteriorRingPositions(coordinates -> {
+                    if (absMinLongitude == 180d && absMaxLongitude == 180d) {
+                        addExteriorRingPositions(coordinates, minLatitude, -180d, maxLatitude, 180d);
+                    } else if (absMinLongitude == 180d) {
+                        addExteriorRingPositions(coordinates, minLatitude, -180d, maxLatitude, maxLongitude);
+                    } else if (absMaxLongitude == 180d) {
+                        addExteriorRingPositions(coordinates, minLatitude, minLongitude, maxLatitude, 180d);
+                    } else {
+                        addExteriorRingPositions(coordinates, minLatitude, minLongitude, maxLatitude, maxLongitude);
+                    }
+                })//
+                .build();
     }
 
-    private List<Double> createPolygon(final double minLat, final double minLon, final double maxLat, final double maxLon) {
-        final List<Double> coordinates = new ArrayList<>();
-
+    private void addExteriorRingPositions(final List<Double> coordinates, final double minLat, final double minLon, final double maxLat, final double maxLon) {
         //Upper left corner:
         coordinates.add(minLat);
         coordinates.add(minLon);
@@ -453,8 +438,6 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         //Upper left corner (again, to close the ring):
         coordinates.add(minLat);
         coordinates.add(minLon);
-
-        return coordinates;
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
