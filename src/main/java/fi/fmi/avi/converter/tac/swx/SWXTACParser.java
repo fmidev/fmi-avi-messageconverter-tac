@@ -30,7 +30,6 @@ import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
-import fi.fmi.avi.model.immutable.MultiPolygonGeometryImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
 import fi.fmi.avi.model.swx.AdvisoryNumber;
@@ -65,6 +64,61 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
     private final LexemeIdentity[] oneRequired = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER,
             LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START };
     private AviMessageLexer lexer;
+
+    private static Optional<PartialOrCompleteTimeInstant> createPartialTimeInstant(final Lexeme lexeme) {
+        final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+        final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+        final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+
+        if (day != null && minute != null && hour != null) {
+            return Optional.of(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"))));
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<PartialOrCompleteTimeInstant> createCompleteTimeInstant(final Lexeme lexeme) {
+        final Integer year = lexeme.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
+        final Integer month = lexeme.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
+        final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
+        final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
+        final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
+
+        if (year != null && month != null && day != null && minute != null && hour != null) {
+            return Optional.of(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
+        }
+        return Optional.empty();
+    }
+
+    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisory> result, final Lexeme previousLexeme,
+            final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity) {
+        processLexeme(result, previousLexeme, remainingLexemeIdentities, lexemeIdentity, lexeme -> {
+        });
+    }
+
+    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisory> result, final Lexeme previousLexeme,
+            final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity, final Consumer<Lexeme> lexemeHandler) {
+        processLexeme(result, previousLexeme, remainingLexemeIdentities, lexemeIdentity, lexemeHandler, null);
+    }
+
+    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisory> result, final Lexeme previousLexeme,
+            final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity, final Consumer<Lexeme> lexemeHandler,
+            final Lexeme.LexemeParsingNotifyer notFound) {
+        previousLexeme.findNext(lexemeIdentity, (match) -> {
+            remainingLexemeIdentities.remove(lexemeIdentity);
+            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
+            if (issue != null) {
+                result.addIssue(issue);
+            }
+            lexemeHandler.accept(match);
+        }, notFound);
+    }
+
+    private static void checkLexemeOrder(final List<ConversionIssue> issues, final Lexeme lexeme, final LexemeIdentity... prependingIdentities) {
+        final ConversionIssue issue = checkBeforeAnyOf(lexeme, prependingIdentities);
+        if (issue != null) {
+            issues.add(issue);
+        }
+    }
 
     @Override
     public void setTACLexer(final AviMessageLexer lexer) {
@@ -141,7 +195,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_CENTRE, (match) -> {
             final IssuingCenterImpl.Builder issuingCenter = IssuingCenterImpl.builder();
             issuingCenter.setName(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
-            issuingCenter.setDesignator("SWXC");
+            issuingCenter.setType("OTHER:SWXC");
             builder.setIssuingCenter(issuingCenter.build());
         }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "The name of the issuing space weather center is missing")));
 
@@ -406,7 +460,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                     issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
                             "Missing effect extent in " + lexeme.getFirst().getTACToken()));
                 }
-                final Geometry geometry = buildMultiPolygon(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d));
+                final Geometry geometry = buildGeometry(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d));
                 final AirspaceVolume volume = buildAirspaceVolume(geometry, lowerLimit, upperLimit, verticalLimitOperator, issues);
                 regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
             }
@@ -425,7 +479,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                     }
 
                     if (!location.get().equals(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE)) {
-                        final Geometry geometry = buildMultiPolygon(location.get().getLatitudeBandMinCoordinate().get(), minLongitude.orElse(-180d),
+                        final Geometry geometry = buildGeometry(location.get().getLatitudeBandMinCoordinate().get(), minLongitude.orElse(-180d),
                                 location.get().getLatitudeBandMaxCoordinate().get(), maxLongitude.orElse(180d));
 
                         final AirspaceVolume volume = buildAirspaceVolume(geometry, lowerLimit, upperLimit, verticalLimitOperator, issues);
@@ -442,71 +496,26 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         return regionList;
     }
 
-    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisory> result, final Lexeme previousLexeme,
-            final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity) {
-        processLexeme(result, previousLexeme, remainingLexemeIdentities, lexemeIdentity, lexeme -> {
-        });
+    private Geometry buildGeometry(final double minLatitude, final double minLongitude, final double maxLatitude, final double maxLongitude) {
+        final double absMinLongitude = Math.abs(minLongitude);
+        final double absMaxLongitude = Math.abs(maxLongitude);
+        return PolygonGeometryImpl.builder()//
+                .setCrs(CoordinateReferenceSystemImpl.wgs84())//
+                .mutateExteriorRingPositions(coordinates -> {
+                    if (absMinLongitude == 180d && absMaxLongitude == 180d) {
+                        addExteriorRingPositions(coordinates, minLatitude, -180d, maxLatitude, 180d);
+                    } else if (absMinLongitude == 180d) {
+                        addExteriorRingPositions(coordinates, minLatitude, -180d, maxLatitude, maxLongitude);
+                    } else if (absMaxLongitude == 180d) {
+                        addExteriorRingPositions(coordinates, minLatitude, minLongitude, maxLatitude, 180d);
+                    } else {
+                        addExteriorRingPositions(coordinates, minLatitude, minLongitude, maxLatitude, maxLongitude);
+                    }
+                })//
+                .build();
     }
 
-    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisory> result, final Lexeme previousLexeme,
-            final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity, final Consumer<Lexeme> lexemeHandler) {
-        processLexeme(result, previousLexeme, remainingLexemeIdentities, lexemeIdentity, lexemeHandler, null);
-    }
-
-    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisory> result, final Lexeme previousLexeme,
-            final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity, final Consumer<Lexeme> lexemeHandler,
-            final Lexeme.LexemeParsingNotifyer notFound) {
-        previousLexeme.findNext(lexemeIdentity, (match) -> {
-            remainingLexemeIdentities.remove(lexemeIdentity);
-            final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
-            if (issue != null) {
-                result.addIssue(issue);
-            }
-            lexemeHandler.accept(match);
-        }, notFound);
-    }
-
-    private static void checkLexemeOrder(final List<ConversionIssue> issues, final Lexeme lexeme, final LexemeIdentity... prependingIdentities) {
-        final ConversionIssue issue = checkBeforeAnyOf(lexeme, prependingIdentities);
-        if (issue != null) {
-            issues.add(issue);
-        }
-    }
-
-    private Geometry buildMultiPolygon(final double minLatitude, final double minLongitude, final double maxLatitude, final double maxLongitude) {
-        if (minLongitude >= maxLongitude && (Math.abs(minLongitude) != 180d && Math.abs(maxLongitude) != 180d)) {
-            MultiPolygonGeometryImpl.Builder multiPolygon = MultiPolygonGeometryImpl.builder().setCrs(CoordinateReferenceSystemImpl.wgs84());
-
-            if (Math.abs(minLongitude) == 0 && Math.abs(maxLongitude) == 0) {
-                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, 0d, maxLatitude, 180d));
-                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, -180d, maxLatitude, 0d));
-            } else {
-                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, minLongitude, maxLatitude, 180d));
-                multiPolygon.addExteriorRingPositions(createPolygon(minLatitude, -180d, maxLatitude, maxLongitude));
-            }
-
-            return multiPolygon.build();
-        } else {
-            List<Double> polygon;
-            if (Math.abs(minLongitude) == 180d && Math.abs(maxLongitude) == 180d) {
-                polygon = createPolygon(minLatitude, -180d, maxLatitude, 180d);
-            } else if (Math.abs(minLongitude) == 180d || Math.abs(maxLongitude) == 180d) {
-                if (Math.abs(minLongitude) == 180d) {
-                    polygon = createPolygon(minLatitude, -180d, maxLatitude, maxLongitude);
-                } else {
-                    polygon = createPolygon(minLatitude, minLongitude, maxLatitude, 180d);
-                }
-            } else {
-                polygon = createPolygon(minLatitude, minLongitude, maxLatitude, maxLongitude);
-            }
-
-            return PolygonGeometryImpl.builder().setCrs(CoordinateReferenceSystemImpl.wgs84()).addAllExteriorRingPositions(polygon).build();
-        }
-    }
-
-    private List<Double> createPolygon(final double minLat, final double minLon, final double maxLat, final double maxLon) {
-        final List<Double> coordinates = new ArrayList<>();
-
+    private void addExteriorRingPositions(final List<Double> coordinates, final double minLat, final double minLon, final double maxLat, final double maxLon) {
         //Upper left corner:
         coordinates.add(minLat);
         coordinates.add(minLon);
@@ -526,8 +535,6 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         //Upper left corner (again, to close the ring):
         coordinates.add(minLat);
         coordinates.add(minLon);
-
-        return coordinates;
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -560,29 +567,4 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         }
         return volumeBuilder.build();
     }
-
-    private static Optional<PartialOrCompleteTimeInstant> createPartialTimeInstant(final Lexeme lexeme) {
-        final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-        final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-        final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-
-        if (day != null && minute != null && hour != null) {
-            return Optional.of(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"))));
-        }
-        return Optional.empty();
-    }
-
-    private static Optional<PartialOrCompleteTimeInstant> createCompleteTimeInstant(final Lexeme lexeme) {
-        final Integer year = lexeme.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
-        final Integer month = lexeme.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
-        final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
-        final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
-        final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
-
-        if (year != null && month != null && day != null && minute != null && hour != null) {
-            return Optional.of(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
-        }
-        return Optional.empty();
-    }
-
 }
