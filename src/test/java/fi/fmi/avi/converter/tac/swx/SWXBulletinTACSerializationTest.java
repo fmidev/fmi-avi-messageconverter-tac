@@ -1,4 +1,4 @@
-/* TODO @Test disabled for CI/CD */
+@Test
 // package fi.fmi.avi.converter.tac.swx;
 
 // import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
