@@ -1,4 +1,3 @@
-@Test
 package fi.fmi.avi.converter.tac.swx;
 
 import static junit.framework.TestCase.assertEquals;
@@ -22,7 +21,6 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.model.MultiPolygonGeometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
@@ -94,8 +92,7 @@ public class SWXTACConversionTest {
         final ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_POJO_TO_TAC, hints);
         Assert.assertTrue(SerializeResult.getConvertedMessage().isPresent());
 
-        final ConversionResult<SpaceWeatherAdvisory> reparseResult = this.converter.convertMessage(SerializeResult.getConvertedMessage().get(),
-                TACConverter.TAC_TO_SWX_POJO);
+        this.converter.convertMessage(SerializeResult.getConvertedMessage().get(), TACConverter.TAC_TO_SWX_POJO);
 
         final SpaceWeatherAdvisory adv1 = parseResult.getConvertedMessage().get();
         final SpaceWeatherAdvisory adv2 = parseResult.getConvertedMessage().get();
@@ -126,8 +123,8 @@ public class SWXTACConversionTest {
 
                     Assert.assertEquals(region1.getLocationIndicator().get(), region2.getLocationIndicator().get());
 
-                    final MultiPolygonGeometry geo1 = (MultiPolygonGeometry) region1.getAirSpaceVolume().get().getHorizontalProjection().get();
-                    final MultiPolygonGeometry geo2 = (MultiPolygonGeometry) region2.getAirSpaceVolume().get().getHorizontalProjection().get();
+                    final PolygonGeometry geo1 = (PolygonGeometry) region1.getAirSpaceVolume().get().getHorizontalProjection().get();
+                    final PolygonGeometry geo2 = (PolygonGeometry) region2.getAirSpaceVolume().get().getHorizontalProjection().get();
 
                     Assert.assertEquals(geo1.getCrs(), geo2.getCrs());
                     for (int b = 0; b < geo1.getExteriorRingPositions().size(); b++) {
@@ -139,17 +136,10 @@ public class SWXTACConversionTest {
     }
 
     private String getInput(final String fileName) throws IOException {
-        InputStream is = null;
-        try {
-            is = SWXReconstructorTest.class.getResourceAsStream(fileName);
+        try (InputStream is = SWXReconstructorTest.class.getResourceAsStream(fileName)) {
             Objects.requireNonNull(is);
             return IOUtils.toString(is, "UTF-8");
-        } finally {
-            if (is != null) {
-                is.close();
-            }
         }
     }
 
 }
-
