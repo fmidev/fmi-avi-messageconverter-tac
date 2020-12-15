@@ -18,7 +18,7 @@
     <connection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</connection>
     <developerConnection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</developerConnection>
     <url>https://github.com/fmidev/fmi-avi-messageconverter-tac</url>
-    <tag>HEAD</tag>
+    <tag>fmi-avi-messageconverter-tac-3.0.4</tag>
   </scm>
 
   <dependencies>
