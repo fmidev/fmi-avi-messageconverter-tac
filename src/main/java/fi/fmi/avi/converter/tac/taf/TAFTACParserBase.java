@@ -81,8 +81,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             return result;
         }
         final TAFImpl.Builder builder = TAFImpl.builder();
-        final Boolean[] missingMessage = { true };
-        AviationCodeListUser.TAFStatus ststus = builder.getStatus();
+        final Boolean[] missingMessage = { false };
 
         if (lexed.getTAC() != null) {
             builder.setTranslatedTAC(lexed.getTAC());
@@ -102,7 +101,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-               // builder.setStatus(AviationCodeListUser.TAFStatus.CORRECTION);
                 builder.setReportStatus(AviationWeatherMessage.ReportStatus.CORRECTION);
             }
         });
@@ -116,7 +114,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                //builder.setStatus(AviationCodeListUser.TAFStatus.AMENDMENT);
                 builder.setReportStatus(AviationWeatherMessage.ReportStatus.AMENDMENT);
             }
         });
@@ -145,9 +142,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                builder.setStatus(AviationCodeListUser.TAFStatus.MISSING);
-                missingMessage[0] = false;
-                //builder.setReportStatus(AviationWeatherMessage.ReportStatus.NORMAL);
+                missingMessage[0] = true;
                 if (match.getNext() != null) {
                     final LexemeIdentity nextTokenId = match.getNext().getIdentityIfAcceptable();
                     if (LexemeIdentity.END_TOKEN != nextTokenId && LexemeIdentity.REMARKS_START != nextTokenId) {
@@ -167,8 +162,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         }
 
-        if (builder.isMissingMessage()) {
-        //if (builder.getStatus().equals(AviationCodeListUser.TAFStatus.MISSING)) {
+        if (missingMessage[0]) {
             result.setConvertedMessage(builder.build());
             return result;
         }
@@ -181,7 +175,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                //builder.setStatus(AviationCodeListUser.TAFStatus.CANCELLATION);
                 builder.setReportStatus(AviationWeatherMessage.ReportStatus.NORMAL);
                 builder.setCancelMessage(true);
                 if (match.getNext() != null) {
@@ -197,11 +190,10 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             referencePolicy = hints.getOrDefault(ConversionHints.KEY_TAF_REFERENCE_POLICY, ConversionHints
                     .VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD);
         }
-        //if (builder.getStatus() == null) {
+
         if(builder.getReportStatus() == null) {
             result.addIssue(setTAFValidTime(builder, lexed, hints));
         } else {
-            //switch (builder.getStatus()) {
             switch (builder.getReportStatus().get()) {
                 case AMENDMENT:
                     if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD)) {
@@ -235,7 +227,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         }
 
         //End processing here if CNL:
-        //if (AviationCodeListUser.TAFStatus.CANCELLATION == builder.getStatus()) {
         if (builder.isCancelMessage()) {
             result.setConvertedMessage(builder.build());
             return result;
@@ -249,14 +240,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 result.addIssue(addChangeForecast(builder, subSequences.get(i).getFirstLexeme(), hints));
             }
         }
-
-        //TODO: Fix missing thing. remove this comment
-        //End processing here if NIL:
-        //if(builder.isMissingMessage()){
-            //if (AviationCodeListUser.TAFStatus.MISSING == builder.getReportStatus().get()) {
-          //  result.setConvertedMessage(builder.build());
-           // return result;
-        //}
 
         result.addIssue(setFromChangeForecastEndTimes(builder));
 
@@ -300,7 +283,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                         + "TAFReference");
             }
             //Note: Status & issue time of the referred report cannot be parsed from TAC
-            //builder.setReferredReport(refBuilder.build());
             if (refBuilder.getValidityTime().isPresent()) {
                 builder.setReferredReportValidPeriod(refBuilder.getValidityTime().get());
             }
