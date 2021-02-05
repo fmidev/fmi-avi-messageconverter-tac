@@ -18,6 +18,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
 import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.CloudLayer;
 import fi.fmi.avi.model.NumericMeasure;
@@ -80,6 +81,8 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             return result;
         }
         final TAFImpl.Builder builder = TAFImpl.builder();
+        final Boolean[] missingMessage = { true };
+        AviationCodeListUser.TAFStatus ststus = builder.getStatus();
 
         if (lexed.getTAC() != null) {
             builder.setTranslatedTAC(lexed.getTAC());
@@ -99,7 +102,8 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                builder.setStatus(AviationCodeListUser.TAFStatus.CORRECTION);
+               // builder.setStatus(AviationCodeListUser.TAFStatus.CORRECTION);
+                builder.setReportStatus(AviationWeatherMessage.ReportStatus.CORRECTION);
             }
         });
 
@@ -112,7 +116,8 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                builder.setStatus(AviationCodeListUser.TAFStatus.AMENDMENT);
+                //builder.setStatus(AviationCodeListUser.TAFStatus.AMENDMENT);
+                builder.setReportStatus(AviationWeatherMessage.ReportStatus.AMENDMENT);
             }
         });
 
@@ -141,6 +146,8 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 result.addIssue(issue);
             } else {
                 builder.setStatus(AviationCodeListUser.TAFStatus.MISSING);
+                missingMessage[0] = false;
+                //builder.setReportStatus(AviationWeatherMessage.ReportStatus.NORMAL);
                 if (match.getNext() != null) {
                     final LexemeIdentity nextTokenId = match.getNext().getIdentityIfAcceptable();
                     if (LexemeIdentity.END_TOKEN != nextTokenId && LexemeIdentity.REMARKS_START != nextTokenId) {
@@ -160,12 +167,11 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             }
         }
 
-        //End processing here if NIL:
-        if (AviationCodeListUser.TAFStatus.MISSING == builder.getStatus()) {
+        if (builder.isMissingMessage()) {
+        //if (builder.getStatus().equals(AviationCodeListUser.TAFStatus.MISSING)) {
             result.setConvertedMessage(builder.build());
             return result;
         }
-
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.CANCELLATION, (match) -> {
             final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.SURFACE_WIND, LexemeIdentity.HORIZONTAL_VISIBILITY,
@@ -175,7 +181,9 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                builder.setStatus(AviationCodeListUser.TAFStatus.CANCELLATION);
+                //builder.setStatus(AviationCodeListUser.TAFStatus.CANCELLATION);
+                builder.setReportStatus(AviationWeatherMessage.ReportStatus.NORMAL);
+                builder.setCancelMessage(true);
                 if (match.getNext() != null) {
                     final LexemeIdentity nextTokenId = match.getNext().getIdentityIfAcceptable();
                     if (LexemeIdentity.END_TOKEN != nextTokenId && LexemeIdentity.REMARKS_START != nextTokenId) {
@@ -189,10 +197,12 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             referencePolicy = hints.getOrDefault(ConversionHints.KEY_TAF_REFERENCE_POLICY, ConversionHints
                     .VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD);
         }
-        if (builder.getStatus() == null) {
+        //if (builder.getStatus() == null) {
+        if(builder.getReportStatus() == null) {
             result.addIssue(setTAFValidTime(builder, lexed, hints));
         } else {
-            switch (builder.getStatus()) {
+            //switch (builder.getStatus()) {
+            switch (builder.getReportStatus().get()) {
                 case AMENDMENT:
                     if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD)) {
                         result.addIssue(setReferredReport(builder, lexed, hints));
@@ -207,14 +217,17 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                         result.addIssue(setTAFValidTime(builder, lexed, hints));
                     }
                     break;
-                case CANCELLATION:
-                    if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD) || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL)
-                            || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_CNL)) {
-                        result.addIssue(setReferredReport(builder, lexed, hints));
-                    } else {
-                        result.addIssue(setTAFValidTime(builder, lexed, hints));
+                case NORMAL:
+                    if(builder.isCancelMessage()) {
+                        if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD) || referencePolicy
+                                .equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL) || referencePolicy.equals(
+                                ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_CNL)) {
+                            result.addIssue(setReferredReport(builder, lexed, hints));
+                        } else {
+                            result.addIssue(setTAFValidTime(builder, lexed, hints));
+                        }
+                        break;
                     }
-                    break;
                 default:
                     result.addIssue(setTAFValidTime(builder, lexed, hints));
 
@@ -222,7 +235,8 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         }
 
         //End processing here if CNL:
-        if (AviationCodeListUser.TAFStatus.CANCELLATION == builder.getStatus()) {
+        //if (AviationCodeListUser.TAFStatus.CANCELLATION == builder.getStatus()) {
+        if (builder.isCancelMessage()) {
             result.setConvertedMessage(builder.build());
             return result;
         }
@@ -235,6 +249,14 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                 result.addIssue(addChangeForecast(builder, subSequences.get(i).getFirstLexeme(), hints));
             }
         }
+
+        //TODO: Fix missing thing. remove this comment
+        //End processing here if NIL:
+        //if(builder.isMissingMessage()){
+            //if (AviationCodeListUser.TAFStatus.MISSING == builder.getReportStatus().get()) {
+          //  result.setConvertedMessage(builder.build());
+           // return result;
+        //}
 
         result.addIssue(setFromChangeForecastEndTimes(builder));
 
@@ -278,7 +300,10 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                         + "TAFReference");
             }
             //Note: Status & issue time of the referred report cannot be parsed from TAC
-            builder.setReferredReport(refBuilder.build());
+            //builder.setReferredReport(refBuilder.build());
+            if (refBuilder.getValidityTime().isPresent()) {
+                builder.setReferredReportValidPeriod(refBuilder.getValidityTime().get());
+            }
 
         return result;
     }

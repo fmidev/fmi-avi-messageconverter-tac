@@ -1,23 +1,19 @@
 {
-  "status" : "CANCELLATION",
+  "reportStatus" : "NORMAL",
+  "cancelMessage": "true",
   "issueTime" : {
     "partialTime" : "--19T11:00Z"
   },
   "aerodrome" : {
      "designator" : "EFAB"
   },
-  "referredReport": {
-    "aerodrome" : {
-      "designator" : "EFAB"
-    },
-    "validityTime" : {
+  "referredReportValidPeriod": {
       "startTime" : {
         "partialTime" : "--19T09:"
       },
       "endTime" : {
         "partialTime" : "--19T15:"
       }
-    }
   },
   "translatedTAC" : "TAF AMD EFAB 191100Z 1909/1915 CNL="
 }
