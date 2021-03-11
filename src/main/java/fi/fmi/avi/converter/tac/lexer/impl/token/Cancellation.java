@@ -36,7 +36,7 @@ public class Cancellation extends PrioritizedLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (TAF.class.isAssignableFrom(clz)) {
-            	if (AviationCodeListUser.TAFStatus.CANCELLATION == ((TAF) msg).getStatus()) {
+            	if (((TAF) msg).isCancelMessage()) {
                     return Optional.of(this.createLexeme("CNL", CANCELLATION));
                 }
             }

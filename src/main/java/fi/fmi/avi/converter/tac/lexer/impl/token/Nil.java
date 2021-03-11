@@ -40,7 +40,7 @@ public class Nil extends PrioritizedLexemeVisitor {
                     return Optional.of(this.createLexeme("NIL", NIL));
                 }
             } else if (TAF.class.isAssignableFrom(clz)) {
-                if (AviationCodeListUser.TAFStatus.MISSING == ((TAF) msg).getStatus()) {
+                if (((TAF) msg).isMissingMessage()) {
                     return Optional.of(this.createLexeme("NIL", NIL));
                 }
             }

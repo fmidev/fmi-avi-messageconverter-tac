@@ -13,7 +13,6 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
-import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.Weather;
@@ -67,7 +66,7 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
 
-        if (AviationCodeListUser.TAFStatus.MISSING != input.getStatus()) {
+        if (!input.isMissingMessage() || input.isCancelMessage()) {
             if (appendToken(retval, LexemeIdentity.VALID_TIME, input, TAF.class, baseCtx) > 0) {
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
@@ -75,7 +74,7 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
             if (appendToken(retval, LexemeIdentity.CANCELLATION, input, TAF.class, baseCtx) > 0) {
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
-            if (AviationCodeListUser.TAFStatus.CANCELLATION != input.getStatus()) {
+            if (!input.isCancelMessage()) {
                 final Optional<TAFBaseForecast> baseFct = input.getBaseForecast();
                 if (!baseFct.isPresent()) {
                     throw new SerializingException("Missing base forecast");

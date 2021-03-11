@@ -10,6 +10,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.taf.TAF;
 
@@ -35,8 +36,8 @@ public class Amendment extends PrioritizedLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             if (TAF.class.isAssignableFrom(clz)) {
                 // Note: cancellation messages are also amendments
-                if (AviationCodeListUser.TAFStatus.AMENDMENT == ((TAF) msg).getStatus() ||
-                    AviationCodeListUser.TAFStatus.CANCELLATION == ((TAF) msg).getStatus()) {
+                if (AviationWeatherMessage.ReportStatus.AMENDMENT == ((TAF) msg).getReportStatus().get() ||
+                        ((TAF) msg).isCancelMessage()) {
                     return Optional.of(this.createLexeme("AMD", AMENDMENT));
                 }
 
