@@ -191,20 +191,20 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                     .VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD);
         }
 
-        if(builder.getReportStatus() == null) {
+        if(!builder.getReportStatus().isPresent()) {
             result.addIssue(setTAFValidTime(builder, lexed, hints));
         } else {
             switch (builder.getReportStatus().get()) {
                 case AMENDMENT:
                     if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD)) {
-                        result.addIssue(setReferredReport(builder, lexed, hints));
+                        result.addIssue(setReferredReportValidPeriod(builder, lexed, hints));
                     } else {
                         result.addIssue(setTAFValidTime(builder, lexed, hints));
                     }
                     break;
                 case CORRECTION:
                     if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD) || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL)) {
-                        result.addIssue(setReferredReport(builder, lexed, hints));
+                        result.addIssue(setReferredReportValidPeriod(builder, lexed, hints));
                     } else {
                         result.addIssue(setTAFValidTime(builder, lexed, hints));
                     }
@@ -214,7 +214,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                         if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD) || referencePolicy
                                 .equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL) || referencePolicy.equals(
                                 ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_CNL)) {
-                            result.addIssue(setReferredReport(builder, lexed, hints));
+                            result.addIssue(setReferredReportValidPeriod(builder, lexed, hints));
                         } else {
                             result.addIssue(setTAFValidTime(builder, lexed, hints));
                         }
@@ -270,22 +270,18 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         return result;
     }
 
-    protected List<ConversionIssue> setReferredReport(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
+    protected List<ConversionIssue> setReferredReportValidPeriod(final TAFImpl.Builder builder, final LexemeSequence lexed, final ConversionHints hints) {
         IssueList result = new IssueList();
 
-            final TAFReferenceImpl.Builder refBuilder = TAFReferenceImpl.builder();
-            refBuilder.setAerodrome(builder.getAerodrome());
-            Optional<PartialOrCompleteTimePeriod> validityTime = parseValidityTime(lexed,result);
-            if (validityTime.isPresent()) {
-                refBuilder.setValidityTime(validityTime.get());
-            } else {
-                result.add(ConversionIssue.Severity.ERROR, ConversionIssue.Type.MISSING_DATA, "Valid time not available in for TAF, unable to construct "
-                        + "TAFReference");
-            }
-            //Note: Status & issue time of the referred report cannot be parsed from TAC
-            if (refBuilder.getValidityTime().isPresent()) {
-                builder.setReferredReportValidPeriod(refBuilder.getValidityTime().get());
-            }
+        final PartialOrCompleteTimePeriod.Builder timePeriodBuilder = PartialOrCompleteTimePeriod.builder();
+        Optional<PartialOrCompleteTimePeriod> validityTime = parseValidityTime(lexed,result);
+
+        if (validityTime.isPresent()) {
+            builder.setReferredReportValidPeriod(validityTime);
+        } else {
+            result.add(ConversionIssue.Severity.ERROR, ConversionIssue.Type.MISSING_DATA, "Valid time not available in for TAF, unable to construct "
+                    + "TAFReference");
+        }
 
         return result;
     }
