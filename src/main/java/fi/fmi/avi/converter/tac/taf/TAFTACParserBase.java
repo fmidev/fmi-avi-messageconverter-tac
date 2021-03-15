@@ -175,7 +175,6 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                builder.setReportStatus(AviationWeatherMessage.ReportStatus.NORMAL);
                 builder.setCancelMessage(true);
                 if (match.getNext() != null) {
                     final LexemeIdentity nextTokenId = match.getNext().getIdentityIfAcceptable();
