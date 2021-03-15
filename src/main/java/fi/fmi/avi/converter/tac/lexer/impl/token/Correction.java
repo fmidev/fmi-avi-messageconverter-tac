@@ -34,14 +34,14 @@ public class Correction extends PrioritizedLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
 
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
                 if (AviationCodeListUser.MetarStatus.CORRECTION == ((MeteorologicalTerminalAirReport) msg).getStatus()) {
                     return Optional.of(this.createLexeme("COR", CORRECTION));
                 }
             } else if (TAF.class.isAssignableFrom(clz)) {
-                if (AviationWeatherMessage.ReportStatus.CORRECTION == ((TAF) msg).getReportStatus().get()) {
+                if (AviationWeatherMessage.ReportStatus.CORRECTION == ((TAF) msg).getReportStatus().orElse(null)) {
                     return Optional.of(this.createLexeme("COR", CORRECTION));
                 }
             }
