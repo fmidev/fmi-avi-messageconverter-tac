@@ -66,7 +66,7 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
 
-        if (!input.isMissingMessage() || input.isCancelMessage()) {
+        if (!input.isMissingMessage()) {
             if (appendToken(retval, LexemeIdentity.VALID_TIME, input, TAF.class, baseCtx) > 0) {
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
