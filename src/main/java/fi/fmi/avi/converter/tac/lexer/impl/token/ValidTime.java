@@ -18,7 +18,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
-import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.converter.tac.taf.TAFReferencePolicy;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
@@ -160,70 +160,21 @@ public class ValidTime extends TimeHandlingRegex {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            if (TAF.class.isAssignableFrom(clz)) {
-                final TAF taf = (TAF) msg;
-                final Optional<PartialOrCompleteTimePeriod> validityTime;
-                Object referencePolicy = ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD;
-                if (ctx.getHints() != null) {
-                    referencePolicy = ctx.getHints().getOrDefault(ConversionHints.KEY_TAF_REFERENCE_POLICY, ConversionHints
-                            .VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD);
-                }
-                if (!taf.getReportStatus().isPresent()) {
-                    validityTime = taf.getValidityTime();
-                } else {
-                    switch (taf.getReportStatus().get()) {
-                        case AMENDMENT:
-                            if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD)) {
-                                if (taf.getReferredReportValidPeriod().isPresent()) {
-                                    validityTime = taf.getReferredReportValidPeriod();
-                                } else {
-                                    throw new SerializingException(
-                                            "ReferredReport not available in TAF of status " + taf.getReportStatus() + ", unable to get validity time " + "for TAC");
-                                }
-                            } else {
-                                validityTime = taf.getValidityTime();
-                            }
-                            break;
-                        case CORRECTION:
-                            if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD) || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL)) {
-                                if (taf.getReferredReportValidPeriod().isPresent()) {
-                                    validityTime = taf.getReferredReportValidPeriod();
-                                } else {
-                                    throw new SerializingException(
-                                            "ReferredReport not available in TAF of status " + taf.getReportStatus() + ", unable to get validity time " + "for TAC");
-                                }
-                            } else {
-                                validityTime = taf.getValidityTime();
-                            }
-                            break;
-                        case NORMAL:
-                            if(taf.isCancelMessage()) {
-                                if (referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL_AMD) || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_COR_CNL)
-                                        || referencePolicy.equals(ConversionHints.VALUE_TAF_REFERENCE_POLICY_USE_REFERRED_REPORT_VALID_TIME_FOR_CNL)) {
-                                    if (taf.getReferredReportValidPeriod().isPresent()) {
-                                        validityTime = taf.getReferredReportValidPeriod();
-                                    } else {
-                                        throw new SerializingException(
-                                                "ReferredReport not available in TAF of status " + taf.getStatus() + ", unable to get validity time " + "for TAC");
-                                    }
-                                } else {
-                                    validityTime = taf.getValidityTime();
-                                }
-                                break;
-                            }
-                        default:
-                            validityTime = taf.getValidityTime();
-                    }
-                }
-
-                if (validityTime.isPresent()) {
-                    final String period = encodeValidityTimePeriod(validityTime.get(), ctx.getHints());
-                    return Optional.of(this.createLexeme(period, LexemeIdentity.VALID_TIME));
-                } else {
-                    throw new SerializingException("Validity time not available in TAF");
-                }
+            if (!TAF.class.isAssignableFrom(clz)) {
+                return Optional.empty();
             }
-            return Optional.empty();
+
+            final TAF taf = (TAF) msg;
+            final boolean useReferredReportValidPeriod = taf.getReportStatus()//
+                    .map(reportStatus -> TAFReferencePolicy.tryGetFromConversionHints(ctx.getHints())//
+                            .orElse(TAFReferencePolicy.DEFAULT_POLICY)//
+                            .useReferred(reportStatus, taf.isCancelMessage()))//
+                    .orElse(false);
+            final PartialOrCompleteTimePeriod validityTime = (useReferredReportValidPeriod ? taf.getReferredReportValidPeriod() : taf.getValidityTime())//
+                    .orElseThrow(() -> new SerializingException(
+                            (useReferredReportValidPeriod ? "ReferredReportValidPeriod" : "ValidityTime") + " not available in TAF"));
+            final String period = encodeValidityTimePeriod(validityTime, ctx.getHints());
+            return Optional.of(this.createLexeme(period, LexemeIdentity.VALID_TIME));
         }
     }
 }
