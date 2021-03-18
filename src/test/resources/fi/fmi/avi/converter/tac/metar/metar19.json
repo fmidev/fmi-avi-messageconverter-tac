@@ -1,161 +1,161 @@
 {
-  "status" : "NORMAL",
-  "issueTime" : {
-    "partialTime" : "--11T11:11Z"
+  "reportStatus": "NORMAL",
+  "issueTime": {
+    "partialTime": "--11T11:11Z"
   },
-  "aerodrome" : {
-    "designator" : "EFHK"
+  "aerodrome": {
+    "designator": "EFHK"
   },
-  "surfaceWind" : {
-    "meanWindDirection" : {
+  "surfaceWind": {
+    "meanWindDirection": {
       "value": 150.0,
-      "uom" : "deg"
+      "uom": "deg"
     },
-    "meanWindSpeed" : {
+    "meanWindSpeed": {
       "value": 8.0,
-      "uom" : "[kn_i]"
+      "uom": "[kn_i]"
     },
-    "windGust" : {
+    "windGust": {
       "value": 20.0,
-      "uom" : "[kn_i]"
+      "uom": "[kn_i]"
     }
   },
-  "visibility" : {
-    "prevailingVisibility" : {
+  "visibility": {
+    "prevailingVisibility": {
       "value": 700.0,
-      "uom" : "m"
+      "uom": "m"
     }
   },
   "runwayVisualRanges": [
     {
-      "runwayDirection" : {
-        "associatedAirportHeliport" : {
-          "designator" : "EFHK"
+      "runwayDirection": {
+        "associatedAirportHeliport": {
+          "designator": "EFHK"
         },
-        "designator" : "04R"
+        "designator": "04R"
       },
-      "pastTendency" : "NO_CHANGE",
-      "varyingRVRMinimum" : {
+      "pastTendency": "NO_CHANGE",
+      "varyingRVRMinimum": {
         "value": 1500.0,
-        "uom" : "m"
+        "uom": "m"
       },
-      "varyingRVRMinimumOperator" : "BELOW",
-      "varyingRVRMaximum" : {
+      "varyingRVRMinimumOperator": "BELOW",
+      "varyingRVRMaximum": {
         "value": 2000.0,
-        "uom" : "m"
+        "uom": "m"
       },
-      "varyingRVRMaximumOperator" : "ABOVE"
+      "varyingRVRMaximumOperator": "ABOVE"
     },
     {
-    "runwayDirection" : {
-        "associatedAirportHeliport" : {
-          "designator" : "EFHK"
+      "runwayDirection": {
+        "associatedAirportHeliport": {
+          "designator": "EFHK"
         },
-        "designator" : "15"
+        "designator": "15"
       },
-      "pastTendency" : "UPWARD",
-      "varyingRVRMinimum" : {
+      "pastTendency": "UPWARD",
+      "varyingRVRMinimum": {
         "value": 1000.0,
-        "uom" : "m"
+        "uom": "m"
       },
-      "varyingRVRMinimumOperator" : "ABOVE",
-      "varyingRVRMaximum" : {
+      "varyingRVRMinimumOperator": "ABOVE",
+      "varyingRVRMaximum": {
         "value": 3000.0,
-        "uom" : "m"
+        "uom": "m"
       },
-      "varyingRVRMaximumOperator" : "BELOW"
+      "varyingRVRMaximumOperator": "BELOW"
     },
     {
-    "runwayDirection" : {
-        "associatedAirportHeliport" : {
-          "designator" : "EFHK"
+      "runwayDirection": {
+        "associatedAirportHeliport": {
+          "designator": "EFHK"
         },
-        "designator" : "22L"
+        "designator": "22L"
       },
-      "pastTendency" : "NO_CHANGE",
-      "meanRVR" : {
+      "pastTendency": "NO_CHANGE",
+      "meanRVR": {
         "value": 1200.0,
-        "uom" : "m"
+        "uom": "m"
       }
     },
     {
-    "runwayDirection" : {
-        "associatedAirportHeliport" : {
-          "designator" : "EFHK"
+      "runwayDirection": {
+        "associatedAirportHeliport": {
+          "designator": "EFHK"
         },
-        "designator" : "04L"
+        "designator": "04L"
       },
-      "pastTendency" : "UPWARD",
-      "varyingRVRMaximumOperator" : "ABOVE",
-      "varyingRVRMinimum" : {
+      "pastTendency": "UPWARD",
+      "varyingRVRMaximumOperator": "ABOVE",
+      "varyingRVRMinimum": {
         "value": 1000.0,
-        "uom" : "m"
+        "uom": "m"
       },
-      "varyingRVRMaximum" : {
+      "varyingRVRMaximum": {
         "value": 1500.0,
-        "uom" : "m"
+        "uom": "m"
       }
     }
   ],
   "presentWeather": [
     {
-      "code" : "SN",
-      "description" : "Precipitation of snow"
+      "code": "SN",
+      "description": "Precipitation of snow"
     }
   ],
-  "clouds" : {
-    "verticalVisibility" : {
+  "clouds": {
+    "verticalVisibility": {
       "value": 600.0,
-      "uom" : "[ft_i]"
+      "uom": "[ft_i]"
     }
   },
-  "altimeterSettingQNH" : {
+  "altimeterSettingQNH": {
     "value": 1023.0,
-    "uom" : "hPa"
+    "uom": "hPa"
   },
-  "airTemperature" : {
+  "airTemperature": {
     "value": -8.0,
-    "uom" : "degC"
+    "uom": "degC"
   },
-  "dewpointTemperature" : {
+  "dewpointTemperature": {
     "value": -10.0,
-    "uom" : "degC"
+    "uom": "degC"
   },
-  "seaState" : {
-    "seaSurfaceTemperature" : {
+  "seaState": {
+    "seaSurfaceTemperature": {
       "value": -1,
-      "uom" : "degC"
+      "uom": "degC"
     },
-    "significantWaveHeight" : {
+    "significantWaveHeight": {
       "value": 1.4,
-      "uom" : "m"
+      "uom": "m"
     }
   },
   "runwayStates": [
     {
       "repetition": true,
-      "deposit" : "MISSING_OR_NOT_REPORTED",
-      "contamination" : "MISSING_OR_NOT_REPORTED",
+      "deposit": "MISSING_OR_NOT_REPORTED",
+      "contamination": "MISSING_OR_NOT_REPORTED",
       "runwayNotOperational": true,
       "estimatedSurfaceFrictionUnreliable": true
     }
   ],
   "trends": [
     {
-      "changeIndicator" : "BECOMING",
-      "instantOfChange" : {
-        "partialTime" : "--T09:27"
+      "changeIndicator": "BECOMING",
+      "instantOfChange": {
+        "partialTime": "--T09:27"
       },
-      "surfaceWind" : {
-        "meanWindDirection" : {
+      "surfaceWind": {
+        "meanWindDirection": {
           "value": 250.0,
-          "uom" : "deg"
+          "uom": "deg"
         },
-        "meanWindSpeed" : {
+        "meanWindSpeed": {
           "value": 18.0,
           "uom": "m/s"
         },
-        "windGust" : {
+        "windGust": {
           "value": 25.0,
           "uom": "m/s"
         }
@@ -163,31 +163,31 @@
       "ceilingAndVisibilityOk": true
     },
     {
-      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
-      "periodOfChange" : {
-        "startTime" : {
-          "partialTime" : "--T10:51"
+      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "--T10:51"
         }
       },
-      "cloud" : {
-        "verticalVisibility" : {
+      "cloud": {
+        "verticalVisibility": {
           "value": 4000.0,
-          "uom" : "[ft_i]"
+          "uom": "[ft_i]"
         }
       }
     },
     {
-      "changeIndicator" : "TEMPORARY_FLUCTUATIONS",
-      "periodOfChange" : {
-        "startTime" : {
-          "partialTime" : "--T11:30"
+      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "--T11:30"
         }
       },
-      "cloud" : {
+      "cloud": {
         "noSignificantCloud": true
       }
     }
   ],
-  "translatedTAC" : "METAR EFHK 111111Z 15008G20KT 0700 R04R/M1500VP2000N R15/P1000VM3000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 WM01/H14 99//9999 BECMG AT0927 25018G25MPS CAVOK TEMPO FM1051 VV040 TEMPO FM1130 NSC=",
+  "translatedTAC": "METAR EFHK 111111Z 15008G20KT 0700 R04R/M1500VP2000N R15/P1000VM3000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 WM01/H14 99//9999 BECMG AT0927 25018G25MPS CAVOK TEMPO FM1051 VV040 TEMPO FM1130 NSC=",
   "translated": true
 }

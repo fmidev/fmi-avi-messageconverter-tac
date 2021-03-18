@@ -1,112 +1,111 @@
 {
-  "status" : "NORMAL",
-  "issueTime" : {
-    "partialTime" : "--04T16:00Z"
+  "reportStatus": "NORMAL",
+  "issueTime": {
+    "partialTime": "--04T16:00Z"
   },
-  "aerodrome" : {
-    "designator" : "LBBG"
+  "aerodrome": {
+    "designator": "LBBG"
   },
   "presentWeather": [
-  	{
-      "code" : "+SN",
-      "description" : "Heavy precipitation of snow"
+    {
+      "code": "+SN",
+      "description": "Heavy precipitation of snow"
     }
   ],
-  
-  "airTemperature" : {
+  "airTemperature": {
     "value": -4.0,
-    "uom" : "degC"
+    "uom": "degC"
   },
-  "dewpointTemperature" : {
+  "dewpointTemperature": {
     "value": -7.0,
-    "uom" : "degC"
+    "uom": "degC"
   },
-  "altimeterSettingQNH" : {
+  "altimeterSettingQNH": {
     "value": 1020.0,
-    "uom" : "hPa"
+    "uom": "hPa"
   },
-  "surfaceWind" : {
-    "meanWindDirection" : {
+  "surfaceWind": {
+    "meanWindDirection": {
       "value": 120.0,
-      "uom" : "deg"
+      "uom": "deg"
     },
-    "meanWindSpeed" : {
+    "meanWindSpeed": {
       "value": 12.0,
       "uom": "m/s"
     },
-    "extremeClockwiseWindDirection" : {
+    "extremeClockwiseWindDirection": {
       "value": 150.0,
-      "uom" : "deg"
+      "uom": "deg"
     },
-    "extremeCounterClockwiseWindDirection" : {
+    "extremeCounterClockwiseWindDirection": {
       "value": 90.0,
-      "uom" : "deg"
+      "uom": "deg"
     }
   },
-  "visibility" : {
-    "prevailingVisibility" : {
+  "visibility": {
+    "prevailingVisibility": {
       "value": 1400.0,
-      "uom" : "m"
+      "uom": "m"
     }
   },
   "runwayVisualRanges": [
     {
-      "runwayDirection" : {
-        "associatedAirportHeliport" : {
-          "designator" : "LBBG"
+      "runwayDirection": {
+        "associatedAirportHeliport": {
+          "designator": "LBBG"
         },
-        "designator" : "04"
+        "designator": "04"
       },
-      "pastTendency" : "NO_CHANGE",
-      "meanRVROperator" : "ABOVE",
-      "meanRVR" : {
+      "pastTendency": "NO_CHANGE",
+      "meanRVROperator": "ABOVE",
+      "meanRVR": {
         "value": 1500.0,
-        "uom" : "m"
+        "uom": "m"
       }
     },
     {
-      "runwayDirection" : {
-        "associatedAirportHeliport" : {
-          "designator" : "LBBG"
+      "runwayDirection": {
+        "associatedAirportHeliport": {
+          "designator": "LBBG"
         },
-        "designator" : "22"
+        "designator": "22"
       },
-      "pastTendency" : "UPWARD",
-      "meanRVROperator" : "ABOVE",
-      "meanRVR" : {
+      "pastTendency": "UPWARD",
+      "meanRVROperator": "ABOVE",
+      "meanRVR": {
         "value": 1500.0,
-        "uom" : "m"
+        "uom": "m"
       }
-    }	
+    }
   ],
   "runwayStates": [
     {
       "appliedToAllRunways": true,
-      "deposit" : "DRY_SNOW",
-      "contamination" : "PCT_COVERED_51_100",
+      "deposit": "DRY_SNOW",
+      "contamination": "PCT_COVERED_51_100",
       "depthNotMeasurable": true,
-      "brakingAction" : "POOR"
+      "brakingAction": "POOR"
     }
   ],
-  "clouds" : {
+  "clouds": {
     "layers": [
       {
-        "amount" : "BKN",
-        "base" : {
+        "amount": "BKN",
+        "base": {
           "value": 2200,
-          "uom" : "[ft_i]"
+          "uom": "[ft_i]"
         }
       },
       {
-        "amount" : "OVC",
-        "base" : {
+        "amount": "OVC",
+        "base": {
           "value": 5000,
-          "uom" : "[ft_i]"
+          "uom": "[ft_i]"
         }
       }
     ]
   },
   "noSignificantChanges": true,
-  "translatedTAC" : "METAR LBBG 041600Z 12012MPS 090V150 1400 R04/P1500N R22/P1500U +SN BKN022 OVC050 M04/M07 Q1020 8849//91 NOSIG=",
+  "translatedTAC": "METAR LBBG 041600Z 12012MPS 090V150 1400 R04/P1500N R22/P1500U +SN BKN022 OVC050 M04/M07 Q1020 8849//91 NOSIG=",
   "translated": true
 }

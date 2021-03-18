@@ -1,29 +1,29 @@
 {
-  "status" : "NORMAL",
-  "issueTime" : {
-    "partialTime" : "--26T03:50Z"
+  "reportStatus": "NORMAL",
+  "issueTime": {
+    "partialTime": "--26T03:50Z"
   },
-  "aerodrome" : {
-    "designator" : "EFTU"
+  "aerodrome": {
+    "designator": "EFTU"
   },
-  "surfaceWind" : {
-    "meanWindDirection" : {
+  "surfaceWind": {
+    "meanWindDirection": {
       "value": 280.0,
-      "uom" : "deg"
+      "uom": "deg"
     },
-    "meanWindSpeed" : {
+    "meanWindSpeed": {
       "value": 4,
-      "uom" : "[kn_i]"
+      "uom": "[kn_i]"
     }
   },
-  "visibility" : {
-    "prevailingVisibility" : {
+  "visibility": {
+    "prevailingVisibility": {
       "value": 10000.0,
-      "uom" : "m"
+      "uom": "m"
     },
-    "prevailingVisibilityOperator" : "ABOVE"
+    "prevailingVisibilityOperator": "ABOVE"
   },
-  "clouds" : {
+  "clouds": {
     "layers": [
       {
         "amountUnobservableByAutoSystem": true,
@@ -32,17 +32,17 @@
       }
     ]
   },
-  "altimeterSettingQNH" : {
+  "altimeterSettingQNH": {
     "value": 1031.0,
-    "uom" : "hPa"
+    "uom": "hPa"
   },
-  "airTemperature" : {
+  "airTemperature": {
     "value": 7.0,
-    "uom" : "degC"
+    "uom": "degC"
   },
-  "dewpointTemperature" : {
+  "dewpointTemperature": {
     "value": 7.0,
-    "uom" : "degC"
+    "uom": "degC"
   },
   "translatedTAC": "METAR EFTU 260350Z 28004KT 9999 //////CB 07/07 Q1031=",
   "translated": true
