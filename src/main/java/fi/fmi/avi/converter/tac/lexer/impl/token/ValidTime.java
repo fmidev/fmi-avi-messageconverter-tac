@@ -165,11 +165,9 @@ public class ValidTime extends TimeHandlingRegex {
             }
 
             final TAF taf = (TAF) msg;
-            final boolean useReferredReportValidPeriod = taf.getReportStatus()//
-                    .map(reportStatus -> TAFReferencePolicy.tryGetFromConversionHints(ctx.getHints())//
-                            .orElse(TAFReferencePolicy.DEFAULT_POLICY)//
-                            .useReferred(reportStatus, taf.isCancelMessage()))//
-                    .orElse(false);
+            final boolean useReferredReportValidPeriod = TAFReferencePolicy.tryGetFromConversionHints(ctx.getHints())//
+                    .orElse(TAFReferencePolicy.DEFAULT_POLICY)//
+                    .useReferred(taf.getReportStatus(), taf.isCancelMessage());
             final PartialOrCompleteTimePeriod validityTime = (useReferredReportValidPeriod ? taf.getReferredReportValidPeriod() : taf.getValidityTime())//
                     .orElseThrow(() -> new SerializingException(
                             (useReferredReportValidPeriod ? "ReferredReportValidPeriod" : "ValidityTime") + " not available in TAF"));

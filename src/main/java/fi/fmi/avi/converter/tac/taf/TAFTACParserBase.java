@@ -221,11 +221,9 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
         final IssueList result = new IssueList();
         final Optional<PartialOrCompleteTimePeriod> validityTime = parseValidityTime(lexed, result);
         if (validityTime.isPresent()) {
-            final boolean useReferredReportValidPeriod = builder.getReportStatus()//
-                    .map(reportStatus -> TAFReferencePolicy.tryGetFromConversionHints(hints)//
-                            .orElse(TAFReferencePolicy.DEFAULT_POLICY)//
-                            .useReferred(reportStatus, builder.isCancelMessage()))//
-                    .orElse(false);
+            final boolean useReferredReportValidPeriod = TAFReferencePolicy.tryGetFromConversionHints(hints)//
+                    .orElse(TAFReferencePolicy.DEFAULT_POLICY)//
+                    .useReferred(builder.getReportStatus(), builder.isCancelMessage());
             if (useReferredReportValidPeriod) {
                 builder.setReferredReportValidPeriod(validityTime);
             } else {
