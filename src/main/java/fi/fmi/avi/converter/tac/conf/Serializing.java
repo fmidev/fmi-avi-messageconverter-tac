@@ -124,7 +124,7 @@ public class Serializing {
         return s;
     }
 
-    @Bean
+    @Bean(name = "tafTACSerializer")
     AviMessageSpecificConverter<TAF, String> tafTACSerializer() {
         return spawnTAFTACSerializer();
     }

@@ -95,6 +95,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetValidUntil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.VolcanicAshAdvisoryStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.VolcanicAshPhenomena;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
@@ -122,7 +123,7 @@ public class Lexing {
         l.addTokenLexer(lowWindTokenLexer());
         l.addTokenLexer(wxWarningTokenLexer());
         l.addTokenLexer(wxRepTokenLexer());
-        l.addTokenLexer(intlSigmetTokenLexer());
+        // l.addTokenLexer(intlSigmetTokenLexer());
         l.addTokenLexer(usSigmetTokenLexer());
         l.addTokenLexer(spaceWeatherAdvisoryTokenLexer());
         l.addTokenLexer(volcanicAshAdvisoryTokenLexer());
@@ -1283,52 +1284,53 @@ public class Lexing {
         return l;
     }
 
-    private RecognizingAviMessageTokenLexer intlSigmetTokenLexer() {
-        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
-        //Lambdas not allowed in Spring 3.x Java config files:
-        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
-            @Override
-            public boolean test(final LexemeSequence sequence) {
-                System.err.println("testing "+sequence.getFirstLexeme().getTACToken());
-                return sequence.getFirstLexeme().getIdentity().equals(LexemeIdentity.SIGMET_START);
-                //&& sequence.getFirstLexeme().getNext().getIdentity().equals(LexemeIdentity.AIRSPACE_DESIGNATOR);
-            }
+//     TODO DISABLED
+//     private RecognizingAviMessageTokenLexer intlSigmetTokenLexer() {
+//         final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+//         //Lambdas not allowed in Spring 3.x Java config files:
+//         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+//             @Override
+//             public boolean test(final LexemeSequence sequence) {
+//                 System.err.println("testing "+sequence.getFirstLexeme().getTACToken());
+//                 return sequence.getFirstLexeme().getIdentity().equals(LexemeIdentity.SIGMET_START);
+//                 //&& sequence.getFirstLexeme().getNext().getIdentity().equals(LexemeIdentity.AIRSPACE_DESIGNATOR);
+//             }
 
-            @Override
-            public MessageType getMessageType() {
-                return MessageType.SIGMET;
-            }
-        });
-        l.teach(new SigmetStart(OccurrenceFrequency.RARE));
-        l.teach(new SigmetSequenceDescriptor(OccurrenceFrequency.AVERAGE));
-        l.teach(new AirspaceDesignator(OccurrenceFrequency.RARE));
-        l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));
-        l.teach(new MWODesignator(OccurrenceFrequency.RARE));
-        l.teach(new EndToken(OccurrenceFrequency.RARE));
-        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
-        l.teach(new ObsOrForecast(OccurrenceFrequency.FREQUENT));
-        l.teach(new FIRDesignator(OccurrenceFrequency.AVERAGE));
-        l.teach(new FIRType(OccurrenceFrequency.AVERAGE));
-        l.teach(new Test(OccurrenceFrequency.RARE));
-        l.teach(new Exer(OccurrenceFrequency.RARE));
-        l.teach(new PhenomenonTS(OccurrenceFrequency.AVERAGE));
-        l.teach(new PhenomenonTSAdjective(OccurrenceFrequency.RARE));
-        l.teach(new PhenomenonSIGMET(OccurrenceFrequency.AVERAGE));
-        l.teach(new FreezingRain(OccurrenceFrequency.RARE));
+//             @Override
+//             public MessageType getMessageType() {
+//                 return MessageType.SIGMET;
+//             }
+//         });
+//         l.teach(new SigmetStart(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetSequenceDescriptor(OccurrenceFrequency.AVERAGE));
+//         l.teach(new AirspaceDesignator(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));
+//         l.teach(new MWODesignator(OccurrenceFrequency.RARE));
+//         l.teach(new EndToken(OccurrenceFrequency.RARE));
+//         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
+//         l.teach(new ObsOrForecast(OccurrenceFrequency.FREQUENT));
+//         l.teach(new FIRDesignator(OccurrenceFrequency.AVERAGE));
+//         l.teach(new FIRType(OccurrenceFrequency.AVERAGE));
+//         l.teach(new Test(OccurrenceFrequency.RARE));
+//         l.teach(new Exer(OccurrenceFrequency.RARE));
+//         l.teach(new PhenomenonTS(OccurrenceFrequency.AVERAGE));
+//         l.teach(new PhenomenonTSAdjective(OccurrenceFrequency.RARE));
+//         l.teach(new PhenomenonSIGMET(OccurrenceFrequency.AVERAGE));
+//         l.teach(new FreezingRain(OccurrenceFrequency.RARE));
 
-        l.teach(new PolygonCoordinatePair(OccurrenceFrequency.FREQUENT));
-        l.teach(new PolygonCoordinatePairSeparator(OccurrenceFrequency.AVERAGE));
- //       l.teach(new ShowAll(OccurrenceFrequency.AVERAGE));
-        l.teach(new SigmetEntireFir(OccurrenceFrequency.RARE));
-        l.teach(new SigmetWithin(OccurrenceFrequency.RARE));
-        l.teach(new SigmetLine(OccurrenceFrequency.RARE));
-        l.teach(new Latitude(OccurrenceFrequency.RARE));
-        l.teach(new Longitude(OccurrenceFrequency.RARE));
-        l.teach(new SigmetOutsideLatOrLon(OccurrenceFrequency.RARE));
-        l.teach(new SigmetAnd(OccurrenceFrequency.RARE));
+//         l.teach(new PolygonCoordinatePair(OccurrenceFrequency.FREQUENT));
+//         l.teach(new PolygonCoordinatePairSeparator(OccurrenceFrequency.AVERAGE));
+//  //       l.teach(new ShowAll(OccurrenceFrequency.AVERAGE));
+//         l.teach(new SigmetEntireFir(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetWithin(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetLine(OccurrenceFrequency.RARE));
+//         l.teach(new Latitude(OccurrenceFrequency.RARE));
+//         l.teach(new Longitude(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetOutsideLatOrLon(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetAnd(OccurrenceFrequency.RARE));
 
-        return l;
-    }
+//         return l;
+//     }
 
     private RecognizingAviMessageTokenLexer usSigmetTokenLexer() {
         final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
@@ -1420,7 +1422,7 @@ public class Lexing {
         l.teach(new VolcanicAshAdvisoryStart(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTimeLabel(OccurrenceFrequency.RARE));
-        l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
+        l.teach(new VolcanicAshPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;

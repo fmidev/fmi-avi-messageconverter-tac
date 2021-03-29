@@ -1,7 +1,8 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import java.time.DateTimeException;
-import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -26,7 +27,7 @@ public class DTGIssueTime extends TimeHandlingRegex {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if(token != null && token.hasPrevious()) {
+        if (token != null && token.hasPrevious()) {
             if (token.getPrevious().getIdentity() != null && token.getPrevious().getIdentity().equals(LexemeIdentity.DTG_ISSUE_TIME_LABEL)) {
                 final int year = Integer.parseInt(match.group("year"));
                 final int month = Integer.parseInt(match.group("month"));
@@ -34,17 +35,15 @@ public class DTGIssueTime extends TimeHandlingRegex {
                 final int hour = Integer.parseInt(match.group("hour"));
                 final int minute = Integer.parseInt(match.group("minute"));
                 try {
-                    YearMonth yearMonth = YearMonth.of(year, month);
-                    if (timeOkDayHourMinute(day, hour, minute)) {
-                        token.identify(LexemeIdentity.ISSUE_TIME);
-                        token.setParsedValue(Lexeme.ParsedValueName.YEAR, year);
-                        token.setParsedValue(Lexeme.ParsedValueName.MONTH, month);
-                        token.setParsedValue(Lexeme.ParsedValueName.DAY1, day);
-                        token.setParsedValue(Lexeme.ParsedValueName.HOUR1, hour);
-                        token.setParsedValue(Lexeme.ParsedValueName.MINUTE1, minute);
-                    }
+                    ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"));
+                    token.identify(LexemeIdentity.ISSUE_TIME);
+                    token.setParsedValue(Lexeme.ParsedValueName.YEAR, year);
+                    token.setParsedValue(Lexeme.ParsedValueName.MONTH, month);
+                    token.setParsedValue(Lexeme.ParsedValueName.DAY1, day);
+                    token.setParsedValue(Lexeme.ParsedValueName.HOUR1, hour);
+                    token.setParsedValue(Lexeme.ParsedValueName.MINUTE1, minute);
                 } catch (DateTimeException e) {
-                    //NOOP, ignore silently if year & month not valid
+                    // NOOP, ignore silently if the issue time is not valid
                 }
             }
         }
@@ -54,9 +53,9 @@ public class DTGIssueTime extends TimeHandlingRegex {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             Optional<Lexeme> retval = Optional.empty();
-            if(SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
+            if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 SpaceWeatherAdvisory swx = ((SpaceWeatherAdvisory) msg);
-                if(swx.getIssueTime().isPresent()) {
+                if (swx.getIssueTime().isPresent()) {
                     PartialOrCompleteTimeInstant time = swx.getIssueTime().get();
                     StringBuilder builder = new StringBuilder();
                     builder.append(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
