@@ -106,7 +106,7 @@ public class LexerTest {
 
     }
 
-    /* TODO: Disabled for CI/CD @Test */
+    @Test
     public void testSpaceWeatherLexing() {
         List<Lexeme> unidentifiedLexemes = new ArrayList<>();
 
@@ -127,7 +127,7 @@ public class LexerTest {
         }
     }
 
-    /* TODO: Disabled for CI/CD @Test */
+    @Test
     public void testSpaceWeatherLexingWithConversionHint() {
         List<Lexeme> unidentifiedLexemes = new ArrayList<>();
 

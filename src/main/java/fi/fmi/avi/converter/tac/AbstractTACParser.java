@@ -6,8 +6,11 @@ import static fi.fmi.avi.model.immutable.WeatherImpl.WEATHER_CODES;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -111,17 +114,19 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
         return from.findNext(needle, found, notFound);
     }
 
-    protected static ConversionIssue checkBeforeAnyOf(final Lexeme lexeme, final LexemeIdentity[] toMatch) {
+    protected static ConversionIssue checkBeforeAnyOf(final Lexeme lexeme, final LexemeIdentity... toMatch) {
+        return lexeme == null || toMatch == null || toMatch.length == 0 ? null : checkBeforeAnyOf(lexeme, new HashSet<>(Arrays.asList(toMatch)));
+    }
+
+    protected static ConversionIssue checkBeforeAnyOf(final Lexeme lexeme, final Set<LexemeIdentity> toMatch) {
         ConversionIssue retval = null;
-        if (lexeme != null && toMatch != null) {
+        if (lexeme != null && toMatch != null && !toMatch.isEmpty()) {
             Lexeme toCheck = lexeme;
             while (toCheck.hasPrevious()) {
                 toCheck = toCheck.getPrevious();
-                for (final LexemeIdentity i : toMatch) {
-                    if (i.equals(toCheck.getIdentity())) {
-                        retval = new ConversionIssue(ConversionIssue.Type.SYNTAX, "Token '" + lexeme + "' was found before one of type " + i);
-                        break;
-                    }
+                final LexemeIdentity identity = toCheck.getIdentity();
+                if (toMatch.contains(identity)) {
+                    retval = new ConversionIssue(ConversionIssue.Type.SYNTAX, "Invalid token order: '" + lexeme + "' was found after one of type " + identity);
                 }
             }
         }

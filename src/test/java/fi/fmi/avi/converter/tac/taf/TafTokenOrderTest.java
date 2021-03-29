@@ -71,7 +71,7 @@ public class TafTokenOrderTest extends AbstractAviMessageTest<String, TAF> {
     public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
         assertTrue(conversionIssues.size() == 1);
         assertTrue(Type.SYNTAX == conversionIssues.get(0).getType());
-        assertTrue("Token ''-RA'(WEATHER,OK)' was found before one of type CLOUD".equals(conversionIssues.get(0).getMessage()));
+        assertTrue("Invalid token order: ''-RA'(WEATHER,OK)' was found after one of type CLOUD".equals(conversionIssues.get(0).getMessage()));
     }
 
     @Override
