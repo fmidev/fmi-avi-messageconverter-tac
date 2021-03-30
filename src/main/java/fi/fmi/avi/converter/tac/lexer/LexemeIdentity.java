@@ -1,31 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COUNTRY;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COVER;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DIRECTION;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_DIRECTION;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MAX_VALUE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MEAN_VALUE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_DIRECTION;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_VALUE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MONTH;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SEQUENCE_NUMBER;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TENDENCY_OPERATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.YEAR;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
@@ -56,7 +31,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity US_SIGMET_START = new LexemeIdentity("US_SIGMET_START");
     public static final LexemeIdentity REP = new LexemeIdentity("REP");
     public static final LexemeIdentity SPACE_WEATHER_ADVISORY_START = new LexemeIdentity("SPACE_WEATHER_ADVISORY_START");
-    public static final LexemeIdentity ADVISORY_PHENOMENA_LABEL = new LexemeIdentity("ADVISORY_PHENOMENA_LABEL", EnumSet.of(TYPE),
+    public static final LexemeIdentity ADVISORY_PHENOMENA_LABEL = new LexemeIdentity("ADVISORY_PHENOMENA_LABEL", EnumSet.of(TYPE, HOUR1),
             EnumSet.of(IdentityProperty.LABEL));
     public static final LexemeIdentity ADVISORY_PHENOMENA_TIME_GROUP = new LexemeIdentity("ADVISORY_PHENOMENA_TIME_GROUP", EnumSet.of(DAY1, HOUR1, MINUTE1),
             Collections.emptySet());
@@ -144,6 +119,30 @@ public class LexemeIdentity {
             Collections.emptySet());
     public static final LexemeIdentity NEXT_ADVISORY_LABEL = new LexemeIdentity("NEXT_ADVISORY_LABEL", Collections.emptySet(),
             EnumSet.of(IdentityProperty.LABEL));
+
+    public static final LexemeIdentity SEQUENCE_DESCRIPTOR = new LexemeIdentity("SEQUENCE_DESCRIPTOR", EnumSet.of(VALUE),
+            Collections.emptySet());
+    public static final LexemeIdentity AIRSPACE_DESIGNATOR = new LexemeIdentity("AIRSPACE_DESIGNATOR", EnumSet.of(VALUE, COUNTRY), Collections.emptySet());
+    public static final LexemeIdentity HEADER_END_TOKEN = new LexemeIdentity("HEADER_END_TOKEN");
+    public static final LexemeIdentity MWO_DESIGNATOR = new LexemeIdentity("MWO_DESIGNATOR", EnumSet.of(VALUE, COUNTRY), Collections.emptySet());
+    public static final LexemeIdentity FIR_DESIGNATOR = new LexemeIdentity("FIR_DESIGNATOR", EnumSet.of(VALUE, COUNTRY), Collections.emptySet());
+    public static final LexemeIdentity FIR_NAME = new LexemeIdentity("FIR_NAME", EnumSet.of(VALUE, FIR_TYPE), Collections.emptySet());
+    public static final LexemeIdentity EXER = new LexemeIdentity("EXER", Collections.emptySet(), Collections.emptySet());
+    public static final LexemeIdentity TEST = new LexemeIdentity("TEST", Collections.emptySet(), Collections.emptySet());
+    public static final LexemeIdentity PHENOMENON_TS = new LexemeIdentity("PHENOMENON_TS", EnumSet.of(WITHHAIL), Collections.emptySet());
+    public static final LexemeIdentity PHENOMENON_TS_ADJECTIVE = new LexemeIdentity("PHENOMENON_TS_ADJECTIVE", EnumSet.of(TS_ADJECTIVE), Collections.emptySet());
+    public static final LexemeIdentity PHENOMENON_SIGMET = new LexemeIdentity("PHENOMENON_SIGMET", EnumSet.of(SEV_ICE_FZRA), Collections.emptySet());
+    public static final LexemeIdentity PHENOMENON_SIGMET_FZRA = new LexemeIdentity("PHENOMENON_SIGMET_FZRA", Collections.emptySet(), Collections.emptySet());
+    public static final LexemeIdentity OBS_OR_FORECAST = new LexemeIdentity("OBS_OR_FORECAST", Collections.emptySet(), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_ENTIRE_FIR = new LexemeIdentity("SIGMET_ENTIRE_FIR", Collections.emptySet(), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_WITHIN = new LexemeIdentity("SIGMET_WITHIN", Collections.emptySet(), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_LINE = new LexemeIdentity("SIGMET_LINE",EnumSet.of(VALUE) , Collections.emptySet());
+    public static final LexemeIdentity LONGITUDE = new LexemeIdentity("LONGITUDE",EnumSet.of(VALUE) , Collections.emptySet());
+    public static final LexemeIdentity LATITUDE = new LexemeIdentity("LATITUDE",EnumSet.of(VALUE) , Collections.emptySet());
+    public static final LexemeIdentity SIGMET_AND = new LexemeIdentity("SIGMET_AND",EnumSet.of(VALUE) , Collections.emptySet());
+    public static final LexemeIdentity SIGMET_OUTSIDE_LATLON = new LexemeIdentity("SIGMET_OUTSIDE_LATLON",EnumSet.of(VALUE) , Collections.emptySet());
+    public static final LexemeIdentity SIGMET_BETWEEN_LATLON = new LexemeIdentity("SIGMET_BETWEEN_LATLON",EnumSet.of(VALUE) , Collections.emptySet());
+
 
     private final String name;
     private final Set<Lexeme.ParsedValueName> possibleParameters;

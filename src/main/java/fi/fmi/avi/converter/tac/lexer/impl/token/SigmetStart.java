@@ -18,8 +18,15 @@ public class SigmetStart extends PrioritizedLexemeVisitor {
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if ("SIGMET".equalsIgnoreCase(token.getTACToken())) {
+        String[] words=token.getTACToken().split(" ");
+        if ((words.length==2)&&"SIGMET".equals(words[1])){
             token.identify(SIGMET_START);
         }
+/*
+
+        if (token.getFirst().getNext().equals(token)&&"SIGMET".equalsIgnoreCase(token.getTACToken().split(" ")[1])) {
+            token.identify(SIGMET_START);
+        }
+*/
     }
 }

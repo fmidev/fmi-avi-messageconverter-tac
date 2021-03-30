@@ -4,6 +4,7 @@
     <groupId>fi.fmi</groupId>
     <artifactId>fmi-os-parent-pom</artifactId>
     <version>0.8.1</version>
+    <relativePath />
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -11,20 +12,25 @@
   <description>Aviation weather message conversions - TAC module</description>
   <groupId>fi.fmi.avi.converter</groupId>
   <artifactId>fmi-avi-messageconverter-tac</artifactId>
-  <version>3.0.5-SNAPSHOT</version>
+  <version>4.0.5.KNMI-fmimaster-withsigmet-SNAPSHOT</version>
 
   <scm>
     <connection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</connection>
     <developerConnection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</developerConnection>
     <url>https://github.com/fmidev/fmi-avi-messageconverter-tac</url>
-    <tag>HEAD</tag>
+    <tag>fmi-avi-messageconverter-tac-3.0.4</tag>
   </scm>
 
   <dependencies>
-    <dependency>
+    <!--<dependency>
       <groupId>fi.fmi.avi.converter</groupId>
       <artifactId>fmi-avi-messageconverter</artifactId>
-      <version>4.0.3</version>
+      <version>4.0.4.K-SNAPSHOT</version>
+      </dependency>-->
+    <dependency>
+        <groupId>fi.fmi.avi.converter</groupId>
+        <artifactId>fmi-avi-messageconverter</artifactId>
+        <version>4.0.4.KNMI-add-cicd-SNAPSHOT</version>
     </dependency>
 
     <!-- For JUnit tests -->
@@ -60,6 +66,59 @@
     </dependency>
 
   </dependencies>
+  
+  <build>
+    <!-- Overriding settings from parent pom: -->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven-deploy-plugin.version}</version>
+          <configuration>
+            <altDeploymentRepository>gitlab-maven::default::${env.CI_SERVER_URL}/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</altDeploymentRepository>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>    
+  
+  <repositories>
+     <!-- Needed to resolve parent pom during deploy -->
+    <repository>
+      <id>fmi-os-mvn-release-repo</id>
+      <url>https://raw.githubusercontent.com/fmidev/fmi-os-mvn-repo/master</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+   </repository>
 
+    <!-- fi/fmi/avi/converter/fmi-avi-messageconverter -->
+    <repository>
+        <id>fmi-avi-messageconverter</id>
+        <url>https://gitlab.com/api/v4/projects/22507877/packages/maven</url>
+    </repository>
+    
+        <!-- fi/fmi/avi/converter/fmi-avi-messageconverter-tac-->
+    <repository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.com/api/v4/projects/22507780/packages/maven</url>
+    </repository>
+  </repositories>
+  
+   <distributionManagement>
+    <repository>
+      <id>gitlab-maven</id>
+      <url>${env.CI_SERVER_URL}/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
+    </repository>
+    <snapshotRepository>
+      <id>gitlab-maven</id>
+      <url>${env.CI_SERVER_URL}/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
+    </snapshotRepository>
+  </distributionManagement>
 
 </project>

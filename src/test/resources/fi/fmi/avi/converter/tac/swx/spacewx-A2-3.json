@@ -3,9 +3,8 @@
     "completeTime": "2016-11-08T01:00:00Z"
   },
   "issuingCenter": {
-    "name": "DONLON Weather Forecast Center",
-    "designator": "DONLON",
-    "type": "SWXC"
+    "name": "DONLON",
+    "type": "OTHER:SWXC"
   },
   "advisoryNumber": {
     "year": 2016,

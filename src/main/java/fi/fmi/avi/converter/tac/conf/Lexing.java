@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import fi.fmi.avi.converter.tac.lexer.impl.token.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -94,6 +95,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.USSigmetValidUntil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.VolcanicAshAdvisoryStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.VolcanicAshPhenomena;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
@@ -121,7 +123,7 @@ public class Lexing {
         l.addTokenLexer(lowWindTokenLexer());
         l.addTokenLexer(wxWarningTokenLexer());
         l.addTokenLexer(wxRepTokenLexer());
-        l.addTokenLexer(intlSigmetTokenLexer());
+        // l.addTokenLexer(intlSigmetTokenLexer());
         l.addTokenLexer(usSigmetTokenLexer());
         l.addTokenLexer(spaceWeatherAdvisoryTokenLexer());
         l.addTokenLexer(volcanicAshAdvisoryTokenLexer());
@@ -164,6 +166,15 @@ public class Lexing {
         f.addTokenCombiningRule(spaceWeatherAdvisoryNoAdvisoriesCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryCombinationRules());
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules());
+        f.addTokenCombiningRule(intlSigmetStartRule());
+        f.addTokenCombiningRule(intlSigmetFirName3CombinationRule());
+        f.addTokenCombiningRule(intlSigmetFirNameCombinationRule());
+        f.addTokenCombiningRule(intlSigmetEntireFirCombinationRule());
+        f.addTokenCombiningRule(intlSigmetPhenomenonCombinationRule());
+        f.addTokenCombiningRule(intlSigmetPhenomenonFZRACombinationRule());
+        f.addTokenCombiningRule(intlSigmetLineCombinationRule());
+        f.addTokenCombiningRule(intlSigmetOutsideLatLonCombinationRule());
+//        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
 
         f.setMessageStartToken(MessageType.METAR,
                 f.createLexeme("METAR", LexemeIdentity.METAR_START, Lexeme.Status.OK, true));
@@ -178,7 +189,7 @@ public class Lexing {
         f.setMessageStartToken(MessageType.SPACE_WEATHER_ADVISORY,
                 f.createLexeme("SWX ADVISORY", LexemeIdentity.SPACE_WEATHER_ADVISORY_START, Lexeme.Status.OK, true));
         f.setMessageStartToken(MessageType.SIGMET,
-                f.createLexeme("SIGMET", LexemeIdentity.SIGMET_START, Lexeme.Status.OK, true));
+                f.createLexeme("XXXX SIGMET", LexemeIdentity.SIGMET_START, Lexeme.Status.OK, true));
 
         //Non-standard types:
         f.setMessageStartToken(lowWind(),
@@ -588,17 +599,45 @@ public class Lexing {
             retval.add(new Predicate<String>() {
                 @Override
                 public boolean test(final String s) {
+                    return s.matches("^(W|E)\\d+$");
+                }
+            });
+            retval.add(new Predicate<String>() {
+                @Override
+                public boolean test(final String s) {
                     return s.matches("^(N|S)\\d+$");
                 }
             });
+
+            if(i < 4) {
+                retval.add(new Predicate<String>() {
+                    @Override
+                    public boolean test(final String s) {
+                        return s.matches("^-$");
+                    }
+                });
+            }
+        }
+        return retval;
+    }
+
+    private List<Predicate<String>> sigmetPolygonCombinationRule(int n) {
+        List<Predicate<String>> retval = new ArrayList<>();
+        for(int i = 0; i < n; i++) {
             retval.add(new Predicate<String>() {
                 @Override
                 public boolean test(final String s) {
                     return s.matches("^(W|E)\\d+$");
                 }
             });
+            retval.add(new Predicate<String>() {
+                @Override
+                public boolean test(final String s) {
+                    return s.matches("^(N|S)\\d+$");
+                }
+            });
 
-            if(i < 4) {
+            if(i < (n-1)) {
                 retval.add(new Predicate<String>() {
                     @Override
                     public boolean test(final String s) {
@@ -855,8 +894,170 @@ public class Lexing {
         });
         return retval;
     }
+    private List<Predicate<String>> intlSigmetFirNameCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(\\w*)$");
+            }
+        });
 
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(FIR|UIR|FIR/UIR|CTA)$");
+            }
+        });
+        return retval;
+    }
+    private List<Predicate<String>> intlSigmetEntireFirCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^ENTIRE$");
+            }
+        });
 
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^FIR$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetLineCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^N|NE|E|SE|S|SW|W|NW$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^OF$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^LINE$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetOutsideLatLonCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^N|S|E|W$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^OF$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(([NS]\\d+)|([SE]\\d+))");
+            }
+        });
+            return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetStartRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[A-Z]{4,}");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("SIGMET");
+            }
+        });
+       return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetFirName3CombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(\\w*)$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return !s.equals("ENTIRE")&&s.matches("^(\\w*)$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^FIR|UIR|FIR/UIR|CTA$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetPhenomenonCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(SEV|HVY|RDOACT)$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(TURB|ICE|MTW|DS|SS|CLD)$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetPhenomenonFZRACombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(SEV)$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(ICE)$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^\\(FZRA\\)$");
+            }
+        });
+        return retval;
+    }
 
     private RecognizingAviMessageTokenLexer metarTokenLexer() {
         final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
@@ -1083,26 +1284,53 @@ public class Lexing {
         return l;
     }
 
-    private RecognizingAviMessageTokenLexer intlSigmetTokenLexer() {
-        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
-        //Lambdas not allowed in Spring 3.x Java config files:
-        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
-            @Override
-            public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().hasNext() && sequence.getFirstLexeme().getNext().getTACToken().equals("SIGMET");
-            }
+//     TODO DISABLED
+//     private RecognizingAviMessageTokenLexer intlSigmetTokenLexer() {
+//         final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+//         //Lambdas not allowed in Spring 3.x Java config files:
+//         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+//             @Override
+//             public boolean test(final LexemeSequence sequence) {
+//                 System.err.println("testing "+sequence.getFirstLexeme().getTACToken());
+//                 return sequence.getFirstLexeme().getIdentity().equals(LexemeIdentity.SIGMET_START);
+//                 //&& sequence.getFirstLexeme().getNext().getIdentity().equals(LexemeIdentity.AIRSPACE_DESIGNATOR);
+//             }
 
-            @Override
-            public MessageType getMessageType() {
-                return MessageType.SIGMET;
-            }
-        });
-        l.teach(new SigmetStart(OccurrenceFrequency.FREQUENT));
-        l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));
-        l.teach(new EndToken(OccurrenceFrequency.RARE));
-        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
-        return l;
-    }
+//             @Override
+//             public MessageType getMessageType() {
+//                 return MessageType.SIGMET;
+//             }
+//         });
+//         l.teach(new SigmetStart(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetSequenceDescriptor(OccurrenceFrequency.AVERAGE));
+//         l.teach(new AirspaceDesignator(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));
+//         l.teach(new MWODesignator(OccurrenceFrequency.RARE));
+//         l.teach(new EndToken(OccurrenceFrequency.RARE));
+//         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
+//         l.teach(new ObsOrForecast(OccurrenceFrequency.FREQUENT));
+//         l.teach(new FIRDesignator(OccurrenceFrequency.AVERAGE));
+//         l.teach(new FIRType(OccurrenceFrequency.AVERAGE));
+//         l.teach(new Test(OccurrenceFrequency.RARE));
+//         l.teach(new Exer(OccurrenceFrequency.RARE));
+//         l.teach(new PhenomenonTS(OccurrenceFrequency.AVERAGE));
+//         l.teach(new PhenomenonTSAdjective(OccurrenceFrequency.RARE));
+//         l.teach(new PhenomenonSIGMET(OccurrenceFrequency.AVERAGE));
+//         l.teach(new FreezingRain(OccurrenceFrequency.RARE));
+
+//         l.teach(new PolygonCoordinatePair(OccurrenceFrequency.FREQUENT));
+//         l.teach(new PolygonCoordinatePairSeparator(OccurrenceFrequency.AVERAGE));
+//  //       l.teach(new ShowAll(OccurrenceFrequency.AVERAGE));
+//         l.teach(new SigmetEntireFir(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetWithin(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetLine(OccurrenceFrequency.RARE));
+//         l.teach(new Latitude(OccurrenceFrequency.RARE));
+//         l.teach(new Longitude(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetOutsideLatOrLon(OccurrenceFrequency.RARE));
+//         l.teach(new SigmetAnd(OccurrenceFrequency.RARE));
+
+//         return l;
+//     }
 
     private RecognizingAviMessageTokenLexer usSigmetTokenLexer() {
         final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
@@ -1172,6 +1400,7 @@ public class Lexing {
         l.teach(new AdvisoryRemarkStart(OccurrenceFrequency.AVERAGE));
         l.teach(new Remark(OccurrenceFrequency.FREQUENT));
 
+
         return l;
     }
 
@@ -1193,7 +1422,7 @@ public class Lexing {
         l.teach(new VolcanicAshAdvisoryStart(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTime(OccurrenceFrequency.RARE));
         l.teach(new DTGIssueTimeLabel(OccurrenceFrequency.RARE));
-        l.teach(new SWXPhenomena(OccurrenceFrequency.AVERAGE));
+        l.teach(new VolcanicAshPhenomena(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryPhenomenaTimeGroup(OccurrenceFrequency.AVERAGE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;

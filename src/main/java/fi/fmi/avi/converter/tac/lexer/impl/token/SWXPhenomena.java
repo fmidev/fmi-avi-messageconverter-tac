@@ -20,13 +20,17 @@ import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 public class SWXPhenomena extends RegexMatchingLexemeVisitor {
 
     public SWXPhenomena(final OccurrenceFrequency prio) {
-        super("^(?<type>OBS|FCST)(?:[a-zA-Z0-9\\+\\s]+)?:$", prio);
+        super("^(?<type>OBS|FCST)\\s+SWX(?:\\s+\\+(?:\\s+)?(?<hour>\\d{1,2})\\s+HR)?:$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
         token.setParsedValue(Lexeme.ParsedValueName.TYPE, Type.valueOf(match.group("type")));
+
+        if (match.group("hour") != null) {
+            token.setParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.parseInt(match.group("hour")));
+        }
     }
 
     public enum Type { OBS, FCST }

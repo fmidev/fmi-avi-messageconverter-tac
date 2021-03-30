@@ -1,5 +1,8 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -22,20 +25,19 @@ public class NextAdvisory extends TimeHandlingRegex {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if(token != null && token.hasPrevious()) {
+        if (token != null && token.hasPrevious()) {
             if (token.getPrevious().getIdentity() != null && token.getPrevious().getIdentity().equals(LexemeIdentity.NEXT_ADVISORY_LABEL)) {
                 token.identify(LexemeIdentity.NEXT_ADVISORY);
 
                 String type = match.group("nofurther");
-
                 type = type == null ? match.group("type") : type;
 
                 if (type == null) {
                     token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_AT);
-                    setParsedDateValues(token, match, hints);
+                    setParsedDateValues(token, match);
                 } else if (type.trim().toUpperCase().equals("WILL BE ISSUED BY")) {
                     token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_BY);
-                    setParsedDateValues(token, match, hints);
+                    setParsedDateValues(token, match);
                 } else {
                     token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES);
                 }
@@ -43,13 +45,23 @@ public class NextAdvisory extends TimeHandlingRegex {
         }
     }
 
-    private void setParsedDateValues(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.setParsedValue(Lexeme.ParsedValueName.YEAR, Integer.parseInt(match.group("year")));
-        token.setParsedValue(Lexeme.ParsedValueName.MONTH, Integer.parseInt(match.group("month")));
-        token.setParsedValue(Lexeme.ParsedValueName.DAY1, Integer.parseInt(match.group("day")));
-        token.setParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.parseInt(match.group("hour")));
-        token.setParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.parseInt(match.group("minute")));
+    private void setParsedDateValues(final Lexeme token, final Matcher match) {
+        final int year = Integer.parseInt(match.group("year"));
+        final int month = Integer.parseInt(match.group("month"));
+        final int day = Integer.parseInt(match.group("day"));
+        final int hour = Integer.parseInt(match.group("hour"));
+        final int minute = Integer.parseInt(match.group("minute"));
 
+        try {
+            ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"));
+            token.setParsedValue(Lexeme.ParsedValueName.YEAR, year);
+            token.setParsedValue(Lexeme.ParsedValueName.MONTH, month);
+            token.setParsedValue(Lexeme.ParsedValueName.DAY1, day);
+            token.setParsedValue(Lexeme.ParsedValueName.HOUR1, hour);
+            token.setParsedValue(Lexeme.ParsedValueName.MINUTE1, minute);
+        } catch (DateTimeException e) {
+            // NOOP, ignore silently if the time is not valid
+        }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
