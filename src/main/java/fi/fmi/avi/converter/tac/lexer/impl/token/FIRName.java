@@ -9,7 +9,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -17,15 +16,15 @@ import java.util.regex.Matcher;
 /**
  * Created by rinne on 10/02/17.
  */
-public class FIRType extends RegexMatchingLexemeVisitor {
+public class FIRName extends RegexMatchingLexemeVisitor {
 
-    public FIRType(final OccurrenceFrequency prio) {
+    public FIRName(final OccurrenceFrequency prio) {
         super("^([\\w|\\s]+)\\s(FIR|UIR|FIR/UIR|CTA)$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious() && !match.group(1).equals("ENTIRE")) {
+        if (token.hasPrevious() && LexemeIdentity.FIR_DESIGNATOR.equals(token.getPrevious().getIdentity()) && !match.group(1).equals("ENTIRE")) {
             token.identify(LexemeIdentity.FIR_NAME);
             token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group(1));
             token.setParsedValue(Lexeme.ParsedValueName.FIR_TYPE, match.group(2));

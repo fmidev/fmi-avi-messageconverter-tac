@@ -11,8 +11,8 @@ import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 
 /**
- * 
- * TODO: 
+ *
+ * TODO:
  * - OBS_OR_FORECAST is not detecting correctly
  * - FirType with three words fails (NEW AMSTERDAM FIR)
  * - Wrong phenomenon is returned (EMB_TS instead of SEV_ICE_FZRA)
@@ -25,7 +25,7 @@ public class Sigmet1Test extends AbstractAviMessageTestTempSigmet<String, SIGMET
 	public String getJsonFilename() {
 		return "../sigmet/sigmet1a.json";
 	}
-	
+
 	@Override
 	public String getMessage() {
 		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA AMSTERDAM FIR SEV ICE (FZRA) OBS ENTIRE FIR=";
@@ -35,7 +35,7 @@ public class Sigmet1Test extends AbstractAviMessageTestTempSigmet<String, SIGMET
 //		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA NEW AMSTERDAM FIR SEV ICE (FZRA) OBS WI N10 E110 - N11 W111 - N12 E112 - N13 E113 - N14 E114=";
 //		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA NEW AMSTERDAM FIR SEV ICE (FZRA) OBS ENTIRE FIR=";
 	}
-	
+
 	@Override
 	public ConversionHints getLexerParsingHints() {
 		return ConversionHints.SIGMET;
@@ -48,7 +48,7 @@ public class Sigmet1Test extends AbstractAviMessageTestTempSigmet<String, SIGMET
 
 	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-        return spacify(new LexemeIdentity[] { SIGMET_START, SIGMET_START,
+        return spacify(new LexemeIdentity[] { SIGMET_START, REAL_SIGMET_START,
 				SEQUENCE_DESCRIPTOR, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, FIR_NAME,
 				PHENOMENON_SIGMET, PHENOMENON_SIGMET_FZRA, OBS_OR_FORECAST, SIGMET_ENTIRE_FIR,
 				END_TOKEN });
@@ -58,7 +58,7 @@ public class Sigmet1Test extends AbstractAviMessageTestTempSigmet<String, SIGMET
     public ConversionSpecification<String, SIGMET> getParsingSpecification() {
 		return TACConverter.TAC_TO_SIGMET_POJO;
     }
-    
+
     @Override
     public ConversionSpecification<SIGMET, String> getSerializationSpecification() {
         return TACConverter.SIGMET_POJO_TO_TAC;

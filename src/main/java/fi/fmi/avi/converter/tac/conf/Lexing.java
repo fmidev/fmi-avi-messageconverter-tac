@@ -189,7 +189,7 @@ public class Lexing {
         f.setMessageStartToken(MessageType.SPACE_WEATHER_ADVISORY,
                 f.createLexeme("SWX ADVISORY", LexemeIdentity.SPACE_WEATHER_ADVISORY_START, Lexeme.Status.OK, true));
         f.setMessageStartToken(MessageType.SIGMET,
-                f.createLexeme("XXXX SIGMET", LexemeIdentity.SIGMET_START, Lexeme.Status.OK, true));
+                f.createLexeme("SIGMET", LexemeIdentity.SIGMET_START, Lexeme.Status.OK, true));
 
         //Non-standard types:
         f.setMessageStartToken(lowWind(),
@@ -982,7 +982,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^[A-Z]{4,}");
+                return s.matches("^[A-Z]{4}");
             }
         });
         retval.add(new Predicate<String>() {
@@ -1292,10 +1292,12 @@ public class Lexing {
             @Override
             public boolean test(final LexemeSequence sequence) {
                 System.err.println("testing "+sequence.getFirstLexeme().getTACToken());
+                System.err.println(">>"+sequence.getFirstLexeme().getNext().getTACToken());
+                System.err.println(">>"+sequence.getFirstLexeme().getNext().getTACToken());
                 /* 2021-03-30 You can not call the getIdentity in some cases (for Sigmet lexing) */
                 if (sequence.
                   getFirstLexeme().
-                    getIdentity() == null) return false;
+                    getIdentity() == null) { System.err.println("false"); return false;}
                 return sequence.
                   getFirstLexeme().
                     getIdentity().
@@ -1317,7 +1319,7 @@ public class Lexing {
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         l.teach(new ObsOrForecast(OccurrenceFrequency.FREQUENT));
         l.teach(new FIRDesignator(OccurrenceFrequency.AVERAGE));
-        l.teach(new FIRType(OccurrenceFrequency.AVERAGE));
+        l.teach(new FIRName(OccurrenceFrequency.AVERAGE));
         l.teach(new Test(OccurrenceFrequency.RARE));
         l.teach(new Exer(OccurrenceFrequency.RARE));
         l.teach(new PhenomenonTS(OccurrenceFrequency.AVERAGE));

@@ -33,13 +33,13 @@ public class AirspaceDesignator extends RegexMatchingLexemeVisitor {
     private final static Map<String, ICAOCode.ICAOCodeCountryPrefix> codeToCountryMap = ICAOCode.ICAOCodeCountryPrefix.getCodeToCountryMap();
 
     public AirspaceDesignator(final OccurrenceFrequency prio) {
-        super("^[A-Z]{4,}$", prio);
+        super("^[A-Z]{4}$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         //Must be first token:
-        System.err.println("AirpaceDesignator visit "+token);
+        System.err.println("AirpaceDesignator visit "+token.getTACToken());
         if (token == token.getFirst()) {
             for (String s : codeToCountryMap.keySet()) {
                 if (token.getTACToken().startsWith(s)) {

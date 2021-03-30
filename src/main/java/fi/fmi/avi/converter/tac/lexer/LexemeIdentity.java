@@ -123,6 +123,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity SEQUENCE_DESCRIPTOR = new LexemeIdentity("SEQUENCE_DESCRIPTOR", EnumSet.of(VALUE),
             Collections.emptySet());
     public static final LexemeIdentity AIRSPACE_DESIGNATOR = new LexemeIdentity("AIRSPACE_DESIGNATOR", EnumSet.of(VALUE, COUNTRY), Collections.emptySet());
+//    public static final LexemeIdentity LOCATION_INDICATOR = new LexemeIdentity("LOCATION_INDICATOR", EnumSet.of(VALUE, COUNTRY), Collections.emptySet());
     public static final LexemeIdentity HEADER_END_TOKEN = new LexemeIdentity("HEADER_END_TOKEN");
     public static final LexemeIdentity MWO_DESIGNATOR = new LexemeIdentity("MWO_DESIGNATOR", EnumSet.of(VALUE, COUNTRY), Collections.emptySet());
     public static final LexemeIdentity FIR_DESIGNATOR = new LexemeIdentity("FIR_DESIGNATOR", EnumSet.of(VALUE, COUNTRY), Collections.emptySet());
@@ -142,6 +143,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_AND = new LexemeIdentity("SIGMET_AND",EnumSet.of(VALUE) , Collections.emptySet());
     public static final LexemeIdentity SIGMET_OUTSIDE_LATLON = new LexemeIdentity("SIGMET_OUTSIDE_LATLON",EnumSet.of(VALUE) , Collections.emptySet());
     public static final LexemeIdentity SIGMET_BETWEEN_LATLON = new LexemeIdentity("SIGMET_BETWEEN_LATLON",EnumSet.of(VALUE) , Collections.emptySet());
+    public static final LexemeIdentity REAL_SIGMET_START = new LexemeIdentity("REAL_SIGMET_START", EnumSet.of(LOCATION_INDICATOR), Collections.emptySet());
 
 
     private final String name;

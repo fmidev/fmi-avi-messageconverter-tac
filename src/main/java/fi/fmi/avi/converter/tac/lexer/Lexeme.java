@@ -245,7 +245,7 @@ public interface Lexeme {
 
     /**
      * A synthetic Lexeme has been created by the lexing process to fix some small syntax
-     * issues of the input message, such a missing start token. 
+     * issues of the input message, such a missing start token.
      *
      * @return true of the Lexemehas been marked as synthetic
      */
@@ -597,7 +597,8 @@ public interface Lexeme {
         FIR_TYPE,
         WITHHAIL,
         TS_ADJECTIVE,
-        SEV_ICE_FZRA
+        SEV_ICE_FZRA,
+        LOCATION_INDICATOR
     }
 
     enum MeteorologicalBulletinSpecialCharacter {
