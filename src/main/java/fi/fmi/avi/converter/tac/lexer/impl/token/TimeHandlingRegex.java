@@ -11,25 +11,21 @@ public abstract class TimeHandlingRegex extends RegexMatchingLexemeVisitor {
         super(pattern, priority);
     }
 
-    static boolean timeOkDayHour(int date, int hour) {
+    static boolean timeOkDayHour(final int date, final int hour) {
         return timeOkDayHourMinute(date, hour, -1);
     }
 
-    static boolean timeOkHour(int hour) {
+    static boolean timeOkHour(final int hour) {
         return timeOkDayHourMinute(-1, hour, -1);
     }
-    
-    static boolean timeOkHourMinute(int hour, int minute) {
+
+    static boolean timeOkHourMinute(final int hour, final int minute) {
         return timeOkDayHourMinute(-1, hour, minute);
     }
 
-    static boolean timeOkDayHourMinute(int date, int hour, int minute) {
-        if (date < 32 && hour < 25 && minute < 60) {
-            if (hour == 24 && minute > 0) {
-                return false;
-            } else {
-                return true;
-            }
+    static boolean timeOkDayHourMinute(final int date, final int hour, final int minute) {
+        if (date != 0 && date < 32 && hour < 25 && minute < 60) {
+            return hour != 24 || minute <= 0;
         } else {
             return false;
         }
