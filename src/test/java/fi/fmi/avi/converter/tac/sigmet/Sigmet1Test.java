@@ -23,7 +23,7 @@ public class Sigmet1Test extends AbstractAviMessageTestTempSigmet<String, SIGMET
 
 	@Override
 	public String getJsonFilename() {
-		return "sigmet/sigmet1a.json";
+		return "../sigmet/sigmet1a.json";
 	}
 	
 	@Override

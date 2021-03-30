@@ -13,7 +13,7 @@ import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
-
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
 /**
  * Created by rinne on 10/02/17.
@@ -29,8 +29,14 @@ public class ObsOrForecast extends RegexMatchingLexemeVisitor {
         if (token.hasPrevious()&&LexemeIdentity.SIGMET_START.equals(token.getFirst().getIdentity())) {
             if (token.getTACToken().startsWith("OBS")) {
                 token.identify(LexemeIdentity.OBS_OR_FORECAST);
+                token.setParsedValue(VALUE, "OBS");
                 return;
             }
+            if (token.getTACToken().startsWith("FCST")) {
+              token.identify(LexemeIdentity.OBS_OR_FORECAST);
+              token.setParsedValue(VALUE, "FCST");
+              return;
+          }
         }
     }
 

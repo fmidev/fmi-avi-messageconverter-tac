@@ -133,7 +133,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity PHENOMENON_TS_ADJECTIVE = new LexemeIdentity("PHENOMENON_TS_ADJECTIVE", EnumSet.of(TS_ADJECTIVE), Collections.emptySet());
     public static final LexemeIdentity PHENOMENON_SIGMET = new LexemeIdentity("PHENOMENON_SIGMET", EnumSet.of(SEV_ICE_FZRA), Collections.emptySet());
     public static final LexemeIdentity PHENOMENON_SIGMET_FZRA = new LexemeIdentity("PHENOMENON_SIGMET_FZRA", Collections.emptySet(), Collections.emptySet());
-    public static final LexemeIdentity OBS_OR_FORECAST = new LexemeIdentity("OBS_OR_FORECAST", Collections.emptySet(), Collections.emptySet());
+    public static final LexemeIdentity OBS_OR_FORECAST = new LexemeIdentity("OBS_OR_FORECAST",EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_ENTIRE_FIR = new LexemeIdentity("SIGMET_ENTIRE_FIR", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity SIGMET_WITHIN = new LexemeIdentity("SIGMET_WITHIN", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity SIGMET_LINE = new LexemeIdentity("SIGMET_LINE",EnumSet.of(VALUE) , Collections.emptySet());

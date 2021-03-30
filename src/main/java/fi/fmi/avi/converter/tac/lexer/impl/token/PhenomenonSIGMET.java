@@ -15,8 +15,10 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.WITHHAIL;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.PHENOMENON_SIGMET;
+
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.PHENOMENON_TS;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.PHENOMENON_SIGMET;
+
 
 /**
  * Created by rinne on 10/02/17.
