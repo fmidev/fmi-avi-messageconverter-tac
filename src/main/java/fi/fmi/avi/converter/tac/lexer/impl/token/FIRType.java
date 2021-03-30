@@ -25,7 +25,7 @@ public class FIRType extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious()) {
+        if (token.hasPrevious() && !match.group(1).equals("ENTIRE")) {
             token.identify(LexemeIdentity.FIR_NAME);
             token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group(1));
             token.setParsedValue(Lexeme.ParsedValueName.FIR_TYPE, match.group(2));

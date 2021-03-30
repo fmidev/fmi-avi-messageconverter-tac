@@ -29,6 +29,7 @@ import org.unitils.reflectionassert.comparator.Comparator;
 import org.unitils.reflectionassert.difference.Difference;
 import org.unitils.reflectionassert.report.impl.DefaultDifferenceReport;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -65,6 +66,17 @@ public abstract class AbstractAviMessageTest<S, T> {
     private AviMessageConverter converter;
 
     protected static void assertAviationWeatherMessageEquals(final AviationWeatherMessage expected, final AviationWeatherMessage actual) {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.registerModule(new Jdk8Module());
+      String serializedActual;
+			try {
+				serializedActual = mapper.writeValueAsString(actual);
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!");
+      System.out.println(serializedActual);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+      
         final Difference diff = deepCompareObjects(expected, actual);
         if (diff != null) {
             final StringBuilder failureMessage = new StringBuilder();
