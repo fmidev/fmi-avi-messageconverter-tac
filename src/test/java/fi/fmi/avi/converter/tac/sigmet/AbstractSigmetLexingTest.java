@@ -36,7 +36,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
-public class AbstractSigmetLexingTest {
+public abstract class AbstractSigmetLexingTest {
 
   @Autowired
   private AviMessageLexer lexer;
