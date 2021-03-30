@@ -1,4 +1,4 @@
-package fi.fmi.avi.converter.tac;
+package fi.fmi.avi.converter.tac.sigmet;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.ConversionSpecification;
+import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -51,7 +53,7 @@ import fi.fmi.avi.model.metar.immutable.SPECIImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
-public abstract class AbstractAviMessageTest<S, T> {
+public abstract class AbstractAviMessageTestTempSigmet<S, T> {
 
     private static final double FLOAT_EQUIVALENCE_THRESHOLD = 0.0000000001d;
 
@@ -66,6 +68,17 @@ public abstract class AbstractAviMessageTest<S, T> {
     private AviMessageConverter converter;
 
     protected static void assertAviationWeatherMessageEquals(final AviationWeatherMessage expected, final AviationWeatherMessage actual) {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.registerModule(new Jdk8Module());
+      String serializedActual;
+			try {
+				serializedActual = mapper.writeValueAsString(actual);
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!");
+      System.out.println(serializedActual);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+      
         final Difference diff = deepCompareObjects(expected, actual);
         if (diff != null) {
             final StringBuilder failureMessage = new StringBuilder();
@@ -187,6 +200,7 @@ public abstract class AbstractAviMessageTest<S, T> {
         assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), getLexerTokenSequenceIdentity());
     }
 
+    @Ignore
     @Test
     public void testTokenizer() throws SerializingException, IOException {
         Assume.assumeTrue(String.class.isAssignableFrom(getSerializationSpecification().getOutputClass()));
@@ -205,6 +219,7 @@ public abstract class AbstractAviMessageTest<S, T> {
         assertEquals("No serialization issues expected", 0, conversionIssues.size());
     }
 
+    @Ignore
     @Test
     public void testStringToPOJOParser() throws IOException {
         final ConversionSpecification<S, T> spec = getParsingSpecification();
@@ -219,6 +234,7 @@ public abstract class AbstractAviMessageTest<S, T> {
         }
     }
 
+    @Ignore
     @Test
     public void testPOJOToStringSerialiazer() throws IOException {
         final ConversionSpecification<T, S> spec = getSerializationSpecification();
@@ -283,7 +299,7 @@ public abstract class AbstractAviMessageTest<S, T> {
         final ObjectMapper om = new ObjectMapper();
         om.registerModule(new Jdk8Module());
         om.registerModule(new JavaTimeModule());
-        final InputStream is = AbstractAviMessageTest.class.getResourceAsStream(fileName);
+        final InputStream is = AbstractAviMessageTestTempSigmet.class.getResourceAsStream(fileName);
         if (is != null) {
             final Class<? extends AviationWeatherMessage> clz = getTokenizerImplmentationClass();
             if (SPECI.class.isAssignableFrom(clz)) {

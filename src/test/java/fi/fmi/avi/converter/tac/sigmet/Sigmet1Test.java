@@ -19,7 +19,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
  * - sigmet1a.json is not yet correct ()
  */
 
-public class Sigmet1Test extends AbstractAviMessageTest<String, SIGMET> {
+public class Sigmet1Test extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
 
 	@Override
 	public String getJsonFilename() {
