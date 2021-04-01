@@ -130,10 +130,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity FIR_NAME = new LexemeIdentity("FIR_NAME", EnumSet.of(VALUE, FIR_TYPE), Collections.emptySet());
     public static final LexemeIdentity EXER = new LexemeIdentity("EXER", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity TEST = new LexemeIdentity("TEST", Collections.emptySet(), Collections.emptySet());
-    public static final LexemeIdentity PHENOMENON_TS = new LexemeIdentity("PHENOMENON_TS", EnumSet.of(WITHHAIL), Collections.emptySet());
-    public static final LexemeIdentity PHENOMENON_TS_ADJECTIVE = new LexemeIdentity("PHENOMENON_TS_ADJECTIVE", EnumSet.of(TS_ADJECTIVE), Collections.emptySet());
-    public static final LexemeIdentity PHENOMENON_SIGMET = new LexemeIdentity("PHENOMENON_SIGMET", EnumSet.of(SEV_ICE_FZRA), Collections.emptySet());
-    public static final LexemeIdentity PHENOMENON_SIGMET_FZRA = new LexemeIdentity("PHENOMENON_SIGMET_FZRA", Collections.emptySet(), Collections.emptySet());
+    public static final LexemeIdentity PHENOMENON_SIGMET = new LexemeIdentity("PHENOMENON_SIGMET", EnumSet.of(SIGMET_PHENOMENON), Collections.emptySet());
     public static final LexemeIdentity OBS_OR_FORECAST = new LexemeIdentity("OBS_OR_FORECAST",EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_ENTIRE_FIR = new LexemeIdentity("SIGMET_ENTIRE_FIR", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity SIGMET_WITHIN = new LexemeIdentity("SIGMET_WITHIN", Collections.emptySet(), Collections.emptySet());
@@ -144,7 +141,9 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_OUTSIDE_LATLON = new LexemeIdentity("SIGMET_OUTSIDE_LATLON",EnumSet.of(VALUE) , Collections.emptySet());
     public static final LexemeIdentity SIGMET_BETWEEN_LATLON = new LexemeIdentity("SIGMET_BETWEEN_LATLON",EnumSet.of(VALUE) , Collections.emptySet());
     public static final LexemeIdentity REAL_SIGMET_START = new LexemeIdentity("REAL_SIGMET_START", EnumSet.of(LOCATION_INDICATOR), Collections.emptySet());
-
+    public static final LexemeIdentity SIGMET_VA_NAME = new LexemeIdentity("SIGMET_VA_NAME", EnumSet.of(VALUE), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_VA_ERUPTION = new LexemeIdentity("SIGMET_VA_ERUPTION");
+    public static final LexemeIdentity SIGMET_VA_POSITION = new LexemeIdentity("SIGMET_VA_POSITION");
 
     private final String name;
     private final Set<Lexeme.ParsedValueName> possibleParameters;

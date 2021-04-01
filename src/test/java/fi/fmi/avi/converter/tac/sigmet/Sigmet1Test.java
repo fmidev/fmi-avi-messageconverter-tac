@@ -2,7 +2,6 @@ package fi.fmi.avi.converter.tac.sigmet;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionSpecification;
-import fi.fmi.avi.converter.tac.AbstractAviMessageTest;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.sigmet.SIGMET;
@@ -50,7 +49,7 @@ public class Sigmet1Test extends AbstractAviMessageTestTempSigmet<String, SIGMET
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(new LexemeIdentity[] { SIGMET_START, REAL_SIGMET_START,
 				SEQUENCE_DESCRIPTOR, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, FIR_NAME,
-				PHENOMENON_SIGMET, PHENOMENON_SIGMET_FZRA, OBS_OR_FORECAST, SIGMET_ENTIRE_FIR,
+				PHENOMENON_SIGMET, OBS_OR_FORECAST, SIGMET_ENTIRE_FIR,
 				END_TOKEN });
 	}
 

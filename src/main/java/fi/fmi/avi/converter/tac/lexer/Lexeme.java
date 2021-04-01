@@ -595,9 +595,7 @@ public interface Lexeme {
         SEQUENCE_NUMBER,
         SEQUENCE_DESCRIPTOR,
         FIR_TYPE,
-        WITHHAIL,
-        TS_ADJECTIVE,
-        SEV_ICE_FZRA,
+        SIGMET_PHENOMENON,
         LOCATION_INDICATOR
     }
 
