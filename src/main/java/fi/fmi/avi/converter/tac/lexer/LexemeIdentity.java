@@ -144,7 +144,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_VA_NAME = new LexemeIdentity("SIGMET_VA_NAME", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_VA_ERUPTION = new LexemeIdentity("SIGMET_VA_ERUPTION");
     public static final LexemeIdentity SIGMET_VA_POSITION = new LexemeIdentity("SIGMET_VA_POSITION");
-
+    public static final LexemeIdentity SIGMET_FIR_NAME_WORD = new LexemeIdentity("SIGMET_FIR_NAME_WORD");
     private final String name;
     private final Set<Lexeme.ParsedValueName> possibleParameters;
     private final Set<IdentityProperty> identityProperties;

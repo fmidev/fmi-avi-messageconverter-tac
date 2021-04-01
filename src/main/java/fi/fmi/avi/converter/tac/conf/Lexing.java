@@ -90,7 +90,7 @@ public class Lexing {
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules());
         f.addTokenCombiningRule(intlSigmetStartRule());
 //        f.addTokenCombiningRule(intlSigmetFirName3CombinationRule());
-        f.addTokenCombiningRule(intlSigmetFirNameCombinationRule());
+//        f.addTokenCombiningRule(intlSigmetFirNameCombinationRule());
         f.addTokenCombiningRule(intlSigmetPhenomenonFZRACombinationRule());
         f.addTokenCombiningRule(intlSigmetEntireFirCombinationRule());
         f.addTokenCombiningRule(intlSigmetPhenomenonCombinationRule1());
@@ -1430,7 +1430,8 @@ public class Lexing {
         l.teach(new SigmetVaEruption(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetVaName(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetVaPosition(OccurrenceFrequency.AVERAGE));
-
+        l.teach(new SigmetVaName(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetFirNameWord(OccurrenceFrequency.AVERAGE));
         return l;
     }
 

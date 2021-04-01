@@ -48,7 +48,7 @@ public class Sigmet1Test extends AbstractAviMessageTestTempSigmet<String, SIGMET
 	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(new LexemeIdentity[] { SIGMET_START, REAL_SIGMET_START,
-				SEQUENCE_DESCRIPTOR, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, FIR_NAME,
+				SEQUENCE_DESCRIPTOR, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME,
 				PHENOMENON_SIGMET, OBS_OR_FORECAST, SIGMET_ENTIRE_FIR,
 				END_TOKEN });
 	}

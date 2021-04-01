@@ -19,15 +19,19 @@ import java.util.regex.Matcher;
 public class FIRName extends RegexMatchingLexemeVisitor {
 
     public FIRName(final OccurrenceFrequency prio) {
-        super("^(.*)\\s(FIR|UIR|FIR/UIR|CTA)$", prio);
+        super("^(FIR|UIR|FIR/UIR|CTA)$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious() && LexemeIdentity.FIR_DESIGNATOR.equals(token.getPrevious().getIdentity()) && !match.group(1).equals("ENTIRE")) {
+        if (token.hasPrevious() && LexemeIdentity.SIGMET_FIR_NAME_WORD.equals(token.getPrevious().getIdentity()) && !match.group(1).equals("ENTIRE")) {
             token.identify(LexemeIdentity.FIR_NAME);
-            token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group(1));
-            token.setParsedValue(Lexeme.ParsedValueName.FIR_TYPE, match.group(2));
+            String firName = token.getPrevious().getTACToken();
+            if (token.getPrevious().hasPrevious()&&LexemeIdentity.SIGMET_FIR_NAME_WORD.equals(token.getPrevious().getPrevious().getIdentity())) {
+                firName = token.getPrevious().getPrevious().getTACToken() + " " + firName;
+            }
+            token.setParsedValue(Lexeme.ParsedValueName.VALUE, firName);
+            token.setParsedValue(Lexeme.ParsedValueName.FIR_TYPE, match.group(1));
         }
     }
 
