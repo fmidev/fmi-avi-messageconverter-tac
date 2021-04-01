@@ -596,7 +596,10 @@ public interface Lexeme {
         SEQUENCE_DESCRIPTOR,
         FIR_TYPE,
         SIGMET_PHENOMENON,
-        LOCATION_INDICATOR
+        LOCATION_INDICATOR,
+        AREA_TYPE,
+        APRX_LINE_WIDTH,
+        APRX_LINE_WIDTH_UNIT
     }
 
     enum MeteorologicalBulletinSpecialCharacter {

@@ -12,22 +12,24 @@ import fi.fmi.avi.model.sigmet.SIGMET;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_ENTIRE_AREA;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.AREA_TYPE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_APRX_LINE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_LINE_WIDTH;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_LINE_WIDTH_UNIT;
 
 /**
  * Created by rinne on 10/02/17.
  */
-public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
+public class SigmetAprx extends RegexMatchingLexemeVisitor {
 
-    public SigmetEntireFir(final OccurrenceFrequency prio) {
-        super("^ENTIRE (FIR|UIR|FIR/UIR|CTA)$", prio);
+    public SigmetAprx(final OccurrenceFrequency prio) {
+        super("^APRX\\s(\\d{2})(KM|NM)\\sWID\\sLINE\\sBTN", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(SIGMET_ENTIRE_AREA);
-        token.setParsedValue(AREA_TYPE, match.group(1));
+        token.identify(SIGMET_APRX_LINE);
+        token.setParsedValue(APRX_LINE_WIDTH, match.group(1));
+        token.setParsedValue(APRX_LINE_WIDTH_UNIT, match.group(2));
     }
 
 	public static class Reconstructor extends FactoryBasedReconstructor {

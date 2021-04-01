@@ -106,6 +106,7 @@ public class Lexing {
 
         f.addTokenCombiningRule(intlSigmetLineCombinationRule());
         f.addTokenCombiningRule(intlSigmetOutsideLatLonCombinationRule());
+        f.addTokenCombiningRule(intlSigmetAprxCombinationRule());
 //        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
 
         f.setMessageStartToken(MessageType.METAR,
@@ -855,7 +856,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^FIR$");
+                return s.matches("^(FIR|UIR|FIR/UIR|CTA)$");
             }
         });
         return retval;
@@ -926,26 +927,74 @@ public class Lexing {
        return retval;
     }
 
-    private List<Predicate<String>> intlSigmetFirName3CombinationRule() {
+    private List<Predicate<String>> intlSigmetAprxCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(\\w+)$");
+                return s.matches("^APRX$");
             }
         });
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(\\w*)$");
+                return s.matches("^(\\d{2}(KM|NM))$");
             }
         });
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(\\w*)\\s(FIR|UIR|FIR/UIR|CTA)$");
+                return s.matches("^WID$");
             }
         });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^LINE$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^BTN$");
+            }
+        });
+
+        return retval;
+    }
+    private List<Predicate<String>> intlSigmetAprxCombinationRule2() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^APRX$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(\\d{2}(KM|NM))$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^WID$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^LINE$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^BTN$");
+            }
+        });
+
         return retval;
     }
 
@@ -1385,9 +1434,9 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                System.err.println("testing "+sequence.getFirstLexeme().getTACToken());
-                System.err.println(">>"+sequence.getFirstLexeme().getNext().getTACToken());
-                System.err.println(">>"+sequence.getFirstLexeme().getNext().getTACToken());
+                // System.err.println("testing "+sequence.getFirstLexeme().getTACToken());
+                // System.err.println(">>"+sequence.getFirstLexeme().getNext().getTACToken());
+                // System.err.println(">>"+sequence.getFirstLexeme().getNext().getTACToken());
                 /* 2021-03-30 You can not call the getIdentity in some cases (for Sigmet lexing) */
                 if (sequence.
                   getFirstLexeme().
@@ -1432,6 +1481,7 @@ public class Lexing {
         l.teach(new SigmetVaPosition(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetVaName(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetFirNameWord(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetAprx(OccurrenceFrequency.AVERAGE));
         return l;
     }
 

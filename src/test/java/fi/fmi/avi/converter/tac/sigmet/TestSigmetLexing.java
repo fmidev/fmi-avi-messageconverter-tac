@@ -232,4 +232,149 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(16).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
   }
 
+  @Test
+  public void shouldBeGeometry_POINT() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA ERUPTION PSN N5200 E00520 VA CLD OBS N5310 E00520=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, SIGMET_VA_ERUPTION, SIGMET_VA_POSITION, PHENOMENON_SIGMET, OBS_OR_FORECAST, POLYGON_COORDINATE_PAIR,END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(16).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
+  public void shouldBeGeometry_WI() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS WI N5310 E00520 - N5260 E00420 - N5210 E00500 - N5310 E00520=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          SIGMET_WITHIN, POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
+          POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
+          POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
+          END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
+  public void shouldBeGeometry_N_OF() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS N OF N5310=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          SIGMET_OUTSIDE_LATLON,
+          END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
+  public void shouldBeGeometry_N_OF_S_OF() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS N OF N5310 S OF N55=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          SIGMET_OUTSIDE_LATLON, SIGMET_OUTSIDE_LATLON,
+          END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
+  public void shouldBeGeometry_N_OF_AND_S_OF() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS N OF N5310 AND S OF N55=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          SIGMET_OUTSIDE_LATLON, SIGMET_AND, SIGMET_OUTSIDE_LATLON,
+          END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
+  public void shouldBeGeometry_N_OF_W_OF() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS N OF N5310 W OF E00520=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          SIGMET_OUTSIDE_LATLON, SIGMET_OUTSIDE_LATLON,
+          END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
+  public void shouldBeGeometry_N_OF_AND_W_OF() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS N OF N5310 AND W OF E00520=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          SIGMET_OUTSIDE_LATLON, SIGMET_AND, SIGMET_OUTSIDE_LATLON,
+          END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
+  public void shouldBeGeometry_N_OF_LINE() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS NE OF LINE N5210 E00520 - N5410 E00540 - N5510 E00530=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          SIGMET_LINE, POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
+          POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
+          END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
+  public void shouldBeGeometry_E_OF_LINE_AND_W_OF_LINE() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS E OF LINE N5210 E00520 - N5410 E00540 - N5510 E00530 AND W OF LINE N48 E007 - N56 E007=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          SIGMET_LINE, POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
+          POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
+          SIGMET_AND, SIGMET_LINE, POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
+          END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
+  public void shouldBeENTIRE_UIR() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS ENTIRE UIR=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          SIGMET_ENTIRE_AREA,
+          END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
+  public void shouldBeAPRX() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS APRX 50KM WID LINE BTN N5210 E00220 - N5210 E01020=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          SIGMET_APRX_LINE,POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
+          END_TOKEN }));
+    assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+    assertEquals("50", trimWhitespaces(result.getLexemes()).get(16).getParsedValue(ParsedValueName.APRX_LINE_WIDTH, String.class));
+    assertEquals("KM", trimWhitespaces(result.getLexemes()).get(16).getParsedValue(ParsedValueName.APRX_LINE_WIDTH_UNIT, String.class));
+  }
+
+
 }

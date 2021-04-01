@@ -36,7 +36,6 @@ public class FIRDesignator extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        System.err.println("matching: "+token);
         if (token.hasPrevious()&& LexemeIdentity.MWO_DESIGNATOR.equals(token.getPrevious().getIdentity())) {
             for (String s : codeToCountryMap.keySet()) {
                 if (token.getTACToken().startsWith(s)) {

@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_AND;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_ENTIRE_FIR;
 
 /**
  * Created by rinne on 10/02/17.

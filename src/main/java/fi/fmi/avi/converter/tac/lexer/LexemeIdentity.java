@@ -132,7 +132,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity TEST = new LexemeIdentity("TEST", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity PHENOMENON_SIGMET = new LexemeIdentity("PHENOMENON_SIGMET", EnumSet.of(SIGMET_PHENOMENON), Collections.emptySet());
     public static final LexemeIdentity OBS_OR_FORECAST = new LexemeIdentity("OBS_OR_FORECAST",EnumSet.of(VALUE), Collections.emptySet());
-    public static final LexemeIdentity SIGMET_ENTIRE_FIR = new LexemeIdentity("SIGMET_ENTIRE_FIR", Collections.emptySet(), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_ENTIRE_AREA = new LexemeIdentity("SIGMET_ENTIRE_AREA", EnumSet.of(AREA_TYPE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_WITHIN = new LexemeIdentity("SIGMET_WITHIN", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity SIGMET_LINE = new LexemeIdentity("SIGMET_LINE",EnumSet.of(VALUE) , Collections.emptySet());
     public static final LexemeIdentity LONGITUDE = new LexemeIdentity("LONGITUDE",EnumSet.of(VALUE) , Collections.emptySet());
@@ -145,6 +145,8 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_VA_ERUPTION = new LexemeIdentity("SIGMET_VA_ERUPTION");
     public static final LexemeIdentity SIGMET_VA_POSITION = new LexemeIdentity("SIGMET_VA_POSITION");
     public static final LexemeIdentity SIGMET_FIR_NAME_WORD = new LexemeIdentity("SIGMET_FIR_NAME_WORD");
+    public static final LexemeIdentity SIGMET_APRX_LINE = new LexemeIdentity("SIGMET_APRX_LINE",EnumSet.of(APRX_LINE_WIDTH, APRX_LINE_WIDTH_UNIT) , Collections.emptySet());
+
     private final String name;
     private final Set<Lexeme.ParsedValueName> possibleParameters;
     private final Set<IdentityProperty> identityProperties;
