@@ -36,7 +36,7 @@ public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                return Optional.of(createLexeme("ENTIRE FIR", SIGMET_ENTIRE_FIR));
+                return Optional.of(createLexeme("ENTIRE FIR", SIGMET_ENTIRE_AREA));
             }
             return Optional.empty();
         }
