@@ -376,5 +376,23 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     assertEquals("KM", trimWhitespaces(result.getLexemes()).get(16).getParsedValue(ParsedValueName.APRX_LINE_WIDTH_UNIT, String.class));
   }
 
+  @Test
+  public void shouldBeLevel() {
+    String[] tacStrings = {
+      "1000/2000M=", "1000M=", "2000FT=", "1000/2000FT=", "10100/12000FT=", "1000/10000FT=",
+      "1000M/FL200=", "2000FT/FL050=", "20000FT/FL240=",
+      "TOP ABV FL100=", "ABV FL200=", "ABV 10000FT=", "TOP ABV 10000FT=",
+      "FL100=", "SFC/FL100=", "1000M=", "SFC/1000M=", "1000FT=", "SFC/1000FT=",
+      /* "2000M/9000FT", "TOP FL100=", "ABV 1000M=", "TOP 1000FT=" */
+    };
+    for (String tacString: tacStrings) {
+      System.err.println("Testing level:"+tacString);
+      Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+      final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+      assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+            SIGMET_START, SIGMET_LEVEL,
+            END_TOKEN }));
+      }
+  }
 
 }

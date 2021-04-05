@@ -146,6 +146,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_VA_POSITION = new LexemeIdentity("SIGMET_VA_POSITION");
     public static final LexemeIdentity SIGMET_FIR_NAME_WORD = new LexemeIdentity("SIGMET_FIR_NAME_WORD");
     public static final LexemeIdentity SIGMET_APRX_LINE = new LexemeIdentity("SIGMET_APRX_LINE",EnumSet.of(APRX_LINE_WIDTH, APRX_LINE_WIDTH_UNIT) , Collections.emptySet());
+    public static final LexemeIdentity SIGMET_LEVEL = new LexemeIdentity("SIGMET_LEVEL", EnumSet.of(VALUE, UNIT, VALUE2, UNIT2, LEVEL_MODIFIER), Collections.emptySet());
 
     private final String name;
     private final Set<Lexeme.ParsedValueName> possibleParameters;

@@ -107,7 +107,11 @@ public class Lexing {
         f.addTokenCombiningRule(intlSigmetLineCombinationRule());
         f.addTokenCombiningRule(intlSigmetOutsideLatLonCombinationRule());
         f.addTokenCombiningRule(intlSigmetAprxCombinationRule());
-//        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
+        f.addTokenCombiningRule(intlSigmetLevelCombinationRule1());
+        f.addTokenCombiningRule(intlSigmetLevelCombinationRule2());
+        f.addTokenCombiningRule(intlSigmetLevelCombinationRule3());
+
+        //        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
 
         f.setMessageStartToken(MessageType.METAR,
                 f.createLexeme("METAR", LexemeIdentity.METAR_START, Lexeme.Status.OK, true));
@@ -927,42 +931,59 @@ public class Lexing {
        return retval;
     }
 
-    private List<Predicate<String>> intlSigmetAprxCombinationRule() {
+    private List<Predicate<String>> intlSigmetLevelCombinationRule1() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^APRX$");
+                return s.equals("TOP");
             }
         });
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(\\d{2}(KM|NM))$");
+                return s.matches("^(ABV|BLW)$");
             }
         });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^WID$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^LINE$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^BTN$");
-            }
-        });
-
-        return retval;
+       return retval;
     }
-    private List<Predicate<String>> intlSigmetAprxCombinationRule2() {
+
+    private List<Predicate<String>> intlSigmetLevelCombinationRule2() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(TOP|ABV)$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(FL[0-9]{3}|[0-9]{4,5}FT|[0-9]{4}M)$");
+            }
+        });
+       return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetLevelCombinationRule3() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(TOP ABV|TOP BLW)$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+//                return s.matches("^(FL\\d{3}/\\d{3})|((SFC/)?(FL\\d{3}|\\d{4}M|\\d{4,5}FT))");
+                return s.matches("^(FL[0-9]{3}|[0-9]{4,5}FT|[0-9]{4}M)$");
+            }
+        });
+       return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetAprxCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -1440,12 +1461,12 @@ public class Lexing {
                 /* 2021-03-30 You can not call the getIdentity in some cases (for Sigmet lexing) */
                 if (sequence.
                   getFirstLexeme().
-                    getIdentity() == null) { System.err.println("false"); return false;}
-                return sequence.
-                  getFirstLexeme().
-                    getIdentity().
-                      equals(LexemeIdentity.SIGMET_START);
-                //&& sequence.getFirstLexeme().getNext().getIdentity().equals(LexemeIdentity.AIRSPACE_DESIGNATOR);
+                    getIdentity() == null) {
+                        System.err.println("false");
+                        return false;
+                    }
+                return "SIGMET".equals(sequence.
+                getFirstLexeme().getTACToken());
             }
 
             @Override
@@ -1482,6 +1503,7 @@ public class Lexing {
         l.teach(new SigmetVaName(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetFirNameWord(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetAprx(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetLevel(OccurrenceFrequency.AVERAGE));
         return l;
     }
 

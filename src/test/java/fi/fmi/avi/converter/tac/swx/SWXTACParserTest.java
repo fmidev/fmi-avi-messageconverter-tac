@@ -305,7 +305,7 @@ public class SWXTACParserTest {
         assertFalse(result.getConvertedMessage().isPresent());
     }
 
-    @Ignore("suddenly fails after sigmet parser additions")
+    //@Ignore("suddenly fails after sigmet parser additions")
     @Test
     public void testInvalidMinimalMessage() throws IOException {
         final String input = getInput("spacewx-invalid-minimal.tac");

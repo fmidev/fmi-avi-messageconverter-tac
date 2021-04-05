@@ -599,7 +599,8 @@ public interface Lexeme {
         LOCATION_INDICATOR,
         AREA_TYPE,
         APRX_LINE_WIDTH,
-        APRX_LINE_WIDTH_UNIT
+        APRX_LINE_WIDTH_UNIT,
+        LEVEL_MODIFIER
     }
 
     enum MeteorologicalBulletinSpecialCharacter {
