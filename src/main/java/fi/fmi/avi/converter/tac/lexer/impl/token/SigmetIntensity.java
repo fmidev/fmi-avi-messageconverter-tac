@@ -36,7 +36,7 @@ public class SigmetIntensity extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                return Optional.of(createLexeme("AND", SIGMET_AND));
+                return Optional.of(createLexeme("AND", SIGMET_INTENSITY));
             }
             return Optional.empty();
         }
