@@ -600,7 +600,10 @@ public interface Lexeme {
         AREA_TYPE,
         APRX_LINE_WIDTH,
         APRX_LINE_WIDTH_UNIT,
-        LEVEL_MODIFIER
+        LEVEL_MODIFIER,
+        STATIONARY,
+        INTENSITY,
+        IS_FORECAST
     }
 
     enum MeteorologicalBulletinSpecialCharacter {

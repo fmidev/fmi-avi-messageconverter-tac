@@ -1,18 +1,19 @@
 package fi.fmi.avi.converter.tac.sigmet;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.END_TOKEN;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.EXER;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_DESIGNATOR;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_NAME;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.MWO_DESIGNATOR;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.OBS_OR_FORECAST;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.PHENOMENON_SIGMET;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REAL_SIGMET_START;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEQUENCE_DESCRIPTOR;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TEST;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.END_TOKEN;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.EXER;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_DESIGNATOR;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_NAME;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.MWO_DESIGNATOR;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.OBS_OR_FORECAST;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.PHENOMENON_SIGMET;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REAL_SIGMET_START;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEQUENCE_DESCRIPTOR;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
+// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TEST;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEQUENCE_DESCRIPTOR;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Assume;
@@ -33,8 +34,6 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 /**
  *
  * TODO:
- * - OBS_OR_FORECAST is not detecting correctly
- * - FirType with three words fails (NEW AMSTERDAM FIR)
  * - Wrong phenomenon is returned (EMB_TS instead of SEV_ICE_FZRA)
  * - sigmet1a.json is not yet correct ()
  */
@@ -46,24 +45,33 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
 
   @Test
   public void shouldBeObservation() {
-    String tacString = "OBS=";
+    String tacString = "SQL TS OBS=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, OBS_OR_FORECAST, END_TOKEN }));
-    assertEquals("OBS"    , result.getLexemes().get(2).getTACToken());
-    assertEquals("OBS"    , result.getLexemes().get(2).getParsedValue(VALUE, String.class));
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, PHENOMENON_SIGMET, OBS_OR_FORECAST, END_TOKEN }));
+    assertEquals("OBS"    , result.getLexemes().get(4).getTACToken());
+    assertEquals(false    , result.getLexemes().get(4).getParsedValue(IS_FORECAST, Boolean.class));
   }
 
   @Test
   public void shouldBeForecast() {
-    String tacString = "FCST=";
+    String tacString = "SQL TS FCST=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, OBS_OR_FORECAST, END_TOKEN }));
-    assertEquals("FCST"    , result.getLexemes().get(2).getTACToken());
-    assertEquals("FCST"    , result.getLexemes().get(2).getParsedValue(VALUE, String.class));
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, PHENOMENON_SIGMET, OBS_OR_FORECAST, END_TOKEN }));
+    assertEquals("FCST"    , result.getLexemes().get(4).getTACToken());
+    assertEquals(true    , result.getLexemes().get(4).getParsedValue(IS_FORECAST, Boolean.class));
   }
 
+  @Test
+  public void shouldBeForecastAt1200() {
+    String tacString = "SQL TS FCST AT 1200Z=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, PHENOMENON_SIGMET, OBS_OR_FORECAST, END_TOKEN }));
+    assertEquals(true    , result.getLexemes().get(4).getParsedValue(IS_FORECAST, Boolean.class));
+    assertEquals("1200"    , result.getLexemes().get(4).getParsedValue(VALUE, String.class));
+  }
   @Test
   public void shouldBePhenomenonEMBD_TS() {
     String tacString = "EMBD TS=";
@@ -383,16 +391,73 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
       "1000M/FL200=", "2000FT/FL050=", "20000FT/FL240=",
       "TOP ABV FL100=", "ABV FL200=", "ABV 10000FT=", "TOP ABV 10000FT=",
       "FL100=", "SFC/FL100=", "1000M=", "SFC/1000M=", "1000FT=", "SFC/1000FT=",
+      "10000FT=", "SFC/10000FT=", "FL100/200=",
       /* "2000M/9000FT", "TOP FL100=", "ABV 1000M=", "TOP 1000FT=" */
     };
     for (String tacString: tacStrings) {
-      System.err.println("Testing level:"+tacString);
       Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
       final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
       assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
             SIGMET_START, SIGMET_LEVEL,
             END_TOKEN }));
-      }
+      System.err.print(tacString+"==>");
+      System.err.print("/"+trimWhitespaces(result.getLexemes()).get(2).getParsedValue(VALUE, String.class)+"/");
+      System.err.print(trimWhitespaces(result.getLexemes()).get(2).getParsedValue(UNIT, String.class)+"/");
+      System.err.print(trimWhitespaces(result.getLexemes()).get(2).getParsedValue(VALUE2, String.class)+"/");
+      System.err.print(trimWhitespaces(result.getLexemes()).get(2).getParsedValue(UNIT2, String.class)+"/");
+      System.err.println(trimWhitespaces(result.getLexemes()).get(2).getParsedValue(LEVEL_MODIFIER, String.class)+"/");
+    }
+  }
+
+  @Test
+  public void shouldBeMOV() {
+    String tacString = "MOV ENE 11KT=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START,
+          SIGMET_MOVING,
+          END_TOKEN }));
+    assertEquals(false, trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.STATIONARY, Boolean.class));
+    assertEquals("11", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.VALUE, String.class));
+    assertEquals("KT", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.UNIT, String.class));
+    assertEquals("ENE", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.DIRECTION, String.class));
+  }
+
+  @Test
+  public void shouldBeSTNR() {
+    String tacString = "STNR=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START,
+          SIGMET_MOVING,
+          END_TOKEN }));
+    assertEquals(true, trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.STATIONARY, Boolean.class));
+  }
+
+  @Test
+  public void shouldBeINTSF() {
+    String tacString = "INTSF=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START,
+          SIGMET_INTENSITY,
+          END_TOKEN }));
+    assertEquals("INTSF", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.INTENSITY, String.class));
+  }
+
+  @Test
+  public void shouldBeFCST_AT_1200() {
+    String tacString = "FCST AT 1200Z=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START,
+          SIGMET_FCST_AT,
+          END_TOKEN }));
+    assertEquals("1200", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.VALUE, String.class));
   }
 
 }

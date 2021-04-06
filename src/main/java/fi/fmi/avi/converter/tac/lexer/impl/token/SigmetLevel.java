@@ -14,8 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_LEVEL;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_LINE_WIDTH;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_LINE_WIDTH_UNIT;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
 
 /**
  * Created by rinne on 10/02/17.
@@ -28,113 +27,159 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
         super(regex1, prio);
     }
 
-    private void printMatcher(Matcher m) {
-        System.err.println(m.group("level")+"/"+m.group("level2")+m.group("unit2"));
-        StringBuilder sb=new StringBuilder();
-        sb.append(m.group(0)+"==>");
-        sb.append((m.group("level")!=null)?m.group("level"):"-");
-        sb.append(((m.group("unit")!=null)&&(m.group("unit").length()>0))?m.group("unit"):"*");
-        sb.append((m.group("level2")!=null)?m.group("level2"):"-");
-        sb.append((m.group("unit2")!=null)?m.group("unit2"):"*");
-        System.err.println(sb.toString());
-    }
+    // private void printMatcher(Matcher m) {
+    //     System.err.println(m.group("level")+"/"+m.group("level2")+m.group("unit2"));
+    //     StringBuilder sb=new StringBuilder();
+    //     sb.append(m.group(0)+"==>");
+    //     sb.append((m.group("level")!=null)?m.group("level"):"-");
+    //     sb.append(((m.group("unit")!=null)&&(m.group("unit").length()>0))?m.group("unit"):"*");
+    //     sb.append((m.group("level2")!=null)?m.group("level2"):"-");
+    //     sb.append((m.group("unit2")!=null)?m.group("unit2"):"*");
+    //     System.err.println(sb.toString());
+    // }
 
-    private void printMatcherTop(Matcher m) {
-    //    System.err.println(m.group("level")+"/"+m.group("level2")+m.group("unit2"));
-        StringBuilder sb=new StringBuilder();
-        sb.append(m.group(0)+"==>");
-        sb.append(m.group("top"));
-        sb.append(" ");
-        sb.append((m.group("level2")!=null)?m.group("level2"):"-");
-        sb.append((m.group("unit2")!=null)?m.group("unit2"):"*");
-        System.err.println(sb.toString());
-    }
+    // private void printMatcherTop(Matcher m) {
+    // //    System.err.println(m.group("level")+"/"+m.group("level2")+m.group("unit2"));
+    //     StringBuilder sb=new StringBuilder();
+    //     sb.append(m.group(0)+"==>");
+    //     sb.append(m.group("top"));
+    //     sb.append(" ");
+    //     sb.append((m.group("level2")!=null)?m.group("level2"):"-");
+    //     sb.append((m.group("unit2")!=null)?m.group("unit2"):"*");
+    //     System.err.println(sb.toString());
+    // }
 
-    private void printMatcherSfc(Matcher m) {
-    //    System.err.println(m.group("level")+"/"+m.group("level2")+m.group("unit2"));
-        StringBuilder sb=new StringBuilder();
-        sb.append(m.group(0)+"==>");
-        sb.append(m.group("sfc"));
-        sb.append(" ");
-        sb.append((m.group("level2")!=null)?m.group("level2"):"-");
-        sb.append((m.group("unit2")!=null)?m.group("unit2"):"*");
-        System.err.println(sb.toString());
-    }
+    // private void printMatcherSfc(Matcher m) {
+    // //    System.err.println(m.group("level")+"/"+m.group("level2")+m.group("unit2"));
+    //     StringBuilder sb=new StringBuilder();
+    //     sb.append(m.group(0)+"==>");
+    //     sb.append(m.group("sfc"));
+    //     sb.append(" ");
+    //     sb.append((m.group("level2")!=null)?m.group("level2"):"-");
+    //     sb.append((m.group("unit2")!=null)?m.group("unit2"):"*");
+    //     System.err.println(sb.toString());
+    // }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
 
         System.err.println(">>>"+token.getTACToken());
         String toMatch=match.group(0);
-        String regex="^(?<sfc>)(?<level>[0-9]{4})?(?<unit>)?/?(?<level2>[0-9]{4})(?<unit2>M)$";
+        String regex="^(?<level>[0-9]{4})?/?(?<level2>[0-9]{4})(?<unit2>M)$";
         Matcher m = Pattern.compile(regex).matcher(match.group(0));
          if (m.matches()){
-            printMatcher(m);
             token.identify(SIGMET_LEVEL);
+            token.setParsedValue(VALUE, m.group("level"));
+            token.setParsedValue(UNIT, m.group("unit2"));
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit2"));
             return;
         }
-        regex="^(?<level>[0-9]{4,5})?(?<unit>)?/?(?<level2>[0-9]{4,5})(?<unit2>FT)$";
+        regex="^(?<level>[0-9]{4,5})?/?(?<level2>[0-9]{4,5})(?<unit2>FT)$";
         m = Pattern.compile(regex).matcher(match.group(0));
         if (m.matches()){
-            printMatcher(m);
             token.identify(SIGMET_LEVEL);
+            token.setParsedValue(LEVEL_MODIFIER, null);
+            token.setParsedValue(VALUE, m.group("level"));
+            token.setParsedValue(UNIT, m.group("unit2"));
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit2"));
             return;
         }
         regex="^(?<level>[0-9]{4})(?<unit>M)/(?<unit2>FL)(?<level2>[0-9]{3})$";
         m = Pattern.compile(regex).matcher(match.group(0));
         if (m.matches()){
-            printMatcher(m);
             token.identify(SIGMET_LEVEL);
+            token.setParsedValue(LEVEL_MODIFIER, null);
+            token.setParsedValue(VALUE, m.group("level"));
+            token.setParsedValue(UNIT, m.group("unit"));
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit2"));
             return;
         }
         regex="^(?<level>[0-9]{4})(?<unit>M)/(?<level2>[0-9]{4,5})(?<unit2>FT)$";
         m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()){
-            printMatcher(m);
             token.identify(SIGMET_LEVEL);
+            token.setParsedValue(LEVEL_MODIFIER, null);
+            token.setParsedValue(VALUE, m.group("level"));
+            token.setParsedValue(UNIT, m.group("unit"));
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit2"));
             return;
         }
         regex="^(?<level>[0-9]{4,5})(?<unit>FT)/(?<unit2>FL)(?<level2>[0-9]{3})$";
         m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()){
-            printMatcher(m);
             token.identify(SIGMET_LEVEL);
+            token.setParsedValue(LEVEL_MODIFIER, null);
+            token.setParsedValue(VALUE, m.group("level"));
+            token.setParsedValue(UNIT, m.group("unit"));
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit2"));
             return;
         }
         regex="^(?<top>TOP ABV|ABV|BLW)\\s(?<unit2>FL)(?<level2>[0-9]{3})$";
         m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()){
-            printMatcherTop(m);
             token.identify(SIGMET_LEVEL);
+            token.setParsedValue(LEVEL_MODIFIER, m.group("top"));
+            token.setParsedValue(VALUE, null);
+            token.setParsedValue(UNIT, null);
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit2"));
         }
         regex="^(?<top>TOP ABV|ABV|BLW|TOP)\\s(?<level2>[0-9]{4,5})(?<unit2>FT)$";
         m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()){
-            printMatcherTop(m);
             token.identify(SIGMET_LEVEL);
+            token.setParsedValue(LEVEL_MODIFIER, m.group("top"));
+            token.setParsedValue(VALUE, null);
+            token.setParsedValue(UNIT, null);
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit2"));
+
         }
         regex="^(?<sfc>SFC)?/?(?<unit2>FL)(?<level2>[0-9]{3})$";
         m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()){
-            printMatcherSfc(m);
             token.identify(SIGMET_LEVEL);
+            token.setParsedValue(LEVEL_MODIFIER, null);
+            token.setParsedValue(VALUE, m.group("sfc"));
+            token.setParsedValue(UNIT, m.group("sfc"));
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit2"));
         }
         regex="^(?<sfc>SFC)?/?(?<level2>[0-9]{4})(?<unit2>M)$";
         m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()){
-            printMatcherSfc(m);
             token.identify(SIGMET_LEVEL);
+            token.setParsedValue(LEVEL_MODIFIER, null);
+            token.setParsedValue(VALUE, m.group("sfc"));
+            token.setParsedValue(UNIT, m.group("sfc"));
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit2"));
         }
         regex="^(?<sfc>SFC)?/?(?<level2>[0-9]{4,5})(?<unit2>FT)$";
         m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()){
-            printMatcherSfc(m);
             token.identify(SIGMET_LEVEL);
+            token.setParsedValue(LEVEL_MODIFIER, null);
+            token.setParsedValue(VALUE, m.group("sfc"));
+            token.setParsedValue(UNIT, m.group("sfc"));
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit2"));
         }
-
-        //System.err.println(match.group("meters");
-    //    token.setParsedValue(APRX_LINE_WIDTH, match.group(1));
-    //    token.setParsedValue(APRX_LINE_WIDTH_UNIT, match.group(2));
+        regex="^(?<unit>FL)(?<level>[0-9]{3})/(?<level2>[0-9]{3})$";
+        m = Pattern.compile(regex).matcher(toMatch);
+        if (m.matches()){
+            token.identify(SIGMET_LEVEL);
+            token.setParsedValue(LEVEL_MODIFIER, null);
+            token.setParsedValue(VALUE, m.group("level"));
+            token.setParsedValue(UNIT, m.group("unit"));
+            token.setParsedValue(VALUE2, m.group("level2"));
+            token.setParsedValue(UNIT2, m.group("unit"));
+        }
     }
 
 	public static class Reconstructor extends FactoryBasedReconstructor {

@@ -110,6 +110,8 @@ public class Lexing {
         f.addTokenCombiningRule(intlSigmetLevelCombinationRule1());
         f.addTokenCombiningRule(intlSigmetLevelCombinationRule2());
         f.addTokenCombiningRule(intlSigmetLevelCombinationRule3());
+        f.addTokenCombiningRule(intlSigmetMovingCombinationRule());
+        f.addTokenCombiningRule(intlSigmetForecastAtCombinationRule());
 
         //        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
 
@@ -983,6 +985,54 @@ public class Lexing {
        return retval;
     }
 
+    private List<Predicate<String>> intlSigmetMovingCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("MOV");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+//                return s.matches("^(FL\\d{3}/\\d{3})|((SFC/)?(FL\\d{3}|\\d{4}M|\\d{4,5}FT))");
+                return s.matches("^(N|NNE|NE|ENE|E|ESE|SE|SSE|S|SSW|SW|WSW|W|WNW|NW|NNW)$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+    //                return s.matches("^(FL\\d{3}/\\d{3})|((SFC/)?(FL\\d{3}|\\d{4}M|\\d{4,5}FT))");
+                return s.matches("^([0-9]{2})(KT|KMH)$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetForecastAtCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("FCST");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("AT");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[0-9]{4}Z$");
+            }
+        });
+        return retval;
+}
+
     private List<Predicate<String>> intlSigmetAprxCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -1504,6 +1554,9 @@ public class Lexing {
         l.teach(new SigmetFirNameWord(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetAprx(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetLevel(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetMoving(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetIntensity(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetForecastAt(OccurrenceFrequency.AVERAGE));
         return l;
     }
 
