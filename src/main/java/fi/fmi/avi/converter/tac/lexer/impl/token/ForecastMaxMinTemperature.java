@@ -27,79 +27,12 @@ import fi.fmi.avi.model.taf.TAFBaseForecast;
  */
 public class ForecastMaxMinTemperature extends TimeHandlingRegex {
 
-    public enum TemperatureForecastType {
-        MINIMUM("TN"), MAXIMUM("TX");
-
-        private final String code;
-
-        TemperatureForecastType(final String code) {
-            this.code = code;
-        }
-
-        public static TemperatureForecastType forCode(final String code) {
-            for (TemperatureForecastType w : values()) {
-                if (w.code.equals(code)) {
-                    return w;
-                }
-            }
-            return null;
-        }
-
-    }
-
     public ForecastMaxMinTemperature(final OccurrenceFrequency prio) {
         super("^(TX|TN)(M)?([0-9]{2})/([0-9]{2})?([0-9]{2})(Z)?$", prio);
     }
 
-    @Override
-    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        TemperatureForecastType kind = TemperatureForecastType.forCode(match.group(1));
-        boolean isNegative = match.group(2) != null;
-        double value = Integer.parseInt(match.group(3));
-        if (isNegative) {
-            if (1.0d/value == Double.POSITIVE_INFINITY) {
-                value = -0.0d;
-            } else {
-                value = value * -1;
-            }
-        }
-        int day = -1;
-        if (match.group(3) != null) {
-            day = Integer.parseInt(match.group(4));
-        }
-        int hour = Integer.parseInt(match.group(5));
-
-        LexemeIdentity kindLexemeIdentity;
-        if (TemperatureForecastType.MAXIMUM == kind) {
-            kindLexemeIdentity = MAX_TEMPERATURE;
-        } else {
-            kindLexemeIdentity = MIN_TEMPERATURE;
-        }
-        
-        if (timeOkDayHour(day, hour)) {
-            if (hints != null && ConversionHints.VALUE_TIMEZONE_ID_POLICY_STRICT == hints.get(ConversionHints.KEY_TIMEZONE_ID_POLICY)) {
-                if (match.group(6) == null) {
-                	token.identify(kindLexemeIdentity,Lexeme.Status.WARNING,"Missing time zone ID 'Z'");
-                } else {
-                	token.identify(kindLexemeIdentity);
-                }
-            } else {
-            	token.identify(kindLexemeIdentity);
-            }
-        	
-            if (day > -1) {
-                token.setParsedValue(DAY1, day);
-            }
-            token.setParsedValue(HOUR1, hour);
-            token.setParsedValue(VALUE, value);
-        } else {
-            token.identify(kindLexemeIdentity,Lexeme.Status.SYNTAX_ERROR,"Invalid day/hour values");
-        }
-        
-    }
-
-    static String formatTemp(String prefix, NumericMeasure temp, PartialOrCompleteTimeInstant time) {
-        StringBuilder sb = new StringBuilder(prefix);
+    static String formatTemp(final String prefix, final NumericMeasure temp, final PartialOrCompleteTimeInstant time) {
+        final StringBuilder sb = new StringBuilder(prefix);
         if (temp.getValue() < 0.0 || 1.0d / temp.getValue() == Double.NEGATIVE_INFINITY) {
             sb.append('M');
         }
@@ -111,42 +44,107 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
         return sb.toString();
     }
 
+    @Override
+    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
+        final TemperatureForecastType kind = TemperatureForecastType.forCode(match.group(1));
+        final boolean isNegative = match.group(2) != null;
+        double value = Integer.parseInt(match.group(3));
+        if (isNegative) {
+            if (1.0d / value == Double.POSITIVE_INFINITY) {
+                value = -0.0d;
+            } else {
+                value = value * -1;
+            }
+        }
+        int day = -1;
+        if (match.group(3) != null) {
+            day = Integer.parseInt(match.group(4));
+        }
+        final int hour = Integer.parseInt(match.group(5));
+
+        final LexemeIdentity kindLexemeIdentity;
+        if (TemperatureForecastType.MAXIMUM == kind) {
+            kindLexemeIdentity = MAX_TEMPERATURE;
+        } else {
+            kindLexemeIdentity = MIN_TEMPERATURE;
+        }
+
+        if (timeOkDayHour(day, hour)) {
+            if (hints != null && ConversionHints.VALUE_TIMEZONE_ID_POLICY_STRICT.equals(hints.get(ConversionHints.KEY_TIMEZONE_ID_POLICY))) {
+                if (match.group(6) == null) {
+                    token.identify(kindLexemeIdentity, Lexeme.Status.WARNING, "Missing time zone ID 'Z'");
+                } else {
+                    token.identify(kindLexemeIdentity);
+                }
+            } else {
+                token.identify(kindLexemeIdentity);
+            }
+
+            if (day > -1) {
+                token.setParsedValue(DAY1, day);
+            }
+            token.setParsedValue(HOUR1, hour);
+            token.setParsedValue(VALUE, value);
+        } else {
+            token.identify(kindLexemeIdentity, Lexeme.Status.SYNTAX_ERROR, "Invalid day/hour values");
+        }
+
+    }
+
+    public enum TemperatureForecastType {
+        MINIMUM("TN"), MAXIMUM("TX");
+
+        private final String code;
+
+        TemperatureForecastType(final String code) {
+            this.code = code;
+        }
+
+        public static TemperatureForecastType forCode(final String code) {
+            for (final TemperatureForecastType w : values()) {
+                if (w.code.equals(code)) {
+                    return w;
+                }
+            }
+            return null;
+        }
+
+    }
+
     public static class MaxReconstructor extends FactoryBasedReconstructor {
-    	@Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+        @Override
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
-    		
-    		if (TAF.class.isAssignableFrom(clz)) {
-                Optional<TAFBaseForecast> baseForecast = ctx.getParameter("forecast", TAFBaseForecast.class);
-                Optional<TAFAirTemperatureForecast> airTemperatureForecast = ctx.getParameter("temp", TAFAirTemperatureForecast.class);
+
+            if (TAF.class.isAssignableFrom(clz)) {
+                final Optional<TAFBaseForecast> baseForecast = ctx.getParameter("forecast", TAFBaseForecast.class);
+                final Optional<TAFAirTemperatureForecast> airTemperatureForecast = ctx.getParameter("temp", TAFAirTemperatureForecast.class);
                 if (baseForecast.isPresent() && airTemperatureForecast.isPresent()) {
-                    TAFAirTemperatureForecast temp = airTemperatureForecast.get();
+                    final TAFAirTemperatureForecast temp = airTemperatureForecast.get();
                     if (!"degC".equals(temp.getMaxTemperature().getUom())) {
-                        throw new SerializingException(
-                                "Unsupported unit of measurement for maximum temperature: '" + temp.getMaxTemperature().getUom() + "'");
+                        throw new SerializingException("Unsupported unit of measurement for maximum temperature: '" + temp.getMaxTemperature().getUom() + "'");
                     }
                     retval = Optional.of(this.createLexeme(formatTemp("TX", temp.getMaxTemperature(), temp.getMaxTemperatureTime()), MAX_TEMPERATURE));
                 }
             }
             return retval;
-    	}
+        }
     }
 
     public static class MinReconstructor extends FactoryBasedReconstructor {
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
             if (TAF.class.isAssignableFrom(clz)) {
-                Optional<TAFBaseForecast> baseForecast = ctx.getParameter("forecast", TAFBaseForecast.class);
-                Optional<TAFAirTemperatureForecast> airTemperatureForecast = ctx.getParameter("temp", TAFAirTemperatureForecast.class);
+                final Optional<TAFBaseForecast> baseForecast = ctx.getParameter("forecast", TAFBaseForecast.class);
+                final Optional<TAFAirTemperatureForecast> airTemperatureForecast = ctx.getParameter("temp", TAFAirTemperatureForecast.class);
                 if (baseForecast.isPresent() && airTemperatureForecast.isPresent()) {
-                    TAFAirTemperatureForecast temp = airTemperatureForecast.get();
+                    final TAFAirTemperatureForecast temp = airTemperatureForecast.get();
                     if (!"degC".equals(temp.getMinTemperature().getUom())) {
-                        throw new SerializingException(
-                                "Unsupported unit of measurement for minimum temperature: '" + temp.getMinTemperature().getUom() + "'");
+                        throw new SerializingException("Unsupported unit of measurement for minimum temperature: '" + temp.getMinTemperature().getUom() + "'");
                     }
                     retval = Optional.of(this.createLexeme(formatTemp("TN", temp.getMinTemperature(), temp.getMinTemperatureTime()), MIN_TEMPERATURE));
                 }
