@@ -77,7 +77,7 @@ public class IssueTime extends TimeHandlingRegex {
                     return Optional.empty();
                 }
             } else if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
-                time = ((MeteorologicalBulletin) msg).getHeading().getIssueTime();
+                time = ((MeteorologicalBulletin<?>) msg).getHeading().getIssueTime();
             } else if (AviationWeatherMessage.class.isAssignableFrom(clz)) {
                 final AviationWeatherMessage aviMsg = (AviationWeatherMessage) msg;
                 if (aviMsg.getIssueTime().isPresent()) {

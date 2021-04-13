@@ -36,7 +36,7 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             final Optional<Lexeme> retval = Optional.empty();
             if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
-                final BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
+                final BulletinHeading heading = ((MeteorologicalBulletin<?>) msg).getHeading();
                 if (heading != null) {
                     final Optional<Integer> augNumber = heading.getBulletinAugmentationNumber();
                     if (augNumber.isPresent()) {

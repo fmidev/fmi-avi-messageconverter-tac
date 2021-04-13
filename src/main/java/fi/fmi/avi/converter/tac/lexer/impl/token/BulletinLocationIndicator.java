@@ -37,7 +37,7 @@ public class BulletinLocationIndicator extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             final Optional<Lexeme> retval = Optional.empty();
             if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
-                final BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
+                final BulletinHeading heading = ((MeteorologicalBulletin<?>) msg).getHeading();
                 if (heading != null) {
                     if (heading.getLocationIndicator() == null || heading.getLocationIndicator().length() != 4) {
                         throw new SerializingException("Invalid location indicator '" + heading.getLocationIndicator() + "' in TAF bulletin");

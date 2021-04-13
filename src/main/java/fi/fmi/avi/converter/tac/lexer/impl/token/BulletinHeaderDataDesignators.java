@@ -35,7 +35,7 @@ public class BulletinHeaderDataDesignators extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             final Optional<Lexeme> retval = Optional.empty();
             if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
-                final BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
+                final BulletinHeading heading = ((MeteorologicalBulletin<?>) msg).getHeading();
                 if (heading != null) {
                     final StringBuilder sb = new StringBuilder();
                     sb.append(heading.getDataTypeDesignatorsForTAC());

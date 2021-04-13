@@ -153,7 +153,7 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
         }
         if (input.getTrends().isPresent()) {
             for (final TrendForecast trend : input.getTrends().get()) {
-                final ReconstructorContext trendCtx = baseCtx.copyWithParameter("trend", trend);
+                final ReconstructorContext<T> trendCtx = baseCtx.copyWithParameter("trend", trend);
                 if (appendToken(retval, LexemeIdentity.TREND_CHANGE_INDICATOR, input, getMessageClass(), trendCtx) > 0) {
                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                 }

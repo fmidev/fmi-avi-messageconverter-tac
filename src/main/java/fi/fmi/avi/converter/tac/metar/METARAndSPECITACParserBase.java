@@ -66,7 +66,7 @@ import fi.fmi.avi.model.metar.immutable.WindShearImpl;
 /**
  * @author Ilkka Rinne / Spatineo Oy 2017
  */
-public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends MeteorologicalTerminalAirReport, B>>
+public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>>
         extends AbstractTACParser<T> {
 
     private static final LexemeIdentity[] zeroOrOneAllowed = { LexemeIdentity.AERODROME_DESIGNATOR, LexemeIdentity.ISSUE_TIME,
@@ -75,8 +75,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
 
     private AviMessageLexer lexer;
 
-    private static List<ConversionIssue> setObservedSurfaceWind(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> //
+    setObservedSurfaceWind(final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         lexed.getFirstLexeme().findNext(LexemeIdentity.SURFACE_WIND, (match) -> {
             final LexemeIdentity[] before = { LexemeIdentity.CAVOK, LexemeIdentity.HORIZONTAL_VISIBILITY, LexemeIdentity.RUNWAY_VISUAL_RANGE,
@@ -149,8 +149,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setHorizontalVisibilities(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setHorizontalVisibilities(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         lexed.getFirstLexeme().findNext(LexemeIdentity.HORIZONTAL_VISIBILITY, (match) -> {
             final LexemeIdentity[] before = { LexemeIdentity.RUNWAY_VISUAL_RANGE, LexemeIdentity.CLOUD, LexemeIdentity.AIR_DEWPOINT_TEMPERATURE,
@@ -206,8 +206,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setRVRs(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setRVRs(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.RUNWAY_VISUAL_RANGE, (match) -> {
@@ -285,8 +285,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setPresentWeather(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setPresentWeather(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.WEATHER, (match) -> {
@@ -311,8 +311,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setObservedClouds(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setObservedClouds(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.CLOUD, (match) -> {
@@ -384,8 +384,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setTemperatures(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setTemperatures(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.AIR_DEWPOINT_TEMPERATURE, (match) -> {
@@ -418,7 +418,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setQNH(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed, final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setQNH(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.AIR_PRESSURE_QNH, (match) -> {
@@ -451,8 +452,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setRecentWeather(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setRecentWeather(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         lexed.getFirstLexeme().findNext(LexemeIdentity.RECENT_WEATHER, (match) -> {
             final LexemeIdentity[] before = { LexemeIdentity.WIND_SHEAR, LexemeIdentity.SEA_STATE, LexemeIdentity.RUNWAY_STATE, LexemeIdentity.SNOW_CLOSURE,
@@ -466,8 +467,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setWindShears(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setWindShears(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         lexed.getFirstLexeme().findNext(LexemeIdentity.WIND_SHEAR, (match) -> {
             final LexemeIdentity[] before = { LexemeIdentity.SEA_STATE, LexemeIdentity.RUNWAY_STATE, LexemeIdentity.SNOW_CLOSURE, LexemeIdentity.COLOR_CODE,
@@ -507,8 +508,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setSeaState(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setSeaState(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         lexed.getFirstLexeme().findNext(LexemeIdentity.SEA_STATE, (match) -> {
             final LexemeIdentity[] before = { LexemeIdentity.RUNWAY_STATE, LexemeIdentity.SNOW_CLOSURE, LexemeIdentity.COLOR_CODE,
@@ -580,8 +581,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setRunwayStates(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setRunwayStates(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.RUNWAY_STATE, (match) -> {
@@ -720,8 +721,8 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
         return retval;
     }
 
-    private static List<ConversionIssue> setColorState(final MeteorologicalTerminalAirReportBuilder builder, final LexemeSequence lexed,
-            final ConversionHints hints) {
+    private static <T extends MeteorologicalTerminalAirReport, B extends MeteorologicalTerminalAirReportBuilder<? extends T, B>> List<ConversionIssue> setColorState(
+            final B builder, final LexemeSequence lexed, final ConversionHints hints) {
         final List<ConversionIssue> retval = new ArrayList<>();
         lexed.getFirstLexeme().findNext(LexemeIdentity.COLOR_CODE, (match) -> {
             final LexemeIdentity[] before = { LexemeIdentity.TREND_CHANGE_INDICATOR, LexemeIdentity.REMARKS_START };
