@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -105,6 +106,9 @@ import fi.fmi.avi.model.MessageType;
 /**
  * TAC converter Lexing Spring configuration
  */
+@SuppressWarnings({ "Convert2Lambda", "Anonymous2MethodRef" })
+@SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", //
+        justification = "Code is cleaner this way. Lambdas are not suitable because older Spring versions are unable to handle those.")
 @Configuration
 public class Lexing {
 
@@ -572,34 +576,6 @@ public class Lexing {
                 return s.matches("^NR:$");
             }
         });
-        return retval;
-    }
-
-    private List<Predicate<String>> spaceWeatherAdvisoryPolygonCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            retval.add(new Predicate<String>() {
-                @Override
-                public boolean test(final String s) {
-                    return s.matches("^([NS])\\d+$");
-                }
-            });
-            retval.add(new Predicate<String>() {
-                @Override
-                public boolean test(final String s) {
-                    return s.matches("^([WE])\\d+$");
-                }
-            });
-
-            if (i < 4) {
-                retval.add(new Predicate<String>() {
-                    @Override
-                    public boolean test(final String s) {
-                        return s.matches("^-$");
-                    }
-                });
-            }
-        }
         return retval;
     }
 
