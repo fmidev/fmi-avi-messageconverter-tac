@@ -36,6 +36,16 @@ public class LexingFactoryImpl implements LexingFactory {
 
     private final Map<MessageType, Lexeme> startTokens = new HashMap<>();
 
+    private static MessageType toMessageType(final Object messageType) {
+        if (messageType instanceof MessageType) {
+            return (MessageType) messageType;
+        } else if (messageType == null) {
+            return null;
+        } else {
+            return new MessageType(messageType.toString());
+        }
+    }
+
     public void addTokenCombiningRule(final List<Predicate<String>> rule) {
         this.tokenCombiningRules.add(rule);
     }
@@ -84,7 +94,7 @@ public class LexingFactoryImpl implements LexingFactory {
 
     private void appendArtifialStartTokenIfNecessary(final String input, final LexemeSequenceImpl result, final ConversionHints hints) {
         if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
-            final Lexeme artificialStartToken = this.startTokens.get(hints.get(ConversionHints.KEY_MESSAGE_TYPE));
+            final Lexeme artificialStartToken = this.startTokens.get(toMessageType(hints.get(ConversionHints.KEY_MESSAGE_TYPE)));
             if (artificialStartToken != null) {
                 if (!input.startsWith(artificialStartToken.getTACToken() + " ") && !input.startsWith(artificialStartToken.getTACToken() + "\n")) {
                     result.addAsFirst(new LexemeImpl(this, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE));
