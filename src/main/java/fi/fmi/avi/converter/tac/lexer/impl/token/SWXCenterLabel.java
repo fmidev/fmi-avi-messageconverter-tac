@@ -28,8 +28,7 @@ public class SWXCenterLabel extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                StringBuilder builder = new StringBuilder("SWXC:");
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_CENTRE_LABEL));
+                retval = Optional.of(this.createLexeme("SWXC:", LexemeIdentity.SWX_CENTRE_LABEL));
             }
             return retval;
         }

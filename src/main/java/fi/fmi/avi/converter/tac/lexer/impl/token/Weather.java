@@ -53,8 +53,8 @@ public class Weather extends RegexMatchingLexemeVisitor {
             return;
         }
         if (isPreceededWithAerodromeCode) {
-            boolean isRecent = match.group(1) != null;
-            String code = match.group(2);
+            final boolean isRecent = match.group(1) != null;
+            final String code = match.group(2);
 
             if (!weatherSkipWords.contains(code)) {
                 if (hints == null || hints.isEmpty() || !hints.containsKey(ConversionHints.KEY_WEATHER_CODES)
@@ -85,18 +85,18 @@ public class Weather extends RegexMatchingLexemeVisitor {
             }
         }
     }
-    
+
     public static class Reconstructor extends FactoryBasedReconstructor {
-    	private final boolean recentWeather;
-    	
-    	public Reconstructor(boolean recentWeather) {
-    		this.recentWeather = recentWeather;
-		}
-    	
+        private final boolean recentWeather;
+
+        public Reconstructor(final boolean recentWeather) {
+            this.recentWeather = recentWeather;
+        }
+
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            Optional<fi.fmi.avi.model.Weather> weather = ctx.getParameter("weather", fi.fmi.avi.model.Weather.class);
+            final Optional<fi.fmi.avi.model.Weather> weather = ctx.getParameter("weather", fi.fmi.avi.model.Weather.class);
             if (weather.isPresent() && isCodeAllowed(weather.get(), ctx.getHints())) {
                 if (recentWeather) {
                     return Optional.of(this.createLexeme("RE" + weather.get().getCode(), LexemeIdentity.RECENT_WEATHER));

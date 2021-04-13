@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
@@ -32,15 +31,14 @@ public class SWXPresetLocation extends RegexMatchingLexemeVisitor {
 
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
-        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
-                throws SerializingException {
-            List<Lexeme> lexemes = new ArrayList<>();
+        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
+            final List<Lexeme> lexemes = new ArrayList<>();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 final Optional<Integer> index = ctx.getParameter("analysisIndex", Integer.class);
                 if (index.isPresent()) {
-                    SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(index.get());
+                    final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(index.get());
                     for (int i = 0; i < analysis.getRegions().size(); i++) {
-                        SpaceWeatherRegion region = analysis.getRegions().get(i);
+                        final SpaceWeatherRegion region = analysis.getRegions().get(i);
                         if (region.getLocationIndicator().isPresent()) {
                             if (i > 0) {
                                 lexemes.add(this.createLexeme(" ", LexemeIdentity.WHITE_SPACE));

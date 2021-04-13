@@ -28,8 +28,7 @@ public class DTGIssueTimeLabel extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                StringBuilder builder = new StringBuilder("DTG:");
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.DTG_ISSUE_TIME_LABEL));
+                retval = Optional.of(this.createLexeme("DTG:", LexemeIdentity.DTG_ISSUE_TIME_LABEL));
             }
             return retval;
         }

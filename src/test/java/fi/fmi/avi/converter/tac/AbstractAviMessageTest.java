@@ -50,7 +50,7 @@ import fi.fmi.avi.model.metar.immutable.SPECIImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
-public abstract class AbstractAviMessageTest<S, T> {
+public abstract class AbstractAviMessageTest<T extends AviationWeatherMessage> {
 
     private static final double FLOAT_EQUIVALENCE_THRESHOLD = 0.0000000001d;
 
@@ -67,10 +67,8 @@ public abstract class AbstractAviMessageTest<S, T> {
     protected static void assertAviationWeatherMessageEquals(final AviationWeatherMessage expected, final AviationWeatherMessage actual) {
         final Difference diff = deepCompareObjects(expected, actual);
         if (diff != null) {
-            final StringBuilder failureMessage = new StringBuilder();
-            failureMessage.append("AviationWeatherMessage objects are not equivalent\n");
-            failureMessage.append(new DefaultDifferenceReport().createReport(diff));
-            fail(failureMessage.toString());
+            fail("AviationWeatherMessage objects are not equivalent\n" //
+                    + new DefaultDifferenceReport().createReport(diff));
         }
     }
 
@@ -131,15 +129,15 @@ public abstract class AbstractAviMessageTest<S, T> {
         return reflectionComparator.getDifference(expected, actual);
     }
 
-    public abstract S getMessage();
+    public abstract String getMessage();
 
     public abstract String getJsonFilename();
 
-    public abstract ConversionSpecification<S, T> getParsingSpecification();
+    public abstract ConversionSpecification<String, T> getParsingSpecification();
 
-    public abstract ConversionSpecification<T, S> getSerializationSpecification();
+    public abstract ConversionSpecification<T, String> getSerializationSpecification();
 
-    public abstract Class<? extends AviationWeatherMessage> getTokenizerImplmentationClass();
+    public abstract Class<? extends AviationWeatherMessage> getTokenizerImplementationClass();
 
     /**
      * The tokenized POJO needs to be equal to this message. By default it returns what getMessage() returns.
@@ -148,7 +146,7 @@ public abstract class AbstractAviMessageTest<S, T> {
      * @see #testTokenizer()
      * @see #getMessage()
      */
-    public Optional<S> getCanonicalMessage() {
+    public Optional<String> getCanonicalMessage() {
         return Optional.of(getMessage());
     }
 
@@ -180,15 +178,12 @@ public abstract class AbstractAviMessageTest<S, T> {
 
     @Test
     public void testLexer() {
-        Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
-
-        final LexemeSequence result = lexer.lexMessage((String) getMessage(), getLexerParsingHints());
+        final LexemeSequence result = lexer.lexMessage(getMessage(), getLexerParsingHints());
         assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), getLexerTokenSequenceIdentity());
     }
 
     @Test
     public void testTokenizer() throws SerializingException, IOException {
-        Assume.assumeTrue(String.class.isAssignableFrom(getSerializationSpecification().getOutputClass()));
         Assume.assumeTrue(getCanonicalMessage().isPresent());
         final String expectedMessage = getTokenizedMessagePrefix() + getCanonicalMessage().get();
         assertTokenSequenceMatch(expectedMessage, getJsonFilename(), getTokenizerParsingHints());
@@ -206,10 +201,8 @@ public abstract class AbstractAviMessageTest<S, T> {
 
     @Test
     public void testStringToPOJOParser() throws IOException {
-        final ConversionSpecification<S, T> spec = getParsingSpecification();
-        Assume.assumeTrue(String.class.isAssignableFrom(spec.getInputClass()) && AviationWeatherMessage.class.isAssignableFrom(spec.getOutputClass()));
-        final ConversionResult<? extends AviationWeatherMessage> result = (ConversionResult<? extends AviationWeatherMessage>) converter.convertMessage(
-                getMessage(), spec, getParserConversionHints());
+        final ConversionSpecification<String, T> spec = getParsingSpecification();
+        final ConversionResult<? extends AviationWeatherMessage> result = converter.convertMessage(getMessage(), spec, getParserConversionHints());
         assertEquals("Parsing was not successful: " + result.getConversionIssues(), getExpectedParsingStatus(), result.getStatus());
         assertParsingIssues(result.getConversionIssues());
 
@@ -219,11 +212,11 @@ public abstract class AbstractAviMessageTest<S, T> {
     }
 
     @Test
-    public void testPOJOToStringSerialiazer() throws IOException {
-        final ConversionSpecification<T, S> spec = getSerializationSpecification();
-        Assume.assumeTrue(AviationWeatherMessage.class.isAssignableFrom(spec.getInputClass()) && String.class.isAssignableFrom(spec.getOutputClass()));
+    public void testPOJOToStringSerializer() throws IOException {
+        final ConversionSpecification<T, String> spec = getSerializationSpecification();
+        @SuppressWarnings("unchecked")
         final T input = (T) readFromJSON(getJsonFilename());
-        final ConversionResult<String> result = (ConversionResult<String>) converter.convertMessage(input, spec, getTokenizerParsingHints());
+        final ConversionResult<String> result = converter.convertMessage(input, spec, getTokenizerParsingHints());
         assertEquals("Serialization was not successful: " + result.getConversionIssues(), getExpectedSerializationStatus(), result.getStatus());
         assertSerializationIssues(result.getConversionIssues());
         if (result.getConvertedMessage().isPresent() && getCanonicalMessage().isPresent()) {
@@ -246,7 +239,7 @@ public abstract class AbstractAviMessageTest<S, T> {
                 }
             }
         }
-        return retval.toArray(new LexemeIdentity[retval.size()]);
+        return retval.toArray(new LexemeIdentity[0]);
     }
 
     protected List<Lexeme> trimWhitespaces(final List<Lexeme> lexemes) {
@@ -282,7 +275,7 @@ public abstract class AbstractAviMessageTest<S, T> {
         om.registerModule(new JavaTimeModule());
         final InputStream is = AbstractAviMessageTest.class.getResourceAsStream(fileName);
         if (is != null) {
-            final Class<? extends AviationWeatherMessage> clz = getTokenizerImplmentationClass();
+            final Class<? extends AviationWeatherMessage> clz = getTokenizerImplementationClass();
             if (SPECI.class.isAssignableFrom(clz)) {
                 retval = om.readValue(is, SPECIImpl.class);
             } else {

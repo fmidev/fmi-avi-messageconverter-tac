@@ -22,39 +22,38 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR11Test extends AbstractAviMessageTest<String, METAR> {
+public class METAR11Test extends AbstractAviMessageTest<METAR> {
 
-	@Override
-	public String getJsonFilename() {
-		return "metar/metar11.json";
-	}
-	
-	@Override
-	public String getMessage() {
+    @Override
+    public String getJsonFilename() {
+        return "metar/metar11.json";
+    }
+
+    @Override
+    public String getMessage() {
         return "METAR EFHK 111111Z 15008KT 0700 R04R/1500N R15/1000U R22L/1200N R04L/1000VP1500U SN VV006 M08/M10 Q1023 "
                 + "WM01/S1 TEMPO TL1530 +SHRA BKN012CB=";
     }
-	
-	@Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-        return spacify(
-                new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE,
-                        RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, SEA_STATE, TREND_CHANGE_INDICATOR,
-                        TREND_TIME_GROUP, WEATHER, CLOUD, END_TOKEN });
+
+    @Override
+    public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+        return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE,
+                RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, SEA_STATE,
+                TREND_CHANGE_INDICATOR, TREND_TIME_GROUP, WEATHER, CLOUD, END_TOKEN });
     }
 
-	@Override
+    @Override
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
-	
-	@Override
+
+    @Override
     public ConversionSpecification<METAR, String> getSerializationSpecification() {
         return TACConverter.METAR_POJO_TO_TAC;
     }
 
-	@Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
+    @Override
+    public Class<? extends METAR> getTokenizerImplementationClass() {
         return METARImpl.class;
     }
 

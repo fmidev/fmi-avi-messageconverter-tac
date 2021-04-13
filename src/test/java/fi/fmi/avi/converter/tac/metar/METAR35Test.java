@@ -21,45 +21,43 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR35Test extends AbstractAviMessageTest<String, METAR> {
+public class METAR35Test extends AbstractAviMessageTest<METAR> {
 
 	@Override
 	public String getJsonFilename() {
 		return "metar/metar35.json";
 	}
-	
+
 	@Override
 	public String getMessage() {
-        return "METAR EFTU 110820Z AUTO 35004KT 310V030 9999 VV/// 07/06 Q0999=";
-    }
+		return "METAR EFTU 110820Z AUTO 35004KT 310V030 9999 VV/// 07/06 Q0999=";
+	}
 
 	@Override
 	public Optional<String> getCanonicalMessage() {
-        return Optional.of("METAR EFTU 110820Z AUTO 35004KT 310V030 9999 VV/// 07/06 Q0999=");
-    }
+		return Optional.of("METAR EFTU 110820Z AUTO 35004KT 310V030 9999 VV/// 07/06 Q0999=");
+	}
 
 	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-		return spacify(new LexemeIdentity[] {
-				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, VARIABLE_WIND_DIRECTION, HORIZONTAL_VISIBILITY, CLOUD,
-				AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, END_TOKEN
-		});
+		return spacify(
+				new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, VARIABLE_WIND_DIRECTION, HORIZONTAL_VISIBILITY,
+						CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, END_TOKEN });
 	}
 
+	@Override
+	public ConversionSpecification<String, METAR> getParsingSpecification() {
+		return TACConverter.TAC_TO_METAR_POJO;
+	}
 
 	@Override
-    public ConversionSpecification<String, METAR> getParsingSpecification() {
-        return TACConverter.TAC_TO_METAR_POJO;
-    }
-	
-	@Override
-    public ConversionSpecification<METAR, String> getSerializationSpecification() {
-        return TACConverter.METAR_POJO_TO_TAC;
-    }
+	public ConversionSpecification<METAR, String> getSerializationSpecification() {
+		return TACConverter.METAR_POJO_TO_TAC;
+	}
 
 	@Override
-	public Class<? extends METAR> getTokenizerImplmentationClass() {
-        return METARImpl.class;
-    }
+	public Class<? extends METAR> getTokenizerImplementationClass() {
+		return METARImpl.class;
+	}
 
 }

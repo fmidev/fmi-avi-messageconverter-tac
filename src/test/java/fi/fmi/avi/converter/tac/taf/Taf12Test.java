@@ -23,57 +23,57 @@ import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
-public class Taf12Test extends AbstractAviMessageTest<String, TAF> {
+public class Taf12Test extends AbstractAviMessageTest<TAF> {
 
-	@Override
-	public String getJsonFilename() {
-		return "taf/taf12.json";
-	}
-
-	@Override
-	public String getMessage() {
-		return "TAF EETN 301130Z 3012/3112 14016G26KT 8000 BKN010 OVC015 TXM02/3015Z TNM10/3103Z\r\n" + "TEMPO 3012/3018 3000 RADZ BR OVC004\r\n"
-				+ "BECMG 3018/3020 BKN008 SCT015CB\r\n" + "TEMPO 3102/3112 3000 SHRASN BKN006 BKN015CB\r\n" + "BECMG 3104/3106 21016G30KT VV001=";
+    @Override
+    public String getJsonFilename() {
+        return "taf/taf12.json";
     }
 
-	@Override
-	public ConversionHints getParserConversionHints() {
-		final ConversionHints hints = new ConversionHints();
-		hints.put(ConversionHints.KEY_MESSAGE_TYPE, MessageType.TAF);
-		hints.put(ConversionHints.KEY_TIMEZONE_ID_POLICY, ConversionHints.VALUE_TIMEZONE_ID_POLICY_STRICT);
+    @Override
+    public String getMessage() {
+        return "TAF EETN 301130Z 3012/3112 14016G26KT 8000 BKN010 OVC015 TXM02/3015Z TNM10/3103Z\r\n" //
+                + "TEMPO 3012/3018 3000 RADZ BR OVC004\r\n" //
+                + "BECMG 3018/3020 BKN008 SCT015CB\r\n" //
+                + "TEMPO 3102/3112 3000 SHRASN BKN006 BKN015CB\r\n" //
+                + "BECMG 3104/3106 21016G30KT VV001=";
+    }
+
+    @Override
+    public ConversionHints getParserConversionHints() {
+        final ConversionHints hints = new ConversionHints();
+        hints.put(ConversionHints.KEY_MESSAGE_TYPE, MessageType.TAF);
+        hints.put(ConversionHints.KEY_TIMEZONE_ID_POLICY, ConversionHints.VALUE_TIMEZONE_ID_POLICY_STRICT);
 
         return hints;
-	}
-
-	@Override
-	public ConversionHints getLexerParsingHints() {
-		return ConversionHints.TAF;
-	}
-
-	@Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-        return spacify(
-                new LexemeIdentity[] { TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, VALID_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD, CLOUD, MAX_TEMPERATURE,
-                        MIN_TEMPERATURE, TAF_FORECAST_CHANGE_INDICATOR, TAF_CHANGE_FORECAST_TIME_GROUP, HORIZONTAL_VISIBILITY, WEATHER, WEATHER, CLOUD,
-                        TAF_FORECAST_CHANGE_INDICATOR, TAF_CHANGE_FORECAST_TIME_GROUP, CLOUD, CLOUD, TAF_FORECAST_CHANGE_INDICATOR,
-                        TAF_CHANGE_FORECAST_TIME_GROUP, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, CLOUD, TAF_FORECAST_CHANGE_INDICATOR,
-                        TAF_CHANGE_FORECAST_TIME_GROUP, SURFACE_WIND, CLOUD, END_TOKEN });
     }
 
-	@Override
+    @Override
+    public ConversionHints getLexerParsingHints() {
+        return ConversionHints.TAF;
+    }
+
+    @Override
+    public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+        return spacify(new LexemeIdentity[] { TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, VALID_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD, CLOUD,
+                MAX_TEMPERATURE, MIN_TEMPERATURE, TAF_FORECAST_CHANGE_INDICATOR, TAF_CHANGE_FORECAST_TIME_GROUP, HORIZONTAL_VISIBILITY, WEATHER, WEATHER, CLOUD,
+                TAF_FORECAST_CHANGE_INDICATOR, TAF_CHANGE_FORECAST_TIME_GROUP, CLOUD, CLOUD, TAF_FORECAST_CHANGE_INDICATOR, TAF_CHANGE_FORECAST_TIME_GROUP,
+                HORIZONTAL_VISIBILITY, WEATHER, CLOUD, CLOUD, TAF_FORECAST_CHANGE_INDICATOR, TAF_CHANGE_FORECAST_TIME_GROUP, SURFACE_WIND, CLOUD, END_TOKEN });
+    }
+
+    @Override
     public ConversionSpecification<String, TAF> getParsingSpecification() {
         return TACConverter.TAC_TO_TAF_POJO;
     }
 
-	@Override
+    @Override
     public ConversionSpecification<TAF, String> getSerializationSpecification() {
         return TACConverter.TAF_POJO_TO_TAC;
     }
 
-
-	@Override
-	public Class<? extends TAF> getTokenizerImplmentationClass() {
-		return TAFImpl.class;
-	}
+    @Override
+    public Class<? extends TAF> getTokenizerImplementationClass() {
+        return TAFImpl.class;
+    }
 
 }

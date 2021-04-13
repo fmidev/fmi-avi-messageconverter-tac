@@ -46,6 +46,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
      *         the starting point
      *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
+     *
      * @deprecated use {@link Lexeme#findNext(LexemeIdentity)} instead
      */
     protected static Lexeme findNext(final LexemeIdentity needle, final Lexeme from) {
@@ -69,7 +70,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
      *       TAF.TAFStatus status = taf.getStatus();
      *         if (status != null) {
      *           retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
-     *             "TAF cannot be both " + TAF.TAFStatus.AMENDMENT + " and " + status + " at " + "the same time"));
+     *             "TAF cannot be both " + TAF.TAFStatus.AMENDMENT + " and " + status + " at the same time"));
      *         } else {
      *           taf.setStatus(AviationCodeListUser.TAFStatus.AMENDMENT);
      *         }
@@ -84,6 +85,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
      *         the function to execute with the match
      *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
+     *
      * @deprecated use {@link Lexeme#findNext(LexemeIdentity, Consumer)} instead
      */
     protected static Lexeme findNext(final LexemeIdentity needle, final Lexeme from, final Consumer<Lexeme> found) {
@@ -108,9 +110,11 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
      *         the function to execute if not match was found
      *
      * @return the found Lexeme, or null if match was not found by the last Lexeme
+     *
      * @deprecated use {@link Lexeme#findNext(LexemeIdentity, Consumer, Lexeme.LexemeParsingNotifyer)} instead
      */
-    protected static Lexeme findNext(final LexemeIdentity needle, final Lexeme from, final Consumer<Lexeme> found, final Lexeme.LexemeParsingNotifyer notFound) {
+    protected static Lexeme findNext(final LexemeIdentity needle, final Lexeme from, final Consumer<Lexeme> found,
+            final Lexeme.LexemeParsingNotifyer notFound) {
         return from.findNext(needle, found, notFound);
     }
 
@@ -150,7 +154,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
         return retval;
     }
 
-    private static void checkZeroOrOne(final LexemeSequence lexed, final LexemeIdentity[] ids, List<ConversionIssue> issues, boolean[] oneFound) {
+    private static void checkZeroOrOne(final LexemeSequence lexed, final LexemeIdentity[] ids, final List<ConversionIssue> issues, final boolean[] oneFound) {
         final List<Lexeme> recognizedLexemes = lexed.getLexemes()
                 .stream()
                 .filter((lexeme) -> Lexeme.Status.UNRECOGNIZED != lexeme.getStatus())
@@ -172,8 +176,8 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
         final List<ConversionIssue> retval = new ArrayList<>();
         final boolean[] oneFound = new boolean[ids.length];
         checkZeroOrOne(lexed, ids, retval, oneFound);
-        for(int i = 0; i < oneFound.length; i++) {
-            if(!oneFound[i]) {
+        for (int i = 0; i < oneFound.length; i++) {
+            if (!oneFound[i]) {
                 retval.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "One of " + ids[i] + " required in message " + lexed.getTAC()));
             }
         }
@@ -243,13 +247,13 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
     }
 
     protected static fi.fmi.avi.model.CloudLayer getCloudLayer(final Lexeme match) throws IllegalArgumentException {
-        CloudLayerImpl.Builder retval = CloudLayerImpl.builder();
-        Object coverOrMissing = match.getParsedValue(Lexeme.ParsedValueName.COVER, Object.class);
-        Object type = match.getParsedValue(Lexeme.ParsedValueName.TYPE, Object.class);
-        Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
-        String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
+        final CloudLayerImpl.Builder retval = CloudLayerImpl.builder();
+        final Object coverOrMissing = match.getParsedValue(Lexeme.ParsedValueName.COVER, Object.class);
+        final Object type = match.getParsedValue(Lexeme.ParsedValueName.TYPE, Object.class);
+        final Object value = match.getParsedValue(Lexeme.ParsedValueName.VALUE, Object.class);
+        final String unit = match.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
         if (coverOrMissing instanceof CloudCover) {
-            CloudCover cover = (CloudCover) coverOrMissing;
+            final CloudCover cover = (CloudCover) coverOrMissing;
             if (SKY_OBSCURED == cover) {
                 throw new IllegalArgumentException("Cannot create cloud layer with vertical visibility 'VV' token");
             }
@@ -280,7 +284,7 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
             retval.setCloudType(fi.fmi.avi.model.AviationCodeListUser.CloudType.CB);
         }
         if (value instanceof Integer) {
-            Integer height = (Integer) value;
+            final Integer height = (Integer) value;
             if ("hft".equals(unit)) {
                 retval.setBase(NumericMeasureImpl.of(height * 100, "[ft_i]"));
             } else {
@@ -333,6 +337,5 @@ public abstract class AbstractTACParser<T extends AviationWeatherMessageOrCollec
         }
         return true;
     }
-
 
 }

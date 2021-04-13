@@ -18,7 +18,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METARWindOperatorTest extends AbstractAviMessageTest<String, METAR> {
+public class METARWindOperatorTest extends AbstractAviMessageTest<METAR> {
 
     @Override
     public String getJsonFilename() {
@@ -32,9 +32,8 @@ public class METARWindOperatorTest extends AbstractAviMessageTest<String, METAR>
 
     @Override
     public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-        return spacify(
-                new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, CAVOK, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH,
-                        TREND_CHANGE_INDICATOR, SURFACE_WIND, END_TOKEN });
+        return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, CAVOK, AIR_DEWPOINT_TEMPERATURE,
+                AIR_PRESSURE_QNH, TREND_CHANGE_INDICATOR, SURFACE_WIND, END_TOKEN });
     }
 
     @Override
@@ -48,7 +47,7 @@ public class METARWindOperatorTest extends AbstractAviMessageTest<String, METAR>
     }
 
     @Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
+    public Class<? extends METAR> getTokenizerImplementationClass() {
         return METARImpl.class;
     }
 

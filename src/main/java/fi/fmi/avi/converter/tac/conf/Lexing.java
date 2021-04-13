@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -41,6 +42,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ColorCode;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Correction;
 import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTime;
+import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTimeLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.EndToken;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ForecastMaxMinTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.FractionalHorizontalVisibility;
@@ -71,7 +73,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenterLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffect;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffectConjuction;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffectLabel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTimeLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotAvailable;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotExpected;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
@@ -105,6 +106,9 @@ import fi.fmi.avi.model.MessageType;
 /**
  * TAC converter Lexing Spring configuration
  */
+@SuppressWarnings({ "Convert2Lambda", "Anonymous2MethodRef" })
+@SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", //
+        justification = "Code is cleaner this way. Lambdas are not suitable because older Spring versions are unable to handle those.")
 @Configuration
 public class Lexing {
 
@@ -132,7 +136,7 @@ public class Lexing {
 
     @Bean
     public LexingFactory lexingFactory() {
-        LexingFactoryImpl f = new LexingFactoryImpl();
+        final LexingFactoryImpl f = new LexingFactoryImpl();
         f.addTokenCombiningRule(fractionalHorizontalVisibilityCombinationRule());
         f.addTokenCombiningRule(windShearAllCombinationRule());
         f.addTokenCombiningRule(windShearCombinationRule());
@@ -166,28 +170,20 @@ public class Lexing {
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryCombinationRules());
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules());
 
-        f.setMessageStartToken(MessageType.METAR,
-                f.createLexeme("METAR", LexemeIdentity.METAR_START, Lexeme.Status.OK, true));
-        f.setMessageStartToken(MessageType.SPECI,
-                f.createLexeme("SPECI", LexemeIdentity.SPECI_START, Lexeme.Status.OK, true));
-        f.setMessageStartToken(MessageType.TAF,
-                f.createLexeme("TAF", LexemeIdentity.TAF_START, Lexeme.Status.OK, true));
-        f.setMessageStartToken(MessageType.SPECIAL_AIR_REPORT,
-                f.createLexeme("ARS", LexemeIdentity.ARS_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.METAR, f.createLexeme("METAR", LexemeIdentity.METAR_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.SPECI, f.createLexeme("SPECI", LexemeIdentity.SPECI_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.TAF, f.createLexeme("TAF", LexemeIdentity.TAF_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.SPECIAL_AIR_REPORT, f.createLexeme("ARS", LexemeIdentity.ARS_START, Lexeme.Status.OK, true));
         f.setMessageStartToken(MessageType.VOLCANIC_ASH_ADVISORY,
                 f.createLexeme("VA ADVISORY", LexemeIdentity.VOLCANIC_ASH_ADVISORY_START, Lexeme.Status.OK, true));
         f.setMessageStartToken(MessageType.SPACE_WEATHER_ADVISORY,
                 f.createLexeme("SWX ADVISORY", LexemeIdentity.SPACE_WEATHER_ADVISORY_START, Lexeme.Status.OK, true));
-        f.setMessageStartToken(MessageType.SIGMET,
-                f.createLexeme("SIGMET", LexemeIdentity.SIGMET_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.SIGMET, f.createLexeme("SIGMET", LexemeIdentity.SIGMET_START, Lexeme.Status.OK, true));
 
         //Non-standard types:
-        f.setMessageStartToken(lowWind(),
-                f.createLexeme("LOW WIND", LOW_WIND_START, Lexeme.Status.OK, true));
-        f.setMessageStartToken(wxRep(),
-                f.createLexeme("WXREP", WXREP_START, Lexeme.Status.OK, true));
-        f.setMessageStartToken(wxWarning(),
-                f.createLexeme("WX", WX_WARNING_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(lowWind(), f.createLexeme("LOW WIND", LOW_WIND_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(wxRep(), f.createLexeme("WXREP", WXREP_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(wxWarning(), f.createLexeme("WX", WX_WARNING_START, Lexeme.Status.OK, true));
         return f;
     }
 
@@ -205,7 +201,7 @@ public class Lexing {
 
     private List<Predicate<String>> fractionalHorizontalVisibilityCombinationRule() {
         // cases like "1 1/8SM",
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -222,7 +218,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> windShearAllCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -245,7 +241,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> windShearCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -265,7 +261,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> probTempoCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -282,7 +278,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> lowWindCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -299,7 +295,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> wxWarningCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -316,7 +312,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> sigmetValidTimeCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -333,7 +329,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> usSigmetValidTimeCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -356,7 +352,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> advisoryStartCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -373,7 +369,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> advisoryFctOffsetCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -390,7 +386,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryPhenomenaCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -407,7 +403,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryEffect() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -424,11 +420,11 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryHorizontalLimitCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(W|E)\\d{1,5}$");
+                return s.matches("^([WE])\\d{1,5}$");
             }
         });
         retval.add(new Predicate<String>() {
@@ -440,14 +436,14 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(W|E)\\d{1,5}$");
+                return s.matches("^([WE])\\d{1,5}$");
             }
         });
         return retval;
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryVerticalLimitCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -464,7 +460,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryEffectType() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -481,7 +477,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryEffectTypeHFCom() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -504,7 +500,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryDaylightSide() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -521,7 +517,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryPhenomenon() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -550,7 +546,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryForecastTimeCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -567,7 +563,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> advisoryNumberCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -583,36 +579,8 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> spaceWeatherAdvisoryPolygonCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
-        for(int i = 0; i < 5; i++) {
-            retval.add(new Predicate<String>() {
-                @Override
-                public boolean test(final String s) {
-                    return s.matches("^(N|S)\\d+$");
-                }
-            });
-            retval.add(new Predicate<String>() {
-                @Override
-                public boolean test(final String s) {
-                    return s.matches("^(W|E)\\d+$");
-                }
-            });
-
-            if(i < 4) {
-                retval.add(new Predicate<String>() {
-                    @Override
-                    public boolean test(final String s) {
-                        return s.matches("^-$");
-                    }
-                });
-            }
-        }
-        return retval;
-    }
-
     private List<Predicate<String>> latitudeLongitudePairCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -629,7 +597,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryIssuedByCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -665,7 +633,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryIssuedAtCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -676,7 +644,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryNoAdvisoriesCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -694,11 +662,12 @@ public class Lexing {
             public boolean test(final String s) {
                 return s.matches("^ADVISORIES$");
             }
-        }); return retval;
+        });
+        return retval;
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryNextAdvisoryCombinationRules() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -714,8 +683,8 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>>  spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules() {
-        List<Predicate<String>> retval = new ArrayList<>();
+    private List<Predicate<String>> spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules() {
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -737,8 +706,8 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>>  spaceWeatherAdvisoryReplaceAdvisoryCombinationRules() {
-        List<Predicate<String>> retval = new ArrayList<>();
+    private List<Predicate<String>> spaceWeatherAdvisoryReplaceAdvisoryCombinationRules() {
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -755,7 +724,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryNoExpectedCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -778,7 +747,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryNotAvailableCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -795,7 +764,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> volcanicAshAdvisoryDtgCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -818,7 +787,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> volcanicAshAdvisoryCloudForecastCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -841,7 +810,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> volcanicAshAdvisoryForecastTimeCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -856,8 +825,6 @@ public class Lexing {
         });
         return retval;
     }
-
-
 
     private RecognizingAviMessageTokenLexer metarTokenLexer() {
         final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
@@ -967,7 +934,6 @@ public class Lexing {
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
-
 
     private RecognizingAviMessageTokenLexer genericMeteorologicalBulletinTokenLexer() {
         final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();

@@ -17,40 +17,37 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR21Test extends AbstractAviMessageTest<String, METAR> {
+public class METAR21Test extends AbstractAviMessageTest<METAR> {
 
 	@Override
 	public String getJsonFilename() {
 		return "metar/metar21.json";
 	}
-	
+
 	@Override
 	public String getMessage() {
-        return "METAR EFTU 011350Z VRB02KT CAVOK 22/12 Q1008 R15L///////=";
-    }
-	
-	@Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-		return spacify(new LexemeIdentity[] {
-				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, CAVOK,
-				AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, 
-				RUNWAY_STATE, END_TOKEN
-		});
+		return "METAR EFTU 011350Z VRB02KT CAVOK 22/12 Q1008 R15L///////=";
 	}
 
 	@Override
-    public ConversionSpecification<String, METAR> getParsingSpecification() {
-        return TACConverter.TAC_TO_METAR_POJO;
-    }
-	
-	@Override
-    public ConversionSpecification<METAR, String> getSerializationSpecification() {
-        return TACConverter.METAR_POJO_TO_TAC;
-    }
+	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+		return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, CAVOK, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH,
+				RUNWAY_STATE, END_TOKEN });
+	}
 
-    @Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
-        return METARImpl.class;
-    }
+	@Override
+	public ConversionSpecification<String, METAR> getParsingSpecification() {
+		return TACConverter.TAC_TO_METAR_POJO;
+	}
+
+	@Override
+	public ConversionSpecification<METAR, String> getSerializationSpecification() {
+		return TACConverter.METAR_POJO_TO_TAC;
+	}
+
+	@Override
+	public Class<? extends METAR> getTokenizerImplementationClass() {
+		return METARImpl.class;
+	}
 
 }

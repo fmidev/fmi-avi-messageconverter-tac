@@ -30,8 +30,7 @@ public class SWXEffectConjuction extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                StringBuilder builder = new StringBuilder("AND");
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_EFFECT_CONJUCTION));
+                retval = Optional.of(this.createLexeme("AND", LexemeIdentity.SWX_EFFECT_CONJUCTION));
             }
             return retval;
         }

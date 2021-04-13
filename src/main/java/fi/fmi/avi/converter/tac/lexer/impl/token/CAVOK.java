@@ -34,11 +34,11 @@ public class CAVOK extends PrioritizedLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             Optional<Lexeme> retval = Optional.empty();
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
-                MeteorologicalTerminalAirReport m = (MeteorologicalTerminalAirReport) msg;
-                Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
+                final MeteorologicalTerminalAirReport m = (MeteorologicalTerminalAirReport) msg;
+                final Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
                 if (trend.isPresent()) {
                     if (trend.get().isCeilingAndVisibilityOk()) {
                         retval = Optional.of(this.createLexeme("CAVOK", CAVOK));
@@ -49,11 +49,11 @@ public class CAVOK extends PrioritizedLexemeVisitor {
                     }
                 }
             } else if (TAF.class.isAssignableFrom(clz)) {
-                Optional<TAFBaseForecast> base = ctx.getParameter("forecast",TAFBaseForecast.class);
+                final Optional<TAFBaseForecast> base = ctx.getParameter("forecast", TAFBaseForecast.class);
                 if (base.isPresent() && base.get().isCeilingAndVisibilityOk()) {
                     retval = Optional.of(this.createLexeme("CAVOK", CAVOK));
                 }
-                Optional<TAFChangeForecast> change = ctx.getParameter("forecast", TAFChangeForecast.class);
+                final Optional<TAFChangeForecast> change = ctx.getParameter("forecast", TAFChangeForecast.class);
                 if (change.isPresent() && change.get().isCeilingAndVisibilityOk()) {
                     retval = Optional.of(this.createLexeme("CAVOK", CAVOK));
                 }

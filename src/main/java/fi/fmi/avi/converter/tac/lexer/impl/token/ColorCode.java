@@ -20,15 +20,24 @@ import fi.fmi.avi.model.metar.TrendForecast;
  */
 public class ColorCode extends RegexMatchingLexemeVisitor {
 
+    public ColorCode(final OccurrenceFrequency prio) {
+        super("^(BLU|WHT|YLO1|YLO2|AMB|RED)|(BLACK(BLU|WHT|YLO1|YLO2|AMB|RED)?)$", prio);
+    }
+
+    @Override
+    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
+        final ColorState state;
+        if (match.group(2) == null) {
+            state = ColorState.forCode(match.group(1));
+        } else {
+            state = ColorState.forCode(match.group(2));
+        }
+        token.identify(COLOR_CODE);
+        token.setParsedValue(VALUE, state);
+    }
+
     public enum ColorState {
-        BLUE("BLU"),
-        WHITE("WHT"),
-        GREEN("GRN"),
-        YELLOW1("YLO1"),
-        YELLOW2("YLO2"),
-        AMBER("AMB"),
-        RED("RED"),
-        BLACK("BLACK"),
+        BLUE("BLU"), WHITE("WHT"), GREEN("GRN"), YELLOW1("YLO1"), YELLOW2("YLO2"), AMBER("AMB"), RED("RED"), BLACK("BLACK"),
         BLACK_BLUE("BLACKBLU"),
         BLACK_WHITE("BLACKWHT"),
         BLACK_GREEN("BLACKGRN"),
@@ -37,14 +46,14 @@ public class ColorCode extends RegexMatchingLexemeVisitor {
         BLACK_AMBER("BLACKAMB"),
         BLACK_RED("BLACKRED");
 
-        private String code;
+        private final String code;
 
         ColorState(final String code) {
             this.code = code;
         }
 
         public static ColorState forCode(final String code) {
-            for (ColorState w : values()) {
+            for (final ColorState w : values()) {
                 if (w.code.equals(code)) {
                     return w;
                 }
@@ -58,31 +67,15 @@ public class ColorCode extends RegexMatchingLexemeVisitor {
 
     }
 
-    public ColorCode(final OccurrenceFrequency prio) {
-        super("^(BLU|WHT|YLO1|YLO2|AMB|RED)|(BLACK(BLU|WHT|YLO1|YLO2|AMB|RED)?)$", prio);
-    }
-
-    @Override
-    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        ColorState state;
-        if (match.group(2) == null) {
-            state = ColorState.forCode(match.group(1));
-        } else {
-            state = ColorState.forCode(match.group(2));
-        }
-        token.identify(COLOR_CODE);
-        token.setParsedValue(VALUE, state);
-    }
-    
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
 
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
-                MeteorologicalTerminalAirReport metar = (MeteorologicalTerminalAirReport) msg;
-                Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
-                Optional<fi.fmi.avi.model.AviationCodeListUser.ColorState> color = trend.map(TrendForecast::getColorState).orElse(metar.getColorState());
+                final MeteorologicalTerminalAirReport metar = (MeteorologicalTerminalAirReport) msg;
+                final Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
+                final Optional<fi.fmi.avi.model.AviationCodeListUser.ColorState> color = trend.map(TrendForecast::getColorState).orElse(metar.getColorState());
                 if (color.isPresent()) {
                     return Optional.of(this.createLexeme(color.get().name(), COLOR_CODE));
                 }

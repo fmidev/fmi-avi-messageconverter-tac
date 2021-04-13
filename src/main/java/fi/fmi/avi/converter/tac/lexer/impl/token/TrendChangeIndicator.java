@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
@@ -20,17 +19,31 @@ import fi.fmi.avi.model.metar.TrendForecast;
  */
 public class TrendChangeIndicator extends TimeHandlingRegex {
 
+    public TrendChangeIndicator(final OccurrenceFrequency prio) {
+        super("^(TEMPO|BECMG)$", prio);
+    }
+
+    @Override
+    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
+        final TrendChangeIndicatorType indicator;
+        if (match.group(1) != null) {
+            token.identify(LexemeIdentity.TREND_CHANGE_INDICATOR);
+            indicator = TrendChangeIndicatorType.forCode(match.group(1));
+            token.setParsedValue(TYPE, indicator);
+        }
+    }
+
     public enum TrendChangeIndicatorType {
         TEMPORARY_FLUCTUATIONS("TEMPO"), BECOMING("BECMG");
 
-        private String code;
+        private final String code;
 
         TrendChangeIndicatorType(final String code) {
             this.code = code;
         }
 
         public static TrendChangeIndicatorType forCode(final String code) {
-            for (TrendChangeIndicatorType w : values()) {
+            for (final TrendChangeIndicatorType w : values()) {
                 if (w.code.equals(code)) {
                     return w;
                 }
@@ -40,26 +53,11 @@ public class TrendChangeIndicator extends TimeHandlingRegex {
 
     }
 
-    public TrendChangeIndicator(final OccurrenceFrequency prio) {
-        super("^(TEMPO|BECMG)$", prio);
-    }
-
-    @Override
-    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        TrendChangeIndicatorType indicator;
-        if (match.group(1) != null) {
-            token.identify(LexemeIdentity.TREND_CHANGE_INDICATOR);
-            indicator = TrendChangeIndicatorType.forCode(match.group(1));
-            token.setParsedValue(TYPE, indicator);
-        }
-    }
-
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
-                throws SerializingException {
-            Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
+            final Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
             if (trend.isPresent()) {
                 switch (trend.get().getChangeIndicator()) {
                     case BECOMING: {

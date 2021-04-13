@@ -10,7 +10,8 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.METAR_START;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SURFACE_WIND;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.WEATHER;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertSame;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +30,7 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR34TestStrictSerialization extends AbstractAviMessageTest<String, METAR> {
+public class METAR34TestStrictSerialization extends AbstractAviMessageTest<METAR> {
 
     @Override
     public String getJsonFilename() {
@@ -74,9 +75,9 @@ public class METAR34TestStrictSerialization extends AbstractAviMessageTest<Strin
 
     @Override
     public void assertSerializationIssues(final List<ConversionIssue> conversionIssues) {
-        assertTrue(conversionIssues.size() == 1);
-        assertTrue(ConversionIssue.Type.OTHER == conversionIssues.get(0).getType());
-        assertTrue("Illegal weather code IC".equals(conversionIssues.get(0).getMessage()));
+        assertEquals(1, conversionIssues.size());
+        assertSame(ConversionIssue.Type.OTHER, conversionIssues.get(0).getType());
+        assertEquals("Illegal weather code IC", conversionIssues.get(0).getMessage());
     }
 
     @Override
@@ -96,7 +97,7 @@ public class METAR34TestStrictSerialization extends AbstractAviMessageTest<Strin
     }
 
     @Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
+    public Class<? extends METAR> getTokenizerImplementationClass() {
         return METARImpl.class;
     }
 

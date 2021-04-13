@@ -28,33 +28,33 @@ public class WindShear extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         if (match.group(1) != null) {
-        	token.identify(WIND_SHEAR);
+            token.identify(WIND_SHEAR);
             token.setParsedValue(RUNWAY, "ALL");
         } else if (match.group(2) != null) {
-        	token.identify(WIND_SHEAR);
+            token.identify(WIND_SHEAR);
             token.setParsedValue(RUNWAY, match.group(2));
         } else {
             token.identify(WIND_SHEAR, Lexeme.Status.SYNTAX_ERROR, "Could not understand runway code");
         }
     }
-    
+
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
 
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
-                MeteorologicalTerminalAirReport metar = (MeteorologicalTerminalAirReport) msg;
-                Optional<fi.fmi.avi.model.metar.WindShear> windShear = metar.getWindShear();
+                final MeteorologicalTerminalAirReport metar = (MeteorologicalTerminalAirReport) msg;
+                final Optional<fi.fmi.avi.model.metar.WindShear> windShear = metar.getWindShear();
 
                 if (windShear.isPresent()) {
-                    StringBuilder str = new StringBuilder("WS");
+                    final StringBuilder str = new StringBuilder("WS");
                     if (windShear.get().isAppliedToAllRunways()) {
                         str.append(" ALL RWY");
                     } else if (windShear.get().getRunwayDirections().isPresent()) {
-                        boolean annex3_16th = ctx.getHints().containsValue(ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
-                        for (RunwayDirection rwd : windShear.get().getRunwayDirections().get()) {
+                        final boolean annex3_16th = ctx.getHints().containsValue(ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
+                        for (final RunwayDirection rwd : windShear.get().getRunwayDirections().get()) {
                             if (annex3_16th) {
                                 str.append(" RWY");
                             } else {

@@ -40,7 +40,7 @@ public class TAFSurfaceWindLexemeTest {
                 .filter(l -> !l.getStatus().equals(Lexeme.Status.OK))//
                 .collect(Collectors.toList());
         assertEquals(notOkLexemes.size(), 2);
-        notOkLexemes.forEach(lexeme -> assertExtraSurfaceWind(lexeme));
+        notOkLexemes.forEach(this::assertExtraSurfaceWind);
     }
 
     @Test

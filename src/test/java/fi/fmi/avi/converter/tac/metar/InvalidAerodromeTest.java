@@ -29,7 +29,7 @@ public class InvalidAerodromeTest {
     public void invalidAerodromeWithSyntaxErrorsAllowed() {
         final ConversionHints hints = new ConversionHints();
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
-        ConversionResult<METAR> result = this.converter.convertMessage("METAR EF 011350Z AUTO VRB02KT CAVOK 22/12 Q1008=", TACConverter.TAC_TO_METAR_POJO,
+        final ConversionResult<METAR> result = this.converter.convertMessage("METAR EF 011350Z AUTO VRB02KT CAVOK 22/12 Q1008=", TACConverter.TAC_TO_METAR_POJO,
                 hints);
         assertEquals(ConversionResult.Status.FAIL, result.getStatus());
         assertFalse(result.getConvertedMessage().isPresent());
@@ -40,7 +40,7 @@ public class InvalidAerodromeTest {
     public void invalidAerodromeWithAnyErrorsAllowed() {
         final ConversionHints hints = new ConversionHints();
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_ANY_ERRORS);
-        ConversionResult<METAR> result = this.converter.convertMessage("METAR EF 011350Z AUTO VRB02KT CAVOK 22/12 Q1008=", TACConverter.TAC_TO_METAR_POJO,
+        final ConversionResult<METAR> result = this.converter.convertMessage("METAR EF 011350Z AUTO VRB02KT CAVOK 22/12 Q1008=", TACConverter.TAC_TO_METAR_POJO,
                 hints);
         assertEquals(ConversionResult.Status.FAIL, result.getStatus());
         assertFalse(result.getConvertedMessage().isPresent());
@@ -49,7 +49,8 @@ public class InvalidAerodromeTest {
 
     @Test
     public void invalidAerodromeWithStrictParsing() {
-        ConversionResult<METAR> result = this.converter.convertMessage("METAR EF 011350Z AUTO VRB02KT CAVOK 22/12 Q1008=", TACConverter.TAC_TO_METAR_POJO);
+        final ConversionResult<METAR> result = this.converter.convertMessage("METAR EF 011350Z AUTO VRB02KT CAVOK 22/12 Q1008=",
+                TACConverter.TAC_TO_METAR_POJO);
         assertEquals(ConversionResult.Status.FAIL, result.getStatus());
         assertFalse(result.getConvertedMessage().isPresent());
         assertThat(result.getConversionIssues()).anySatisfy(

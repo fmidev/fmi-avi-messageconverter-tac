@@ -33,7 +33,7 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        ForecastChangeIndicatorType indicator;
+        final ForecastChangeIndicatorType indicator;
         if (match.group(1) != null) {
             token.identify(TAF_FORECAST_CHANGE_INDICATOR);
             indicator = ForecastChangeIndicatorType.forCode(match.group(1));
@@ -44,8 +44,8 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
             if (match.group(3) != null) {
                 day = Integer.parseInt(match.group(3));
             }
-            int hour = Integer.parseInt(match.group(4));
-            int minute = Integer.parseInt(match.group(5));
+            final int hour = Integer.parseInt(match.group(4));
+            final int minute = Integer.parseInt(match.group(5));
             if (timeOkDayHourMinute(day, hour, minute)) {
                 token.identify(TAF_FORECAST_CHANGE_INDICATOR);
                 if (day > -1) {
@@ -76,7 +76,7 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
         }
 
         public static ForecastChangeIndicatorType forCode(final String code) {
-            for (ForecastChangeIndicatorType w : values()) {
+            for (final ForecastChangeIndicatorType w : values()) {
                 if (w.code.equals(code)) {
                     return w;
                 }
@@ -89,10 +89,10 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         private static String encodeValidityTimeFrom(final PartialOrCompleteTimeInstant instant, final ConversionHints hints) {
-            String retval = null;
+            final String retval;
             boolean useShortFormat = false;
             if (hints != null) {
-                Object hint = hints.get(ConversionHints.KEY_VALIDTIME_FORMAT);
+                final Object hint = hints.get(ConversionHints.KEY_VALIDTIME_FORMAT);
                 if (ConversionHints.VALUE_VALIDTIME_FORMAT_PREFER_SHORT.equals(hint)) {
                     useShortFormat = true;
                 }
@@ -108,12 +108,12 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
         }
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            List<Lexeme> retval = new ArrayList<>();
+            final List<Lexeme> retval = new ArrayList<>();
 
             if (TAF.class.isAssignableFrom(clz)) {
-                Optional<TAFChangeForecast> changeForecast = ctx.getParameter("forecast", TAFChangeForecast.class);
+                final Optional<TAFChangeForecast> changeForecast = ctx.getParameter("forecast", TAFChangeForecast.class);
 
                 if (changeForecast.isPresent()) {
                     switch (changeForecast.get().getChangeIndicator()) {
@@ -141,9 +141,9 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
                             break;
                         case FROM:
                             if (changeForecast.get().getPeriodOfChange().getStartTime().isPresent()) {
-                                StringBuilder ret = new StringBuilder("FM");
-                                ret.append(encodeValidityTimeFrom(changeForecast.get().getPeriodOfChange().getStartTime().get(), ctx.getHints()));
-                                retval.add(this.createLexeme(ret.toString(), TAF_FORECAST_CHANGE_INDICATOR));
+                                retval.add(this.createLexeme(
+                                        "FM" + encodeValidityTimeFrom(changeForecast.get().getPeriodOfChange().getStartTime().get(), ctx.getHints()),
+                                        TAF_FORECAST_CHANGE_INDICATOR));
                             } else {
                                 throw new SerializingException("Validity time start is not available in TAF change forecast");
                             }

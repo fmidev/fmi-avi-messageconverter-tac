@@ -1,6 +1,10 @@
 package fi.fmi.avi.converter.tac.taf;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,57 +19,54 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.taf.TAF;
 
-import java.util.Optional;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
 
 public class PositiveNegativeZeroTempTest {
-    
+
     @Autowired
     private AviMessageConverter converter;
-    
+
     @Test
     public void testZeroValueRemainsNegative() {
-        String tac = "TAF EETN 301130Z 3012/3112 14016G26KT 8000 BKN010 OVC015 TXM00/3015Z TNM00/3103Z\n" +
-                "TEMPO 3012/3018 3000 RADZ BR OVC004\n" +
-                "BECMG 3018/3020 BKN008 SCT015CB\n" +
-                "TEMPO 3102/3112 3000 SHRASN BKN006 BKN015CB\n" +
-                "BECMG 3104/3106 21016G30KT=";
-        ConversionResult<TAF> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_TAF_POJO);
-        assertTrue(ConversionResult.Status.SUCCESS == result.getStatus());
-        Optional<TAF> t = result.getConvertedMessage();
+        final String tac = "TAF EETN 301130Z 3012/3112 14016G26KT 8000 BKN010 OVC015 TXM00/3015Z TNM00/3103Z\n" //
+                + "TEMPO 3012/3018 3000 RADZ BR OVC004\n" //
+                + "BECMG 3018/3020 BKN008 SCT015CB\n" //
+                + "TEMPO 3102/3112 3000 SHRASN BKN006 BKN015CB\n" //
+                + "BECMG 3104/3106 21016G30KT=";
+        final ConversionResult<TAF> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_TAF_POJO);
+        assertSame(ConversionResult.Status.SUCCESS, result.getStatus());
+        final Optional<TAF> t = result.getConvertedMessage();
         assertTrue(t.isPresent());
-        assertTrue(1.0d/t.get().getBaseForecast().get().getTemperatures().get().get(0).getMinTemperature().getValue().doubleValue() == Double.NEGATIVE_INFINITY);
-        assertTrue(1.0d/t.get().getBaseForecast().get().getTemperatures().get().get(0).getMaxTemperature().getValue().doubleValue() == Double.NEGATIVE_INFINITY);
-        ConversionResult<String> result2 = this.converter.convertMessage(t.get(), TACConverter.TAF_POJO_TO_TAC);
-        assertTrue(ConversionResult.Status.SUCCESS == result2.getStatus());
+        assertEquals(Double.NEGATIVE_INFINITY, 1.0d / t.get().getBaseForecast().get().getTemperatures().get().get(0).getMinTemperature().getValue(), 0.0);
+        assertEquals(Double.NEGATIVE_INFINITY, 1.0d / t.get().getBaseForecast().get().getTemperatures().get().get(0).getMaxTemperature().getValue(), 0.0);
+        final ConversionResult<String> result2 = this.converter.convertMessage(t.get(), TACConverter.TAF_POJO_TO_TAC);
+        assertSame(ConversionResult.Status.SUCCESS, result2.getStatus());
         assertTrue(result2.getConvertedMessage().isPresent());
-        assertTrue(result2.getConvertedMessage().get().indexOf("TXM00/3015Z") > -1);
-        assertTrue(result2.getConvertedMessage().get().indexOf("TNM00/3103Z") > -1);
+        assertTrue(result2.getConvertedMessage().get().contains("TXM00/3015Z"));
+        assertTrue(result2.getConvertedMessage().get().contains("TNM00/3103Z"));
 
     }
-    
+
     @Test
     public void testZeroValueRemainsPositive() {
-        String tac = "TAF EETN 301130Z 3012/3112 14016G26KT 8000 BKN010 OVC015 TX00/3015Z TN00/3103Z\n" +
-                "TEMPO 3012/3018 3000 RADZ BR OVC004\n" +
-                "BECMG 3018/3020 BKN008 SCT015CB\n" +
-                "TEMPO 3102/3112 3000 SHRASN BKN006 BKN015CB\n" +
-                "BECMG 3104/3106 21016G30KT=";
-        ConversionResult<TAF> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_TAF_POJO);
-        assertTrue(ConversionResult.Status.SUCCESS == result.getStatus());
-        Optional<TAF> t = result.getConvertedMessage();
+        final String tac = "TAF EETN 301130Z 3012/3112 14016G26KT 8000 BKN010 OVC015 TX00/3015Z TN00/3103Z\n" //
+                + "TEMPO 3012/3018 3000 RADZ BR OVC004\n" //
+                + "BECMG 3018/3020 BKN008 SCT015CB\n" //
+                + "TEMPO 3102/3112 3000 SHRASN BKN006 BKN015CB\n" //
+                + "BECMG 3104/3106 21016G30KT=";
+        final ConversionResult<TAF> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_TAF_POJO);
+        assertSame(ConversionResult.Status.SUCCESS, result.getStatus());
+        final Optional<TAF> t = result.getConvertedMessage();
         assertTrue(t.isPresent());
-        assertTrue(1.0d/t.get().getBaseForecast().get().getTemperatures().get().get(0).getMinTemperature().getValue().doubleValue() == Double.POSITIVE_INFINITY);
-        assertTrue(1.0d/t.get().getBaseForecast().get().getTemperatures().get().get(0).getMaxTemperature().getValue().doubleValue() == Double.POSITIVE_INFINITY);
-        ConversionResult<String> result2 = this.converter.convertMessage(t.get(), TACConverter.TAF_POJO_TO_TAC);
-        assertTrue(ConversionResult.Status.SUCCESS == result2.getStatus());
+        assertEquals(Double.POSITIVE_INFINITY, 1.0d / t.get().getBaseForecast().get().getTemperatures().get().get(0).getMinTemperature().getValue(), 0.0);
+        assertEquals(Double.POSITIVE_INFINITY, 1.0d / t.get().getBaseForecast().get().getTemperatures().get().get(0).getMaxTemperature().getValue(), 0.0);
+        final ConversionResult<String> result2 = this.converter.convertMessage(t.get(), TACConverter.TAF_POJO_TO_TAC);
+        assertSame(ConversionResult.Status.SUCCESS, result2.getStatus());
         assertTrue(result2.getConvertedMessage().isPresent());
-        assertTrue(result2.getConvertedMessage().get().indexOf("TX00/3015Z") > -1);
-        assertTrue(result2.getConvertedMessage().get().indexOf("TN00/3103Z") > -1);
+        assertTrue(result2.getConvertedMessage().get().contains("TX00/3015Z"));
+        assertTrue(result2.getConvertedMessage().get().contains("TN00/3103Z"));
 
     }
-  
 
 }

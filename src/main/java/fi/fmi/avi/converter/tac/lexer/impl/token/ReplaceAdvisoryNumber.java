@@ -25,7 +25,7 @@ public class ReplaceAdvisoryNumber extends RegexMatchingLexemeVisitor {
             if (token.getPrevious().getIdentity() != null && token.getPrevious().getIdentity().equals(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL)) {
                 token.identify(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
 
-                AdvisoryNumberImpl advisoryNumber = AdvisoryNumberImpl.Builder.from(match.group("advisoryNumber")).build();
+                final AdvisoryNumberImpl advisoryNumber = AdvisoryNumberImpl.Builder.from(match.group("advisoryNumber")).build();
                 token.setParsedValue(Lexeme.ParsedValueName.VALUE, advisoryNumber);
             }
         }
@@ -38,7 +38,7 @@ public class ReplaceAdvisoryNumber extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 if (((SpaceWeatherAdvisory) msg).getReplaceAdvisoryNumber().isPresent()) {
-                    fi.fmi.avi.model.swx.AdvisoryNumber advisoryNumber = ((SpaceWeatherAdvisory) msg).getReplaceAdvisoryNumber().get();
+                    final fi.fmi.avi.model.swx.AdvisoryNumber advisoryNumber = ((SpaceWeatherAdvisory) msg).getReplaceAdvisoryNumber().get();
 
                     if (advisoryNumber.getSerialNumber() == 0) {
                         throw new SerializingException("The advisory number is missing the serial number");

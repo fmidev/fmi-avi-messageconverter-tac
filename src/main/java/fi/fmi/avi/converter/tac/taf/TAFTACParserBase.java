@@ -731,8 +731,7 @@ public abstract class TAFTACParserBase<T extends TAF> extends AbstractTACParser<
                         if (layer != null) {
                             layers.add(layer);
                         } else {
-                            result.add(
-                                    new ConversionIssue(ConversionIssue.Type.SYNTAX, "Could not parse token " + match.getTACToken() + " as cloud " + "layer"));
+                            result.add(new ConversionIssue(ConversionIssue.Type.SYNTAX, "Could not parse token " + match.getTACToken() + " as cloud layer"));
                         }
                     }
                 }

@@ -20,17 +20,16 @@ import fi.fmi.avi.model.taf.TAF;
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
 
 public class MissingIssueTimeTest {
-    
+
     @Autowired
     private AviMessageConverter converter;
 
     @Test
-    public void testMissingIssueTime() throws Exception {
-        ConversionResult<TAF> result = this.converter.convertMessage("TAF EFHK=", TACConverter.TAC_TO_TAF_POJO);
+    public void testMissingIssueTime() {
+        final ConversionResult<TAF> result = this.converter.convertMessage("TAF EFHK=", TACConverter.TAC_TO_TAF_POJO);
         assertEquals(ConversionResult.Status.WITH_ERRORS, result.getStatus());
         assertTrue(result.getConvertedMessage().isPresent());
 
     }
-
 
 }

@@ -1,7 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.NEXT_ADVISORY;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.NEXT_ADVISORY_LABEL;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -20,6 +19,7 @@ public class NoFurtherAdvisories extends RegexMatchingLexemeVisitor {
     public NoFurtherAdvisories(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
         super("^NO\\sFURTHER\\sADVISORIES$", prio);
     }
+
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
 
@@ -37,8 +37,7 @@ public class NoFurtherAdvisories extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                StringBuilder builder = new StringBuilder("NO FURTHER ADVISORIES");
-                retval = Optional.of(this.createLexeme(builder.toString(), NEXT_ADVISORY));
+                retval = Optional.of(this.createLexeme("NO FURTHER ADVISORIES", NEXT_ADVISORY));
             }
             return retval;
         }
