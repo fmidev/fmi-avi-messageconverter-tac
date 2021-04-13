@@ -22,7 +22,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR34TestStrictLexing extends AbstractAviMessageTest<String, METAR> {
+public class METAR34TestStrictLexing extends AbstractAviMessageTest<METAR> {
 
     @Override
     public String getJsonFilename() {
@@ -64,7 +64,7 @@ public class METAR34TestStrictLexing extends AbstractAviMessageTest<String, META
 
     @Override
     @Test
-    public void testPOJOToStringSerialiazer() {
+    public void testPOJOToStringSerializer() {
 
     }
 
@@ -79,7 +79,7 @@ public class METAR34TestStrictLexing extends AbstractAviMessageTest<String, META
     }
 
     @Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
+    public Class<? extends METAR> getTokenizerImplementationClass() {
         return METARImpl.class;
     }
 

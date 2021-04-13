@@ -19,7 +19,7 @@ import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.SPECI;
 
-public class SPECI1Test extends AbstractAviMessageTest<String, SPECI> {
+public class SPECI1Test extends AbstractAviMessageTest<SPECI> {
 
     @Override
     public String getJsonFilename() {
@@ -49,7 +49,7 @@ public class SPECI1Test extends AbstractAviMessageTest<String, SPECI> {
     }
 
     @Override
-    public Class<? extends SPECI> getTokenizerImplmentationClass() {
+    public Class<? extends SPECI> getTokenizerImplementationClass() {
         return SPECI.class;
     }
 

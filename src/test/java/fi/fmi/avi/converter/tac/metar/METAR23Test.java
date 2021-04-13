@@ -23,42 +23,39 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR23Test extends AbstractAviMessageTest<String, METAR> {
+public class METAR23Test extends AbstractAviMessageTest<METAR> {
 
 	@Override
 	public String getJsonFilename() {
 		return "metar/metar23.json";
 	}
-	
+
 	@Override
 	public String getMessage() {
-        return "METAR COR EFUT 111115Z 18004KT 150V240 1500 0500SW R04R/1500N R15/M0050D R22L/1200N R04L/P1000U SN VV006 M08/M10 "
-                + "Q1023 RESN TEMPO 9999=";
-    }
-	
-	@Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-		return spacify(new LexemeIdentity[] {
-				METAR_START, CORRECTION, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, VARIABLE_WIND_DIRECTION,
-                HORIZONTAL_VISIBILITY, HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER,
-                CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, RECENT_WEATHER, TREND_CHANGE_INDICATOR,
-                HORIZONTAL_VISIBILITY, END_TOKEN
-		});
+		return "METAR COR EFUT 111115Z 18004KT 150V240 1500 0500SW R04R/1500N R15/M0050D R22L/1200N R04L/P1000U SN VV006 M08/M10 " + "Q1023 RESN TEMPO 9999=";
 	}
 
 	@Override
-    public ConversionSpecification<String, METAR> getParsingSpecification() {
-        return TACConverter.TAC_TO_METAR_POJO;
-    }
-	
-	@Override
-    public ConversionSpecification<METAR, String> getSerializationSpecification() {
-        return TACConverter.METAR_POJO_TO_TAC;
-    }
+	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+		return spacify(
+				new LexemeIdentity[] { METAR_START, CORRECTION, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, VARIABLE_WIND_DIRECTION, HORIZONTAL_VISIBILITY,
+						HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER, CLOUD,
+						AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, RECENT_WEATHER, TREND_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, END_TOKEN });
+	}
 
-    @Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
-        return METARImpl.class;
-    }
+	@Override
+	public ConversionSpecification<String, METAR> getParsingSpecification() {
+		return TACConverter.TAC_TO_METAR_POJO;
+	}
+
+	@Override
+	public ConversionSpecification<METAR, String> getSerializationSpecification() {
+		return TACConverter.METAR_POJO_TO_TAC;
+	}
+
+	@Override
+	public Class<? extends METAR> getTokenizerImplementationClass() {
+		return METARImpl.class;
+	}
 
 }

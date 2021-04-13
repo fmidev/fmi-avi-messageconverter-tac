@@ -24,7 +24,7 @@ import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
-public class TafMissingStartTokenTest extends AbstractAviMessageTest<String, TAF> {
+public class TafMissingStartTokenTest extends AbstractAviMessageTest<TAF> {
 
     @Override
     public String getJsonFilename() {
@@ -72,7 +72,7 @@ public class TafMissingStartTokenTest extends AbstractAviMessageTest<String, TAF
     }
 
     @Override
-    public Class<? extends TAF> getTokenizerImplmentationClass() {
+    public Class<? extends TAF> getTokenizerImplementationClass() {
         return TAFImpl.class;
     }
 

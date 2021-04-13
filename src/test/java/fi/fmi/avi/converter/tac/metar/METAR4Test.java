@@ -23,30 +23,27 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR4Test extends AbstractAviMessageTest<String, METAR> {
-
-	@Override
-	public String getJsonFilename() {
-		return "metar/metar4.json";
-	}
+public class METAR4Test extends AbstractAviMessageTest<METAR> {
 
     @Override
-	public String getMessage() {
-        return "METAR COR EFUT 111115Z 18004KT 150V240 1500 0500N R04R/1500N R15/M0050D R22L/1200N R04L/P1000U SN VV006 M08/M10 "
-                + "Q1023 RESN TEMPO 0900=";
+    public String getJsonFilename() {
+        return "metar/metar4.json";
     }
 
     @Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-		return spacify(new LexemeIdentity[] {
-				METAR_START, CORRECTION, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, VARIABLE_WIND_DIRECTION,
-                HORIZONTAL_VISIBILITY, HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER,
-                CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, RECENT_WEATHER, TREND_CHANGE_INDICATOR,
-                HORIZONTAL_VISIBILITY, END_TOKEN
-		});
-	}
+    public String getMessage() {
+        return "METAR COR EFUT 111115Z 18004KT 150V240 1500 0500N R04R/1500N R15/M0050D R22L/1200N R04L/P1000U SN VV006 M08/M10 " + "Q1023 RESN TEMPO 0900=";
+    }
 
-	@Override
+    @Override
+    public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+        return spacify(
+                new LexemeIdentity[] { METAR_START, CORRECTION, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, VARIABLE_WIND_DIRECTION, HORIZONTAL_VISIBILITY,
+                        HORIZONTAL_VISIBILITY, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, RUNWAY_VISUAL_RANGE, WEATHER, CLOUD,
+                        AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, RECENT_WEATHER, TREND_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, END_TOKEN });
+    }
+
+    @Override
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
@@ -56,8 +53,8 @@ public class METAR4Test extends AbstractAviMessageTest<String, METAR> {
         return TACConverter.METAR_POJO_TO_TAC;
     }
 
-	@Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
+    @Override
+    public Class<? extends METAR> getTokenizerImplementationClass() {
         return METARImpl.class;
     }
 

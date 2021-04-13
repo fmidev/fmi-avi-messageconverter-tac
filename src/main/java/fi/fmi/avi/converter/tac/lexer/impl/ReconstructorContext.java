@@ -1,7 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer.impl;
 
 import static java.util.Optional.empty;
-import static java.util.Optional.of;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,7 @@ public class ReconstructorContext<T extends AviationWeatherMessageOrCollection> 
         final Object value = this.parameters.get(name);
         if (value != null) {
             if (clz.isAssignableFrom(value.getClass())) {
-                retval = of((S) value);
+                retval = Optional.of(clz.cast(value));
             }
         }
         return retval;

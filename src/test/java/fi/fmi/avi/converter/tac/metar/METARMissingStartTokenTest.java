@@ -25,7 +25,7 @@ import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METARMissingStartTokenTest extends AbstractAviMessageTest<String, METAR> {
+public class METARMissingStartTokenTest extends AbstractAviMessageTest<METAR> {
 
     @Override
     public String getJsonFilename() {
@@ -73,7 +73,7 @@ public class METARMissingStartTokenTest extends AbstractAviMessageTest<String, M
     }
 
     @Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
+    public Class<? extends METAR> getTokenizerImplementationClass() {
         return METARImpl.class;
     }
 

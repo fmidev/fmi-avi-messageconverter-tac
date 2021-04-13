@@ -24,7 +24,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.metar.SPECI;
 
-public class SPECIMissingStartTokenTest extends AbstractAviMessageTest<String, SPECI> {
+public class SPECIMissingStartTokenTest extends AbstractAviMessageTest<SPECI> {
 
     @Override
     public String getJsonFilename() {
@@ -72,7 +72,7 @@ public class SPECIMissingStartTokenTest extends AbstractAviMessageTest<String, S
     }
 
     @Override
-    public Class<? extends SPECI> getTokenizerImplmentationClass() {
+    public Class<? extends SPECI> getTokenizerImplementationClass() {
         return SPECI.class;
     }
 

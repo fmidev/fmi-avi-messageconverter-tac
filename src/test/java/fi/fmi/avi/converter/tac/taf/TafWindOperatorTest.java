@@ -20,7 +20,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
-public class TafWindOperatorTest extends AbstractAviMessageTest<String, TAF> {
+public class TafWindOperatorTest extends AbstractAviMessageTest<TAF> {
 
     @Override
     public String getJsonFilename() {
@@ -57,7 +57,7 @@ public class TafWindOperatorTest extends AbstractAviMessageTest<String, TAF> {
     }
 
     @Override
-    public Class<? extends TAF> getTokenizerImplmentationClass() {
+    public Class<? extends TAF> getTokenizerImplementationClass() {
         return TAFImpl.class;
     }
 

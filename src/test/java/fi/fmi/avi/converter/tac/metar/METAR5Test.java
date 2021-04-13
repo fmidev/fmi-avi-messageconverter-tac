@@ -17,27 +17,25 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR5Test extends AbstractAviMessageTest<String, METAR> {
-
-	@Override
-	public String getJsonFilename() {
-		return "metar/metar5.json";
-	}
+public class METAR5Test extends AbstractAviMessageTest<METAR> {
 
     @Override
-	public String getMessage() {
+    public String getJsonFilename() {
+        return "metar/metar5.json";
+    }
+
+    @Override
+    public String getMessage() {
         return "METAR EFTU 011350Z AUTO VRB02KT CAVOK 22/12 Q1008=";
     }
 
-	@Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-		return spacify(new LexemeIdentity[] {
-				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, CAVOK, AIR_DEWPOINT_TEMPERATURE,
-                AIR_PRESSURE_QNH, END_TOKEN
-		});
-	}
+    @Override
+    public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+        return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, CAVOK, AIR_DEWPOINT_TEMPERATURE,
+                AIR_PRESSURE_QNH, END_TOKEN });
+    }
 
-	@Override
+    @Override
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
@@ -47,8 +45,8 @@ public class METAR5Test extends AbstractAviMessageTest<String, METAR> {
         return TACConverter.METAR_POJO_TO_TAC;
     }
 
-	@Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
+    @Override
+    public Class<? extends METAR> getTokenizerImplementationClass() {
         return METARImpl.class;
     }
 
