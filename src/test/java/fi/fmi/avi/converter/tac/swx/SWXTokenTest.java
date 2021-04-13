@@ -37,16 +37,16 @@ public class SWXTokenTest {
 
     @Test
     public void advisoryStatusVisitIfMatchedTest() {
-        final String LABEL = "STATUS:";
-        final String FIELD_VALUE = "TEST";
+        final String label = "STATUS:";
+        final String fieldValue = "TEST";
         final LexemeIdentity LABEL_ID = LexemeIdentity.ADVISORY_STATUS_LABEL;
         final RegexMatchingLexemeVisitor VISITOR = new AdvisoryStatus(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
         final Pattern pattern = VISITOR.getPattern();
-        final Matcher matcher = pattern.matcher(FIELD_VALUE);
+        final Matcher matcher = pattern.matcher(fieldValue);
         assertTrue(matcher.matches());
 
-        final Map<String, Lexeme> resultset = visitIfMatchedTest(LABEL, LABEL_ID, FIELD_VALUE, matcher, VISITOR);
+        final Map<String, Lexeme> resultset = visitIfMatchedTest(label, LABEL_ID, fieldValue, matcher, VISITOR);
 
         assertNull(resultset.get(NO_PREVIOUS).getIdentity());
         assertNull(resultset.get(NULL_PREVIOUS).getIdentity());
@@ -59,16 +59,16 @@ public class SWXTokenTest {
 
     @Test
     public void replaceAdvisoryNumberVisitIfMatchedTest() {
-        final String LABEL = "NR RPLC:";
-        final String FIELD_VALUE = "2020/15";
+        final String label = "NR RPLC:";
+        final String fieldValue = "2020/15";
         final LexemeIdentity LABEL_ID = LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL;
         final ReplaceAdvisoryNumber VISITOR = new ReplaceAdvisoryNumber(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
         final Pattern pattern = VISITOR.getPattern();
-        final Matcher matcher = pattern.matcher(FIELD_VALUE);
+        final Matcher matcher = pattern.matcher(fieldValue);
         assertTrue(matcher.matches());
 
-        final Map<String, Lexeme> resultset = visitIfMatchedTest(LABEL, LABEL_ID, FIELD_VALUE, matcher, VISITOR);
+        final Map<String, Lexeme> resultset = visitIfMatchedTest(label, LABEL_ID, fieldValue, matcher, VISITOR);
 
         assertNull(resultset.get(NO_PREVIOUS).getIdentity());
         assertNull(resultset.get(NULL_PREVIOUS).getIdentity());
@@ -82,15 +82,15 @@ public class SWXTokenTest {
 
     @Test
     public void nextAdvisoryByVisitIfMatchedTest() {
-        final String FIELD_VALUE = "WILL BE ISSUED BY 20161108/0700Z";
-        final Lexeme result = nextAdvisoryVisitIfMatchedTest(FIELD_VALUE);
+        final String fieldValue = "WILL BE ISSUED BY 20161108/0700Z";
+        final Lexeme result = nextAdvisoryVisitIfMatchedTest(fieldValue);
 
         assertEquals(LexemeIdentity.NEXT_ADVISORY, result.getIdentity());
-        assertEquals(new Integer(2016), result.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class));
-        assertEquals(new Integer(11), result.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class));
-        assertEquals(new Integer(8), result.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class));
-        assertEquals(new Integer(7), result.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class));
-        assertEquals(new Integer(0), result.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class));
+        assertEquals(Integer.valueOf(2016), result.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class));
+        assertEquals(Integer.valueOf(11), result.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class));
+        assertEquals(Integer.valueOf(8), result.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class));
+        assertEquals(Integer.valueOf(7), result.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class));
+        assertEquals(Integer.valueOf(0), result.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class));
 
         assertEquals(fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_BY,
                 result.getParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.class));
@@ -98,38 +98,38 @@ public class SWXTokenTest {
 
     @Test
     public void nextAdvisoryAtVisitIfMatchedTest() {
-        final String FIELD_VALUE = "20161108/0700Z";
-        final Lexeme result = nextAdvisoryVisitIfMatchedTest(FIELD_VALUE);
+        final String fieldValue = "20161108/0700Z";
+        final Lexeme result = nextAdvisoryVisitIfMatchedTest(fieldValue);
 
         assertEquals(LexemeIdentity.NEXT_ADVISORY, result.getIdentity());
-        assertEquals(new Integer(2016), result.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class));
-        assertEquals(new Integer(11), result.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class));
-        assertEquals(new Integer(8), result.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class));
-        assertEquals(new Integer(7), result.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class));
-        assertEquals(new Integer(0), result.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class));
+        assertEquals(Integer.valueOf(2016), result.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class));
+        assertEquals(Integer.valueOf(11), result.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class));
+        assertEquals(Integer.valueOf(8), result.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class));
+        assertEquals(Integer.valueOf(7), result.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class));
+        assertEquals(Integer.valueOf(0), result.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class));
         assertEquals(fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_AT,
                 result.getParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.class));
     }
 
     @Test
     public void noFurtherAdvisoryVisitIfMatchedTest() {
-        final String FIELD_VALUE = "NO FURTHER ADVISORIES";
-        final Lexeme result = nextAdvisoryVisitIfMatchedTest(FIELD_VALUE);
+        final String fieldValue = "NO FURTHER ADVISORIES";
+        final Lexeme result = nextAdvisoryVisitIfMatchedTest(fieldValue);
 
         assertEquals(fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES,
                 result.getParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.class));
     }
 
     public Lexeme nextAdvisoryVisitIfMatchedTest(final String FIELD_VALUE) {
-        final String LABEL = "NXT ADVISORY:";
-        final LexemeIdentity LABEL_ID = LexemeIdentity.NEXT_ADVISORY_LABEL;
-        final RegexMatchingLexemeVisitor VISITOR = new NextAdvisory(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
+        final String label = "NXT ADVISORY:";
+        final LexemeIdentity labelId = LexemeIdentity.NEXT_ADVISORY_LABEL;
+        final RegexMatchingLexemeVisitor visitor = new NextAdvisory(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
-        final Pattern pattern = VISITOR.getPattern();
+        final Pattern pattern = visitor.getPattern();
         final Matcher matcher = pattern.matcher(FIELD_VALUE);
         assertTrue(matcher.matches());
 
-        final Map<String, Lexeme> resultset = visitIfMatchedTest(LABEL, LABEL_ID, FIELD_VALUE, matcher, VISITOR);
+        final Map<String, Lexeme> resultset = visitIfMatchedTest(label, labelId, FIELD_VALUE, matcher, visitor);
 
         assertNull(resultset.get(NO_PREVIOUS).getIdentity());
         assertNull(resultset.get(NULL_PREVIOUS).getIdentity());
@@ -140,16 +140,16 @@ public class SWXTokenTest {
 
     @Test
     public void advisoryNumberVisitIfMatchedTest() {
-        final String LABEL = "ADVISORY NR:";
-        final String FIELD_VALUE = "2020/30";
-        final LexemeIdentity LABEL_ID = LexemeIdentity.ADVISORY_NUMBER_LABEL;
+        final String label = "ADVISORY NR:";
+        final String fieldValue = "2020/30";
+        final LexemeIdentity labelId = LexemeIdentity.ADVISORY_NUMBER_LABEL;
         final RegexMatchingLexemeVisitor VISITOR = new AdvisoryNumber(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
         final Pattern pattern = VISITOR.getPattern();
-        final Matcher matcher = pattern.matcher(FIELD_VALUE);
+        final Matcher matcher = pattern.matcher(fieldValue);
         assertTrue(matcher.matches());
 
-        final Map<String, Lexeme> resultset = visitIfMatchedTest(LABEL, LABEL_ID, FIELD_VALUE, matcher, VISITOR);
+        final Map<String, Lexeme> resultset = visitIfMatchedTest(label, labelId, fieldValue, matcher, VISITOR);
 
         assertEquals(LexemeIdentity.ADVISORY_NUMBER, resultset.get(CORRECT_PREVIOUS).getIdentity());
         final AdvisoryNumberImpl advisoryNumber = resultset.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumberImpl.class);
@@ -160,42 +160,43 @@ public class SWXTokenTest {
 
     @Test
     public void swxCenterVisitIfMatchedTest() {
-        final String LABEL = "SWXC:";
-        final String FIELD_VALUE = "DONLON";
-        final LexemeIdentity LABEL_ID = LexemeIdentity.SWX_CENTRE_LABEL;
-        final SWXCenter VISITOR = new SWXCenter(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
+        final String label = "SWXC:";
+        final String fieldValue = "DONLON";
+        final LexemeIdentity labelId = LexemeIdentity.SWX_CENTRE_LABEL;
+        final SWXCenter visitor = new SWXCenter(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
-        final Pattern pattern = VISITOR.getPattern();
-        final Matcher matcher = pattern.matcher(FIELD_VALUE);
+        final Pattern pattern = visitor.getPattern();
+        final Matcher matcher = pattern.matcher(fieldValue);
         assertTrue(matcher.matches());
 
-        final Map<String, Lexeme> resultset = visitIfMatchedTest(LABEL, LABEL_ID, FIELD_VALUE, matcher, VISITOR);
+        final Map<String, Lexeme> resultset = visitIfMatchedTest(label, labelId, fieldValue, matcher, visitor);
 
         assertNull(resultset.get(NO_PREVIOUS).getIdentity());
         assertNull(resultset.get(NULL_PREVIOUS).getIdentity());
         assertNull(resultset.get(WRONG_ID_PREVIOUS).getIdentity());
 
-        resultset.get(CORRECT_PREVIOUS);
+        assertEquals(LexemeIdentity.SWX_CENTRE, resultset.get(CORRECT_PREVIOUS).getIdentity());
     }
 
     @Test
-    public void AdvisoryTimeGroupVisitIfMatchedTest() {
-        final String LABEL = "NR RPLC:";
-        final String FIELD_VALUE = "08/1254Z";
-        final LexemeIdentity LABEL_ID = LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL;
-        final AdvisoryPhenomenaTimeGroup VISITOR = new AdvisoryPhenomenaTimeGroup(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
+    public void advisoryTimeGroupVisitIfMatchedTest() {
+        final String label = "NR RPLC:";
+        final String fieldValue = "08/1254Z";
+        final LexemeIdentity labelId = LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL;
+        final AdvisoryPhenomenaTimeGroup visitor = new AdvisoryPhenomenaTimeGroup(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
 
-        final Pattern pattern = VISITOR.getPattern();
-        final Matcher matcher = pattern.matcher(FIELD_VALUE);
+        final Pattern pattern = visitor.getPattern();
+        final Matcher matcher = pattern.matcher(fieldValue);
         assertTrue(matcher.matches());
 
-        final Map<String, Lexeme> resultset = visitIfMatchedTest(LABEL, LABEL_ID, FIELD_VALUE, matcher, VISITOR);
+        final Map<String, Lexeme> resultset = visitIfMatchedTest(label, labelId, fieldValue, matcher, visitor);
 
         assertNull(resultset.get(NO_PREVIOUS).getIdentity());
         assertNull(resultset.get(NULL_PREVIOUS).getIdentity());
         assertNull(resultset.get(WRONG_ID_PREVIOUS).getIdentity());
 
-        resultset.get(CORRECT_PREVIOUS);
+        // FIXME: What's the intent?
+        //        resultset.get(CORRECT_PREVIOUS);
     }
 
     public Map<String, Lexeme> visitIfMatchedTest(final String previousToken, final LexemeIdentity previousTokenId, final String fielValue,
