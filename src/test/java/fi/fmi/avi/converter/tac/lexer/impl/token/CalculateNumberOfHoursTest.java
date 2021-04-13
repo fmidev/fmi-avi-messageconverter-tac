@@ -1,8 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -85,13 +84,8 @@ public class CalculateNumberOfHoursTest {
 
     @Test
     public void testSpanToNextMonthStartHoursLessThanEndHours_starts27th_illegal() {
-        try {
-            final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("2708/0122");
-            final int hours = ValidTime.calculateNumberOfHours(period);
-            fail("hours should not have been calculated " + hours);
-        } catch (final Exception e) {
-            assertTrue(e instanceof IllegalArgumentException);
-        }
+        assertThrows("hours should not have been calculated", IllegalArgumentException.class,
+                () -> ValidTime.calculateNumberOfHours(PartialOrCompleteTimePeriod.createValidityTime("2708/0122")));
     }
 
     @Test
@@ -105,13 +99,8 @@ public class CalculateNumberOfHoursTest {
 
     @Test
     public void testIllegalSpanTooLong() {
-        try {
-            final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("1522/0108");
-            final int hours = ValidTime.calculateNumberOfHours(period);
-            fail("hours should not have been calculated " + hours);
-        } catch (final Exception e) {
-            assertTrue(e instanceof IllegalArgumentException);
-        }
+        assertThrows("hours should not have been calculated", IllegalArgumentException.class,
+                () -> ValidTime.calculateNumberOfHours(PartialOrCompleteTimePeriod.createValidityTime("1522/0108")));
     }
 
 }
