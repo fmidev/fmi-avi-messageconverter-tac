@@ -28,7 +28,6 @@ public class ReplaceAdvisoryNumberLabel extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 if (((SpaceWeatherAdvisory) msg).getReplaceAdvisoryNumber().isPresent()) {
-
                     retval = Optional.of(this.createLexeme("NR RPLC:", LexemeIdentity.REPLACE_ADVISORY_NUMBER));
                 }
             }
