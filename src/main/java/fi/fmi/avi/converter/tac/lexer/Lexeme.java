@@ -26,8 +26,8 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.YEAR;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -567,10 +567,10 @@ public interface Lexeme {
         BULLETIN_HEADING_LOCATION_INDICATOR(VALUE),
         BULLETIN_HEADING_BBB_INDICATOR(VALUE, SEQUENCE_NUMBER);
 
-        private final Set<ParsedValueName> possibleParameters = new HashSet<>();
+        private final Set<ParsedValueName> possibleParameters;
 
         Identity(final ParsedValueName... names) {
-            possibleParameters.addAll(Arrays.asList(names));
+            possibleParameters = names.length == 0 ? Collections.emptySet() : Collections.unmodifiableSet(EnumSet.of(names[0], names));
         }
 
         public Set<ParsedValueName> getPossibleNames() {

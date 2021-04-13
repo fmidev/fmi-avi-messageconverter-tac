@@ -47,7 +47,7 @@ public class LexingFactoryImpl implements LexingFactory {
     }
 
     public void addTokenCombiningRule(final List<Predicate<String>> rule) {
-        this.tokenCombiningRules.add(rule);
+        this.tokenCombiningRules.add(Collections.unmodifiableList(new ArrayList<>(rule)));
     }
 
     public void setMessageStartToken(final MessageType type, final Lexeme token) {
@@ -56,7 +56,7 @@ public class LexingFactoryImpl implements LexingFactory {
 
     @Override
     public List<List<Predicate<String>>> getTokenCombiningRules() {
-        return this.tokenCombiningRules;
+        return Collections.unmodifiableList(this.tokenCombiningRules);
     }
 
     @Override
