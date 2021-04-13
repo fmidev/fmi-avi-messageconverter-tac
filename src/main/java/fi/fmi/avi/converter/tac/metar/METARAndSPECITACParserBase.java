@@ -33,6 +33,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator.TrendChangeIndicatorType;
 import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup.TrendTimePeriodType;
 import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
@@ -1086,9 +1087,9 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                builder.setStatus(AviationCodeListUser.MetarStatus.CORRECTION);
+                builder.setReportStatus(AviationWeatherMessage.ReportStatus.CORRECTION);
             }
-        }, () -> builder.setStatus(AviationCodeListUser.MetarStatus.NORMAL));
+        }, () -> builder.setReportStatus(AviationWeatherMessage.ReportStatus.NORMAL));
 
         obs.getFirstLexeme().findNext(LexemeIdentity.AERODROME_DESIGNATOR, (match) -> {
             final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.ISSUE_TIME, LexemeIdentity.ROUTINE_DELAYED_OBSERVATION, LexemeIdentity.NIL,
@@ -1147,7 +1148,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             if (issue != null) {
                 result.addIssue(issue);
             } else {
-                builder.setStatus(AviationCodeListUser.MetarStatus.MISSING);
+                builder.setMissingMessage(true);
                 if (match.getNext() != null) {
                     final LexemeIdentity nextTokenId = match.getNext().getIdentityIfAcceptable();
                     if (LexemeIdentity.END_TOKEN != nextTokenId && LexemeIdentity.REMARKS_START != nextTokenId) {
@@ -1157,7 +1158,7 @@ public abstract class METARAndSPECITACParserBase<T extends MeteorologicalTermina
             }
         });
 
-        if (AviationCodeListUser.MetarStatus.MISSING == builder.getStatus()) {
+        if (builder.isMissingMessage()) {
             result.setConvertedMessage(buildUsing(builder));
             return result;
         }

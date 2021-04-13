@@ -132,7 +132,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
 
     private GenericMeteorologicalBulletin createGenericBulletin(final String message) {
         final GenericMeteorologicalBulletinImpl.Builder builder = createBulletinBuilder();
-        builder.addMessages(new GenericAviationWeatherMessageImpl.Builder()//
+        builder.addMessages(GenericAviationWeatherMessageImpl.builder()//
                 .setOriginalMessage(message)//
                 .setTranslated(false)//
                 .setMessageFormat(GenericAviationWeatherMessage.Format.TAC)//

@@ -111,7 +111,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             } else {
                 msg = subSequences.get(i).trimWhiteSpace().getTAC();
             }
-            final GenericAviationWeatherMessageImpl.Builder msgBuilder = new GenericAviationWeatherMessageImpl.Builder();
+            final GenericAviationWeatherMessageImpl.Builder msgBuilder = GenericAviationWeatherMessageImpl.builder();
             Optional<MessageType> messageType = this.lexer.recognizeMessageType(msg, hints);
             if (!messageType.isPresent() || MessageType.GENERIC.equals(messageType.get())) {
                 //Fallback: check a hint for contained message type:
