@@ -261,7 +261,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
         }
 
         private long getAsHectoFeet(final NumericMeasure value) throws SerializingException {
-            long hftValue = -1L;
+            final long hftValue;
             if (value != null) {
                 if ("hft".equalsIgnoreCase(value.getUom())) {
                     hftValue = Math.round(value.getValue());

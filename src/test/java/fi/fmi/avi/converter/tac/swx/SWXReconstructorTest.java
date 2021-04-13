@@ -52,7 +52,7 @@ public class SWXReconstructorTest {
     private ReconstructorContext<SpaceWeatherAdvisory> ctx;
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
 
