@@ -80,12 +80,9 @@ public class TrendTimeGroup extends TimeHandlingRegex {
                 }
                 if (validity != null) {
                     switch (trend.get().getChangeIndicator()) {
-                        case BECOMING: {
+                        case BECOMING:
+                        case TEMPORARY_FLUCTUATIONS:
                             return createTrendTimeChangePeriods(validity);
-                        }
-                        case TEMPORARY_FLUCTUATIONS: {
-                            return createTrendTimeChangePeriods(validity);
-                        }
                     }
                 }
             }
