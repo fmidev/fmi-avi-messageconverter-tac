@@ -439,7 +439,6 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         //2. Create regions applying limits
         final List<SpaceWeatherRegion> regionList = new ArrayList<>();
-        SpaceWeatherRegionImpl.Builder regionBuilder;
 
         if (polygonLimit.isPresent()) {
             //Explicit polygon limit provided, create a single airspace volume with no location indicator:
@@ -463,23 +462,18 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                 regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
             }
             while (l != null) {
-                final Optional<SpaceWeatherRegion.SpaceWeatherLocation> location = Optional.ofNullable(
-                        l.getParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.class));
-                if (location.isPresent()) {
+                final SpaceWeatherRegion.SpaceWeatherLocation location = l.getParsedValue(Lexeme.ParsedValueName.VALUE,
+                        SpaceWeatherRegion.SpaceWeatherLocation.class);
+                if (location != null) {
                     checkLexemeOrder(issues, l, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
-                    regionBuilder = SpaceWeatherRegionImpl.builder();
-                    regionBuilder.setLocationIndicator(location);
-                    if (minLongitude.isPresent()) {
-                        regionBuilder.setLongitudeLimitMinimum(minLongitude.get());
-                    }
-                    if (maxLongitude.isPresent()) {
-                        regionBuilder.setLongitudeLimitMaximum(maxLongitude.get());
-                    }
+                    final SpaceWeatherRegionImpl.Builder regionBuilder = SpaceWeatherRegionImpl.builder()//
+                            .setLocationIndicator(location);
+                    minLongitude.ifPresent(regionBuilder::setLongitudeLimitMinimum);
+                    maxLongitude.ifPresent(regionBuilder::setLongitudeLimitMaximum);
 
-                    if (!location.get().equals(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE)) {
-                        final Geometry geometry = buildGeometry(location.get().getLatitudeBandMinCoordinate().get(), minLongitude.orElse(-180d),
-                                location.get().getLatitudeBandMaxCoordinate().get(), maxLongitude.orElse(180d));
-
+                    if (location.getLatitudeBandMinCoordinate().isPresent() && location.getLatitudeBandMaxCoordinate().isPresent()) {
+                        final Geometry geometry = buildGeometry(location.getLatitudeBandMinCoordinate().get(), minLongitude.orElse(-180d),
+                                location.getLatitudeBandMaxCoordinate().get(), maxLongitude.orElse(180d));
                         final AirspaceVolume volume = buildAirspaceVolume(geometry, lowerLimit, upperLimit, verticalLimitOperator, issues);
                         regionBuilder.setAirSpaceVolume(volume);
                     }

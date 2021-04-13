@@ -8,7 +8,6 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.HORIZONTAL_VISIBILIT
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -196,53 +195,53 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             final List<Lexeme> retval = new ArrayList<>();
 
-            Optional<NumericMeasure> visibility = Optional.empty();
-            Optional<RelationalOperator> operator = Optional.empty();
+            NumericMeasure visibility = null;
+            RelationalOperator operator = null;
 
-            Optional<NumericMeasure> minimumVisibilityDistance = Optional.empty();
-            Optional<NumericMeasure> minimumVisibilityDirection = Optional.empty();
+            NumericMeasure minimumVisibilityDistance = null;
+            NumericMeasure minimumVisibilityDirection = null;
 
-            final Optional<TAFBaseForecast> base = ctx.getParameter("forecast", TAFBaseForecast.class);
-            if (base.isPresent()) {
-                visibility = base.get().getPrevailingVisibility();
-                operator = base.get().getPrevailingVisibilityOperator();
+            final TAFBaseForecast base = ctx.getParameter("forecast", TAFBaseForecast.class).orElse(null);
+            if (base != null) {
+                visibility = base.getPrevailingVisibility().orElse(null);
+                operator = base.getPrevailingVisibilityOperator().orElse(null);
             } else {
-                final Optional<TAFChangeForecast> change = ctx.getParameter("forecast", TAFChangeForecast.class);
-                if (change.isPresent()) {
-                    visibility = change.get().getPrevailingVisibility();
-                    operator = change.get().getPrevailingVisibilityOperator();
+                final TAFChangeForecast change = ctx.getParameter("forecast", TAFChangeForecast.class).orElse(null);
+                if (change != null) {
+                    visibility = change.getPrevailingVisibility().orElse(null);
+                    operator = change.getPrevailingVisibilityOperator().orElse(null);
                 } else {
-                    final Optional<TrendForecast> metarTrend = ctx.getParameter("trend", TrendForecast.class);
-                    if (metarTrend.isPresent()) {
-                        visibility = metarTrend.get().getPrevailingVisibility();
-                        operator = metarTrend.get().getPrevailingVisibilityOperator();
+                    final TrendForecast metarTrend = ctx.getParameter("trend", TrendForecast.class).orElse(null);
+                    if (metarTrend != null) {
+                        visibility = metarTrend.getPrevailingVisibility().orElse(null);
+                        operator = metarTrend.getPrevailingVisibilityOperator().orElse(null);
                     } else if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
-                        final Optional<HorizontalVisibility> vis = ((MeteorologicalTerminalAirReport) msg).getVisibility();
-                        if (vis.isPresent()) {
-                            visibility = Optional.of(vis.get().getPrevailingVisibility());
-                            operator = vis.get().getPrevailingVisibilityOperator();
-                            minimumVisibilityDistance = vis.get().getMinimumVisibility();
-                            minimumVisibilityDirection = vis.get().getMinimumVisibilityDirection();
+                        final HorizontalVisibility vis = ((MeteorologicalTerminalAirReport) msg).getVisibility().orElse(null);
+                        if (vis != null) {
+                            visibility = vis.getPrevailingVisibility();
+                            operator = vis.getPrevailingVisibilityOperator().orElse(null);
+                            minimumVisibilityDistance = vis.getMinimumVisibility().orElse(null);
+                            minimumVisibilityDirection = vis.getMinimumVisibilityDirection().orElse(null);
                         }
                     }
                 }
             }
 
-            if (visibility.isPresent()) {
+            if (visibility != null) {
                 final String str;
 
-                if ("m".equals(visibility.get().getUom())) {
-                    str = createMetricIntegerVisibility(visibility.get(), operator);
-                } else if ("sm".equals(visibility.get().getUom())) {
-                    str = createStatuteMilesVisibility(visibility.get(), operator);
+                if ("m".equals(visibility.getUom())) {
+                    str = createMetricIntegerVisibility(visibility, operator);
+                } else if ("sm".equals(visibility.getUom())) {
+                    str = createStatuteMilesVisibility(visibility, operator);
                 } else {
-                    throw new SerializingException("Unknown unit of measure '" + visibility.get().getUom() + "' for visibility");
+                    throw new SerializingException("Unknown unit of measure '" + visibility.getUom() + "' for visibility");
                 }
 
                 retval.add(this.createLexeme(str, LexemeIdentity.HORIZONTAL_VISIBILITY));
 
-                if (minimumVisibilityDistance.isPresent() && minimumVisibilityDirection.isPresent()) {
-                    final String tmp = createMinimumVisibilityString(minimumVisibilityDistance.get(), minimumVisibilityDirection.get());
+                if (minimumVisibilityDistance != null && minimumVisibilityDirection != null) {
+                    final String tmp = createMinimumVisibilityString(minimumVisibilityDistance, minimumVisibilityDirection);
                     retval.add(createLexeme(" ", LexemeIdentity.WHITE_SPACE));
                     retval.add(this.createLexeme(tmp, LexemeIdentity.HORIZONTAL_VISIBILITY));
                 }
@@ -304,7 +303,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
             return String.format("%04d%s", meters, compass);
         }
 
-        private String createMetricIntegerVisibility(final NumericMeasure visibility, final Optional<RelationalOperator> operator) throws SerializingException {
+        private String createMetricIntegerVisibility(final NumericMeasure visibility, final RelationalOperator operator) throws SerializingException {
             final String str;
 
             final int meters = visibility.getValue().intValue();
@@ -312,9 +311,9 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
                 throw new SerializingException("Visibility " + meters + " must be positive");
             }
 
-            if (operator.isPresent() && operator.get() == RelationalOperator.BELOW && meters <= 50) {
+            if (operator == RelationalOperator.BELOW && meters <= 50) {
                 str = "0000";
-            } else if (operator.isPresent() && operator.get() == RelationalOperator.ABOVE && meters >= 9999) {
+            } else if (operator == RelationalOperator.ABOVE && meters >= 9999) {
                 str = "9999";
             } else {
                 str = String.format("%04d", meters);
@@ -323,12 +322,12 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
             return str;
         }
 
-        private String createStatuteMilesVisibility(final NumericMeasure visibility, final Optional<RelationalOperator> operator) {
+        private String createStatuteMilesVisibility(final NumericMeasure visibility, final RelationalOperator operator) {
             final StringBuilder builder = new StringBuilder();
 
-            if (operator.isPresent() && operator.get() == RelationalOperator.ABOVE) {
+            if (operator == RelationalOperator.ABOVE) {
                 builder.append("P");
-            } else if (operator.isPresent() && operator.get() == RelationalOperator.BELOW) {
+            } else if (operator == RelationalOperator.BELOW) {
                 builder.append("M");
             }
 

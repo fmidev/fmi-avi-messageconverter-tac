@@ -69,37 +69,33 @@ public class IssueTime extends TimeHandlingRegex {
 
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
-            final PartialOrCompleteTimeInstant time;
-            if (AerodromeWeatherMessage.class.isAssignableFrom(clz)) {
-                if (((AerodromeWeatherMessage) msg).getIssueTime().isPresent()) {
-                    time = ((AerodromeWeatherMessage) msg).getIssueTime().get();
-                } else {
-                    return Optional.empty();
-                }
+            return getIssueTime(msg, clz)//
+                    .flatMap(issueTime -> formatIssueTime(issueTime, clz))//
+                    .map(formattedIssueTime -> this.createLexeme(formattedIssueTime, LexemeIdentity.ISSUE_TIME));
+        }
+
+        private <T extends AviationWeatherMessageOrCollection> Optional<PartialOrCompleteTimeInstant> getIssueTime(final T msg, final Class<T> clz) {
+            if (AviationWeatherMessage.class.isAssignableFrom(clz)) {
+                return ((AerodromeWeatherMessage) msg).getIssueTime();
             } else if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
-                time = ((MeteorologicalBulletin<?>) msg).getHeading().getIssueTime();
-            } else if (AviationWeatherMessage.class.isAssignableFrom(clz)) {
-                final AviationWeatherMessage aviMsg = (AviationWeatherMessage) msg;
-                if (aviMsg.getIssueTime().isPresent()) {
-                    time = aviMsg.getIssueTime().get();
-                } else {
-                    return Optional.empty();
-                }
+                return Optional.of(((MeteorologicalBulletin<?>) msg).getHeading().getIssueTime());
             } else {
                 return Optional.empty();
             }
-            final String format;
-            if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
-                format = "%02d%02d%02d";
-            } else if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                return Optional.of(
-                        this.createLexeme(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")), LexemeIdentity.ISSUE_TIME));
-            } else {
-                format = "%02d%02d%02dZ";
-            }
-            return Optional.of(this.createLexeme(String.format(format, time.getDay().orElse(-1), time.getHour().orElse(-1), time.getMinute().orElse(-1)),
-                    LexemeIdentity.ISSUE_TIME));
         }
+
+        private <T extends AviationWeatherMessageOrCollection> Optional<String> formatIssueTime(final PartialOrCompleteTimeInstant time, final Class<T> clz) {
+            final Optional<String> formattedIssueTime;
+            if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
+                formattedIssueTime = time.getCompleteTime()//
+                        .map(completeTime -> completeTime.format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
+            } else {
+                final String format = MeteorologicalBulletin.class.isAssignableFrom(clz) ? "%02d%02d%02d" : "%02d%02d%02dZ";
+                formattedIssueTime = Optional.of(String.format(format, time.getDay().orElse(-1), time.getHour().orElse(-1), time.getMinute().orElse(-1)));
+            }
+            return formattedIssueTime;
+        }
+
     }
 
 }

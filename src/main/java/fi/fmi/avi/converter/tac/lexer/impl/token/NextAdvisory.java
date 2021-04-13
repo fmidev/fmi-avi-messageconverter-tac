@@ -81,11 +81,9 @@ public class NextAdvisory extends TimeHandlingRegex {
                 } else if (nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES)) {
                     builder.append("NO FURTHER ADVISORIES");
                 }
-
-                if (nextAdvisory.getTime().isPresent()) {
-                    final PartialOrCompleteTimeInstant time = nextAdvisory.getTime().get();
-                    builder.append(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
-                }
+                nextAdvisory.getTime()//
+                        .flatMap(PartialOrCompleteTimeInstant::getCompleteTime)//
+                        .ifPresent(completeTime -> builder.append(completeTime.format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'"))));
 
                 retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.NEXT_ADVISORY));
             }

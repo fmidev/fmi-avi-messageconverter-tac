@@ -52,16 +52,13 @@ public class DTGIssueTime extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
-            Optional<Lexeme> retval = Optional.empty();
-            if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                final SpaceWeatherAdvisory swx = ((SpaceWeatherAdvisory) msg);
-                if (swx.getIssueTime().isPresent()) {
-                    final PartialOrCompleteTimeInstant time = swx.getIssueTime().get();
-                    retval = Optional.of(
-                            this.createLexeme(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")), LexemeIdentity.ISSUE_TIME));
-                }
+            if (!SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
+                return Optional.empty();
             }
-            return retval;
+            final SpaceWeatherAdvisory swx = ((SpaceWeatherAdvisory) msg);
+            return swx.getIssueTime()//
+                    .flatMap(PartialOrCompleteTimeInstant::getCompleteTime)
+                    .map(completeTime -> this.createLexeme(completeTime.format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")), LexemeIdentity.ISSUE_TIME));
         }
     }
 
