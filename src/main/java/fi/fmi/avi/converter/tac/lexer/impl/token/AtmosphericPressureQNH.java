@@ -69,7 +69,7 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
-            NumericMeasure altimeter = null;
+            final NumericMeasure altimeter;
 
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
                 final Optional<NumericMeasure> qnh = ((MeteorologicalTerminalAirReport) msg).getAltimeterSettingQNH();
@@ -79,7 +79,7 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
                         throw new SerializingException("AltimeterSettingQNH is missing the value");
                     }
 
-                    String unit = null;
+                    final String unit;
                     if ("hPa".equals(altimeter.getUom())) {
                         unit = "Q";
                     } else if ("in Hg".equals(altimeter.getUom())) {

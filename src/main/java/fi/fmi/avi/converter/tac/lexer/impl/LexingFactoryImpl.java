@@ -167,7 +167,7 @@ public class LexingFactoryImpl implements LexingFactory {
             final List<LexemeSequence> retval = new ArrayList<>();
             LexemeSequenceBuilder builder = new LexemeSequenceBuilderImpl(this.factory);
             LexemeImpl l = this.head;
-            boolean matchFound = false;
+            boolean matchFound;
             while (l != null) {
                 matchFound = false;
                 for (final LexemeIdentity toMatch : ids) {

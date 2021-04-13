@@ -104,24 +104,20 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
     }
 
     private static Object getRunwayDesignation(final String str) {
-        Object retval = null;
-
         try {
             final int coded = Integer.parseInt(str);
             if (coded == 99) {
-                retval = RunwayStateReportType.REPETITION;
+                return RunwayStateReportType.REPETITION;
             } else if (coded == 88) {
-                retval = RunwayStateReportType.ALL_RUNWAYS;
+                return RunwayStateReportType.ALL_RUNWAYS;
             } else if (coded > 50) {
-                retval = String.format("%02dR", coded - 50);
+                return String.format("%02dR", coded - 50);
             } else {
-                retval = String.format("%02d", coded);
+                return String.format("%02d", coded);
             }
         } catch (final NumberFormatException nfe) {
-            retval = str;
+            return str;
         }
-
-        return retval;
     }
 
     public static RunwayDeposit convertRunwayStateDepositToAPI(final RunwayStateDeposit deposit) {

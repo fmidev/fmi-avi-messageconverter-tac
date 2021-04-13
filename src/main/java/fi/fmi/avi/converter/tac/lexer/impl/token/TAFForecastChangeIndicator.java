@@ -89,7 +89,7 @@ public class TAFForecastChangeIndicator extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         private static String encodeValidityTimeFrom(final PartialOrCompleteTimeInstant instant, final ConversionHints hints) {
-            String retval = null;
+            final String retval;
             boolean useShortFormat = false;
             if (hints != null) {
                 final Object hint = hints.get(ConversionHints.KEY_VALIDTIME_FORMAT);

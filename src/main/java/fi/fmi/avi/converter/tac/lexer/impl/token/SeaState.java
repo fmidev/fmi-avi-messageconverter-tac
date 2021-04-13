@@ -26,11 +26,11 @@ public class SeaState extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        Object seaSurfaceTemperature = null;
-        int temp = -1;
+        final Object seaSurfaceTemperature;
         if ("//".equals(match.group("temp"))) {
             seaSurfaceTemperature = SpecialValue.UNOBSERVABLE_BY_AUTO_SYSTEM;
         } else {
+            int temp;
             temp = Integer.parseInt(match.group("temp"));
             if (match.group("minus") != null) {
                 temp *= -1;
