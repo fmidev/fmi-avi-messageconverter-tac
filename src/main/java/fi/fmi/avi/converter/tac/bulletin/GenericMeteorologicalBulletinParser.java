@@ -235,7 +235,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             msgBuilder.setOriginalMessage(messageSequence.getTAC());
             msgBuilder.setTranslatedTAC(messageSequence.getTAC());
             msgBuilder.setTranslated(true);
-            withTimeForTranslation(hints, (time) -> msgBuilder.setTranslationTime(time));
+            withTimeForTranslation(hints, msgBuilder::setTranslationTime);
             msgBuilder.setNullableTranslatedBulletinID(bulletinID);
             bulletinBuilder.addMessages(msgBuilder.build());
         }
