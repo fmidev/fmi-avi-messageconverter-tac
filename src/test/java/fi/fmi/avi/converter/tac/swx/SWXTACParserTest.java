@@ -1,9 +1,9 @@
 package fi.fmi.avi.converter.tac.swx;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +15,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +62,8 @@ public class SWXTACParserTest {
                        + "FCST SWX +18 HR: 09/0600Z DAYLIGHT SIDE\n"//
                        + "FCST SWX +24 HR: 09/1200Z NO SWX EXP\n"//
                        + "RMK: TEST TEST TEST TEST\n"
-                       + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" + "SEE WWW.PECASUS.ORG \n"
+                       + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" //
+                       + "SEE WWW.PECASUS.ORG \n"
                        + "NXT ADVISORY: WILL BE ISSUED BY 20161108/0700Z\n \n",
         */
 
@@ -109,12 +109,12 @@ public class SWXTACParserTest {
         assertTrue(Arrays.deepEquals(expected, actual));
 
         analysis = analyses.get(4);
-        Assert.assertTrue(analysis.getNilPhenomenonReason().isPresent());
-        Assert.assertEquals(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_PHENOMENON_EXPECTED, analysis.getNilPhenomenonReason().get());
-        Assert.assertEquals(NextAdvisory.Type.NO_FURTHER_ADVISORIES, swx.getNextAdvisory().getTimeSpecifier());
-        Assert.assertTrue(swx.getReplaceAdvisoryNumber().isPresent());
-        Assert.assertEquals(1, swx.getReplaceAdvisoryNumber().get().getSerialNumber());
-        Assert.assertEquals(2016, swx.getReplaceAdvisoryNumber().get().getYear());
+        assertTrue(analysis.getNilPhenomenonReason().isPresent());
+        assertEquals(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_PHENOMENON_EXPECTED, analysis.getNilPhenomenonReason().get());
+        assertEquals(NextAdvisory.Type.NO_FURTHER_ADVISORIES, swx.getNextAdvisory().getTimeSpecifier());
+        assertTrue(swx.getReplaceAdvisoryNumber().isPresent());
+        assertEquals(1, swx.getReplaceAdvisoryNumber().get().getSerialNumber());
+        assertEquals(2016, swx.getReplaceAdvisoryNumber().get().getYear());
     }
 
     @Test
@@ -161,7 +161,7 @@ public class SWXTACParserTest {
         Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
-        assertEquals(r.getAirSpaceVolume().get().getLowerLimit().get().getValue(), 340.0);
+        assertEquals(r.getAirSpaceVolume().get().getLowerLimit().get().getValue(), 340.0, 0.0);
         assertEquals(r.getAirSpaceVolume().get().getLowerLimit().get().getUom(), "FL");
         assertEquals(r.getAirSpaceVolume().get().getLowerLimitReference().get(), "STD");
 
@@ -178,7 +178,7 @@ public class SWXTACParserTest {
         actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertTrue(Arrays.deepEquals(expected, actual));
 
-        assertEquals(r.getAirSpaceVolume().get().getLowerLimit().get().getValue(), 340.0);
+        assertEquals(r.getAirSpaceVolume().get().getLowerLimit().get().getValue(), 340.0, 0.0);
         assertEquals(r.getAirSpaceVolume().get().getLowerLimit().get().getUom(), "FL");
         assertEquals(r.getAirSpaceVolume().get().getLowerLimitReference().get(), "STD");
 
@@ -398,7 +398,7 @@ public class SWXTACParserTest {
         final ConversionIssue issue = result.getConversionIssues().get(2);
         assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
         assertEquals(ConversionIssue.Severity.ERROR, issue.getSeverity());
-        Assert.assertTrue(issue.getMessage().contains("One of ADVISORY_NUMBER required in message"));
+        assertTrue(issue.getMessage().contains("One of ADVISORY_NUMBER required in message"));
     }
 
     @Test

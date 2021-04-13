@@ -41,22 +41,22 @@ public class IssueTime extends TimeHandlingRegex {
             if (match.group(1) != null) {
                 date = Integer.parseInt(match.group(1));
             }
-            int hour = Integer.parseInt(match.group(2));
-            int minute = Integer.parseInt(match.group(3));
+            final int hour = Integer.parseInt(match.group(2));
+            final int minute = Integer.parseInt(match.group(3));
             if (date == -1) {
                 if (timeOkHourMinute(hour, minute)) {
                     token.identify(ISSUE_TIME);
-                    token.setParsedValue(HOUR1, Integer.valueOf(hour));
-                    token.setParsedValue(MINUTE1, Integer.valueOf(minute));
+                    token.setParsedValue(HOUR1, hour);
+                    token.setParsedValue(MINUTE1, minute);
                 } else {
                     token.identify(ISSUE_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid time values");
                 }
             } else {
                 if (timeOkDayHourMinute(date, hour, minute)) {
                     token.identify(ISSUE_TIME);
-                    token.setParsedValue(DAY1, Integer.valueOf(date));
-                    token.setParsedValue(HOUR1, Integer.valueOf(hour));
-                    token.setParsedValue(MINUTE1, Integer.valueOf(minute));
+                    token.setParsedValue(DAY1, date);
+                    token.setParsedValue(HOUR1, hour);
+                    token.setParsedValue(MINUTE1, minute);
                 } else {
                     token.identify(ISSUE_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid date & time values");
                 }
@@ -69,7 +69,7 @@ public class IssueTime extends TimeHandlingRegex {
 
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
-            PartialOrCompleteTimeInstant time;
+            final PartialOrCompleteTimeInstant time;
             if (AerodromeWeatherMessage.class.isAssignableFrom(clz)) {
                 if (((AerodromeWeatherMessage) msg).getIssueTime().isPresent()) {
                     time = ((AerodromeWeatherMessage) msg).getIssueTime().get();
@@ -79,7 +79,7 @@ public class IssueTime extends TimeHandlingRegex {
             } else if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
                 time = ((MeteorologicalBulletin) msg).getHeading().getIssueTime();
             } else if (AviationWeatherMessage.class.isAssignableFrom(clz)) {
-                AviationWeatherMessage aviMsg = (AviationWeatherMessage) msg;
+                final AviationWeatherMessage aviMsg = (AviationWeatherMessage) msg;
                 if (aviMsg.getIssueTime().isPresent()) {
                     time = aviMsg.getIssueTime().get();
                 } else {
@@ -88,13 +88,12 @@ public class IssueTime extends TimeHandlingRegex {
             } else {
                 return Optional.empty();
             }
-            String format;
+            final String format;
             if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
                 format = "%02d%02d%02d";
             } else if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                StringBuilder builder = new StringBuilder();
-                builder.append(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
-                return Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ISSUE_TIME));
+                return Optional.of(
+                        this.createLexeme(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")), LexemeIdentity.ISSUE_TIME));
             } else {
                 format = "%02d%02d%02dZ";
             }

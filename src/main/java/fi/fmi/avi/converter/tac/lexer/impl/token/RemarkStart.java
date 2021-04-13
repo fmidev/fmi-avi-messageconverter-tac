@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -27,13 +26,12 @@ public class RemarkStart extends PrioritizedLexemeVisitor {
             token.identify(REMARKS_START);
         }
     }
-    
+
     public static class Reconstructor extends FactoryBasedReconstructor {
-    	@Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
-                throws SerializingException {
+        @Override
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             if (msg instanceof AviationWeatherMessage) {
-                AviationWeatherMessage aviMsg = (AviationWeatherMessage) msg;
+                final AviationWeatherMessage aviMsg = (AviationWeatherMessage) msg;
                 if (aviMsg.getRemarks().isPresent() && !aviMsg.getRemarks().get().isEmpty()) {
                     return Optional.of(this.createLexeme("RMK", REMARKS_START));
                 }

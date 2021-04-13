@@ -37,15 +37,13 @@ public class SWXCenter extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                IssuingCenter center = ((SpaceWeatherAdvisory) msg).getIssuingCenter();
+                final IssuingCenter center = ((SpaceWeatherAdvisory) msg).getIssuingCenter();
 
                 if (!center.getName().isPresent()) {
                     throw new SerializingException("Issuing center name is missing");
                 }
-                StringBuilder builder = new StringBuilder();
 
-                builder.append(center.getName().get());
-                retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_CENTRE));
+                retval = Optional.of(this.createLexeme(center.getName().get(), LexemeIdentity.SWX_CENTRE));
             }
             return retval;
         }

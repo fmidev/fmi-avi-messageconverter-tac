@@ -20,6 +20,47 @@ import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
  */
 public class SeaState extends RegexMatchingLexemeVisitor {
 
+    public SeaState(final OccurrenceFrequency prio) {
+        super("^W(?<minus>M?)(?<temp>[0-9]{2}|//)/(S(?<state>[0-9]|/)|H(?<height>[0-9]{1,3}))$", prio);
+    }
+
+    @Override
+    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
+        Object seaSurfaceTemperature = null;
+        int temp = -1;
+        if ("//".equals(match.group("temp"))) {
+            seaSurfaceTemperature = SpecialValue.UNOBSERVABLE_BY_AUTO_SYSTEM;
+        } else {
+            temp = Integer.parseInt(match.group("temp"));
+            if (match.group("minus") != null) {
+                temp *= -1;
+            }
+            seaSurfaceTemperature = temp;
+        }
+        SeaSurfaceState state = null;
+        if (match.group("state") != null) {
+            state = SeaSurfaceState.forCode(match.group("state").charAt(0));
+        }
+        Integer waveHeight = null;
+        if (match.group("height") != null) {
+            waveHeight = Integer.valueOf(match.group("height"));
+        }
+        token.identify(SEA_STATE);
+        final Object[] values = new Object[3];
+        if (seaSurfaceTemperature != null) {
+            values[0] = seaSurfaceTemperature;
+            token.setParsedValue(Lexeme.ParsedValueName.UNIT, "degC");
+        }
+        if (state != null) {
+            values[1] = state;
+        }
+        if (waveHeight != null) {
+            values[2] = (double) waveHeight * 0.1;
+            token.setParsedValue(Lexeme.ParsedValueName.UNIT2, "m");
+        }
+        token.setParsedValue(Lexeme.ParsedValueName.VALUE, values);
+    }
+
     public enum SeaSurfaceState {
         CALM_GLASSY('0'),
         CALM_RIPPLED('1'),
@@ -33,80 +74,39 @@ public class SeaState extends RegexMatchingLexemeVisitor {
         PHENOMENAL('9'),
         MISSING('/');
 
-        private char code;
+        private final char code;
 
         SeaSurfaceState(final char code) {
             this.code = code;
         }
 
-        public char getCode() {
-        	return code;
-        }
-        
         public static SeaSurfaceState forCode(final char code) {
-            for (SeaSurfaceState w : values()) {
+            for (final SeaSurfaceState w : values()) {
                 if (w.code == code) {
                     return w;
                 }
             }
             return null;
         }
-    }
 
-    public SeaState(final OccurrenceFrequency prio) {
-        super("^W(?<minus>M?)(?<temp>[0-9]{2}|//)/(S(?<state>[0-9]|/)|H(?<height>[0-9]{1,3}))$", prio);
-    }
-
-    @Override
-    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        Object seaSurfaceTemperature = null;
-        int temp = -1;
-        if ("//".equals(match.group("temp"))) {
-            seaSurfaceTemperature = SpecialValue.UNOBSERVABLE_BY_AUTO_SYSTEM;
-        } else {
-            temp = Integer.valueOf(match.group("temp"));
-            if (match.group("minus") != null) {
-                temp *= -1;
-            }
-            seaSurfaceTemperature = Integer.valueOf(temp);
+        public char getCode() {
+            return code;
         }
-        SeaSurfaceState state = null;
-        if (match.group("state") != null) {
-            state = SeaSurfaceState.forCode(match.group("state").charAt(0));
-        }
-        Integer waveHeight = null;
-        if (match.group("height") != null) {
-            waveHeight = Integer.valueOf(match.group("height"));
-        }
-        token.identify(SEA_STATE);
-        Object[] values = new Object[3];
-        if (seaSurfaceTemperature != null) {
-            values[0] = seaSurfaceTemperature;
-            token.setParsedValue(Lexeme.ParsedValueName.UNIT, "degC");
-        }
-        if (state != null) {
-            values[1] = state;
-        }
-        if (waveHeight != null) {
-            values[2] = (double)waveHeight.intValue() * 0.1;
-            token.setParsedValue(Lexeme.ParsedValueName.UNIT2, "m");
-        }
-        token.setParsedValue(Lexeme.ParsedValueName.VALUE, values);
     }
 
     public enum SpecialValue {UNOBSERVABLE_BY_AUTO_SYSTEM}
-    
+
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
-                Optional<fi.fmi.avi.model.metar.SeaState> state = ((MeteorologicalTerminalAirReport) msg).getSeaState();
+                final Optional<fi.fmi.avi.model.metar.SeaState> state = ((MeteorologicalTerminalAirReport) msg).getSeaState();
                 if (state.isPresent()) {
-                    StringBuilder builder = new StringBuilder("W");
+                    final StringBuilder builder = new StringBuilder("W");
 
-                    Optional<NumericMeasure> temp = state.get().getSeaSurfaceTemperature();
+                    final Optional<NumericMeasure> temp = state.get().getSeaSurfaceTemperature();
                     if (!temp.isPresent()) {
                         builder.append("//");
                     } else {
@@ -123,7 +123,7 @@ public class SeaState extends RegexMatchingLexemeVisitor {
                     }
                     builder.append('/');
 
-                    Optional<NumericMeasure> waveHeight = state.get().getSignificantWaveHeight();
+                    final Optional<NumericMeasure> waveHeight = state.get().getSignificantWaveHeight();
 
                     if (state.get().getSeaSurfaceState().isPresent() && waveHeight.isPresent()) {
                         throw new SerializingException("Sea state can only contain either surface state or wave height, not both");
@@ -145,7 +145,7 @@ public class SeaState extends RegexMatchingLexemeVisitor {
                             throw new SerializingException("Sea state wave height must be in meters");
                         }
 
-                        int height = (int) Math.round(waveHeight.get().getValue() / 0.1);
+                        final int height = (int) Math.round(waveHeight.get().getValue() / 0.1);
 
                         if (height < 0 || height > 999) {
                             throw new SerializingException("Sea state wave height must be between 0 and 100 meters, it was " + waveHeight.get().getValue());

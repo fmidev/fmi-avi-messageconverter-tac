@@ -67,10 +67,8 @@ public abstract class AbstractAviMessageTest<S, T> {
     protected static void assertAviationWeatherMessageEquals(final AviationWeatherMessage expected, final AviationWeatherMessage actual) {
         final Difference diff = deepCompareObjects(expected, actual);
         if (diff != null) {
-            final StringBuilder failureMessage = new StringBuilder();
-            failureMessage.append("AviationWeatherMessage objects are not equivalent\n");
-            failureMessage.append(new DefaultDifferenceReport().createReport(diff));
-            fail(failureMessage.toString());
+            fail("AviationWeatherMessage objects are not equivalent\n" //
+                    + new DefaultDifferenceReport().createReport(diff));
         }
     }
 
@@ -246,7 +244,7 @@ public abstract class AbstractAviMessageTest<S, T> {
                 }
             }
         }
-        return retval.toArray(new LexemeIdentity[retval.size()]);
+        return retval.toArray(new LexemeIdentity[0]);
     }
 
     protected List<Lexeme> trimWhitespaces(final List<Lexeme> lexemes) {

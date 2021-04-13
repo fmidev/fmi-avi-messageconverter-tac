@@ -29,8 +29,7 @@ public class NextAdvisoryLabel extends RegexMatchingLexemeVisitor {
             Optional<Lexeme> retval = Optional.empty();
 
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                StringBuilder builder = new StringBuilder("NXT ADVISORY:");
-                retval = Optional.of(this.createLexeme(builder.toString(), NEXT_ADVISORY_LABEL));
+                retval = Optional.of(this.createLexeme("NXT ADVISORY:", NEXT_ADVISORY_LABEL));
             }
             return retval;
         }

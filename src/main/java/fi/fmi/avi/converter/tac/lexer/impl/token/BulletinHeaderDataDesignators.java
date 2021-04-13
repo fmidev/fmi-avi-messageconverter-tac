@@ -31,13 +31,13 @@ public class BulletinHeaderDataDesignators extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            Optional<Lexeme> retval = Optional.empty();
+            final Optional<Lexeme> retval = Optional.empty();
             if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
-                BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
+                final BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
                 if (heading != null) {
-                    StringBuilder sb = new StringBuilder();
+                    final StringBuilder sb = new StringBuilder();
                     sb.append(heading.getDataTypeDesignatorsForTAC());
 
                     if (heading.getGeographicalDesignator() == null || heading.getGeographicalDesignator().length() != 2) {

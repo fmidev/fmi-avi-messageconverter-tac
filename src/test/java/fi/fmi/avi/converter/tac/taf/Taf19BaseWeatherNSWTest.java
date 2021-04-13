@@ -36,12 +36,14 @@ public class Taf19BaseWeatherNSWTest extends AbstractAviMessageTest<String, TAF>
 
     @Override
     public String getMessage() {
-        return "TAF EFHK 010825Z 0109/0209 25015KT 5000 NSW NSC\r\n" + "FM011530 00000KT CAVOK=";
+        return "TAF EFHK 010825Z 0109/0209 25015KT 5000 NSW NSC\r\n" //
+                + "FM011530 00000KT CAVOK=";
     }
 
     @Override
     public Optional<String> getCanonicalMessage() {
-        return Optional.of("TAF EFHK 010825Z 0109/0209 25015KT 5000 NSC\r\n" + "FM011530 00000KT CAVOK=");
+        return Optional.of("TAF EFHK 010825Z 0109/0209 25015KT 5000 NSC\r\n" //
+                + "FM011530 00000KT CAVOK=");
     }
 
     @Override

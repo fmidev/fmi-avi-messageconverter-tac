@@ -44,7 +44,7 @@ public class METARAllowLexingSyntaxErrorsTest extends AbstractAviMessageTest<Str
 
     @Override
     public ConversionHints getParserConversionHints() {
-        ConversionHints hints = super.getParserConversionHints();
+        final ConversionHints hints = super.getParserConversionHints();
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
         return hints;
     }
@@ -55,23 +55,24 @@ public class METARAllowLexingSyntaxErrorsTest extends AbstractAviMessageTest<Str
     }
 
     @Override
-    public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
+    public void assertParsingIssues(final List<ConversionIssue> conversionIssues) {
         assertEquals(2, conversionIssues.size());
 
         ConversionIssue issue = conversionIssues.get(0);
         assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
-        assertTrue("Unexpected error message", issue.getMessage().indexOf("Lexing problem with 'blaablaa'") > -1);
+        assertTrue("Unexpected error message", issue.getMessage().contains("Lexing problem with 'blaablaa'"));
 
         issue = conversionIssues.get(1);
         assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
-        assertTrue("Unexpected error message", issue.getMessage().indexOf("Missing surface wind information in") > -1);
+        assertTrue("Unexpected error message", issue.getMessage().contains("Missing surface wind information in"));
 
     }
 
     @Override
     public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-        return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, null, HORIZONTAL_VISIBILITY, CLOUD, CLOUD, AIR_DEWPOINT_TEMPERATURE,
-                AIR_PRESSURE_QNH, NO_SIGNIFICANT_CHANGES, END_TOKEN });
+        return spacify(
+                new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, null, HORIZONTAL_VISIBILITY, CLOUD, CLOUD, AIR_DEWPOINT_TEMPERATURE,
+                        AIR_PRESSURE_QNH, NO_SIGNIFICANT_CHANGES, END_TOKEN });
     }
 
     @Override

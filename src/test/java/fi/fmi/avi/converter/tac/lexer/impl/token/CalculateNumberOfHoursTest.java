@@ -11,112 +11,107 @@ import org.junit.Test;
 
 import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
 
-
 public class CalculateNumberOfHoursTest {
 
-	@Test
-	public void testSingleDay() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("0100/0106");
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(6, hours);
-	}
+    @Test
+    public void testSingleDay() {
+        final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("0100/0106");
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(6, hours);
+    }
 
-	@Test
-	public void testNoHours() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("0100/0100");
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(0, hours);
-	}
+    @Test
+    public void testNoHours() {
+        final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("0100/0100");
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(0, hours);
+    }
 
-	@Test
-	public void testSpanDaySingleHour() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("0823/0900");
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(1, hours);
-	}
-	
+    @Test
+    public void testSpanDaySingleHour() {
+        final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("0823/0900");
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(1, hours);
+    }
 
-	@Test
-	public void test24HourIllegalButUsedFormat() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("0800/0824");
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(24, hours);
-	}
+    @Test
+    public void test24HourIllegalButUsedFormat() {
+        final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("0800/0824");
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(24, hours);
+    }
 
+    @Test
+    public void testSpanDayMoreThan24Hours() {
+        final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("0806/0912");
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(30, hours);
+    }
 
-	@Test
-	public void testSpanDayMoreThan24Hours() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("0806/0912");
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(30, hours);
-	}
-	
-	@Test
-	public void testSpanToNextMonthStartHoursMoreThanEndHours() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("3122/0108");
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(10, hours);
-	}
+    @Test
+    public void testSpanToNextMonthStartHoursMoreThanEndHours() {
+        final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("3122/0108");
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(10, hours);
+    }
 
-	
-	@Test
-	public void testSpanToNextMonthStartHoursLessThanEndHours_starts31st() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("3108/0122");
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(38, hours);
-	}
-	
-	@Test
-	public void testSpanToNextMonthStartHoursLessThanEndHours_starts30th() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("3008/0122");
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(38, hours);
-	}
-	
-	@Test
-	public void testSpanToNextMonthStartHoursLessThanEndHours_starts29th() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("2908/0122");
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(38, hours);
-	}
-	
-	@Test
-	public void testSpanToNextMonthStartHoursLessThanEndHours_starts28th() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("2808/0122");
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(38, hours);
-	}
-	
+    @Test
+    public void testSpanToNextMonthStartHoursLessThanEndHours_starts31st() {
+        final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("3108/0122");
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(38, hours);
+    }
 
-	@Test
-	public void testSpanToNextMonthStartHoursLessThanEndHours_starts27th_illegal() {
-		try {
-			PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("2708/0122");
-			int hours = ValidTime.calculateNumberOfHours(period);
-			fail("hours should not have been calculated "+hours);
-		} catch(Exception e) {
-			assertTrue(e instanceof IllegalArgumentException);
-		}
-	}
-	
-	@Test
-	public void testFullTimeReferencesMakesIllegalOk() {
-		PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("2708/0122");
-		ZonedDateTime refTime = ZonedDateTime.of(2017,2,27,0,0,0,0,ZoneId.of("Z"));
-		period = period.toBuilder().completePartialStartingNear(refTime).build();
-		int hours = ValidTime.calculateNumberOfHours(period);
-		assertEquals(62, hours);
-	}
-	
-	@Test
-	public void testIllegalSpanTooLong() {
-		try {
-			PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("1522/0108");
-			int hours = ValidTime.calculateNumberOfHours(period);
-			fail("hours should not have been calculated "+hours);
-		} catch(Exception e) {
-			assertTrue(e instanceof IllegalArgumentException);
-		}
-	}
-	
+    @Test
+    public void testSpanToNextMonthStartHoursLessThanEndHours_starts30th() {
+        final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("3008/0122");
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(38, hours);
+    }
+
+    @Test
+    public void testSpanToNextMonthStartHoursLessThanEndHours_starts29th() {
+        final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("2908/0122");
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(38, hours);
+    }
+
+    @Test
+    public void testSpanToNextMonthStartHoursLessThanEndHours_starts28th() {
+        final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("2808/0122");
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(38, hours);
+    }
+
+    @Test
+    public void testSpanToNextMonthStartHoursLessThanEndHours_starts27th_illegal() {
+        try {
+            final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("2708/0122");
+            final int hours = ValidTime.calculateNumberOfHours(period);
+            fail("hours should not have been calculated " + hours);
+        } catch (final Exception e) {
+            assertTrue(e instanceof IllegalArgumentException);
+        }
+    }
+
+    @Test
+    public void testFullTimeReferencesMakesIllegalOk() {
+        PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("2708/0122");
+        final ZonedDateTime refTime = ZonedDateTime.of(2017, 2, 27, 0, 0, 0, 0, ZoneId.of("Z"));
+        period = period.toBuilder().completePartialStartingNear(refTime).build();
+        final int hours = ValidTime.calculateNumberOfHours(period);
+        assertEquals(62, hours);
+    }
+
+    @Test
+    public void testIllegalSpanTooLong() {
+        try {
+            final PartialOrCompleteTimePeriod period = PartialOrCompleteTimePeriod.createValidityTime("1522/0108");
+            final int hours = ValidTime.calculateNumberOfHours(period);
+            fail("hours should not have been calculated " + hours);
+        } catch (final Exception e) {
+            assertTrue(e instanceof IllegalArgumentException);
+        }
+    }
+
 }

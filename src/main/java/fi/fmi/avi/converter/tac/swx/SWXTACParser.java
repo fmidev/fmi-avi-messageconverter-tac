@@ -175,9 +175,8 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             }
         }, () -> builder.setPermissibleUsage(AviationCodeListUser.PermissibleUsage.OPERATIONAL));
 
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_STATUS, (match) -> {
-            builder.setPermissibleUsageReason(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
-        });
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_STATUS, (match) -> builder.setPermissibleUsageReason(
+                match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class)));
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.DTG_ISSUE_TIME_LABEL);
 
@@ -201,15 +200,14 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_NUMBER_LABEL);
 
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_NUMBER, (match) -> {
-            builder.setAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
-        });
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_NUMBER,
+                (match) -> builder.setAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class)));
 
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, (match) -> {
-            processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER, (advisoryNumberMatch) -> {
-                builder.setReplaceAdvisoryNumber(advisoryNumberMatch.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
-            }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Replace advisory number is missing")));
-        });
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL,
+                (match) -> processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER,
+                        (advisoryNumberMatch) -> builder.setReplaceAdvisoryNumber(
+                                advisoryNumberMatch.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class)),
+                        () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Replace advisory number is missing"))));
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_LABEL);
 
@@ -296,7 +294,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
     private Collection<ConversionIssue> checkPhenomenaLabels(final List<LexemeSequence> analysisList) {
         final List<ConversionIssue> issues = new ArrayList<>();
         int previousHour = 0;
-        for (LexemeSequence lexemeSequence : analysisList) {
+        for (final LexemeSequence lexemeSequence : analysisList) {
             final Lexeme analysis = lexemeSequence.getFirstLexeme();
             if (LexemeIdentity.ADVISORY_PHENOMENA_LABEL.equals(analysis.getIdentity())) {
                 if (analysis.getParsedValue(Lexeme.ParsedValueName.TYPE, SWXPhenomena.Type.class) == SWXPhenomena.Type.OBS && previousHour > 0) {

@@ -47,13 +47,13 @@ public class FractionalHorizontalVisibility extends RegexMatchingLexemeVisitor {
         if (fractionNumenator > -1 && fractionDenumenator > -1) {
             if (fractionDenumenator != 0) {
                 token.identify(HORIZONTAL_VISIBILITY);
-                token.setParsedValue(VALUE, Double.valueOf(wholePart + (double) fractionNumenator / (double) fractionDenumenator));
+                token.setParsedValue(VALUE, wholePart + (double) fractionNumenator / (double) fractionDenumenator);
             } else {
                 token.identify(HORIZONTAL_VISIBILITY, Status.SYNTAX_ERROR, "Invalid fractional number '" + fractionNumenator + "/" + fractionDenumenator);
             }
         } else if (wholePart > -1) {
             token.identify(HORIZONTAL_VISIBILITY);
-            token.setParsedValue(VALUE, Double.valueOf(wholePart));
+            token.setParsedValue(VALUE, (double) wholePart);
         } else {
             token.identify(HORIZONTAL_VISIBILITY, Status.SYNTAX_ERROR, "Invalid number '" + wholePart + " " + fractionNumenator + "/" + fractionDenumenator);
         }

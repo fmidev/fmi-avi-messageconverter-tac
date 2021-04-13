@@ -30,7 +30,7 @@ public class InvalidAerodromeTest {
     public void invalidAerodromeWithSyntaxErrorsAllowed() {
         final ConversionHints hints = new ConversionHints();
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
-        ConversionResult<TAF> result = this.converter.convertMessage("TAF EF 150935Z 1512/1524 00000KT CAVOK=", TACConverter.TAC_TO_TAF_POJO, hints);
+        final ConversionResult<TAF> result = this.converter.convertMessage("TAF EF 150935Z 1512/1524 00000KT CAVOK=", TACConverter.TAC_TO_TAF_POJO, hints);
         assertEquals(ConversionResult.Status.FAIL, result.getStatus());
         assertFalse(result.getConvertedMessage().isPresent());
         assertThat(result.getConversionIssues()).anySatisfy(issue -> assertThat(issue.getMessage()).startsWith("Aerodrome designator not given in"));
@@ -40,7 +40,7 @@ public class InvalidAerodromeTest {
     public void invalidAerodromeWithAnyErrorsAllowed() {
         final ConversionHints hints = new ConversionHints();
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_ANY_ERRORS);
-        ConversionResult<TAF> result = this.converter.convertMessage("TAF EF 150935Z 1512/1524 00000KT CAVOK=", TACConverter.TAC_TO_TAF_POJO, hints);
+        final ConversionResult<TAF> result = this.converter.convertMessage("TAF EF 150935Z 1512/1524 00000KT CAVOK=", TACConverter.TAC_TO_TAF_POJO, hints);
         assertEquals(ConversionResult.Status.FAIL, result.getStatus());
         assertFalse(result.getConvertedMessage().isPresent());
         assertThat(result.getConversionIssues()).anySatisfy(issue -> assertThat(issue.getMessage()).startsWith("Aerodrome designator not given in"));
@@ -48,7 +48,7 @@ public class InvalidAerodromeTest {
 
     @Test
     public void invalidAerodromeWithStrictParsing() {
-        ConversionResult<TAF> result = this.converter.convertMessage("TAF EF 150935Z 1512/1524 00000KT CAVOK=", TACConverter.TAC_TO_TAF_POJO);
+        final ConversionResult<TAF> result = this.converter.convertMessage("TAF EF 150935Z 1512/1524 00000KT CAVOK=", TACConverter.TAC_TO_TAF_POJO);
         assertEquals(ConversionResult.Status.FAIL, result.getStatus());
         assertFalse(result.getConvertedMessage().isPresent());
         assertThat(result.getConversionIssues()).anySatisfy(

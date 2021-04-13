@@ -7,7 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
  */
 public abstract class TimeHandlingRegex extends RegexMatchingLexemeVisitor {
 
-    public TimeHandlingRegex(final String pattern, final OccurrenceFrequency priority) {
+    protected TimeHandlingRegex(final String pattern, final OccurrenceFrequency priority) {
         super(pattern, priority);
     }
 

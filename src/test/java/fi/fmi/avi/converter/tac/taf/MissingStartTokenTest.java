@@ -29,7 +29,7 @@ public class MissingStartTokenTest {
 
     @Test
     public void withoutConversionHints() {
-        ConversionResult<TAF> result = this.converter.convertMessage("EFHK 111733Z 0118/0218 00000KT CAVOK=", TACConverter.TAC_TO_TAF_POJO);
+        final ConversionResult<TAF> result = this.converter.convertMessage("EFHK 111733Z 0118/0218 00000KT CAVOK=", TACConverter.TAC_TO_TAF_POJO);
         assertEquals(ConversionResult.Status.FAIL, result.getStatus());
         assertFalse(result.getConvertedMessage().isPresent());
     }
@@ -38,7 +38,7 @@ public class MissingStartTokenTest {
     public void withConversionHints() {
         final ConversionHints hints = new ConversionHints();
         hints.put(ConversionHints.KEY_MESSAGE_TYPE, MessageType.TAF);
-        ConversionResult<TAF> result = this.converter.convertMessage("EFHK 111733Z 0118/0218 00000KT CAVOK=", TACConverter.TAC_TO_TAF_POJO, hints);
+        final ConversionResult<TAF> result = this.converter.convertMessage("EFHK 111733Z 0118/0218 00000KT CAVOK=", TACConverter.TAC_TO_TAF_POJO, hints);
         assertEquals(ConversionResult.Status.WITH_WARNINGS, result.getStatus());
         assertTrue(result.getConvertedMessage().isPresent());
     }

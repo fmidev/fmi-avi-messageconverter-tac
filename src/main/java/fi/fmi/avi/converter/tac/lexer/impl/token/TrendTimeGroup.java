@@ -32,10 +32,10 @@ public class TrendTimeGroup extends TimeHandlingRegex {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        TrendTimePeriodType type = TrendTimePeriodType.forCode(match.group(1));
+        final TrendTimePeriodType type = TrendTimePeriodType.forCode(match.group(1));
 
-        int hour = Integer.parseInt(match.group(2));
-        int minute = Integer.parseInt(match.group(3));
+        final int hour = Integer.parseInt(match.group(2));
+        final int minute = Integer.parseInt(match.group(3));
         if (timeOkHourMinute(hour, minute)) {
             token.identify(LexemeIdentity.TREND_TIME_GROUP);
             token.setParsedValue(HOUR1, hour);
@@ -56,7 +56,7 @@ public class TrendTimeGroup extends TimeHandlingRegex {
         }
 
         public static TrendTimePeriodType forCode(final String code) {
-            for (TrendTimePeriodType w : values()) {
+            for (final TrendTimePeriodType w : values()) {
                 if (w.code.equals(code)) {
                     return w;
                 }
@@ -69,8 +69,8 @@ public class TrendTimeGroup extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
-            Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
+        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
+            final Optional<TrendForecast> trend = ctx.getParameter("trend", TrendForecast.class);
             if (trend.isPresent()) {
                 PartialOrCompleteTime validity = null;
                 if (trend.get().getPeriodOfChange().isPresent()) {
@@ -93,18 +93,18 @@ public class TrendTimeGroup extends TimeHandlingRegex {
         }
 
         private List<Lexeme> createTrendTimeChangePeriods(final PartialOrCompleteTime time) {
-            List<Lexeme> retval = new ArrayList<>();
+            final List<Lexeme> retval = new ArrayList<>();
             if (time instanceof PartialOrCompleteTimeInstant) {
-                PartialOrCompleteTimeInstant instant = (PartialOrCompleteTimeInstant) time;
+                final PartialOrCompleteTimeInstant instant = (PartialOrCompleteTimeInstant) time;
                 retval.add(this.createLexeme(String.format("AT%02d%02d", instant.getHour().orElse(-1), instant.getMinute().orElse(-1)), TREND_TIME_GROUP));
             } else if (time instanceof PartialOrCompleteTimePeriod) {
-                PartialOrCompleteTimePeriod period = (PartialOrCompleteTimePeriod) time;
+                final PartialOrCompleteTimePeriod period = (PartialOrCompleteTimePeriod) time;
                 if (period.getStartTime().isPresent()) {
-                    PartialOrCompleteTimeInstant start = period.getStartTime().get();
+                    final PartialOrCompleteTimeInstant start = period.getStartTime().get();
                     retval.add(this.createLexeme(String.format("FM%02d%02d", start.getHour().orElse(-1), start.getMinute().orElse(-1)), TREND_TIME_GROUP));
                 }
                 if (period.getEndTime().isPresent()) {
-                    PartialOrCompleteTimeInstant end = period.getEndTime().get();
+                    final PartialOrCompleteTimeInstant end = period.getEndTime().get();
                     retval.add(this.createLexeme(String.format("TL%02d%02d", end.getHour().orElse(-1), end.getMinute().orElse(-1)), TREND_TIME_GROUP));
                 }
             }

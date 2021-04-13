@@ -42,7 +42,7 @@ public class DTGIssueTime extends TimeHandlingRegex {
                     token.setParsedValue(Lexeme.ParsedValueName.DAY1, day);
                     token.setParsedValue(Lexeme.ParsedValueName.HOUR1, hour);
                     token.setParsedValue(Lexeme.ParsedValueName.MINUTE1, minute);
-                } catch (DateTimeException e) {
+                } catch (final DateTimeException e) {
                     // NOOP, ignore silently if the issue time is not valid
                 }
             }
@@ -54,12 +54,11 @@ public class DTGIssueTime extends TimeHandlingRegex {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             Optional<Lexeme> retval = Optional.empty();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                SpaceWeatherAdvisory swx = ((SpaceWeatherAdvisory) msg);
+                final SpaceWeatherAdvisory swx = ((SpaceWeatherAdvisory) msg);
                 if (swx.getIssueTime().isPresent()) {
-                    PartialOrCompleteTimeInstant time = swx.getIssueTime().get();
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
-                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ISSUE_TIME));
+                    final PartialOrCompleteTimeInstant time = swx.getIssueTime().get();
+                    retval = Optional.of(
+                            this.createLexeme(time.getCompleteTime().get().format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")), LexemeIdentity.ISSUE_TIME));
                 }
             }
             return retval;

@@ -53,7 +53,14 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
     }
 
     public enum ICAOCodeCountryPrefix {
-        SOLOMON_ISLANDS("AG"), NAURU("AN"), PAPUA_NEW_GUINEA("AY"), GREENLAND("BG"), ICELAND("BI"), KOSOVO("BK"), CANADA("C"), ALGERIA("DA"),
+        SOLOMON_ISLANDS("AG"),
+        NAURU("AN"),
+        PAPUA_NEW_GUINEA("AY"),
+        GREENLAND("BG"),
+        ICELAND("BI"),
+        KOSOVO("BK"),
+        CANADA("C"),
+        ALGERIA("DA"),
         BENIN("DB"),
         BURKINA_FASO("DF"),
         GHANA("DG"),
@@ -254,7 +261,7 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
 
         public static Map<String, ICAOCodeCountryPrefix> getCodeToCountryMap() {
             final ICAOCodeCountryPrefix[] all = ICAOCodeCountryPrefix.values();
-            final HashMap<String, ICAOCodeCountryPrefix> retval = new HashMap<String, ICAOCodeCountryPrefix>();
+            final HashMap<String, ICAOCodeCountryPrefix> retval = new HashMap<>();
             for (final ICAOCodeCountryPrefix prefix : all) {
                 for (final String code : prefix.codes) {
                     if (retval.put(code, prefix) != null) {

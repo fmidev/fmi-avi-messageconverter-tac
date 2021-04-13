@@ -32,7 +32,7 @@ public class METAR_NDVTest extends AbstractAviMessageTest<String, METAR> {
 
     @Override
     public String getMessage() {
-        return "METAR EFHK 012400Z AUTO 00000KT 9999NDV R04R/0500D R15/0600VP1500D R22L/0275N R04L/P1500D BR FEW003 SCT050 14/13 Q1008 " + "TEMPO 2000=";
+        return "METAR EFHK 012400Z AUTO 00000KT 9999NDV R04R/0500D R15/0600VP1500D R22L/0275N R04L/P1500D BR FEW003 SCT050 14/13 Q1008 TEMPO 2000=";
     }
 
     @Override
@@ -60,7 +60,6 @@ public class METAR_NDVTest extends AbstractAviMessageTest<String, METAR> {
 
     @Override
     public Optional<String> getCanonicalMessage() {
-        return Optional.of(
-                "METAR EFHK 012400Z AUTO 00000KT 9999 R04R/0500D R15/0600VP1500D R22L/0275N R04L/P1500D BR FEW003 SCT050 14/13 Q1008 TEMPO 2000=");
+        return Optional.of("METAR EFHK 012400Z AUTO 00000KT 9999 R04R/0500D R15/0600VP1500D R22L/0275N R04L/P1500D BR FEW003 SCT050 14/13 Q1008 TEMPO 2000=");
     }
 }

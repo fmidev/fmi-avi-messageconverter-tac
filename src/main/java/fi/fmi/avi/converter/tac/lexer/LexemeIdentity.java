@@ -209,6 +209,8 @@ public class LexemeIdentity {
     }
 
     static class Deserializer extends StdDeserializer<LexemeIdentity> {
+        private static final long serialVersionUID = 8495765111694885808L;
+
         public Deserializer() {
             this(null);
         }
@@ -225,6 +227,7 @@ public class LexemeIdentity {
     }
 
     static class Serializer extends StdSerializer<LexemeIdentity> {
+        private static final long serialVersionUID = 3660686165609114976L;
 
         public Serializer() {
             this(null);

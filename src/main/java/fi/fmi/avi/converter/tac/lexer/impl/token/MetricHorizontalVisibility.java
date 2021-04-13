@@ -35,85 +35,83 @@ import fi.fmi.avi.model.taf.TAFChangeForecast;
  */
 public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
-	public static final int MAX_STATUE_MILE_DENOMINATOR = 16;
+    public static final int MAX_STATUE_MILE_DENOMINATOR = 16;
 
     public MetricHorizontalVisibility(final OccurrenceFrequency prio) {
         super("^([0-9]{4})([A-Z]{1,2}|NDV)?$", prio);
     }
 
     @Override
-	public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
+    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         final String direction = match.group(2);
-		double certainty = 0.5;
-    	//This is a tricky one, we need to separate the nnnn visibility from a nnnn change group validity time
-    	Lexeme l = token.getPrevious();
-    	if (l == null) {
-    		//Horizontal visibility cannot be the first token:
-    		return;
-    	}
-    	boolean inChangeGroup = false;
-    	while (l != null) {
-			if (LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR == l.getIdentity()) {
-				inChangeGroup = true;
-				break;
-			}
-			l = l.getPrevious();
-		}
-		if (!inChangeGroup) {
-            final Lexeme prev = token.getPrevious();
-    		if (LexemeIdentity.SURFACE_WIND.equals(prev.getIdentity())
-                    || LexemeIdentity.VARIABLE_WIND_DIRECTION.equals(prev.getIdentity())
-                    || LexemeIdentity.HORIZONTAL_VISIBILITY.equals(prev.getIdentity())) {
-    			certainty = 1.0;
-    		}
+        double certainty = 0.5;
+        //This is a tricky one, we need to separate the nnnn visibility from a nnnn change group validity time
+        Lexeme l = token.getPrevious();
+        if (l == null) {
+            //Horizontal visibility cannot be the first token:
+            return;
         }
-    	else {
-    		if (LexemeIdentity.TAF_START.equals(token.getFirst().getIdentity())) {
-	    		if (direction == null) {
+        boolean inChangeGroup = false;
+        while (l != null) {
+            if (LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR == l.getIdentity()) {
+                inChangeGroup = true;
+                break;
+            }
+            l = l.getPrevious();
+        }
+        if (!inChangeGroup) {
+            final Lexeme prev = token.getPrevious();
+            if (LexemeIdentity.SURFACE_WIND.equals(prev.getIdentity()) || LexemeIdentity.VARIABLE_WIND_DIRECTION.equals(prev.getIdentity())
+                    || LexemeIdentity.HORIZONTAL_VISIBILITY.equals(prev.getIdentity())) {
+                certainty = 1.0;
+            }
+        } else {
+            if (LexemeIdentity.TAF_START.equals(token.getFirst().getIdentity())) {
+                if (direction == null) {
                     final int startHour = Integer.parseInt(match.group(1).substring(0, 2));
                     final int endHour = Integer.parseInt(match.group(1).substring(3, 4));
                     if (!((startHour <= 24) && (endHour <= 24))) {
-	    				certainty = 1.0;
-	    			}
-	    		}
-    		}
-    	}
+                        certainty = 1.0;
+                    }
+                }
+            }
+        }
 
         final int visibility = Integer.parseInt(match.group(1));
-		if (direction != null) {
+        if (direction != null) {
             final DirectionValue dv = DirectionValue.forCode(direction);
-        	certainty = 1.0;
+            certainty = 1.0;
 
             if (LexemeUtils.existsPreviousLexemesWithinSameGroup(token, HORIZONTAL_VISIBILITY, p -> p.getParsedValue(DIRECTION, DirectionValue.class) == dv)) {
                 token.identify(HORIZONTAL_VISIBILITY, Status.SYNTAX_ERROR, "Horizontal visibility already given");
                 return;
             }
 
-        	if (dv == null) {
-        		token.identify(HORIZONTAL_VISIBILITY, Status.SYNTAX_ERROR, "Invalid visibility direction value '" + direction + "'", certainty);
-        	} else {
+            if (dv == null) {
+                token.identify(HORIZONTAL_VISIBILITY, Status.SYNTAX_ERROR, "Invalid visibility direction value '" + direction + "'", certainty);
+            } else {
                 token.identify(HORIZONTAL_VISIBILITY, certainty);
-        		token.setParsedValue(DIRECTION, dv);
-        	}
+                token.setParsedValue(DIRECTION, dv);
+            }
         } else {
             if (LexemeUtils.existsPreviousLexemesWithinSameGroup(token, HORIZONTAL_VISIBILITY)) {
                 token.identify(HORIZONTAL_VISIBILITY, Status.SYNTAX_ERROR, "Horizontal visibility already given");
                 return;
             }
 
-        	token.identify(HORIZONTAL_VISIBILITY, certainty);
+            token.identify(HORIZONTAL_VISIBILITY, certainty);
         }
 
         token.setParsedValue(UNIT, "m");
 
         if (visibility == 9999) {
-            token.setParsedValue(VALUE, Double.valueOf(10000d));
+            token.setParsedValue(VALUE, 10000d);
             token.setParsedValue(RELATIONAL_OPERATOR, RecognizingAviMessageTokenLexer.RelationalOperator.MORE_THAN);
         } else if (visibility == 0) {
-            token.setParsedValue(VALUE, Double.valueOf(50d));
+            token.setParsedValue(VALUE, 50d);
             token.setParsedValue(RELATIONAL_OPERATOR, RecognizingAviMessageTokenLexer.RelationalOperator.LESS_THAN);
         } else {
-            token.setParsedValue(VALUE, Double.valueOf(visibility));
+            token.setParsedValue(VALUE, (double) visibility);
         }
 
     }
@@ -152,7 +150,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
     }
 
-	public static class Reconstructor extends FactoryBasedReconstructor {
+    public static class Reconstructor extends FactoryBasedReconstructor {
 
         static String findClosestFraction(final double number, final int maxDenominator) {
             if (maxDenominator < 3) {
@@ -193,7 +191,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
             return String.format("%d/%d", currentBestNumerator, currentBestDenominator);
         }
 
-		@Override
+        @Override
         public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             final List<Lexeme> retval = new ArrayList<>();
@@ -228,7 +226,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
                         }
                     }
                 }
-			}
+            }
 
             if (visibility.isPresent()) {
                 final String str;
@@ -241,90 +239,91 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
                     throw new SerializingException("Unknown unit of measure '" + visibility.get().getUom() + "' for visibility");
                 }
 
-				retval.add(this.createLexeme(str, LexemeIdentity.HORIZONTAL_VISIBILITY));
+                retval.add(this.createLexeme(str, LexemeIdentity.HORIZONTAL_VISIBILITY));
 
                 if (minimumVisibilityDistance.isPresent() && minimumVisibilityDirection.isPresent()) {
                     final String tmp = createMinimumVisibilityString(minimumVisibilityDistance.get(), minimumVisibilityDirection.get());
                     retval.add(createLexeme(" ", LexemeIdentity.WHITE_SPACE));
-					retval.add(this.createLexeme(tmp, LexemeIdentity.HORIZONTAL_VISIBILITY));
-				}
-			}
-			return retval;
-		}
+                    retval.add(this.createLexeme(tmp, LexemeIdentity.HORIZONTAL_VISIBILITY));
+                }
+            }
+            return retval;
+        }
 
         private String createMinimumVisibilityString(final NumericMeasure distance, final NumericMeasure direction) throws SerializingException {
-			if (distance == null || direction == null) {
-				throw new SerializingException("Both visibility and direction need to be set for minimum visibility. Cannot serialize");
-			}
+            if (distance == null || direction == null) {
+                throw new SerializingException("Both visibility and direction need to be set for minimum visibility. Cannot serialize");
+            }
 
-			if (!"deg".equals(direction.getUom())) {
-				throw new SerializingException("Minimum visibility direction must be in degrees, but unit is "+direction.getUom()+" instead");
-			}
+            if (!"deg".equals(direction.getUom())) {
+                throw new SerializingException("Minimum visibility direction must be in degrees, but unit is " + direction.getUom() + " instead");
+            }
 
-			if (!"m".equals(distance.getUom())) {
-				throw new SerializingException("Minimum visibility distance must be in meters, but unit is "+distance.getUom()+" instead");
-			}
+            if (!"m".equals(distance.getUom())) {
+                throw new SerializingException("Minimum visibility distance must be in meters, but unit is " + distance.getUom() + " instead");
+            }
 
             final int meters = distance.getValue().intValue();
-			if (meters < 0 || meters >= 10000) {
-				throw new SerializingException("Minimum visibility distance must be 0 to 9999 meters, but is "+distance.getValue());
-			}
+            if (meters < 0 || meters >= 10000) {
+                throw new SerializingException("Minimum visibility distance must be 0 to 9999 meters, but is " + distance.getValue());
+            }
 
             // Allow 5 degrees slack, so 40-50 deg => 45 == NE
-			final int slack = 5;
+            final int slack = 5;
 
             int deg = direction.getValue().intValue();
-			if (deg < 0 || deg > 360) {
-				throw new SerializingException("Minimum visibilty direction must be within 0...360");
-			}
-			if (deg >= (360-slack)) {
-				deg -= 360;
-			}
+            if (deg < 0 || deg > 360) {
+                throw new SerializingException("Minimum visibilty direction must be within 0...360");
+            }
+            if (deg >= (360 - slack)) {
+                deg -= 360;
+            }
 
             final String compass;
-			if (deg <= 0 + slack) {
-				compass = "N";
-			} else if (deg >= 45-slack && deg <= 45+slack) {
-				compass = "NE";
-			} else if (deg >= 90-slack && deg <= 90+slack) {
-				compass = "E";
-			} else if (deg >= 135-slack && deg <= 135+slack) {
-				compass = "SE";
-			} else if (deg >= 180-slack && deg <= 180+slack) {
-				compass = "S";
-			} else if (deg >= 225-slack && deg <= 225+slack) {
-				compass = "SW";
-			} else if (deg >= 270-slack && deg <= 270+slack) {
-				compass = "W";
-			} else if (deg >= 315-slack && deg <= 315+slack) {
-				compass = "NW";
-			} else {
-				throw new SerializingException("Minimum visibility direction ("+direction.getValue()+") is not within "+slack+" degrees of a cardinal or intercardinal direction");
-			}
+            if (deg <= /* 0 + */ slack) {
+                compass = "N";
+            } else if (deg >= 45 - slack && deg <= 45 + slack) {
+                compass = "NE";
+            } else if (deg >= 90 - slack && deg <= 90 + slack) {
+                compass = "E";
+            } else if (deg >= 135 - slack && deg <= 135 + slack) {
+                compass = "SE";
+            } else if (deg >= 180 - slack && deg <= 180 + slack) {
+                compass = "S";
+            } else if (deg >= 225 - slack && deg <= 225 + slack) {
+                compass = "SW";
+            } else if (deg >= 270 - slack && deg <= 270 + slack) {
+                compass = "W";
+            } else if (deg >= 315 - slack && deg <= 315 + slack) {
+                compass = "NW";
+            } else {
+                throw new SerializingException("Minimum visibility direction (" + direction.getValue() + ") is not within " + slack
+                        + " degrees of a cardinal or intercardinal direction");
+            }
 
             return String.format("%04d%s", meters, compass);
-		}
+        }
 
         private String createMetricIntegerVisibility(final NumericMeasure visibility, final Optional<RelationalOperator> operator) throws SerializingException {
             final String str;
 
             final int meters = visibility.getValue().intValue();
-			if (meters < 0) {
-				throw new SerializingException("Visibility " + meters + " must be positive");
-			}
+            if (meters < 0) {
+                throw new SerializingException("Visibility " + meters + " must be positive");
+            }
 
             if (operator.isPresent() && operator.get() == RelationalOperator.BELOW && meters <= 50) {
                 str = "0000";
             } else if (operator.isPresent() && operator.get() == RelationalOperator.ABOVE && meters >= 9999) {
                 str = "9999";
-			} else {
-				str = String.format("%04d", meters);
-			}
+            } else {
+                str = String.format("%04d", meters);
+            }
 
-			return str;
-		}
+            return str;
+        }
 
-        private String createStatuteMilesVisibility(final NumericMeasure visibility, final Optional<RelationalOperator> operator) throws SerializingException {
+        private String createStatuteMilesVisibility(final NumericMeasure visibility, final Optional<RelationalOperator> operator) {
             final StringBuilder builder = new StringBuilder();
 
             if (operator.isPresent() && operator.get() == RelationalOperator.ABOVE) {
@@ -337,19 +336,19 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
             final double parts = visibility.getValue() - (double) integerPart;
 
-			if (parts > 1.0/(double)16) {
-				if (integerPart > 0) {
-					builder.append(String.format("%d ", integerPart));
-				}
+            if (parts > 1.0 / (double) 16) {
+                if (integerPart > 0) {
+                    builder.append(String.format("%d ", integerPart));
+                }
 
-				builder.append(findClosestFraction(parts, 16));
-			} else {
-				builder.append(String.format("%d", integerPart));
-			}
+                builder.append(findClosestFraction(parts, 16));
+            } else {
+                builder.append(String.format("%d", integerPart));
+            }
 
-			builder.append("SM");
+            builder.append("SM");
 
-			return builder.toString();
-		}
-	}
+            return builder.toString();
+        }
+    }
 }

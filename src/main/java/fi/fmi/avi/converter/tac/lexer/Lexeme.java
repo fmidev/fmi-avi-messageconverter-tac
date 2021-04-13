@@ -105,6 +105,14 @@ public interface Lexeme {
     String getLexerMessage();
 
     /**
+     * Sets a lexing note, such as an explanation for warning or error status.
+     *
+     * @param msg
+     *         message
+     */
+    void setLexerMessage(final String msg);
+
+    /**
      * The start index of the token used for creating this Lexeme in the original message input.
      * This is only available if populated by the lexer.
      *
@@ -269,13 +277,12 @@ public interface Lexeme {
 
     /**
      * A synthetic Lexeme has been created by the lexing process to fix some small syntax
-     * issues of the input message, such a missing start token. 
+     * issues of the input message, such a missing start token.
      *
      * @return true of the Lexemehas been marked as synthetic
      */
 
     boolean isSynthetic();
-
 
     /**
      * The certainty of the lexeme recognition as {@link #getIdentity()}.
@@ -289,6 +296,15 @@ public interface Lexeme {
      */
     double getIdentificationCertainty();
 
+    /**
+     * Sets the confidence of the Lexeme identification.
+     *
+     * @param percentage
+     *         between 0.0 and 1.0
+     *
+     * @see #getIdentificationCertainty()
+     */
+    void setIdentificationCertainty(double percentage);
 
     /**
      * This token has been marked as ignored, and it will not be exposed when iterating
@@ -298,6 +314,13 @@ public interface Lexeme {
      */
     boolean isIgnored();
 
+    /**
+     * Setting to set this Lexeme as ignored or not.
+     *
+     * @param ignored
+     *         true if to be ignored
+     */
+    void setIgnored(boolean ignored);
 
     /**
      * Identifies this Lexeme as {@code id} with {@link Status#OK} and no additional message.
@@ -397,30 +420,6 @@ public interface Lexeme {
     void setParsedValue(ParsedValueName name, Object value) throws IllegalArgumentException, IllegalStateException;
 
     /**
-     * Sets a lexing note, such as an explanation for warning or error status.
-     *
-     * @param msg message
-     */
-    void setLexerMessage(final String msg);
-
-    /**
-     * Sets the confidence of the Lexeme identification.
-     *
-     * @param percentage between 0.0 and 1.0
-     *
-     * @see #getIdentificationCertainty()
-     */
-    void setIdentificationCertainty(double percentage);
-
-    /**
-     * Setting to set this Lexeme as ignored or not.
-     *
-     * @param ignored
-     *         true if to be ignored
-     */
-    void setIgnored(boolean ignored);
-
-    /**
      * Provides access to a {@link LexemeVisitor} to refine this Lexeme.
      * Typically called by a {@link LexemeVisitor} to try to recognize
      * the Lexeme.
@@ -464,7 +463,7 @@ public interface Lexeme {
      *       TAF.TAFStatus status = taf.getStatus();
      *         if (status != null) {
      *           retval.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX_ERROR,
-     *             "TAF cannot be both " + TAF.TAFStatus.AMENDMENT + " and " + status + " at " + "the same time"));
+     *             "TAF cannot be both " + TAF.TAFStatus.AMENDMENT + " and " + status + " at the same time"));
      *         } else {
      *           taf.setStatus(AviationCodeListUser.TAFStatus.AMENDMENT);
      *         }
@@ -498,7 +497,6 @@ public interface Lexeme {
      * @return the found Lexeme, or null if match was not found by the last Lexeme
      */
     Lexeme findNext(LexemeIdentity needle, Consumer<Lexeme> found, LexemeParsingNotifyer notFound);
-
 
     /**
      * Lexeme status based on lexing process.
@@ -563,7 +561,7 @@ public interface Lexeme {
         REMARKS_START,
         REMARK(VALUE),
         COLOR_CODE(VALUE),
-        WHITE_SPACE(TYPE,VALUE),
+        WHITE_SPACE(TYPE, VALUE),
         END_TOKEN,
         BULLETIN_HEADING_DATA_DESIGNATORS(VALUE),
         BULLETIN_HEADING_LOCATION_INDICATOR(VALUE),
@@ -602,7 +600,8 @@ public interface Lexeme {
         MINUTE2,
         TYPE,
         COVER,
-        VALUE, VALUE2,
+        VALUE,
+        VALUE2,
         UNIT,
         UNIT2,
         MAX_VALUE,
@@ -642,10 +641,14 @@ public interface Lexeme {
         DELETE('\u007F'),
         SPACE('\u0020');
 
-        private char content;
+        private final char content;
+
+        MeteorologicalBulletinSpecialCharacter(final char content) {
+            this.content = content;
+        }
 
         public static MeteorologicalBulletinSpecialCharacter fromChar(final char c) {
-            for (MeteorologicalBulletinSpecialCharacter m:MeteorologicalBulletinSpecialCharacter.values()) {
+            for (final MeteorologicalBulletinSpecialCharacter m : MeteorologicalBulletinSpecialCharacter.values()) {
                 if (m.getContent().equals(Character.toString(c))) {
                     return m;
                 }
@@ -653,20 +656,17 @@ public interface Lexeme {
             return null;
         }
 
-        MeteorologicalBulletinSpecialCharacter(final char content) {
-            this.content = content;
-        }
-
         public String getContent() {
             return String.valueOf(this.content);
         }
     }
+
     /**
      * Lambda function interface to use with
      * {@link #findNext(LexemeIdentity, Consumer, LexemeParsingNotifyer)}
      */
     @FunctionalInterface
-    public interface LexemeParsingNotifyer {
+    interface LexemeParsingNotifyer {
         void ping();
     }
 

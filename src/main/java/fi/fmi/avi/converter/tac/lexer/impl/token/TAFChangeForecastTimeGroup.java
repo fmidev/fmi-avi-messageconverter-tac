@@ -32,16 +32,16 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious() &&  LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR.equals(token.getPrevious().getIdentity())) {
+        if (token.hasPrevious() && LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR.equals(token.getPrevious().getIdentity())) {
             if (match.group(1) != null) {
                 //old 24h TAF: HHHH
                 double certainty = 0.5; //could also be horizontal visibility
-                Lexeme l = token.getNext();
+                final Lexeme l = token.getNext();
                 if (l != null && (LexemeIdentity.SURFACE_WIND.equals(l.getIdentity()) || LexemeIdentity.HORIZONTAL_VISIBILITY.equals(l.getIdentity()))) {
                     certainty = 1.0;
                 }
-                int fromHour = Integer.parseInt(match.group(2));
-                int toHour = Integer.parseInt(match.group(3));
+                final int fromHour = Integer.parseInt(match.group(2));
+                final int toHour = Integer.parseInt(match.group(3));
                 if (timeOkHour(fromHour) && timeOkHour(toHour)) {
                     token.identify(LexemeIdentity.TAF_CHANGE_FORECAST_TIME_GROUP, certainty);
                     token.setParsedValue(HOUR1, fromHour);
@@ -52,10 +52,10 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
 
             } else if (match.group(4) != null) {
                 //30h TAF
-                int fromDay = Integer.parseInt(match.group(5));
-                int fromHour = Integer.parseInt(match.group(6));
-                int toDay = Integer.parseInt(match.group(7));
-                int toHour = Integer.parseInt(match.group(8));
+                final int fromDay = Integer.parseInt(match.group(5));
+                final int fromHour = Integer.parseInt(match.group(6));
+                final int toDay = Integer.parseInt(match.group(7));
+                final int toHour = Integer.parseInt(match.group(8));
                 if (timeOkDayHour(fromDay, fromHour) && timeOkDayHour(toDay, toHour)) {
                     token.identify(LexemeIdentity.TAF_CHANGE_FORECAST_TIME_GROUP);
                     token.setParsedValue(DAY1, fromDay);
@@ -72,17 +72,17 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
 
             if (TAF.class.isAssignableFrom(clz)) {
-                Optional<TAFChangeForecast> forecast = ctx.getParameter("forecast", TAFChangeForecast.class);
+                final Optional<TAFChangeForecast> forecast = ctx.getParameter("forecast", TAFChangeForecast.class);
                 if (forecast.isPresent() && forecast.get().getChangeIndicator() != TAFChangeIndicator.FROM) {
-                    PartialOrCompleteTimePeriod time = forecast.get().getPeriodOfChange();
-                    Optional<PartialOrCompleteTimeInstant> start = time.getStartTime();
-                    Optional<PartialOrCompleteTimeInstant> end = time.getEndTime();
+                    final PartialOrCompleteTimePeriod time = forecast.get().getPeriodOfChange();
+                    final Optional<PartialOrCompleteTimeInstant> start = time.getStartTime();
+                    final Optional<PartialOrCompleteTimeInstant> end = time.getEndTime();
                     if (start.isPresent() && end.isPresent()) {
-                        String timeStr;
+                        final String timeStr;
                         if (!start.get().getDay().isPresent() && !end.get().getDay().isPresent()) {
                             timeStr = String.format("%02d%02d", start.get().getHour().orElse(-1), end.get().getHour().orElse(-1));
                         } else {

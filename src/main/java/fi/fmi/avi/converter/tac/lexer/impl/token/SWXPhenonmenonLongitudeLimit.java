@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -30,7 +29,7 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
-        final List<String> limits = Arrays.asList(token.getTACToken().split("-")).stream().map(String::trim).collect(Collectors.toList());
+        final List<String> limits = Arrays.stream(token.getTACToken().split("-")).map(String::trim).collect(Collectors.toList());
 
         final Double minLimit = parseLimit(limits.get(0));
         final Double maxLimit = parseLimit(limits.get(1));
@@ -42,7 +41,7 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
     private Double parseLimit(final String param) {
         Double longitude;
 
-        final int decimalOffset = param.length() > 4 ? 4 : param.length();
+        final int decimalOffset = Math.min(param.length(), 4);
 
         longitude = parseLongitude(decimalOffset, param);
 
@@ -63,8 +62,7 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
 
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
-                throws SerializingException {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             Optional<Lexeme> lexeme = Optional.empty();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
@@ -73,12 +71,10 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
                     if (analysis.getRegions() != null && analysis.getRegions().size() > 0) {
                         final SpaceWeatherRegion region = analysis.getRegions().get(0);
                         if (region.getLongitudeLimitMinimum().isPresent() && region.getLongitudeLimitMaximum().isPresent()) {
-                            final StringBuilder builder = new StringBuilder();
-                            builder.append(parseLimit(region.getLongitudeLimitMinimum().get()));
-                            builder.append(" - ");
-                            builder.append(parseLimit(region.getLongitudeLimitMaximum().get()));
 
-                            lexeme = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT));
+                            final String content =
+                                    parseLimit(region.getLongitudeLimitMinimum().get()) + " - " + parseLimit(region.getLongitudeLimitMaximum().get());
+                            lexeme = Optional.of(this.createLexeme(content, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT));
                         }
                     }
                 }
@@ -96,9 +92,7 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
             final Double absLimit = Math.abs(limit);
             final DecimalFormat formatter = (DecimalFormat) NumberFormat.getNumberInstance(Locale.US);
             formatter.applyPattern(absLimit % 1.0 == 0.0 ? "000" : "000.00");
-            Arrays.asList(formatter.format(absLimit).split("\\.")).stream().filter(val -> !val.isEmpty()).forEach((item) -> {
-                builder.append(item);
-            });
+            Arrays.stream(formatter.format(absLimit).split("\\.")).filter(val -> !val.isEmpty()).forEach((item) -> builder.append(item));
             return builder.toString();
         }
     }

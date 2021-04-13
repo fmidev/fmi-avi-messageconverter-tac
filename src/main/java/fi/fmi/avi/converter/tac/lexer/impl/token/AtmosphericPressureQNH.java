@@ -23,32 +23,13 @@ import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
  */
 public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
 
-    public enum PressureMeasurementUnit {
-        HECTOPASCAL("Q"), INCHES_OF_MERCURY("A");
-
-        private String code;
-
-        PressureMeasurementUnit(final String code) {
-            this.code = code;
-        }
-
-        public static PressureMeasurementUnit forCode(final String code) {
-            for (PressureMeasurementUnit w : values()) {
-                if (w.code.equals(code)) {
-                    return w;
-                }
-            }
-            return null;
-        }
-    }
-
     public AtmosphericPressureQNH(final OccurrenceFrequency prio) {
         super("^([AQ])([0-9]{4}|////)$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        PressureMeasurementUnit unit = PressureMeasurementUnit.forCode(match.group(1));
+        final PressureMeasurementUnit unit = PressureMeasurementUnit.forCode(match.group(1));
         Integer value = null;
         if (!"////".equals(match.group(2))) {
             value = Integer.valueOf(match.group(2));
@@ -62,6 +43,25 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
         }
     }
 
+    public enum PressureMeasurementUnit {
+        HECTOPASCAL("Q"), INCHES_OF_MERCURY("A");
+
+        private final String code;
+
+        PressureMeasurementUnit(final String code) {
+            this.code = code;
+        }
+
+        public static PressureMeasurementUnit forCode(final String code) {
+            for (final PressureMeasurementUnit w : values()) {
+                if (w.code.equals(code)) {
+                    return w;
+                }
+            }
+            return null;
+        }
+    }
+
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
@@ -72,7 +72,7 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
             NumericMeasure altimeter = null;
 
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
-                Optional<NumericMeasure> qnh = ((MeteorologicalTerminalAirReport)msg).getAltimeterSettingQNH();
+                final Optional<NumericMeasure> qnh = ((MeteorologicalTerminalAirReport) msg).getAltimeterSettingQNH();
                 if (qnh.isPresent()) {
                     altimeter = qnh.get();
                     if (altimeter.getValue() == null) {
@@ -80,19 +80,16 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
                     }
 
                     String unit = null;
-                    if ("hPa" .equals(altimeter.getUom())) {
+                    if ("hPa".equals(altimeter.getUom())) {
                         unit = "Q";
-                    } else if ("in Hg" .equals(altimeter.getUom())) {
+                    } else if ("in Hg".equals(altimeter.getUom())) {
                         unit = "A";
                     } else {
                         throw new SerializingException("Unknown unit of measure in AltimeterSettingQNH '" + altimeter.getUom() + "'");
                     }
 
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(unit);
-                    builder.append(String.format("%04d", altimeter.getValue().intValue()));
-
-                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.AIR_DEWPOINT_TEMPERATURE));
+                    final String content = unit + String.format("%04d", altimeter.getValue().intValue());
+                    retval = Optional.of(this.createLexeme(content, LexemeIdentity.AIR_DEWPOINT_TEMPERATURE));
 
                 }
             }

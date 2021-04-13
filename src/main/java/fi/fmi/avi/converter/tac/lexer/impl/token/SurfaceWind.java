@@ -89,14 +89,14 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
             if (direction == -1) {
                 token.setParsedValue(DIRECTION, WindDirection.VARIABLE);
             } else {
-                token.setParsedValue(DIRECTION, Integer.valueOf(direction));
+                token.setParsedValue(DIRECTION, direction);
             }
-            token.setParsedValue(MEAN_VALUE, Integer.valueOf(mean));
+            token.setParsedValue(MEAN_VALUE, mean);
             if (meanWindAbove) {
                 token.setParsedValue(RELATIONAL_OPERATOR, AviationCodeListUser.RelationalOperator.ABOVE);
             }
             if (gustValue > -1) {
-                token.setParsedValue(MAX_VALUE, Integer.valueOf(gustValue));
+                token.setParsedValue(MAX_VALUE, gustValue);
             }
             if (gustAbove) {
                 token.setParsedValue(RELATIONAL_OPERATOR2, AviationCodeListUser.RelationalOperator.ABOVE);
@@ -192,9 +192,9 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                 final AviationCodeListUser.RelationalOperator gustOperator) //
                 throws SerializingException {
             final int speed = meanSpeed.getValue().intValue();
-            if (meanSpeedOperator != null && AviationCodeListUser.RelationalOperator.ABOVE == meanSpeedOperator) {
-                builder.append('P');
-            }
+                    if (AviationCodeListUser.RelationalOperator.ABOVE == meanSpeedOperator) {
+                        builder.append('P');
+                    }
             appendSpeed(builder, speed);
 
             if (gustSpeed != null) {
@@ -203,7 +203,7 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                             "Wind gust speed unit '" + gustSpeed.getUom() + "' is not the same as mean wind speed unit '" + meanSpeed.getUom() + "'");
                 }
                 builder.append('G');
-                if (gustOperator != null && AviationCodeListUser.RelationalOperator.ABOVE == gustOperator) {
+                if (AviationCodeListUser.RelationalOperator.ABOVE == gustOperator) {
                     builder.append('P');
                 }
                 appendSpeed(builder, gustSpeed.getValue().intValue());

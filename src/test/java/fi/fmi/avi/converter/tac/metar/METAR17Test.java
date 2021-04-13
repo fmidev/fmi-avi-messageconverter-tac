@@ -27,59 +27,57 @@ import fi.fmi.avi.model.metar.immutable.METARImpl;
 
 public class METAR17Test extends AbstractAviMessageTest<String, METAR> {
 
-	@Override
-	public String getJsonFilename() {
-		return "metar/metar17.json";
-	}
-	
-	@Override
-	public String getMessage() {
+    @Override
+    public String getJsonFilename() {
+        return "metar/metar17.json";
+    }
+
+    @Override
+    public String getMessage() {
         return "METAR KORD 201004Z 05008KT 1 1/4SM -DZ BR OVC006 03/03 04/54 A2964=";
     }
-	
-	@Override
-	public Optional<String> getCanonicalMessage() {
+
+    @Override
+    public Optional<String> getCanonicalMessage() {
         return Optional.of("METAR KORD 201004Z 05008KT 1 1/4SM -DZ BR OVC006 03/03 A2964=");
     }
-	
-	@Override
-	public ConversionHints getLexerParsingHints() {
-		return ConversionHints.METAR;
-	}
 
-	@Override
-	public Status getExpectedParsingStatus() {
-		return Status.WITH_ERRORS;
-	}
+    @Override
+    public ConversionHints getLexerParsingHints() {
+        return ConversionHints.METAR;
+    }
 
-	@Override
-	public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
-		assertEquals(1, conversionIssues.size());
-		ConversionIssue issue = conversionIssues.get(0);
+    @Override
+    public Status getExpectedParsingStatus() {
+        return Status.WITH_ERRORS;
+    }
 
-		assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
-		assertEquals("More than one of AIR_DEWPOINT_TEMPERATURE in " + getMessage(), issue.getMessage());
-	}
+    @Override
+    public void assertParsingIssues(final List<ConversionIssue> conversionIssues) {
+        assertEquals(1, conversionIssues.size());
+        final ConversionIssue issue = conversionIssues.get(0);
 
-	@Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-		return spacify(new LexemeIdentity[] {
-				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, WEATHER, WEATHER, CLOUD,
-                AIR_DEWPOINT_TEMPERATURE, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, END_TOKEN
-		});
-	}
+        assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
+        assertEquals("More than one of AIR_DEWPOINT_TEMPERATURE in " + getMessage(), issue.getMessage());
+    }
 
-	@Override
+    @Override
+    public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+        return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, WEATHER, WEATHER, CLOUD,
+                AIR_DEWPOINT_TEMPERATURE, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, END_TOKEN });
+    }
+
+    @Override
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
-	
-	@Override
+
+    @Override
     public ConversionSpecification<METAR, String> getSerializationSpecification() {
         return TACConverter.METAR_POJO_TO_TAC;
     }
 
-	@Override
+    @Override
     public Class<? extends METAR> getTokenizerImplmentationClass() {
         return METARImpl.class;
     }

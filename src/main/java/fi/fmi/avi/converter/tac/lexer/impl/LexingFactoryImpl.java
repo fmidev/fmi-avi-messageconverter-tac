@@ -27,8 +27,10 @@ import fi.fmi.avi.model.MessageType;
 public class LexingFactoryImpl implements LexingFactory {
 
     private static final String TAC_DELIMS = Arrays.stream(Lexeme.MeteorologicalBulletinSpecialCharacter.values())
-            .map(Lexeme.MeteorologicalBulletinSpecialCharacter::getContent).collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString()
-            + "=";
+            .map(Lexeme.MeteorologicalBulletinSpecialCharacter::getContent)
+            .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+            .append("=")
+            .toString();
 
     private final List<List<Predicate<String>>> tokenCombiningRules = new ArrayList<>();
 
@@ -895,7 +897,7 @@ public class LexingFactoryImpl implements LexingFactory {
         }
 
         public String toString() {
-            return "\'" + this.tacToken + "\'(" + this.id + "," + this.status + ")";
+            return "'" + this.tacToken + "'(" + this.id + "," + this.status + ")";
         }
 
         @Override

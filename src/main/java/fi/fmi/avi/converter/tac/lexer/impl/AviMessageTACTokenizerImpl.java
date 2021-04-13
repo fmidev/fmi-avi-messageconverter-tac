@@ -32,31 +32,31 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
     public AviMessageTACTokenizerImpl() {
     }
 
-    public void setMETARSerializer(METARTACSerializer serializer) {
+    public void setMETARSerializer(final METARTACSerializer serializer) {
         this.metarSerializer = serializer;
     }
 
-    public void setSPECISerializer(SPECITACSerializer serializer) {
+    public void setSPECISerializer(final SPECITACSerializer serializer) {
         this.speciSerializer = serializer;
     }
 
-    public void setTAFSerializer(TAFTACSerializer serializer) {
+    public void setTAFSerializer(final TAFTACSerializer serializer) {
         this.tafSerializer = serializer;
     }
 
-    public void setTAFBulletinSerializer(TAFBulletinTACSerializer serializer) {
+    public void setTAFBulletinSerializer(final TAFBulletinTACSerializer serializer) {
         this.tafBulletinSerializer = serializer;
     }
 
-    public void setSIGMETBulletinSerializer(SIGMETBulletinTACSerializer serializer) {
+    public void setSIGMETBulletinSerializer(final SIGMETBulletinTACSerializer serializer) {
         this.sigmetBulletinSerializer = serializer;
     }
 
-    public void setGenericBulletinSerializer(GenericMeteorologicalBulletinTACSerializer serializer) {
+    public void setGenericBulletinSerializer(final GenericMeteorologicalBulletinTACSerializer serializer) {
         this.genericBulletinSerializer = serializer;
     }
 
-    public void setSWXTacSerializer(SWXTACSerializer serializer) {
+    public void setSWXTacSerializer(final SWXTACSerializer serializer) {
         this.swxTACSerializer = serializer;
     }
 

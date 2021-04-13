@@ -82,7 +82,7 @@ public class SPECIMissingStartTokenTest extends AbstractAviMessageTest<String, S
     }
 
     @Override
-    public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
+    public void assertParsingIssues(final List<ConversionIssue> conversionIssues) {
         assertEquals(1, conversionIssues.size());
         assertSame(ConversionIssue.Type.SYNTAX, conversionIssues.get(0).getType());
         assertEquals("Message does not start with a start token: SPECI", conversionIssues.get(0).getMessage());
