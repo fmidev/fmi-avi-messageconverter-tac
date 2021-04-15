@@ -1,0 +1,33 @@
+{
+  "status": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM FIR",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "EHDB",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--11T11:30Z"
+    },
+    "endTime": {
+      "partialTime": "--11T15:30Z"
+    }
+  },
+  "sigmetPhenomenon": "SEV_ICE_FZRA",
+  "analysisType": "OBSERVATION",
+  "sequenceNumber": "M01",
+  "intensityChange": "NO_CHANGE",
+  "analysisGeometries": [{}],
+  "forecastGeometries": [{}],
+  "translated": false
+}
