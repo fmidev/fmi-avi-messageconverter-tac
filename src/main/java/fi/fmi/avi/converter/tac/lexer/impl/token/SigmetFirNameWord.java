@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_FIR_NAME_WORD;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_DESIGNATOR;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
 /**
  * Created by rinne on 10/02/17.
@@ -27,6 +28,7 @@ public class SigmetFirNameWord extends RegexMatchingLexemeVisitor {
         if (token.hasPrevious()&&(FIR_DESIGNATOR.equals(token.getPrevious().getIdentity())||
                       SIGMET_FIR_NAME_WORD.equals(token.getPrevious().getIdentity()))) {
                           token.identify(SIGMET_FIR_NAME_WORD);
+                          token.setParsedValue(VALUE, match.group(0));
                       }
     }
 

@@ -55,7 +55,7 @@ public class FIRDesignator extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET m = (SIGMET) msg;
-                if (m.getMeteorologicalWatchOffice().getDesignator() != null) {
+                if (m.getAirspace().getName() != null) {
                     return Optional.of(this.createLexeme(m.getAirspace().getDesignator(), LexemeIdentity.FIR_DESIGNATOR));
                 }
             }

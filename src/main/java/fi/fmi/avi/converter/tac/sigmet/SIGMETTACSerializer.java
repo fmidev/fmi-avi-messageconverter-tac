@@ -36,12 +36,79 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
         final ReconstructorContext<SIGMET> baseCtx = new ReconstructorContext<>(input, hints);
         appendToken(retval, LexemeIdentity.SIGMET_START, input, SIGMET.class, baseCtx);
         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+
+        if (appendToken(retval,LexemeIdentity.SEQUENCE_DESCRIPTOR, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+
+        if (appendToken(retval,LexemeIdentity.VALID_TIME, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        if (appendToken(retval,LexemeIdentity.MWO_DESIGNATOR, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        if (appendToken(retval,LexemeIdentity.FIR_DESIGNATOR, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        if (appendToken(retval,LexemeIdentity.FIR_NAME, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        if (appendToken(retval,LexemeIdentity.PHENOMENON_SIGMET, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        if (appendToken(retval,LexemeIdentity.OBS_OR_FORECAST, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        // if ("ENTIRE FIR".equals(input.getAnalysisGeometries().get().get(0).getGeometry().get().getTacGeometry().get())){
+        //     if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, baseCtx)>0) {
+        //         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        //     }
+        // }
+        input.getAnalysisGeometries().ifPresent(l-> l.get(0).getGeometry()
+            .ifPresent(g->g.getTacGeometry().ifPresent(t-> {
+                System.err.println("found tacGeometry");
+                try {
+                    if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, baseCtx)>0) {
+                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    }
+
+                } catch (SerializingException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            })));
+
+        input.getForecastGeometries().ifPresent(l-> l.get(0).getGeometry()
+        .ifPresent(g->g.getTacGeometry().ifPresent(t-> {
+            System.err.println("found forecast tacGeometry");
+            try {
+                if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, baseCtx)>0) {
+                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                }
+
+            } catch (SerializingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        })));
+
+        input.getIntensityChange().ifPresent(l -> {
+            try {
+                if (appendToken(retval, LexemeIdentity.SIGMET_INTENSITY, input, SIGMET.class, baseCtx) > 0) {
+                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                }
+            } catch (SerializingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        });
         if (appendToken(retval, LexemeIdentity.AMENDMENT, input, SIGMET.class, baseCtx) > 0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (appendToken(retval, LexemeIdentity.CORRECTION, input, SIGMET.class, baseCtx) > 0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
+        retval.removeLast();
         appendToken(retval, LexemeIdentity.END_TOKEN, input, SIGMET.class, baseCtx);
         return retval.build();
     }

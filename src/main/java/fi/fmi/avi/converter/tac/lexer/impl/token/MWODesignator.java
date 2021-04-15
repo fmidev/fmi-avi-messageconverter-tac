@@ -59,7 +59,7 @@ public class MWODesignator extends RegexMatchingLexemeVisitor {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET m = (SIGMET) msg;
                 if (m.getMeteorologicalWatchOffice().getDesignator() != null) {
-                    return Optional.of(this.createLexeme(m.getAirspace().getDesignator(), MWO_DESIGNATOR));
+                    return Optional.of(this.createLexeme(m.getMeteorologicalWatchOffice().getDesignator()+"-", MWO_DESIGNATOR));
                 }
             }
             return Optional.empty();

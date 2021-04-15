@@ -36,7 +36,16 @@ public class SigmetIntensity extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                return Optional.of(createLexeme("AND", SIGMET_INTENSITY));
+                SIGMET sm = (SIGMET) msg;
+                switch (sm.getIntensityChange().get()) {
+
+                case NO_CHANGE:
+                    return Optional.of(createLexeme("NC", SIGMET_INTENSITY));
+                case WEAKENING:
+                    return Optional.of(createLexeme("WKN", SIGMET_INTENSITY));
+                case INTENSIFYING:
+                    return Optional.of(createLexeme("INTSF", SIGMET_INTENSITY));
+                }
             }
             return Optional.empty();
         }

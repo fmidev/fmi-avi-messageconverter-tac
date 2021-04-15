@@ -40,7 +40,7 @@ public class SigmetStart extends PrioritizedLexemeVisitor {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET)msg;
                 StringBuilder sb=new StringBuilder();
-                sb.append(sigmet.getMeteorologicalWatchOffice());
+                sb.append(sigmet.getAirspace().getDesignator());
                 sb.append(" ");
                 sb.append("SIGMET");
                 return Optional.of(createLexeme(sb.toString(), REAL_SIGMET_START));

@@ -37,9 +37,12 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.ColorCode;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Correction;
 import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.EndToken;
+import fi.fmi.avi.converter.tac.lexer.impl.token.FIRDesignator;
+import fi.fmi.avi.converter.tac.lexer.impl.token.FIRName;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ForecastMaxMinTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ICAOCode;
 import fi.fmi.avi.converter.tac.lexer.impl.token.IssueTime;
+import fi.fmi.avi.converter.tac.lexer.impl.token.MWODesignator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetarStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory;
@@ -47,6 +50,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisoryLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
+import fi.fmi.avi.converter.tac.lexer.impl.token.ObsOrForecast;
+import fi.fmi.avi.converter.tac.lexer.impl.token.PhenomenonSIGMET;
 import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePair;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
@@ -68,6 +73,11 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenonmenonLongitudeLimit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPresetLocation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXVerticalLimit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetEntireFir;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetIntensity;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetSequenceDescriptor;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
@@ -145,9 +155,9 @@ public class Serializing {
     }
 
     @Bean
-    @Qualifier("igmetTACSerializer")
+    @Qualifier("sigmetTACSerializer")
     AviMessageSpecificConverter<SIGMET, String> sigmetTACSerializer() {
-        final SIGMETTACSerializer s = new SIGMETTACSerializer();
+        final SIGMETTACSerializer s = spawnSIGMETTACSerializer();
         addCommonBulletinReconstructors(s);
         return s;
     }
@@ -294,5 +304,23 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
         s.addReconstructor(LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR, new BulletinHeadingBBBIndicator.Reconstructor());
     }
-
+    // Creates an instance of the SIGMETTACSerializer to be used for two separate bean instances
+    // (sigmetTACSerializer and sigmetBulletinTACSerializer):
+    private SIGMETTACSerializer spawnSIGMETTACSerializer() {
+        final SIGMETTACSerializer s = new SIGMETTACSerializer();
+        s.setLexingFactory(lexingFactory);
+        s.addReconstructor(LexemeIdentity.SIGMET_START, new SigmetStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.REAL_SIGMET_START, new SigmetStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SEQUENCE_DESCRIPTOR, new SigmetSequenceDescriptor.Reconstructor());
+        s.addReconstructor(LexemeIdentity.VALID_TIME, new SigmetValidTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.MWO_DESIGNATOR, new MWODesignator.Reconstructor());
+        s.addReconstructor(LexemeIdentity.FIR_DESIGNATOR, new FIRDesignator.Reconstructor());
+        s.addReconstructor(LexemeIdentity.FIR_NAME, new FIRName.Reconstructor());
+        s.addReconstructor(LexemeIdentity.PHENOMENON_SIGMET, new PhenomenonSIGMET.Reconstructor());
+        s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new ObsOrForecast.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_INTENSITY, new SigmetIntensity.Reconstructor());
+        s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
+        return s;
+    }
 }

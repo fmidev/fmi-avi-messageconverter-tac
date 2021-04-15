@@ -12,7 +12,7 @@
   <description>Aviation weather message conversions - TAC module</description>
   <groupId>fi.fmi.avi.converter</groupId>
   <artifactId>fmi-avi-messageconverter-tac</artifactId>
-  <version>4.0.5.KNMI-fmimaster-withsigmet-SNAPSHOT</version>
+  <version>4.0.5.KNMI-add-sigmet-tac-2-SNAPSHOT</version>
 
   <scm>
     <connection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</connection>
@@ -30,7 +30,7 @@
     <dependency>
         <groupId>fi.fmi.avi.converter</groupId>
         <artifactId>fmi-avi-messageconverter</artifactId>
-        <version>4.0.4.KNMI-add-cicd-SNAPSHOT</version>
+        <version>4.0.5.KNMI-add-sigmet-tac-2-SNAPSHOT</version>
     </dependency>
 
     <!-- For JUnit tests -->
@@ -66,7 +66,7 @@
     </dependency>
 
   </dependencies>
-  
+
   <build>
     <!-- Overriding settings from parent pom: -->
     <pluginManagement>
@@ -81,8 +81,8 @@
         </plugin>
       </plugins>
     </pluginManagement>
-  </build>    
-  
+  </build>
+
   <repositories>
      <!-- Needed to resolve parent pom during deploy -->
     <repository>
@@ -102,14 +102,14 @@
         <id>fmi-avi-messageconverter</id>
         <url>https://gitlab.com/api/v4/projects/22507877/packages/maven</url>
     </repository>
-    
+
         <!-- fi/fmi/avi/converter/fmi-avi-messageconverter-tac-->
     <repository>
       <id>gitlab-maven</id>
       <url>https://gitlab.com/api/v4/projects/22507780/packages/maven</url>
     </repository>
   </repositories>
-  
+
    <distributionManagement>
     <repository>
       <id>gitlab-maven</id>

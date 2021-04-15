@@ -131,7 +131,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity EXER = new LexemeIdentity("EXER", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity TEST = new LexemeIdentity("TEST", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity PHENOMENON_SIGMET = new LexemeIdentity("PHENOMENON_SIGMET", EnumSet.of(SIGMET_PHENOMENON), Collections.emptySet());
-    public static final LexemeIdentity OBS_OR_FORECAST = new LexemeIdentity("OBS_OR_FORECAST",EnumSet.of(IS_FORECAST, VALUE), Collections.emptySet());
+    public static final LexemeIdentity OBS_OR_FORECAST = new LexemeIdentity("OBS_OR_FORECAST",EnumSet.of(IS_FORECAST, HOUR1, MINUTE1), Collections.emptySet());
     public static final LexemeIdentity SIGMET_ENTIRE_AREA = new LexemeIdentity("SIGMET_ENTIRE_AREA", EnumSet.of(AREA_TYPE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_WITHIN = new LexemeIdentity("SIGMET_WITHIN", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity SIGMET_LINE = new LexemeIdentity("SIGMET_LINE",EnumSet.of(VALUE) , Collections.emptySet());
@@ -144,7 +144,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_VA_NAME = new LexemeIdentity("SIGMET_VA_NAME", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_VA_ERUPTION = new LexemeIdentity("SIGMET_VA_ERUPTION");
     public static final LexemeIdentity SIGMET_VA_POSITION = new LexemeIdentity("SIGMET_VA_POSITION");
-    public static final LexemeIdentity SIGMET_FIR_NAME_WORD = new LexemeIdentity("SIGMET_FIR_NAME_WORD");
+    public static final LexemeIdentity SIGMET_FIR_NAME_WORD = new LexemeIdentity("SIGMET_FIR_NAME_WORD", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_APRX_LINE = new LexemeIdentity("SIGMET_APRX_LINE",EnumSet.of(APRX_LINE_WIDTH, APRX_LINE_WIDTH_UNIT) , Collections.emptySet());
     public static final LexemeIdentity SIGMET_LEVEL = new LexemeIdentity("SIGMET_LEVEL", EnumSet.of(VALUE, UNIT, VALUE2, UNIT2, LEVEL_MODIFIER), Collections.emptySet());
     public static final LexemeIdentity SIGMET_MOVING = new LexemeIdentity("SIGMET_MOVING", EnumSet.of(DIRECTION, STATIONARY, VALUE, UNIT), Collections.emptySet());

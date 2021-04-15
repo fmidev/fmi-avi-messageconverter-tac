@@ -1,23 +1,11 @@
 package fi.fmi.avi.converter.tac.sigmet;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.END_TOKEN;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.EXER;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_DESIGNATOR;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_NAME;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.MWO_DESIGNATOR;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.OBS_OR_FORECAST;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.PHENOMENON_SIGMET;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REAL_SIGMET_START;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEQUENCE_DESCRIPTOR;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
-// import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TEST;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEQUENCE_DESCRIPTOR;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Assume;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,8 +58,8 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, PHENOMENON_SIGMET, OBS_OR_FORECAST, END_TOKEN }));
     assertEquals(true    , result.getLexemes().get(4).getParsedValue(IS_FORECAST, Boolean.class));
-    assertEquals("1200"    , result.getLexemes().get(4).getParsedValue(VALUE, String.class));
-  }
+    assertEquals(new Integer("12"), result.getLexemes().get(4).getParsedValue(HOUR1, Integer.class));
+    assertEquals(new Integer("00"), result.getLexemes().get(4).getParsedValue(MINUTE1, Integer.class));  }
   @Test
   public void shouldBePhenomenonEMBD_TS() {
     String tacString = "EMBD TS=";
@@ -143,7 +131,7 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, END_TOKEN }));
     assertEquals("EHDB", trimWhitespaces(result.getLexemes()).get(4).getParsedValue(ParsedValueName.VALUE, String.class));
     assertEquals("EHAA", trimWhitespaces(result.getLexemes()).get(6).getParsedValue(ParsedValueName.VALUE, String.class));
-    assertEquals("AMSTERDAM", trimWhitespaces(result.getLexemes()).get(10).getParsedValue(ParsedValueName.VALUE, String.class));
+    assertEquals("AMSTERDAM FIR", trimWhitespaces(result.getLexemes()).get(10).getParsedValue(ParsedValueName.VALUE, String.class));
   }
 
 
@@ -155,7 +143,7 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, SIGMET_FIR_NAME_WORD, FIR_NAME, END_TOKEN }));
     assertEquals("EHDB", trimWhitespaces(result.getLexemes()).get(4).getParsedValue(ParsedValueName.VALUE, String.class));
     assertEquals("EHAA", trimWhitespaces(result.getLexemes()).get(6).getParsedValue(ParsedValueName.VALUE, String.class));
-    assertEquals("KUALA LUMPUR", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.VALUE, String.class));
+    assertEquals("KUALA LUMPUR FIR", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.VALUE, String.class));
   }
 
   @Test
@@ -232,7 +220,7 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
   }
 
   @Test
-  public void shouldBePSN() {
+  public void shouldBeVA() {
     String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA ERUPTION PSN N5200 E00520 VA CLD=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
@@ -241,7 +229,7 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
   }
 
   @Test
-  public void shouldBeGeometry_POINT() {
+  public void shouldBeVA_PSN() {
     String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA ERUPTION PSN N5200 E00520 VA CLD OBS N5310 E00520=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
@@ -328,6 +316,19 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
   }
 
   @Test
+  public void shouldBeGeometry_POINT() {
+    String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR HVY SS OBS N5210 E00520=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
+          FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
+          POLYGON_COORDINATE_PAIR,
+          END_TOKEN }));
+    assertEquals("HVY_SS", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
+  }
+
+  @Test
   public void shouldBeGeometry_N_OF_LINE() {
     String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS NE OF LINE N5210 E00520 - N5410 E00540 - N5510 E00530=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
@@ -377,7 +378,7 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
           SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
           FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, PHENOMENON_SIGMET, OBS_OR_FORECAST,
-          SIGMET_APRX_LINE,POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
+          SIGMET_APRX_LINE, POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR, POLYGON_COORDINATE_PAIR,
           END_TOKEN }));
     assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.SIGMET_PHENOMENON, String.class));
     assertEquals("50", trimWhitespaces(result.getLexemes()).get(16).getParsedValue(ParsedValueName.APRX_LINE_WIDTH, String.class));
@@ -455,9 +456,9 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
           SIGMET_START,
-          SIGMET_FCST_AT,
+          OBS_OR_FORECAST,
           END_TOKEN }));
-    assertEquals("1200", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.VALUE, String.class));
-  }
+    assertEquals(new Integer("12"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.HOUR1, Integer.class));
+    assertEquals(new Integer("00"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MINUTE1, Integer.class));  }
 
 }

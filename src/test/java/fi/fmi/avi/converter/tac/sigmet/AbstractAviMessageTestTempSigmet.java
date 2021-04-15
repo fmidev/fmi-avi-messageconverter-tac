@@ -5,15 +5,19 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Assume;
 import org.junit.Ignore;
@@ -32,6 +36,7 @@ import org.unitils.reflectionassert.report.impl.DefaultDifferenceReport;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -68,17 +73,21 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
     private AviMessageConverter converter;
 
     protected static void assertAviationWeatherMessageEquals(final AviationWeatherMessage expected, final AviationWeatherMessage actual) {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.registerModule(new Jdk8Module());
-      String serializedActual;
-			try {
-				serializedActual = mapper.writeValueAsString(actual);
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!");
-      System.out.println(serializedActual);
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-      
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new Jdk8Module());
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            String serializedActual = mapper.writeValueAsString(actual);
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!");
+            System.out.println(serializedActual);
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!");
+            String serializedExpected = mapper.writeValueAsString(expected);
+            System.out.println(serializedExpected);
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!");
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
         final Difference diff = deepCompareObjects(expected, actual);
         if (diff != null) {
             final StringBuilder failureMessage = new StringBuilder();
@@ -192,6 +201,7 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
         return ConversionResult.Status.SUCCESS;
     }
 
+    @Ignore
     @Test
     public void testLexer() {
         Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
@@ -200,7 +210,7 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
         assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), getLexerTokenSequenceIdentity());
     }
 
-    @Ignore
+
     @Test
     public void testTokenizer() throws SerializingException, IOException {
         Assume.assumeTrue(String.class.isAssignableFrom(getSerializationSpecification().getOutputClass()));
@@ -219,7 +229,6 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
         assertEquals("No serialization issues expected", 0, conversionIssues.size());
     }
 
-    @Ignore
     @Test
     public void testStringToPOJOParser() throws IOException {
         final ConversionSpecification<S, T> spec = getParsingSpecification();
@@ -299,6 +308,12 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
         final ObjectMapper om = new ObjectMapper();
         om.registerModule(new Jdk8Module());
         om.registerModule(new JavaTimeModule());
+        final InputStream is2 = AbstractAviMessageTestTempSigmet.class.getResourceAsStream(fileName);
+        String text=new BufferedReader(
+            new InputStreamReader(is2,  StandardCharsets.UTF_8))
+            .lines()
+            .collect(Collectors.joining("\n"));
+        System.err.println("JSON: "+text);
         final InputStream is = AbstractAviMessageTestTempSigmet.class.getResourceAsStream(fileName);
         if (is != null) {
             final Class<? extends AviationWeatherMessage> clz = getTokenizerImplmentationClass();

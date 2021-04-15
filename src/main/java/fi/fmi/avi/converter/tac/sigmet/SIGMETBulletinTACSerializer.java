@@ -21,7 +21,7 @@ public class SIGMETBulletinTACSerializer extends AbstractTACBulletinSerializer<S
         if (message instanceof SIGMETBulletin) {
             return (SIGMETBulletin) message;
         } else {
-            throw new SerializingException("Can only serialize TAFBulletins");
+            throw new SerializingException("Can only serialize SIGMETBulletins");
         }
     }
 

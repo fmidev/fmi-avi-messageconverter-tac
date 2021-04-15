@@ -30,6 +30,7 @@ public class FIRName extends RegexMatchingLexemeVisitor {
             if (token.getPrevious().hasPrevious()&&LexemeIdentity.SIGMET_FIR_NAME_WORD.equals(token.getPrevious().getPrevious().getIdentity())) {
                 firName = token.getPrevious().getPrevious().getTACToken() + " " + firName;
             }
+            firName = firName + " "+ match.group(1);
             token.setParsedValue(Lexeme.ParsedValueName.VALUE, firName);
             token.setParsedValue(Lexeme.ParsedValueName.FIR_TYPE, match.group(1));
         }
@@ -41,9 +42,8 @@ public class FIRName extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET m = (SIGMET) msg;
-                if (m.getMeteorologicalWatchOffice().getDesignator() != null) {
-                    return Optional.of(this.createLexeme(m.getAirspace().getDesignator(), LexemeIdentity.FIR_DESIGNATOR));
-                }
+                String firName = m.getAirspace().getName();
+                return Optional.of(this.createLexeme(firName, LexemeIdentity.FIR_NAME));
             }
             return Optional.empty();
         }

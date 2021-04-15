@@ -2,11 +2,13 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.ArrayList;
@@ -81,16 +83,29 @@ public class PhenomenonSIGMET extends RegexMatchingLexemeVisitor {
                     AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SQL_TS,
                     AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SQL_TSGR,
                     AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.FRQ_TS,
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.FRQ_TSGR
+                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.FRQ_TSGR,
+                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE,
+                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE_FZRA
             ));
-           if (SIGMET.class.isAssignableFrom(clz)) {
+
+            if (SIGMET.class.isAssignableFrom(clz)) {
                 if (tsPhenomena.contains(((SIGMET) msg).getSigmetPhenomenon())) {
                     SIGMET sigmet = (SIGMET) msg;
-                    String phen=sigmet.getSigmetPhenomenon().getText();
+                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon phen=sigmet.getSigmetPhenomenon();
+                    String text;
+                    if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE_FZRA.equals(phen)){;
+                        text = "SEV ICE (FZRA)";
+                    } else {
+                        text = phen.getText().replaceAll("_", " ");
+                    }
 
+                    return Optional.of(this.createLexeme(text, LexemeIdentity.PHENOMENON_SIGMET));
                 }
             }
             return Optional.empty();
         }
     }
 }
+
+
+

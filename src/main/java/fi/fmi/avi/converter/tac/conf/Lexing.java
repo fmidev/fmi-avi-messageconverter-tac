@@ -111,7 +111,7 @@ public class Lexing {
         f.addTokenCombiningRule(intlSigmetLevelCombinationRule2());
         f.addTokenCombiningRule(intlSigmetLevelCombinationRule3());
         f.addTokenCombiningRule(intlSigmetMovingCombinationRule());
-        f.addTokenCombiningRule(intlSigmetForecastAtCombinationRule());
+        f.addTokenCombiningRule(intlSigmetObsFcstAtCombinationRule());
 
         //        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
 
@@ -1010,12 +1010,12 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> intlSigmetForecastAtCombinationRule() {
+    private List<Predicate<String>> intlSigmetObsFcstAtCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.equals("FCST");
+                return s.matches("^(OBS|FCST)$");
             }
         });
         retval.add(new Predicate<String>() {
