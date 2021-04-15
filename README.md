@@ -42,6 +42,7 @@ functionality to the AviMessageParser instance using Spring:
 
 ```java
 package my.stuff;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -70,7 +71,7 @@ public class MyMessageConverterConfig {
 
     @Bean
     public AviMessageConverter aviMessageConverter() {
-        AviMessageConverter p = new AviMessageConverter();
+        final AviMessageConverter p = new AviMessageConverter();
         p.setMessageSpecificConverter(TACConverter.TAC_TO_METAR_POJO, metarTACParser);
         p.setMessageSpecificConverter(TACConverter.TAC_TO_TAF_POJO, tafTACParser);
         p.setMessageSpecificConverter(TACConverter.METAR_POJO_TO_TAC, metarTACSerializer);

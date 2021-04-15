@@ -1,5 +1,5 @@
 {
-	"status" : "CORRECTION",
+	"reportStatus" : "CORRECTION",
 	"issueTime" : {
       "partialTime" : "--10T09:12Z"
 	},
@@ -20,17 +20,12 @@
 			}
 	  	}
 	},
-	"referredReport": {
-		"aerodrome": {
-			"designator" : "EFHK"
+	"referredReportValidPeriod": {
+		"startTime": {
+			"partialTime" : "--10T09:"
 		},
-		"validityTime" : {
-			"startTime" : {
-				"partialTime" : "--10T09:"
-			},
-			"endTime" : {
-				"partialTime" : "--11T09:"
-			}
+		"endTime": {
+			"partialTime" : "--11T09:"
 		}
 	},
     "translatedTAC" : "TAF COR EFHK 100912Z 1009/1109 00000KT CAVOK="

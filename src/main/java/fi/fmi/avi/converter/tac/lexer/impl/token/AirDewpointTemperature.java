@@ -37,14 +37,14 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
         if (!"//".equals(match.group(4))) {
             dewPointTemp = Double.valueOf(match.group(4));
         }
-        Double[] values = new Double[2];
+        final Double[] values = new Double[2];
         boolean missingValues = false;
         if (airTemp != null) {
             if (match.group(1) != null) {
-                if (1.0d/airTemp.doubleValue() == Double.POSITIVE_INFINITY) {
+                if (1.0d / airTemp == Double.POSITIVE_INFINITY) {
                     airTemp = -0.0d; //explicit value required, 0.0d != -0.0d
                 } else {
-                    airTemp = Double.valueOf(airTemp.intValue() * -1);
+                    airTemp = (double) (airTemp.intValue() * -1);
                 }
             }
             values[0] = airTemp;
@@ -53,17 +53,17 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
         }
         if (dewPointTemp != null) {
             if (match.group(3) != null) {
-                if (1.0d/dewPointTemp.doubleValue() == Double.POSITIVE_INFINITY) {
+                if (1.0d / dewPointTemp == Double.POSITIVE_INFINITY) {
                     dewPointTemp = -0.0d;
                 } else {
-                    dewPointTemp = Double.valueOf(dewPointTemp.intValue() * -1);
+                    dewPointTemp = (double) (dewPointTemp.intValue() * -1);
                 }
             }
             values[1] = dewPointTemp;
         } else {
             missingValues = true;
         }
-        
+
         if (missingValues) {
             token.identify(AIR_DEWPOINT_TEMPERATURE, Lexeme.Status.WARNING, "Values for air and/or dew point temperature missing");
         } else {
@@ -76,16 +76,16 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(T msg, Class<T> clz, ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
-                Optional<NumericMeasure> airTemp = ((MeteorologicalTerminalAirReport)msg).getAirTemperature();
-                Optional<NumericMeasure> dewpointTemp = ((MeteorologicalTerminalAirReport)msg).getDewpointTemperature();
+                final Optional<NumericMeasure> airTemp = ((MeteorologicalTerminalAirReport) msg).getAirTemperature();
+                final Optional<NumericMeasure> dewpointTemp = ((MeteorologicalTerminalAirReport) msg).getDewpointTemperature();
                 if (airTemp.isPresent() && dewpointTemp.isPresent()) {
-                    NumericMeasure air = airTemp.get();
-                    NumericMeasure dew = dewpointTemp.get();
+                    final NumericMeasure air = airTemp.get();
+                    final NumericMeasure dew = dewpointTemp.get();
 
                     if (air.getValue() == null) {
                         throw new SerializingException("AirTemperature exists, but no value");
@@ -95,15 +95,15 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
                         throw new SerializingException("DewpointTemperature exists, but no value");
                     }
 
-                    if (!"degC" .equals(air.getUom())) {
+                    if (!"degC".equals(air.getUom())) {
                         throw new SerializingException("AirTemperature unit of measure is not degC, but '" + air.getUom() + "'");
                     }
 
-                    if (!"degC" .equals(dew.getUom())) {
+                    if (!"degC".equals(dew.getUom())) {
                         throw new SerializingException("DewpointTemperature unit of measure is not degC, but '" + dew.getUom() + "'");
                     }
 
-                    StringBuilder builder = new StringBuilder();
+                    final StringBuilder builder = new StringBuilder();
 
                     appendValue(air.getValue(), builder);
                     builder.append("/");
@@ -116,11 +116,11 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
             return retval;
         }
 
-        private void appendValue(Double v, StringBuilder builder) {
-            if (v < 0.0 || 1.0d/v == Double.NEGATIVE_INFINITY) {
+        private void appendValue(final Double v, final StringBuilder builder) {
+            if (v < 0.0 || 1.0d / v == Double.NEGATIVE_INFINITY) {
                 builder.append("M");
             }
-            builder.append(String.format("%02d",  Math.round(Math.abs(v))));
+            builder.append(String.format("%02d", Math.round(Math.abs(v))));
         }
     }
 }

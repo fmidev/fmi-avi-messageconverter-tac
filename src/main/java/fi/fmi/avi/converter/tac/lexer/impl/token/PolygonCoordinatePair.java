@@ -21,7 +21,10 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CoordinateReferenceSystem;
 import fi.fmi.avi.model.Geometry;
+import fi.fmi.avi.model.PointGeometry;
 import fi.fmi.avi.model.PolygonGeometry;
+import fi.fmi.avi.model.TacOrGeoGeometry;
+import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.swx.AirspaceVolume;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
@@ -68,6 +71,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
+            System.err.println("PCP recon");
             final List<Lexeme> retval = new ArrayList<>();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
@@ -149,6 +153,71 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            } else if (SIGMET.class.isAssignableFrom(clz)) {
+                System.err.println("PCP SIGMET recon");
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    System.err.println("Reconstructing PCP");
+                    final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getAnalysisGeometries().get().get(analysisIndex.get()).getGeometry().get();
+                    if (tacOrGeoGeometry.getGeoGeometry().isPresent()) {
+                        final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
+                        if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
+                            PointGeometry pt = (PointGeometry)geoGeometry;
+                            //Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
+                            int latOffset = -1;
+                            int lonOffset = -1;
+                            final List<String> axisLabels = pt.getCrs().map(CoordinateReferenceSystem::getAxisLabels).orElse(Collections.emptyList());
+                            for (int i = axisLabels.size() - 1; i >= 0; i--) {
+                                final String axisLabel = axisLabels.get(i).toLowerCase(Locale.US);
+                                if (LATITUDE_AXIS_LABELS.contains(axisLabel)) {
+                                    latOffset = i;
+                                } else if (LONGITUDE_AXIS_LABELS.contains(axisLabel)) {
+                                    lonOffset = i;
+                                }
+                            }
+                            //defaults to EPSG:4326 (lat,lon) order:
+                            if (latOffset == -1) {
+                                latOffset = 0;
+                            }
+                            if (lonOffset == -1) {
+                                lonOffset = 1;
+                            }
+                            final List<Double> coords = pt.getCoordinates();
+                            StringBuilder latBuilder = new StringBuilder();
+                            StringBuilder lonBuilder = new StringBuilder();
+                            final BigDecimal lat = BigDecimal.valueOf(coords.get(latOffset));
+                            final BigDecimal lon = BigDecimal.valueOf(coords.get(lonOffset));
+                            if (lat.doubleValue() >= -90.0 && lat.doubleValue() <= 90.0 && lon.doubleValue() >= -180.0
+                                    && lon.doubleValue() <= 180.0) {
+                                if (lat.doubleValue() < 0) {
+                                    latBuilder.append('S');
+                                } else {
+                                    latBuilder.append('N');
+                                }
+                                if (lon.doubleValue() < 0) {
+                                    lonBuilder.append('W');
+                                } else {
+                                    lonBuilder.append('E');
+                                }
+                                final BigDecimal latDecimalPart = lat.subtract(BigDecimal.valueOf(lat.intValue()));
+                                final BigDecimal lonDecimalPart = lon.subtract(BigDecimal.valueOf(lon.intValue()));
+                                latBuilder.append(String.format("%02d", lat.abs().intValue()));
+                                lonBuilder.append(String.format("%03d", lon.abs().intValue()));
+                                if (latDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
+                                    latBuilder.append(String.format("%02d", latDecimalPart.abs().multiply(BigDecimal.valueOf(100d)).intValue()));
+                                }
+                                if (lonDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
+                                    lonBuilder.append(String.format("%02d", lonDecimalPart.abs().multiply(BigDecimal.valueOf(100d)).intValue()));
+                                }
+                                retval.add(this.createLexeme(
+                                            "WI" + Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
+                                            + latBuilder.toString() + Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
+                                            + lonBuilder.toString(), LexemeIdentity.POLYGON_COORDINATE_PAIR));
+                            }
+
                         }
                     }
                 }

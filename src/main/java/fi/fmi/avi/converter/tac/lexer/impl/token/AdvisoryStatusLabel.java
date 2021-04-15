@@ -27,12 +27,11 @@ public class AdvisoryStatusLabel extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             Optional<Lexeme> retval = Optional.empty();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                SpaceWeatherAdvisory advisory = (SpaceWeatherAdvisory) msg;
+                final SpaceWeatherAdvisory advisory = (SpaceWeatherAdvisory) msg;
 
                 if (advisory.getPermissibleUsageReason().isPresent()) {
                     if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                        StringBuilder builder = new StringBuilder("STATUS:");
-                        retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_STATUS_LABEL));
+                        retval = Optional.of(this.createLexeme("STATUS:", LexemeIdentity.ADVISORY_STATUS_LABEL));
                     }
                 }
             }

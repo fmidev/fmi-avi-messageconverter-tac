@@ -22,9 +22,8 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS.equals(token.getFirst().getIdentityIfAcceptable())
-                && token.hasPrevious() && token.getPrevious().getIdentityIfAcceptable() != null
-                && LexemeIdentity.ISSUE_TIME.equals(token.getPrevious().getIdentityIfAcceptable())) {
+        if (LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS.equals(token.getFirst().getIdentityIfAcceptable()) && token.hasPrevious()
+                && token.getPrevious().getIdentityIfAcceptable() != null && LexemeIdentity.ISSUE_TIME.equals(token.getPrevious().getIdentityIfAcceptable())) {
             token.identify(LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR);
             token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group("bbb"));
         }
@@ -37,14 +36,14 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             final Optional<Lexeme> retval = Optional.empty();
             if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
-                final BulletinHeading heading = ((MeteorologicalBulletin) msg).getHeading();
+                final BulletinHeading heading = ((MeteorologicalBulletin<?>) msg).getHeading();
                 if (heading != null) {
                     final Optional<Integer> augNumber = heading.getBulletinAugmentationNumber();
                     if (augNumber.isPresent()) {
                         if (heading.getType() == BulletinHeading.Type.NORMAL) {
                             throw new SerializingException("Bulletin contains augmentation number, but the type is " + BulletinHeading.Type.NORMAL);
                         }
-                        final int seqNumber = Character.codePointAt("A", 0) + augNumber.get().intValue() - 1;
+                        final int seqNumber = Character.codePointAt("A", 0) + augNumber.get() - 1;
                         //Using Character.codePointAt here is a bit overdo here since we know that we are always operating with single char ASCII codes
                         if (seqNumber < Character.codePointAt("A", 0) || seqNumber > Character.codePointAt("Z", 0)) {
                             throw new SerializingException(

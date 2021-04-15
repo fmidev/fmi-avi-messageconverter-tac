@@ -30,6 +30,28 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
         on 11th Jan 2017.
      */
 
+    private final static Map<String, ICAOCodeCountryPrefix> codeToCountryMap = ICAOCodeCountryPrefix.getCodeToCountryMap();
+
+    public ICAOCode(final OccurrenceFrequency prio) {
+        super("^[A-Z]{4,}$", prio);
+    }
+
+    @Override
+    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
+        //Must be second or third token:
+        if (token.getPrevious() == token.getFirst() || (token.hasPrevious() && token.getPrevious().getPrevious() == token.getFirst())) {
+            for (final Map.Entry<String, ICAOCodeCountryPrefix> entry : codeToCountryMap.entrySet()) {
+                if (token.getTACToken().startsWith(entry.getKey())) {
+                    token.identify(AERODROME_DESIGNATOR);
+                    token.setParsedValue(COUNTRY, entry.getValue());
+                    token.setParsedValue(VALUE, token.getTACToken());
+                    return;
+                }
+            }
+            token.identify(AERODROME_DESIGNATOR, Lexeme.Status.SYNTAX_ERROR, "Invalid ICAO code country prefix");
+        }
+    }
+
     public enum ICAOCodeCountryPrefix {
         SOLOMON_ISLANDS("AG"),
         NAURU("AN"),
@@ -238,10 +260,10 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
         }
 
         public static Map<String, ICAOCodeCountryPrefix> getCodeToCountryMap() {
-            ICAOCodeCountryPrefix[] all = ICAOCodeCountryPrefix.values();
-            HashMap<String, ICAOCodeCountryPrefix> retval = new HashMap<String, ICAOCodeCountryPrefix>();
-            for (ICAOCodeCountryPrefix prefix : all) {
-                for (String code : prefix.codes) {
+            final ICAOCodeCountryPrefix[] all = ICAOCodeCountryPrefix.values();
+            final HashMap<String, ICAOCodeCountryPrefix> retval = new HashMap<>();
+            for (final ICAOCodeCountryPrefix prefix : all) {
+                for (final String code : prefix.codes) {
                     if (retval.put(code, prefix) != null) {
                         throw new RuntimeException("Duplicate ICAO country code prefix '" + code + "' in enum MetarLexer.ICAOCodeCountryPrefix values, this is"
                                 + " a coding error");
@@ -252,39 +274,17 @@ public class ICAOCode extends RegexMatchingLexemeVisitor {
         }
     }
 
-    private final static Map<String, ICAOCodeCountryPrefix> codeToCountryMap = ICAOCodeCountryPrefix.getCodeToCountryMap();
-
-    public ICAOCode(final OccurrenceFrequency prio) {
-        super("^[A-Z]{4,}$", prio);
-    }
-
-    @Override
-    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        //Must be second or third token:
-        if (token.getPrevious() == token.getFirst() || (token.hasPrevious() && token.getPrevious().getPrevious() == token.getFirst())) {
-            for (String s : codeToCountryMap.keySet()) {
-                if (token.getTACToken().startsWith(s)) {
-                	token.identify(AERODROME_DESIGNATOR);
-                	token.setParsedValue(COUNTRY, codeToCountryMap.get(s));
-                    token.setParsedValue(VALUE,token.getTACToken());
-                    return;
-                }
-            }
-            token.identify(AERODROME_DESIGNATOR, Lexeme.Status.SYNTAX_ERROR, "Invalid ICAO code country prefix");
-        }
-    }
-
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
-                MeteorologicalTerminalAirReport m = (MeteorologicalTerminalAirReport) msg;
+                final MeteorologicalTerminalAirReport m = (MeteorologicalTerminalAirReport) msg;
                 if (m.getAerodrome() != null) {
                     return Optional.of(this.createLexeme(m.getAerodrome().getDesignator(), AERODROME_DESIGNATOR));
                 }
             } else if (TAF.class.isAssignableFrom(clz)) {
-                TAF t = (TAF) msg;
+                final TAF t = (TAF) msg;
                 if (t.getAerodrome() != null) {
                     return Optional.of(this.createLexeme(t.getAerodrome().getDesignator(), AERODROME_DESIGNATOR));
                 }

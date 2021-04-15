@@ -150,6 +150,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_MOVING = new LexemeIdentity("SIGMET_MOVING", EnumSet.of(DIRECTION, STATIONARY, VALUE, UNIT), Collections.emptySet());
     public static final LexemeIdentity SIGMET_INTENSITY = new LexemeIdentity("SIGMET_INTENSITY", EnumSet.of(INTENSITY), Collections.emptySet());
     public static final LexemeIdentity SIGMET_FCST_AT = new LexemeIdentity("SIGMET_FCST_AT", EnumSet.of(VALUE), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_TAC_ELEMENT = new LexemeIdentity("SIGMET_TAC_ELEMENT", Collections.emptySet( ), Collections.emptySet());
 
     private final String name;
     private final Set<Lexeme.ParsedValueName> possibleParameters;
@@ -161,11 +162,11 @@ public class LexemeIdentity {
 
     public LexemeIdentity(final String name, final Set<Lexeme.ParsedValueName> possibleParameters, final Set<IdentityProperty> identityProperties) {
         this.name = requireNonNull(name, "name");
-        this.possibleParameters = unmodifiableEnumSetCopy(requireNonNull(possibleParameters, "possibleParameters"));
-        this.identityProperties = unmodifiableEnumSetCopy(requireNonNull(identityProperties, "identityProperties"));
+        this.possibleParameters = immutableEnumSetCopy(requireNonNull(possibleParameters, "possibleParameters"));
+        this.identityProperties = immutableEnumSetCopy(requireNonNull(identityProperties, "identityProperties"));
     }
 
-    private static <E extends Enum<E>> Set<E> unmodifiableEnumSetCopy(final Collection<E> input) {
+    private static <E extends Enum<E>> Set<E> immutableEnumSetCopy(final Collection<E> input) {
         return input.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(EnumSet.copyOf(input));
     }
 
@@ -173,6 +174,7 @@ public class LexemeIdentity {
         return this.name;
     }
 
+    @SuppressWarnings("AssignmentOrReturnOfFieldWithMutableType") // Is always product of immutableEnumSetCopy()
     public Set<Lexeme.ParsedValueName> getPossibleNames() {
         return this.possibleParameters;
     }
@@ -181,6 +183,7 @@ public class LexemeIdentity {
         return this.possibleParameters.contains(name);
     }
 
+    @SuppressWarnings("AssignmentOrReturnOfFieldWithMutableType") // Is always product of immutableEnumSetCopy()
     public Set<IdentityProperty> getIdentityProperties() {
         return this.identityProperties;
     }
@@ -215,6 +218,8 @@ public class LexemeIdentity {
     }
 
     static class Deserializer extends StdDeserializer<LexemeIdentity> {
+        private static final long serialVersionUID = 8495765111694885808L;
+
         public Deserializer() {
             this(null);
         }
@@ -231,6 +236,7 @@ public class LexemeIdentity {
     }
 
     static class Serializer extends StdSerializer<LexemeIdentity> {
+        private static final long serialVersionUID = 3660686165609114976L;
 
         public Serializer() {
             this(null);

@@ -26,7 +26,7 @@ import fi.fmi.avi.model.immutable.AerodromeImpl;
 import fi.fmi.avi.model.immutable.GenericAviationWeatherMessageImpl;
 
 public class GenericMeteorologicalBulletinParser extends AbstractTACParser<GenericMeteorologicalBulletin> {
-    private static final LexemeIdentity[] ZERO_OR_ONE_ALLOWED = {LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS,
+    private static final LexemeIdentity[] ZERO_OR_ONE_ALLOWED = { LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS,
             LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR, LexemeIdentity.ISSUE_TIME, LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR };
 
     private AviMessageLexer lexer;
@@ -47,7 +47,6 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
      * @return the {@link ConversionResult} with the converter message and the possible conversion issues
      */
     @Override
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     public ConversionResult<GenericMeteorologicalBulletin> convertMessage(final String input, final ConversionHints hints) {
         final ConversionResult<GenericMeteorologicalBulletin> result = new ConversionResult<>();
         if (this.lexer == null) {
@@ -63,7 +62,6 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as Bulletin"));
             return result;
         }
-
 
         final List<ConversionIssue> issues = checkZeroOrOne(lexed, ZERO_OR_ONE_ALLOWED);
         if (!issues.isEmpty()) {
@@ -87,7 +85,6 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
         }
         final BulletinHeading bulletinHeading = BulletinHeadingImpl.Builder.from(abbrHeading.toString()).build();
         bulletinBuilder.setHeading(bulletinHeading);
-
 
         //Lex each the contained message again individually to collect more info:
         String msg;
@@ -114,7 +111,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             } else {
                 msg = subSequences.get(i).trimWhiteSpace().getTAC();
             }
-            final GenericAviationWeatherMessageImpl.Builder msgBuilder = new GenericAviationWeatherMessageImpl.Builder();
+            final GenericAviationWeatherMessageImpl.Builder msgBuilder = GenericAviationWeatherMessageImpl.builder();
             Optional<MessageType> messageType = this.lexer.recognizeMessageType(msg, hints);
             if (!messageType.isPresent() || MessageType.GENERIC.equals(messageType.get())) {
                 //Fallback: check a hint for contained message type:
@@ -130,7 +127,8 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                         }
                     } else {
                         result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
-                                "Unable to determine contained " + "message type for bulletin data designators " + bulletinHeading.getDataTypeDesignatorT1ForTAC() + " and " + bulletinHeading.getDataTypeDesignatorT2()));
+                                "Unable to determine contained message type for bulletin data designators " + bulletinHeading.getDataTypeDesignatorT1ForTAC()
+                                        + " and " + bulletinHeading.getDataTypeDesignatorT2()));
                     }
                 }
             }
@@ -139,12 +137,11 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             msgBuilder.setMessageFormat(GenericAviationWeatherMessage.Format.TAC);
             final LexemeSequence messageSequence = this.lexer.lexMessage(msg, messageSpecificHints);
 
-            if (messageType.isPresent() &&
-                    (MessageType.SPACE_WEATHER_ADVISORY != messageType.get()
-                            && MessageType.VOLCANIC_ASH_ADVISORY != messageType.get() )){
+            if (messageType.isPresent() && (MessageType.SPACE_WEATHER_ADVISORY != messageType.get()
+                    && MessageType.VOLCANIC_ASH_ADVISORY != messageType.get())) {
                 if (!endsInEndToken(messageSequence, hints)) {
-                    result.addIssue(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX, "Contained message #" + (i+1) + " does not "
-                            + "end in end token"));
+                    result.addIssue(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX,
+                            "Contained message #" + (i + 1) + " does not end in end token"));
                     return result;
                 }
             }
@@ -165,20 +162,19 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                         msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.of(ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.of("Z"))));
                     } else {
                         if (year == null && month != null) {
-                            result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA, "Month information "
-                                    + "available but ignored for parsing contained message issue time, year info missing"));
+                            result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                                    "Month information available but ignored for parsing contained message issue time, year info missing"));
                         } else if (year != null && month == null) {
-                            result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA, "Year information "
-                                    + "available but ignored for parsing contained message issue time, month info missing"));
+                            result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                                    "Year information available but ignored for parsing contained message issue time, month info missing"));
                         }
-                        msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.of(PartialDateTime.of(day != null?day:-1, hour, minute, ZoneId.of("Z"))));
+                        msgBuilder.setIssueTime(PartialOrCompleteTimeInstant.of(PartialDateTime.of(day != null ? day : -1, hour, minute, ZoneId.of("Z"))));
                     }
                 }
             });
 
-            if (messageType.isPresent() &&
-                    (MessageType.SPACE_WEATHER_ADVISORY == messageType.get()
-                            || MessageType.VOLCANIC_ASH_ADVISORY == messageType.get())) {
+            if (messageType.isPresent() && (MessageType.SPACE_WEATHER_ADVISORY == messageType.get()
+                    || MessageType.VOLCANIC_ASH_ADVISORY == messageType.get())) {
                 //Valid time for SWX & VAA is extracted from the included phenomena time offsets:
                 final PartialOrCompleteTimeInstant.Builder start = PartialOrCompleteTimeInstant.builder();
                 final PartialOrCompleteTimeInstant.Builder end = PartialOrCompleteTimeInstant.builder();
@@ -226,10 +222,11 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
                     } else {
                         final PartialOrCompleteTimePeriod.Builder validTime = PartialOrCompleteTimePeriod.builder()
                                 .setStartTime(PartialOrCompleteTimeInstant.of(
-                                        PartialDateTime.of(fromDay != null ? fromDay : -1, fromHour != null ? fromHour : -1, fromMinute != null ? fromMinute : -1,
-                                                ZoneId.of("Z"))))
+                                        PartialDateTime.of(fromDay != null ? fromDay : -1, fromHour != null ? fromHour : -1,
+                                                fromMinute != null ? fromMinute : -1, ZoneId.of("Z"))))
                                 .setEndTime(PartialOrCompleteTimeInstant.of(
-                                        PartialDateTime.of(toDay != null ? toDay : -1, toHour != null ? toHour : -1, toMinute != null ? toMinute : -1, ZoneId.of("Z"))));
+                                        PartialDateTime.of(toDay != null ? toDay : -1, toHour != null ? toHour : -1, toMinute != null ? toMinute : -1,
+                                                ZoneId.of("Z"))));
                         msgBuilder.setValidityTime(validTime.build());
                     }
 
@@ -238,9 +235,7 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
             msgBuilder.setOriginalMessage(messageSequence.getTAC());
             msgBuilder.setTranslatedTAC(messageSequence.getTAC());
             msgBuilder.setTranslated(true);
-            withTimeForTranslation(hints, (time) -> {
-                msgBuilder.setTranslationTime(time);
-            });
+            withTimeForTranslation(hints, msgBuilder::setTranslationTime);
             msgBuilder.setNullableTranslatedBulletinID(bulletinID);
             bulletinBuilder.addMessages(msgBuilder.build());
         }

@@ -20,7 +20,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
-public class Taf18Test extends AbstractAviMessageTest<String, TAF> {
+public class Taf18Test extends AbstractAviMessageTest<TAF> {
 
     @Override
     public String getJsonFilename() {
@@ -29,8 +29,7 @@ public class Taf18Test extends AbstractAviMessageTest<String, TAF> {
 
     @Override
     public String getMessage() {
-        return "TAF EFHK 010825Z 0109/0209 25015KT 5000 SHRA SCT030\r\n"
-                        + "FM011530 00000KT CAVOK=";
+        return "TAF EFHK 010825Z 0109/0209 25015KT 5000 SHRA SCT030\r\n" + "FM011530 00000KT CAVOK=";
     }
 
     @Override
@@ -45,8 +44,8 @@ public class Taf18Test extends AbstractAviMessageTest<String, TAF> {
 
     @Override
     public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-        return spacify(new LexemeIdentity[]{TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, VALID_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, WEATHER, CLOUD,
-                TAF_FORECAST_CHANGE_INDICATOR, SURFACE_WIND, CAVOK, END_TOKEN});
+        return spacify(new LexemeIdentity[] { TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, VALID_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, WEATHER, CLOUD,
+                TAF_FORECAST_CHANGE_INDICATOR, SURFACE_WIND, CAVOK, END_TOKEN });
     }
 
     @Override
@@ -59,9 +58,8 @@ public class Taf18Test extends AbstractAviMessageTest<String, TAF> {
         return TACConverter.TAF_POJO_TO_TAC;
     }
 
-
     @Override
-    public Class<? extends TAF> getTokenizerImplmentationClass() {
+    public Class<? extends TAF> getTokenizerImplementationClass() {
         return TAFImpl.class;
     }
 

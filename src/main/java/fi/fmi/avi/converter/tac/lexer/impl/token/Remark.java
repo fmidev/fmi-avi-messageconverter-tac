@@ -9,7 +9,6 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -26,20 +25,22 @@ public class Remark extends PrioritizedLexemeVisitor {
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
         if (token.getPrevious() != null) {
-            Lexeme prev = token.getPrevious();
-            if (((REMARK.equals(prev.getIdentityIfAcceptable()) && !token.getTACToken().startsWith("NXT ADVISORY:")) || REMARKS_START.equals(prev.getIdentityIfAcceptable()))
-                    && !LexemeIdentity.END_TOKEN.equals(token.getIdentityIfAcceptable())
-                    && !LexemeIdentity.WHITE_SPACE.equals(token.getIdentityIfAcceptable())
+            final Lexeme prev = token.getPrevious();
+            if ((//
+                    REMARK.equals(prev.getIdentityIfAcceptable()) && !token.getTACToken().startsWith("NXT ADVISORY:") //
+                            || REMARKS_START.equals(prev.getIdentityIfAcceptable())) //
+                    && !LexemeIdentity.END_TOKEN.equals(token.getIdentityIfAcceptable()) //
+                    && !LexemeIdentity.WHITE_SPACE.equals(token.getIdentityIfAcceptable()) //
                     && !LexemeIdentity.NEXT_ADVISORY.equals(token.getIdentityIfAcceptable())) {
                 token.identify(REMARK);
                 token.setParsedValue(ParsedValueName.VALUE, token.getTACToken());
             }
         }
     }
+
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
-                throws SerializingException {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             return ctx.getParameter("remark", String.class).map(rmk -> this.createLexeme(rmk, REMARK));
         }
     }

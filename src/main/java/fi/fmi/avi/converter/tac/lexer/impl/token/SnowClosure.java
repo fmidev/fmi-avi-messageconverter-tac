@@ -31,7 +31,7 @@ public class SnowClosure extends PrioritizedLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             if (MeteorologicalTerminalAirReport.class.isAssignableFrom(clz)) {
                 if (((MeteorologicalTerminalAirReport) msg).isSnowClosure()) {
                     return Optional.of(createLexeme("R/SNOCLO", LexemeIdentity.SNOW_CLOSURE));

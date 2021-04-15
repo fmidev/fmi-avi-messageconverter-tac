@@ -1,5 +1,5 @@
 {
-	"status" : "AMENDMENT",
+	"reportStatus" : "AMENDMENT",
 	"issueTime" : {
       "partialTime" : "--19T10:00Z"
     },
@@ -20,17 +20,12 @@
 	  },
 	  "ceilingAndVisibilityOk": true
 	},
-	"referredReport": {
-		"aerodrome" : {
-			"designator" : "EFAB"
+	"referredReportValidPeriod": {
+		"startTime" : {
+			"partialTime" : "--19T09:"
 		},
-		"validityTime" : {
-			"startTime" : {
-				"partialTime" : "--19T09:"
-			},
-			"endTime" : {
-				"partialTime" : "--19T15:"
-			}
+		"endTime" : {
+			"partialTime" : "--19T15:"
 		}
 	},
     "translatedTAC" : "TAF AMD EFAB 191000Z 1909/1915 20008KT CAVOK="

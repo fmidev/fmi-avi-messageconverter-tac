@@ -12,7 +12,7 @@
   <description>Aviation weather message conversions - TAC module</description>
   <groupId>fi.fmi.avi.converter</groupId>
   <artifactId>fmi-avi-messageconverter-tac</artifactId>
-  <version>4.0.5.KNMI-add-sigmet-tac-2-SNAPSHOT</version>
+  <version>4.0.6.KNMI-SNAPSHOT</version>
 
   <scm>
     <connection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</connection>
@@ -22,15 +22,10 @@
   </scm>
 
   <dependencies>
-    <!--<dependency>
+    <dependency>
       <groupId>fi.fmi.avi.converter</groupId>
       <artifactId>fmi-avi-messageconverter</artifactId>
-      <version>4.0.4.K-SNAPSHOT</version>
-      </dependency>-->
-    <dependency>
-        <groupId>fi.fmi.avi.converter</groupId>
-        <artifactId>fmi-avi-messageconverter</artifactId>
-        <version>4.0.5.KNMI-add-sigmet-tac-2-SNAPSHOT</version>
+      <version>5.0.1.KNMI-SNAPSHOT</version>
     </dependency>
 
     <!-- For JUnit tests -->

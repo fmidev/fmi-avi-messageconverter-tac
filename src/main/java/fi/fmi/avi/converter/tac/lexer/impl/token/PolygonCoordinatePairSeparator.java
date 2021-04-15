@@ -12,6 +12,7 @@ public class PolygonCoordinatePairSeparator extends PrioritizedLexemeVisitor {
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
+        System.err.println("SEP: "+token.getPrevious()+"-"+token.getNext());
         if ("-".equals(token.getTACToken()) && LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(token.getPrevious().getIdentity())
                 && LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(token.getNext().getIdentity())) {
             token.identify(LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR);

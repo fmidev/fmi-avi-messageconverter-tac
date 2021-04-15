@@ -5,6 +5,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.HORIZONTAL_VISIBILITY;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -24,10 +25,10 @@ public class FractionalHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        RecognizingAviMessageTokenLexer.RelationalOperator modifier = RecognizingAviMessageTokenLexer.RelationalOperator.forCode(match.group(1));
-        String bothParts = match.group(3);
-        String wholePartOnly = match.group(8);
-        String fractionOnly = match.group(9);
+        final RecognizingAviMessageTokenLexer.RelationalOperator modifier = RecognizingAviMessageTokenLexer.RelationalOperator.forCode(match.group(1));
+        final String bothParts = match.group(3);
+        final String wholePartOnly = match.group(8);
+        final String fractionOnly = match.group(9);
 
         int wholePart = -1;
         int fractionNumenator = -1;
@@ -35,32 +36,31 @@ public class FractionalHorizontalVisibility extends RegexMatchingLexemeVisitor {
         if (wholePartOnly != null) {
             wholePart = Integer.parseInt(wholePartOnly);
         } else if (bothParts != null) {
-        	wholePart = Integer.parseInt(match.group(4).trim());
-        	fractionNumenator = Integer.parseInt(match.group(6));
+            wholePart = Integer.parseInt(match.group(4).trim());
+            fractionNumenator = Integer.parseInt(match.group(6));
             fractionDenumenator = Integer.parseInt(match.group(7));
         } else if (fractionOnly != null) {
-        	wholePart = 0;
-        	fractionNumenator = Integer.parseInt(match.group(10));
+            wholePart = 0;
+            fractionNumenator = Integer.parseInt(match.group(10));
             fractionDenumenator = Integer.parseInt(match.group(11));
         }
         if (fractionNumenator > -1 && fractionDenumenator > -1) {
-        	if (fractionDenumenator != 0) {
-        		token.identify(HORIZONTAL_VISIBILITY);
-        		token.setParsedValue(VALUE, Double.valueOf(wholePart + (double) fractionNumenator / (double) fractionDenumenator));
-        	} else {
-        		token.identify(HORIZONTAL_VISIBILITY, Status.SYNTAX_ERROR, "Invalid fractional number '" + fractionNumenator + "/" + fractionDenumenator);
-        	}
-        } else if (wholePart > -1){
-        	token.identify(HORIZONTAL_VISIBILITY);
-        	token.setParsedValue(VALUE, Double.valueOf(wholePart));
+            if (fractionDenumenator != 0) {
+                token.identify(HORIZONTAL_VISIBILITY);
+                token.setParsedValue(VALUE, wholePart + (double) fractionNumenator / (double) fractionDenumenator);
+            } else {
+                token.identify(HORIZONTAL_VISIBILITY, Status.SYNTAX_ERROR, "Invalid fractional number '" + fractionNumenator + "/" + fractionDenumenator);
+            }
+        } else if (wholePart > -1) {
+            token.identify(HORIZONTAL_VISIBILITY);
+            token.setParsedValue(VALUE, (double) wholePart);
         } else {
-        	token.identify(HORIZONTAL_VISIBILITY, Status.SYNTAX_ERROR, "Invalid number '" + wholePart + " " + fractionNumenator + "/" + fractionDenumenator);
+            token.identify(HORIZONTAL_VISIBILITY, Status.SYNTAX_ERROR, "Invalid number '" + wholePart + " " + fractionNumenator + "/" + fractionDenumenator);
         }
         if (modifier != null) {
             token.setParsedValue(RELATIONAL_OPERATOR, modifier);
         }
-        String unit = match.group(12).toLowerCase();
+        final String unit = match.group(12).toLowerCase(Locale.US);
         token.setParsedValue(UNIT, unit);
-        
     }
 }

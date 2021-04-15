@@ -11,8 +11,11 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.immutable.AirspaceImpl;
+import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.PhenomenonGeometryWithHeightImpl;
+import fi.fmi.avi.model.immutable.PointGeometryImpl;
+import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
 import fi.fmi.avi.model.immutable.TacGeometryImpl;
 import fi.fmi.avi.model.immutable.TacOrGeoGeometryImpl;
 import fi.fmi.avi.model.immutable.UnitPropertyGroupImpl;
@@ -21,9 +24,10 @@ import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 import fi.fmi.avi.model.sigmet.SigmetIntensityChange;
 import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import fi.fmi.avi.model.PartialDateTime;
-import fi.fmi.avi.model.PartialDateTime.PartialField;
+import fi.fmi.avi.model.AviationWeatherMessage.ReportStatus;
 
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,20 +57,57 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
       return false;
     }
 
-    protected TacOrGeoGeometry parseGeometry(Lexeme l, SIGMETImpl.Builder builder){
+    protected TacOrGeoGeometry parseGeometry(LexemeSequence seq, SIGMETImpl.Builder builder){
         TacOrGeoGeometryImpl.Builder geomBuilder=TacOrGeoGeometryImpl.builder();
-        if (LexemeIdentity.SIGMET_ENTIRE_AREA.equals(l.getIdentity())){
+        Lexeme firstLexeme = seq.getFirstLexeme();
+        if (LexemeIdentity.WHITE_SPACE.equals(firstLexeme.getIdentity())) {
+            firstLexeme = firstLexeme.getNext();
+        }
+        System.err.println("parseGeometry("+firstLexeme+")");
+        if (LexemeIdentity.SIGMET_ENTIRE_AREA.equals(firstLexeme.getIdentity())){
             System.err.println("Geometry Entire Area");
 
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
-            tacGeometryBuilder.setData(l.getTACToken());
+            tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
-            System.err.println("Added TacGeometry: "+l.getTACToken());
-
-            } else if (LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(l.getIdentity())){
+            //TODO geomBuilder.setEntireFir(true);
+            //TODO geomBuilder.setGeoGeometry(getFirGeometry());
+            System.err.println("Added TacGeometry: "+firstLexeme.getTACToken());
+        } else if (LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(firstLexeme.getIdentity())){
             System.err.println("Geometry Point");
-        } else if (LexemeIdentity.SIGMET_WITHIN.equals(l.getIdentity())){
+            TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
+            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+            Double lat = firstLexeme.getParsedValue(VALUE, Double.class);
+            Double lon = firstLexeme.getParsedValue(VALUE2, Double.class);
+            PointGeometryImpl.Builder pointBuilder = PointGeometryImpl.builder();
+            pointBuilder.setCrs(CoordinateReferenceSystemImpl.wgs84());
+            pointBuilder.addCoordinates(lat, lon);
+            geomBuilder.setGeoGeometry(pointBuilder.build());
+            System.err.println("Added TacGeometry Point: "+firstLexeme.getTACToken());
+        } else if (LexemeIdentity.SIGMET_WITHIN.equals(firstLexeme.getIdentity())){
+            final List<LexemeIdentity> polygonLexemes = Arrays.asList(LexemeIdentity.POLYGON_COORDINATE_PAIR, LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR, LexemeIdentity.WHITE_SPACE);
             System.err.println("Geometry Polygon");
+            StringBuilder sb = new StringBuilder();
+            sb.append(firstLexeme.getTACToken());
+            Lexeme l = firstLexeme.getNext();
+            PolygonGeometryImpl.Builder polygonBuilder = PolygonGeometryImpl.builder();
+            polygonBuilder.setCrs(CoordinateReferenceSystemImpl.wgs84());
+            while (polygonLexemes.contains(l.getIdentity())) {
+                if (LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(l.getIdentity())) {
+                    Double lat = l.getParsedValue(VALUE, Double.class);
+                    Double lon = l.getParsedValue(VALUE2, Double.class);
+                    polygonBuilder.addExteriorRingPositions(lat, lon);
+                }
+                sb.append(" ");
+                sb.append(l.getTACToken());
+                l = l.getNext();
+            }
+            geomBuilder.setGeoGeometry(polygonBuilder.build());
+            TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
+            tacGeometryBuilder.setData(sb.toString());
+            geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+            System.err.println("Added TacGeometry: "+firstLexeme.getTACToken());
         }
         return geomBuilder.build();
     }
@@ -168,20 +209,12 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET sequence descriptor not given in " + input)));
 
 
-        builder.setStatus(AviationCodeListUser.SigmetAirmetReportStatus.NORMAL);
+        builder.setReportStatus(ReportStatus.NORMAL);
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.PHENOMENON_SIGMET, (match) -> {
             String phen=match.getParsedValue(Lexeme.ParsedValueName.SIGMET_PHENOMENON, String.class);
             builder.setSigmetPhenomenon(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.valueOf(phen));
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET phenomenon not given in " + input)));
-
-        // final Integer validStartDay;
-        // Lexeme validTime = lexed.getFirstLexeme().findNext(LexemeIdentity.VALID_TIME);
-        // if (validTime!=null) {
-        //     validStartDay=validTime.getParsedValue(DAY1, Integer.class);
-        // } else {
-        //     validStartDay=null;
-        // }
 
         PhenomenonGeometryWithHeightImpl.Builder phenBuilder = new PhenomenonGeometryWithHeightImpl.Builder();
         lexed.getFirstLexeme().findNext(LexemeIdentity.OBS_OR_FORECAST, (match) -> {
@@ -195,8 +228,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             Integer analysisHour=match.getParsedValue(HOUR1, Integer.class);
             Integer analysisMinute=match.getParsedValue(MINUTE1, Integer.class);
             if (analysisHour!=null) {
-                // PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofHourMinute(analysisHour, analysisMinute));
-                PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.parseTACString("1200Z", PartialField.DAY));
+                PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
                 PartialOrCompleteTimeInstant pi = timeBuilder.build();
                 phenBuilder.setTime(pi);
             }
@@ -225,9 +257,9 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             System.err.println("A["+cnt+"] "+l.getTailSequence().getTAC());
             if (LexemeIdentity.OBS_OR_FORECAST.equals(seq.getFirstLexeme().getIdentity())){
                 if (sequenceContains(seq, wanted)) {
-                    analisysGeometries.add(parseGeometry(l.getNext(), builder));
+                    analisysGeometries.add(parseGeometry(l.getTailSequence(), builder));
                 } else {
-                    forecastGeometries.add(parseGeometry(l.getNext(), builder));
+                    forecastGeometries.add(parseGeometry(l.getTailSequence(), builder));
                     forecastsFound = true;
                 }
             }

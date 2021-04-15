@@ -175,9 +175,8 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
             }
         }, () -> builder.setPermissibleUsage(AviationCodeListUser.PermissibleUsage.OPERATIONAL));
 
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_STATUS, (match) -> {
-            builder.setPermissibleUsageReason(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class));
-        });
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_STATUS, (match) -> builder.setPermissibleUsageReason(
+                match.getParsedValue(Lexeme.ParsedValueName.VALUE, AviationCodeListUser.PermissibleUsageReason.class)));
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.DTG_ISSUE_TIME_LABEL);
 
@@ -201,15 +200,14 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_NUMBER_LABEL);
 
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_NUMBER, (match) -> {
-            builder.setAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
-        });
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_NUMBER,
+                (match) -> builder.setAdvisoryNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class)));
 
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, (match) -> {
-            processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER, (advisoryNumberMatch) -> {
-                builder.setReplaceAdvisoryNumber(advisoryNumberMatch.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class));
-            }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Replace advisory number is missing")));
-        });
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL,
+                (match) -> processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER,
+                        (advisoryNumberMatch) -> builder.setReplaceAdvisoryNumber(
+                                advisoryNumberMatch.getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumber.class)),
+                        () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Replace advisory number is missing"))));
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_LABEL);
 
@@ -296,7 +294,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
     private Collection<ConversionIssue> checkPhenomenaLabels(final List<LexemeSequence> analysisList) {
         final List<ConversionIssue> issues = new ArrayList<>();
         int previousHour = 0;
-        for (LexemeSequence lexemeSequence : analysisList) {
+        for (final LexemeSequence lexemeSequence : analysisList) {
             final Lexeme analysis = lexemeSequence.getFirstLexeme();
             if (LexemeIdentity.ADVISORY_PHENOMENA_LABEL.equals(analysis.getIdentity())) {
                 if (analysis.getParsedValue(Lexeme.ParsedValueName.TYPE, SWXPhenomena.Type.class) == SWXPhenomena.Type.OBS && previousHour > 0) {
@@ -441,7 +439,6 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         //2. Create regions applying limits
         final List<SpaceWeatherRegion> regionList = new ArrayList<>();
-        SpaceWeatherRegionImpl.Builder regionBuilder;
 
         if (polygonLimit.isPresent()) {
             //Explicit polygon limit provided, create a single airspace volume with no location indicator:
@@ -465,23 +462,18 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
                 regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
             }
             while (l != null) {
-                final Optional<SpaceWeatherRegion.SpaceWeatherLocation> location = Optional.ofNullable(
-                        l.getParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherRegion.SpaceWeatherLocation.class));
-                if (location.isPresent()) {
+                final SpaceWeatherRegion.SpaceWeatherLocation location = l.getParsedValue(Lexeme.ParsedValueName.VALUE,
+                        SpaceWeatherRegion.SpaceWeatherLocation.class);
+                if (location != null) {
                     checkLexemeOrder(issues, l, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
-                    regionBuilder = SpaceWeatherRegionImpl.builder();
-                    regionBuilder.setLocationIndicator(location);
-                    if (minLongitude.isPresent()) {
-                        regionBuilder.setLongitudeLimitMinimum(minLongitude.get());
-                    }
-                    if (maxLongitude.isPresent()) {
-                        regionBuilder.setLongitudeLimitMaximum(maxLongitude.get());
-                    }
+                    final SpaceWeatherRegionImpl.Builder regionBuilder = SpaceWeatherRegionImpl.builder()//
+                            .setLocationIndicator(location);
+                    minLongitude.ifPresent(regionBuilder::setLongitudeLimitMinimum);
+                    maxLongitude.ifPresent(regionBuilder::setLongitudeLimitMaximum);
 
-                    if (!location.get().equals(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE)) {
-                        final Geometry geometry = buildGeometry(location.get().getLatitudeBandMinCoordinate().get(), minLongitude.orElse(-180d),
-                                location.get().getLatitudeBandMaxCoordinate().get(), maxLongitude.orElse(180d));
-
+                    if (location.getLatitudeBandMinCoordinate().isPresent() && location.getLatitudeBandMaxCoordinate().isPresent()) {
+                        final Geometry geometry = buildGeometry(location.getLatitudeBandMinCoordinate().get(), minLongitude.orElse(-180d),
+                                location.getLatitudeBandMaxCoordinate().get(), maxLongitude.orElse(180d));
                         final AirspaceVolume volume = buildAirspaceVolume(geometry, lowerLimit, upperLimit, verticalLimitOperator, issues);
                         regionBuilder.setAirSpaceVolume(volume);
                     }

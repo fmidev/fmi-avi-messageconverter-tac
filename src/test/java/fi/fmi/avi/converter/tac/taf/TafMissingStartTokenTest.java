@@ -24,7 +24,7 @@ import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
-public class TafMissingStartTokenTest extends AbstractAviMessageTest<String, TAF> {
+public class TafMissingStartTokenTest extends AbstractAviMessageTest<TAF> {
 
     @Override
     public String getJsonFilename() {
@@ -72,7 +72,7 @@ public class TafMissingStartTokenTest extends AbstractAviMessageTest<String, TAF
     }
 
     @Override
-    public Class<? extends TAF> getTokenizerImplmentationClass() {
+    public Class<? extends TAF> getTokenizerImplementationClass() {
         return TAFImpl.class;
     }
 
@@ -82,7 +82,7 @@ public class TafMissingStartTokenTest extends AbstractAviMessageTest<String, TAF
     }
 
     @Override
-    public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
+    public void assertParsingIssues(final List<ConversionIssue> conversionIssues) {
         assertEquals(1, conversionIssues.size());
         assertSame(ConversionIssue.Type.SYNTAX, conversionIssues.get(0).getType());
         assertEquals("Message does not start with a start token: TAF", conversionIssues.get(0).getMessage());

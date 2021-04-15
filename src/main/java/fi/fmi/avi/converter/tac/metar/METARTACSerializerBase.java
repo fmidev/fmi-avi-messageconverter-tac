@@ -29,11 +29,11 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
 
     @Override
     public ConversionResult<String> convertMessage(final T input, final ConversionHints hints) {
-        ConversionResult<String> result = new ConversionResult<>();
+        final ConversionResult<String> result = new ConversionResult<>();
         try {
-            LexemeSequence seq = tokenizeMessage(input, hints);
+            final LexemeSequence seq = tokenizeMessage(input, hints);
             result.setConvertedMessage(seq.getTAC());
-        } catch (SerializingException se) {
+        } catch (final SerializingException se) {
             result.addIssue(new ConversionIssue(Type.OTHER, se.getMessage()));
         }
         return result;
@@ -52,9 +52,9 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
 
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException {
-        T input = narrow(msg, hints);
-        ReconstructorContext<T> baseCtx = new ReconstructorContext<>(input, hints);
-        LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
+        final T input = narrow(msg, hints);
+        final ReconstructorContext<T> baseCtx = new ReconstructorContext<>(input, hints);
+        final LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
         appendToken(retval, getStartTokenIdentity(), input, getMessageClass(), baseCtx);
         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         if (appendToken(retval, LexemeIdentity.CORRECTION, input, getMessageClass(), baseCtx) > 0) {
@@ -92,23 +92,23 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (input.getRunwayVisualRanges().isPresent()) {
-            for (RunwayVisualRange range : input.getRunwayVisualRanges().get()) {
+            for (final RunwayVisualRange range : input.getRunwayVisualRanges().get()) {
                 appendToken(retval, LexemeIdentity.RUNWAY_VISUAL_RANGE, input, getMessageClass(), baseCtx.copyWithParameter("rvr", range));
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
         }
         if (input.getPresentWeather().isPresent()) {
-            for (Weather weather : input.getPresentWeather().get()) {
+            for (final Weather weather : input.getPresentWeather().get()) {
                 appendToken(retval, LexemeIdentity.WEATHER, input, getMessageClass(), baseCtx.copyWithParameter("weather", weather));
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
         }
-        Optional<ObservedClouds> obsClouds = input.getClouds();
+        final Optional<ObservedClouds> obsClouds = input.getClouds();
         if (obsClouds.isPresent()) {
             if (obsClouds.get().getVerticalVisibility().isPresent() || obsClouds.get().isVerticalVisibilityUnobservableByAutoSystem()) {
-                this.appendToken(retval, LexemeIdentity.CLOUD, input, getMessageClass(),baseCtx.copyWithParameter("verticalVisibility", Boolean.TRUE));
+                this.appendToken(retval, LexemeIdentity.CLOUD, input, getMessageClass(), baseCtx.copyWithParameter("verticalVisibility", Boolean.TRUE));
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-            } else if (obsClouds.get().getLayers().isPresent()){
+            } else if (obsClouds.get().getLayers().isPresent()) {
                 this.appendCloudLayers(retval, input, getMessageClass(), obsClouds.get().getLayers().get(), baseCtx);
             } else if (obsClouds.get().isNoCloudsDetectedByAutoSystem() || obsClouds.get().isNoSignificantCloud()) {
                 this.appendToken(retval, LexemeIdentity.CLOUD, input, getMessageClass(), baseCtx);
@@ -122,7 +122,7 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (input.getRecentWeather().isPresent()) {
-            for (Weather weather : input.getRecentWeather().get()) {
+            for (final Weather weather : input.getRecentWeather().get()) {
                 appendToken(retval, LexemeIdentity.RECENT_WEATHER, input, getMessageClass(), baseCtx.copyWithParameter("weather", weather));
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
@@ -134,7 +134,7 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (input.getRunwayStates().isPresent()) {
-            for (RunwayState state : input.getRunwayStates().get()) {
+            for (final RunwayState state : input.getRunwayStates().get()) {
                 appendToken(retval, LexemeIdentity.RUNWAY_STATE, input, getMessageClass(), baseCtx.copyWithParameter("state", state));
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
@@ -152,8 +152,8 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (input.getTrends().isPresent()) {
-            for (TrendForecast trend : input.getTrends().get()) {
-                ReconstructorContext trendCtx = baseCtx.copyWithParameter("trend", trend);
+            for (final TrendForecast trend : input.getTrends().get()) {
+                final ReconstructorContext<T> trendCtx = baseCtx.copyWithParameter("trend", trend);
                 if (appendToken(retval, LexemeIdentity.TREND_CHANGE_INDICATOR, input, getMessageClass(), trendCtx) > 0) {
                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                 }
@@ -173,21 +173,22 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                 }
                 if (trend.getForecastWeather().isPresent()) {
-                    for (Weather weather : trend.getForecastWeather().get()) {
+                    for (final Weather weather : trend.getForecastWeather().get()) {
                         appendToken(retval, LexemeIdentity.WEATHER, input, getMessageClass(), trendCtx.copyWithParameter("weather", weather));
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
                 }
 
-                Optional<CloudForecast> clouds = trend.getCloud();
+                final Optional<CloudForecast> clouds = trend.getCloud();
                 if (clouds.isPresent()) {
                     if (clouds.get().getVerticalVisibility().isPresent()) {
-                        this.appendToken(retval, LexemeIdentity.CLOUD, input, getMessageClass(), trendCtx.copyWithParameter("verticalVisibility", Boolean.TRUE));
+                        this.appendToken(retval, LexemeIdentity.CLOUD, input, getMessageClass(),
+                                trendCtx.copyWithParameter("verticalVisibility", Boolean.TRUE));
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                     } else if (clouds.get().isNoSignificantCloud()) {
                         this.appendToken(retval, LexemeIdentity.CLOUD, input, getMessageClass(), trendCtx);
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                    } else if (clouds.get().getLayers().isPresent()){
+                    } else if (clouds.get().getLayers().isPresent()) {
                         this.appendCloudLayers(retval, input, getMessageClass(), clouds.get().getLayers().get(), trendCtx);
                     }
                 }
@@ -199,7 +200,7 @@ public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAir
         if (input.getRemarks().isPresent()) {
             appendToken(retval, LexemeIdentity.REMARKS_START, input, getMessageClass(), baseCtx);
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-            for (String remark : input.getRemarks().get()) {
+            for (final String remark : input.getRemarks().get()) {
                 this.appendToken(retval, LexemeIdentity.REMARK, input, getMessageClass(), baseCtx.copyWithParameter("remark", remark));
                 appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }

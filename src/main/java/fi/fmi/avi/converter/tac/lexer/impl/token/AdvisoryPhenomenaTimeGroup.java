@@ -42,7 +42,7 @@ public class AdvisoryPhenomenaTimeGroup extends RegexMatchingLexemeVisitor {
                         token.setParsedValue(Lexeme.ParsedValueName.DAY1, parsed.get(ChronoField.DAY_OF_MONTH));
                         token.setParsedValue(Lexeme.ParsedValueName.HOUR1, parsed.get(ChronoField.HOUR_OF_DAY));
                         token.setParsedValue(Lexeme.ParsedValueName.MINUTE1, parsed.get(ChronoField.MINUTE_OF_HOUR));
-                    } catch (DateTimeException e) {
+                    } catch (final DateTimeException e) {
                         // NOOP, ignore silently if the time is not valid
                     }
                 }
