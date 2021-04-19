@@ -8,18 +8,10 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.Geometry;
-import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.sigmet.SIGMET;
-import fi.fmi.avi.model.swx.AirspaceVolume;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
-import fi.fmi.avi.model.swx.SpaceWeatherRegion;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 
 public class Longitude extends RegexMatchingLexemeVisitor {
@@ -29,7 +21,6 @@ public class Longitude extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        System.err.println("vim:" + match.group(0));
         Double longitude;
         final String lonStr = match.group("longitude");
         if (match.group("longitude").length() > 4) {

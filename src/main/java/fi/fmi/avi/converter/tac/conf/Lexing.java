@@ -1523,14 +1523,10 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                // System.err.println("testing "+sequence.getFirstLexeme().getTACToken());
-                // System.err.println(">>"+sequence.getFirstLexeme().getNext().getTACToken());
-                // System.err.println(">>"+sequence.getFirstLexeme().getNext().getTACToken());
                 /* 2021-03-30 You can not call the getIdentity in some cases (for Sigmet lexing) */
                 if (sequence.
                   getFirstLexeme().
                     getIdentity() == null) {
-                        System.err.println("false");
                         return false;
                     }
                 return "SIGMET".equals(sequence.

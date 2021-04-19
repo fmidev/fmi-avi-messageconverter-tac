@@ -73,8 +73,11 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenonmenonLongitudeLimit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPresetLocation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXVerticalLimit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetAnd;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetEntireFir;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetIntensity;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetLevel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetMoving;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetSequenceDescriptor;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetTacElement;
@@ -326,6 +329,9 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SIGMET_WITHIN, new SigmetWithin.Reconstructor());
         s.addReconstructor(LexemeIdentity.POLYGON_COORDINATE_PAIR, new PolygonCoordinatePair.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_LEVEL, new SigmetLevel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_MOVING, new SigmetMoving.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_AND, new SigmetAnd.Reconstructor());
         s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
         return s;
     }

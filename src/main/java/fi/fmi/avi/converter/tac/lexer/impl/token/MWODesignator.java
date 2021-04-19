@@ -38,7 +38,6 @@ public class MWODesignator extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        System.err.println(token.getPrevious().getTACToken());
         if (token.hasPrevious()&&LexemeIdentity.VALID_TIME.equals(token.getPrevious().getIdentity())) {
             for (String s : codeToCountryMap.keySet()) {
                 if (token.getTACToken().startsWith(s)) {

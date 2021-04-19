@@ -28,6 +28,6 @@
   "sequenceNumber": "M01",
   "intensityChange": "NO_CHANGE",
   "analysisGeometries": [{"geometry":{"tacGeometry":{"data":"ENTIRE FIR"}}, "approximateLocation":false}],
-  "translatedTAC":"EHAA SIGMET M01 VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR SEV ICE (FZRA) OBS ENTIRE FIR NC=",
+  "translatedTAC":"EHAA SIGMET M01 VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR SEV ICE (FZRA) OBS ENTIRE FIR STNR NC=",
   "translated": false
 }

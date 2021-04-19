@@ -21,7 +21,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.AREA_TYPE;
 public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
 
     public SigmetEntireFir(final OccurrenceFrequency prio) {
-        super("^ENTIRE (FIR|UIR|FIR/UIR|CTA)$", prio);
+        super("^ENTIRE\\s(FIR|UIR|FIR/UIR|CTA)$", prio);
     }
 
     @Override

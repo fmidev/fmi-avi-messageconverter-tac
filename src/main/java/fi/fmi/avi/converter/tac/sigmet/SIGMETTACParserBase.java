@@ -31,6 +31,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
@@ -63,18 +64,13 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         if (LexemeIdentity.WHITE_SPACE.equals(firstLexeme.getIdentity())) {
             firstLexeme = firstLexeme.getNext();
         }
-        System.err.println("parseGeometry("+firstLexeme+")");
         if (LexemeIdentity.SIGMET_ENTIRE_AREA.equals(firstLexeme.getIdentity())){
-            System.err.println("Geometry Entire Area");
-
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             //TODO geomBuilder.setEntireFir(true);
             //TODO geomBuilder.setGeoGeometry(getFirGeometry());
-            System.err.println("Added TacGeometry: "+firstLexeme.getTACToken());
         } else if (LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(firstLexeme.getIdentity())){
-            System.err.println("Geometry Point");
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
@@ -84,10 +80,8 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             pointBuilder.setCrs(CoordinateReferenceSystemImpl.wgs84());
             pointBuilder.addCoordinates(lat, lon);
             geomBuilder.setGeoGeometry(pointBuilder.build());
-            System.err.println("Added TacGeometry Point: "+firstLexeme.getTACToken());
         } else if (LexemeIdentity.SIGMET_WITHIN.equals(firstLexeme.getIdentity())){
             final List<LexemeIdentity> polygonLexemes = Arrays.asList(LexemeIdentity.POLYGON_COORDINATE_PAIR, LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR, LexemeIdentity.WHITE_SPACE);
-            System.err.println("Geometry Polygon");
             StringBuilder sb = new StringBuilder();
             sb.append(firstLexeme.getTACToken());
             Lexeme l = firstLexeme.getNext();
@@ -107,9 +101,48 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(sb.toString());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
-            System.err.println("Added TacGeometry: "+firstLexeme.getTACToken());
         }
         return geomBuilder.build();
+    }
+
+    protected String getLevelUnit(String level) {
+        return level;
+    }
+
+    protected void parseLevelMovingIntensity(LexemeSequence seq, PhenomenonGeometryWithHeightImpl.Builder phenBuilder) {
+        seq.getFirstLexeme().findNext(LexemeIdentity.SIGMET_LEVEL, (match) -> {
+            String modifier = match.getParsedValue(LEVEL_MODIFIER, String.class);
+            String lowerLevel = match.getParsedValue(VALUE, String.class);
+            String lowerUnit = match.getParsedValue(UNIT, String.class);
+            String upperLevel = match.getParsedValue(VALUE2, String.class);
+            String upperUnit = match.getParsedValue(UNIT2, String.class);
+            if ("SFC".equals(lowerLevel)){
+                //SFC
+                phenBuilder.setLowerLimit(NumericMeasureImpl.of(0, "FT"));
+            } else {
+                if (lowerLevel!=null)
+                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLevel), getLevelUnit(lowerUnit)));
+            }
+            if (upperLevel!=null)
+                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLevel), getLevelUnit(upperUnit)));
+            if (modifier!=null)  {
+                switch (modifier){
+                case "TOPS":
+                    break;
+                case "TOPS BLW":
+                    phenBuilder.setLowerLimitOperator(AviationCodeListUser.RelationalOperator.BELOW);
+                    break;
+                case "ABV":
+                    phenBuilder.setUpperLimitOperator(AviationCodeListUser.RelationalOperator.ABOVE);
+                    break;
+                case "TOPS ABV":
+                    phenBuilder.setUpperLimitOperator(AviationCodeListUser.RelationalOperator.ABOVE);
+                    break;
+                }
+            }
+        });
+
+        // TODO: add moving and intentsity_change detection here
     }
 
     protected ConversionResult<SIGMETImpl> convertMessageInternal(final String input, final ConversionHints hints) {
@@ -137,7 +170,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             return result;
         }
         final List<ConversionIssue> issues = checkZeroOrOne(lexed, zeroOrOneAllowed);
-        System.err.println("check0o1:"+issues.size()+" "+issues.isEmpty()+" "+lexed.getTAC());
         if (!issues.isEmpty()) {
             result.addIssue(issues);
             return result;
@@ -151,7 +183,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.REAL_SIGMET_START, (match) -> {
             String atsu = match.getParsedValue(LOCATION_INDICATOR, String.class);
-            System.err.println("ATSU:"+atsu);
             builder.setIssuingAirTrafficServicesUnit(getFicInfo("AMSTERDAM", atsu));
         });
 
@@ -192,11 +223,11 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                 .setName("AMSTERDAM FIR");
         builder.setAirspace(airspaceBuilder.build());
 
-        Lexeme lex=lexed.getFirstLexeme();
-        while (lex.hasNext()) {
-            System.err.println(lex+" ");
-            lex=lex.getNext();
-        }
+        // Lexeme lex=lexed.getFirstLexeme();
+        // while (lex.hasNext()) {
+        //     System.err.println(lex+" ");
+        //     lex=lex.getNext();
+        // }
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.SEQUENCE_DESCRIPTOR, (match) -> {
             final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.VALID_TIME};
@@ -254,10 +285,12 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             // System.err.println();
             Lexeme l=seq.getFirstLexeme();
             cnt++;
-            System.err.println("A["+cnt+"] "+l.getTailSequence().getTAC());
+//            System.err.println("A["+cnt+"] "+l.getTailSequence().getTAC());
             if (LexemeIdentity.OBS_OR_FORECAST.equals(seq.getFirstLexeme().getIdentity())){
                 if (sequenceContains(seq, wanted)) {
+                    parseLevelMovingIntensity(seq, phenBuilder);
                     analisysGeometries.add(parseGeometry(l.getTailSequence(), builder));
+
                 } else {
                     forecastGeometries.add(parseGeometry(l.getTailSequence(), builder));
                     forecastsFound = true;
@@ -271,16 +304,22 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         if (!forecastsFound) {
             // Add movement description
             lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_MOVING, (match) -> {
-                String[] windDirs={"N", "NNE", "NE", "NNE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW",
-                                  "WSW", "W", "WNW", "NW", "NNW"};
-                ArrayList<String> windDirList = new ArrayList<>(Arrays.asList(windDirs));
-                Double movingSpeed=match.getParsedValue(ParsedValueName.VALUE, Double.class);
-                String movingDirection = match.getParsedValue(ParsedValueName.DIRECTION, String.class);
-                String unit = match.getParsedValue(ParsedValueName.UNIT, String.class);
 
-                builder.setMovingSpeed(NumericMeasureImpl.of(movingSpeed,unit));
-                if (windDirList.contains(movingDirection)){
-                    builder.setMovingDirection(NumericMeasureImpl.of(22.5*windDirList.indexOf(movingDirection), "degrees"));
+                if (!match.getParsedValue(STATIONARY, Boolean.class).equals(Boolean.TRUE))  {
+                    String[] windDirs={"N", "NNE", "NE", "NNE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW",
+                                  "WSW", "W", "WNW", "NW", "NNW"};
+                    ArrayList<String> windDirList = new ArrayList<>(Arrays.asList(windDirs));
+                    Double movingSpeed=match.getParsedValue(ParsedValueName.VALUE, Double.class);
+                    String movingDirection = match.getParsedValue(ParsedValueName.DIRECTION, String.class);
+                    String unit = match.getParsedValue(ParsedValueName.UNIT, String.class);
+
+                    builder.setMovingSpeed(NumericMeasureImpl.of(movingSpeed,unit));
+                    if (windDirList.contains(movingDirection)){
+                        builder.setMovingDirection(NumericMeasureImpl.of(22.5*windDirList.indexOf(movingDirection), "degrees"));
+                    }
+                } else {
+                    builder.setMovingSpeed(Optional.empty());
+                    builder.setMovingDirection(Optional.empty());
                 }
             });
         }
@@ -303,18 +342,16 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             }
         });
 
-        System.err.println("<>:"+phenBuilder.getTime());
         phenBuilder.setGeometry(analisysGeometries.get(0)); //TODO list
 
         phenBuilder.setApproximateLocation(false);
 
         PhenomenonGeometryWithHeight phenGeom = phenBuilder.build();
-        System.err.println("phenTime: "+phenGeom.getTime());
+//        System.err.println("phenTime: "+phenGeom.getTime());
         builder.setAnalysisGeometries(Arrays.asList(phenBuilder.build()));
 
 //        builder.setForecastGeometries(Arrays.asList(fcstBuilder.build()));
 
-        System.err.println("analysistype:"+builder.getAnalysisType());
         if (lexed.getTAC() != null) {
             builder.setTranslatedTAC(lexed.getTAC());
         }

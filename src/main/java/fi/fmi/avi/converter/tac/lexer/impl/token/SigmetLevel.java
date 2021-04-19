@@ -2,13 +2,17 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,7 +67,6 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
 
-        System.err.println(">>>"+token.getTACToken());
         String toMatch=match.group(0);
         String regex="^(?<level>[0-9]{4})?/?(?<level2>[0-9]{4})(?<unit2>M)$";
         Matcher m = Pattern.compile(regex).matcher(match.group(0));
@@ -183,12 +186,64 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
     }
 
 	public static class Reconstructor extends FactoryBasedReconstructor {
-
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                return Optional.empty();
+                SIGMET sigmet = (SIGMET) msg;
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    StringBuilder sb=new StringBuilder();
+                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().isPresent()) {
+                        NumericMeasure lowerLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().get();
+                        if (lowerLevel.getValue()==0.0){
+                            sb.append("SFC/");
+                        } else {
+                            if ("FL".equals(lowerLevel.getUom())){
+                                sb.append("FL");
+                            }
+                            if ((lowerLevel.getValue()<1000)&&("FL".equals(lowerLevel.getUom()))) {
+                                sb.append(String.format("%03.0f", lowerLevel.getValue()));
+                            } else if ((lowerLevel.getValue()<1000)&&("M".equals(lowerLevel.getUom()))) {
+                                sb.append(String.format("%03.0f", lowerLevel.getValue()));
+                            } else if (lowerLevel.getValue()<10000) {
+                                sb.append(String.format("%04.0f", lowerLevel.getValue()));
+                            } else {
+                                sb.append(String.format("%05.0f", lowerLevel.getValue()));
+                            }
+                            if (!"FL".equals(lowerLevel.getUom())){
+                                sb.append(lowerLevel.getUom());
+                            }
+                            sb.append(lowerLevel.getUom());
+                            sb.append("/");
+                        }
+                    }
+                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimitOperator().isPresent()) {
+                    }
+                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().isPresent()) {
+                        NumericMeasure upperLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().get();
+                        if ("FL".equals(upperLevel.getUom())){
+                            sb.append("FL");
+                        }
+                        if ((upperLevel.getValue()<1000)&&("FL".equals(upperLevel.getUom()))) {
+                            sb.append(String.format("%03.0f", upperLevel.getValue()));
+                        } else if ((upperLevel.getValue()<1000)&&("M".equals(upperLevel.getUom()))) {
+                            sb.append(String.format("%03.0f", upperLevel.getValue()));
+                        } else if (upperLevel.getValue()<10000) {
+                            sb.append(String.format("%04.0f", upperLevel.getValue()));
+                        } else {
+                            sb.append(String.format("%05.0f", upperLevel.getValue()));
+                        }
+                        if (!"FL".equals(upperLevel.getUom())){
+                            sb.append(upperLevel.getUom());
+                        }
+                    }
+                    System.err.println("sbl:[" + sb.toString()+"]");
+                    if (sb.length()>0) {
+                        return Optional.of(this.createLexeme(
+                        sb.toString(), LexemeIdentity.SIGMET_LEVEL));
+                    }
+                }
             }
             return Optional.empty();
         }

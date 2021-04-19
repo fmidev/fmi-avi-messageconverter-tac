@@ -29,7 +29,6 @@ public class Latitude extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        System.err.println("vim:"+match.group(0));
         Double latitude;
         final String latStr = match.group("latitude");
         if (match.group("latitude").length() > 4) {

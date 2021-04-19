@@ -29,12 +29,10 @@ public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
         if (LexemeIdentity.SIGMET_START.equals(token.getFirst().getIdentity())) {        boolean afterLMC=false;
             Lexeme l = token.getPrevious();
             while (l!=null) {
-                System.err.println("FCST_AT "+l.getIdentity());
                 if (LexemeIdentity.SIGMET_LEVEL.equals(l.getIdentity())||
                 LexemeIdentity.SIGMET_MOVING.equals(l.getIdentity())||
                 LexemeIdentity.SIGMET_INTENSITY.equals(l.getIdentity())) {
                     afterLMC = true;
-                    System.err.println("]: "+l.getIdentity());
                     break;
                 }
                 l=l.getPrevious();

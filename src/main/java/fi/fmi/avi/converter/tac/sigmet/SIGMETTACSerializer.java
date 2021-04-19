@@ -68,8 +68,7 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
             int i=0;
             for (PhenomenonGeometryWithHeight an: g) {
                 final ReconstructorContext<SIGMET> analysisCtx = baseCtx.copyWithParameter("analysisIndex", i);
-
-                System.err.println("g: "+an.getGeometry().get().getTacGeometry().get());
+                System.err.println("an["+i+"]");
                 try {
                     if (appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, analysisCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
@@ -80,6 +79,9 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
                     if (appendToken(retval,LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SIGMET.class, analysisCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
+                    if (appendToken(retval,LexemeIdentity.SIGMET_LEVEL, input, SIGMET.class, analysisCtx)>0) {
+                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    }
                 } catch (SerializingException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -87,35 +89,36 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
             }
         });
 
-        input.getAnalysisGeometries().ifPresent(l-> l.get(0).getGeometry()
-            .ifPresent(g -> {
-                g.getTacGeometry().ifPresent(t-> {
-                    System.err.println("found tacGeometry "+t);
-                    try {
-                        if (false && appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, baseCtx)>0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                        }
+        // input.getAnalysisGeometries().ifPresent(l-> l.get(0).getGeometry()
+        //     .ifPresent(g -> {
+        //         g.getTacGeometry().ifPresent(t-> {
+        //             try {
+        //                 if (false && appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, baseCtx)>0) {
+        //                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        //                 }
 
-                    } catch (SerializingException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                });
-                g.getGeoGeometry().ifPresent(t-> {
-                    System.err.println("found geoGeometry "+t);
-                    try {
-                        if (false && appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, baseCtx)>0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                        }
+        //             } catch (SerializingException e) {
+        //                 // TODO Auto-generated catch block
+        //                 e.printStackTrace();
+        //             }
+        //         });
+        //         g.getGeoGeometry().ifPresent(t-> {
+        //             try {
+        //                 if (false && appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, baseCtx)>0) {
+        //                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        //                 }
 
-                    } catch (SerializingException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                });
-            }));
+        //             } catch (SerializingException e) {
+        //                 // TODO Auto-generated catch block
+        //                 e.printStackTrace();
+        //             }
+        //         });
+        //     }));
+            if (appendToken(retval,LexemeIdentity.SIGMET_MOVING, input, SIGMET.class, baseCtx)>0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
 
-        input.getIntensityChange().ifPresent(l -> {
+            input.getIntensityChange().ifPresent(l -> {
             try {
                 if (appendToken(retval, LexemeIdentity.SIGMET_INTENSITY, input, SIGMET.class, baseCtx) > 0) {
                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
@@ -131,7 +134,6 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
             for (PhenomenonGeometry fc: g) {
                 final ReconstructorContext<SIGMET> forecastCtx = baseCtx.copyWithParameter("forecastIndex", i);
 
-                System.err.println("g: "+fc.getGeometry().get().getGeoGeometry().get());
                 try {
                     if (appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, forecastCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);

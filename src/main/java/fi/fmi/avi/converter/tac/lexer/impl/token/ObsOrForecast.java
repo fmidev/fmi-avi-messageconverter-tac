@@ -30,7 +30,6 @@ public class ObsOrForecast extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         //OBS_OR_FORECAST should come after SIGMET_PHENOMENON but before SIGMET_LEVEL, SIGMET_MOVEMENT, SIGMET_INTENSITIY_CHANGE
-        System.err.println("Matching: "+token.getTACToken());
         if (SIGMET_START.equals(token.getFirst().getIdentity())) {
             token.identify(LexemeIdentity.OBS_OR_FORECAST);
             token.setParsedValue(IS_FORECAST, !("OBS".equals(match.group(1))));

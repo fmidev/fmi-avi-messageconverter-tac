@@ -3,10 +3,12 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Optional;
@@ -19,6 +21,9 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
  * Created by rinne on 10/02/17.
  */
 public class SigmetMoving extends RegexMatchingLexemeVisitor {
+
+    static String[] windDirs={"N", "NNE", "NE", "NNE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW",
+    "WSW", "W", "WNW", "NW", "NNW"};
 
     public SigmetMoving(final OccurrenceFrequency prio) {
         super("^STNR|(MOV)\\s(N|NNE|NE|ENE|E|ESE|SE|SSE|S|SSW|SW|WSW|W|WNW|NW|NNW)\\s([0-9]{2})(KT|KMH)$", prio);
@@ -36,7 +41,6 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
             token.setParsedValue(VALUE, match.group(3));
             token.setParsedValue(UNIT, match.group(4));
         }
-
     }
 
 	public static class Reconstructor extends FactoryBasedReconstructor {
@@ -45,7 +49,28 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                return Optional.of(createLexeme("MOV", SIGMET_MOVING));
+                SIGMET sigmet = (SIGMET)msg;
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (true || analysisIndex.isPresent()) { //TODO MOVING info in analysisgeometry
+                    if (!(sigmet.getMovingSpeed().isPresent()&&sigmet.getMovingDirection().isPresent())) {
+                        return Optional.of(createLexeme("STNR", SIGMET_MOVING));
+                    } else if (sigmet.getForecastGeometries().get().size()>0) {
+                        return Optional.empty();
+                    } else {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("MOV");
+                        sb.append(MeteorologicalBulletinSpecialCharacter.SPACE);
+                        int index = (int) (sigmet.getMovingDirection().get().getValue()/22.5);
+                        if ((index>=0)&&(index<16)){
+                            sb.append(windDirs[index]);
+                        }
+                        sb.append(MeteorologicalBulletinSpecialCharacter.SPACE);
+                        NumericMeasure spd = sigmet.getMovingSpeed().get();
+                        sb.append(String.format("%02.0f", spd.getValue()));
+                        sb.append(spd.getUom());
+                        return Optional.of(createLexeme(sb.toString(), SIGMET_MOVING));
+                    }
+                }
             }
             return Optional.empty();
         }
