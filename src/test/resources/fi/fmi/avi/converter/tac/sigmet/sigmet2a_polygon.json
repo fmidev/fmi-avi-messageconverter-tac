@@ -24,9 +24,7 @@
     }
   },
   "sigmetPhenomenon": "OBSC_TSGR",
-  "analysisType": "FORECAST",
   "sequenceNumber": "1",
-  "intensityChange": "INTENSIFYING",
   "analysisGeometries": [{
     "geometry":{
       "tacGeometry":{
@@ -42,6 +40,8 @@
         "exteriorRingPositions" : [ 52.0, 5.2, 53.0, 6.2, 51.0, 7.2, 52.0, 5.2 ]
       }
     },
+    "analysisType": "FORECAST",
+    "intensityChange": "INTENSIFYING",
     "approximateLocation":false,
     "time": { "partialTime": "--T12:00Z"}}],
   "translatedTAC":"EHAA SIGMET 1 VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR OBSC TSGR FCST AT 1200Z WI N5200 E00520 - N5300 E00620 - N5100 E00720 - N5200 E00520 STNR INTSF=",

@@ -238,7 +238,7 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
                             sb.append(upperLevel.getUom());
                         }
                     }
-                    System.err.println("sbl:[" + sb.toString()+"]");
+                    // The level string can be empty, so check for length>0
                     if (sb.length()>0) {
                         return Optional.of(this.createLexeme(
                         sb.toString(), LexemeIdentity.SIGMET_LEVEL));

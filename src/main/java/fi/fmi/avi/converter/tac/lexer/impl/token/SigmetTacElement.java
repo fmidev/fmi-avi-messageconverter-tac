@@ -57,7 +57,6 @@ public class SigmetTacElement extends RegexMatchingLexemeVisitor {
                     }
                 }
                 if (sb.length()>0) {
-                    System.err.println("sb:"+sb.toString()+"]");
                     return Optional.of(createLexeme(sb.toString(), SIGMET_TAC_ELEMENT));
                 }
             }

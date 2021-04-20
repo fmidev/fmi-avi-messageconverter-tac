@@ -51,8 +51,8 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET)msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
-                if (true || analysisIndex.isPresent()) { //TODO MOVING info in analysisgeometry
-                    if (!(sigmet.getMovingSpeed().isPresent()&&sigmet.getMovingDirection().isPresent())) {
+                if (analysisIndex.isPresent()) {
+                    if (!sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().isPresent()) {
                         return Optional.of(createLexeme("STNR", SIGMET_MOVING));
                     } else if (sigmet.getForecastGeometries().get().size()>0) {
                         return Optional.empty();
@@ -60,12 +60,12 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
                         StringBuilder sb = new StringBuilder();
                         sb.append("MOV");
                         sb.append(MeteorologicalBulletinSpecialCharacter.SPACE);
-                        int index = (int) (sigmet.getMovingDirection().get().getValue()/22.5);
+                        int index = (int) (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().get().getValue()/22.5);
                         if ((index>=0)&&(index<16)){
                             sb.append(windDirs[index]);
                         }
                         sb.append(MeteorologicalBulletinSpecialCharacter.SPACE);
-                        NumericMeasure spd = sigmet.getMovingSpeed().get();
+                        NumericMeasure spd = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingSpeed().get();
                         sb.append(String.format("%02.0f", spd.getValue()));
                         sb.append(spd.getUom());
                         return Optional.of(createLexeme(sb.toString(), SIGMET_MOVING));

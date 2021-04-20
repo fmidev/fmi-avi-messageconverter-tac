@@ -11,6 +11,7 @@ import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 
+import java.lang.reflect.AnnotatedArrayType;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -48,17 +49,18 @@ public class ObsOrForecast extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET m = (SIGMET) msg;
-                String tim="";
-                if (m.getAnalysisGeometries().isPresent()) {
-                    if (m.getAnalysisGeometries().get().get(0).getTime().isPresent()) {
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    String tim="";
+                    if (m.getAnalysisGeometries().get().get(analysisIndex.get()).getTime().isPresent()) {
                         PartialOrCompleteTimeInstant t = m.getAnalysisGeometries().get().get(0).getTime().get();
                         tim=String.format(" AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
-                }
-                if (SigmetAnalysisType.OBSERVATION.equals(m.getAnalysisType())) {
-                    return Optional.of(this.createLexeme("OBS"+tim, LexemeIdentity.OBS_OR_FORECAST));
-                } else if (SigmetAnalysisType.FORECAST.equals(m.getAnalysisType())) {
-                    return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
+                    if (SigmetAnalysisType.OBSERVATION.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
+                        return Optional.of(this.createLexeme("OBS"+tim, LexemeIdentity.OBS_OR_FORECAST));
+                    } else if (SigmetAnalysisType.FORECAST.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
+                        return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
+                    }
                 }
             }
             return Optional.empty();

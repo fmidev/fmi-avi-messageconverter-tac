@@ -33,6 +33,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.omg.CORBA.portable.InputStream;
+
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACParser<T> {
@@ -109,7 +111,10 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         return level;
     }
 
-    protected void parseLevelMovingIntensity(LexemeSequence seq, PhenomenonGeometryWithHeightImpl.Builder phenBuilder) {
+    protected void parseLevelMovingIntensity(LexemeSequence seq,
+        PhenomenonGeometryWithHeightImpl.Builder phenBuilder,
+        ConversionResult<SIGMETImpl> result,
+        String input) {
         seq.getFirstLexeme().findNext(LexemeIdentity.SIGMET_LEVEL, (match) -> {
             String modifier = match.getParsedValue(LEVEL_MODIFIER, String.class);
             String lowerLevel = match.getParsedValue(VALUE, String.class);
@@ -141,8 +146,56 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                 }
             }
         });
+        seq.getFirstLexeme().findNext(LexemeIdentity.SIGMET_MOVING, (match) -> {
+            if (!match.getParsedValue(STATIONARY, Boolean.class).equals(Boolean.TRUE))  {
+                String[] windDirs={"N", "NNE", "NE", "NNE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW",
+                              "WSW", "W", "WNW", "NW", "NNW"};
+                ArrayList<String> windDirList = new ArrayList<>(Arrays.asList(windDirs));
+                Double movingSpeed=match.getParsedValue(ParsedValueName.VALUE, Double.class);
+                String movingDirection = match.getParsedValue(ParsedValueName.DIRECTION, String.class);
+                String unit = match.getParsedValue(ParsedValueName.UNIT, String.class);
 
-        // TODO: add moving and intentsity_change detection here
+                phenBuilder.setMovingSpeed(NumericMeasureImpl.of(movingSpeed,unit));
+                if (windDirList.contains(movingDirection)){
+                    phenBuilder.setMovingDirection(NumericMeasureImpl.of(22.5*windDirList.indexOf(movingDirection), "degrees"));
+                }
+            } else {
+                phenBuilder.setMovingSpeed(Optional.empty());
+                phenBuilder.setMovingDirection(Optional.empty());
+            }
+        });
+
+        seq.getFirstLexeme().findNext(LexemeIdentity.SIGMET_INTENSITY, (match) -> {
+            String intensityChange=match.getParsedValue(INTENSITY, String.class);
+            if (intensityChange!=null) {
+                switch (intensityChange) {
+                case "NC":
+                    phenBuilder.setIntensityChange(SigmetIntensityChange.NO_CHANGE);
+                    break;
+                case "INTSF":
+                    phenBuilder.setIntensityChange(SigmetIntensityChange.INTENSIFYING);
+                    break;
+                case "WKN":
+                    phenBuilder.setIntensityChange(SigmetIntensityChange.WEAKENING);
+                    break;
+                }
+            }
+        });
+        Lexeme first = seq.getFirstLexeme();
+        Boolean isForecast=first.getParsedValue(IS_FORECAST, Boolean.class);
+        if (isForecast) {
+            phenBuilder.setAnalysisType(SigmetAnalysisType.FORECAST);
+        } else {
+            phenBuilder.setAnalysisType(SigmetAnalysisType.OBSERVATION);
+        }
+
+        Integer analysisHour=first.getParsedValue(HOUR1, Integer.class);
+        Integer analysisMinute=first.getParsedValue(MINUTE1, Integer.class);
+        if (analysisHour!=null) {
+            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
+            PartialOrCompleteTimeInstant pi = timeBuilder.build();
+            phenBuilder.setTime(pi);
+        }
     }
 
     protected ConversionResult<SIGMETImpl> convertMessageInternal(final String input, final ConversionHints hints) {
@@ -248,31 +301,13 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET phenomenon not given in " + input)));
 
         PhenomenonGeometryWithHeightImpl.Builder phenBuilder = new PhenomenonGeometryWithHeightImpl.Builder();
-        lexed.getFirstLexeme().findNext(LexemeIdentity.OBS_OR_FORECAST, (match) -> {
-            Boolean isForecast=match.getParsedValue(IS_FORECAST, Boolean.class);
-            if (isForecast) {
-                builder.setAnalysisType(SigmetAnalysisType.FORECAST);
-            } else {
-                builder.setAnalysisType(SigmetAnalysisType.OBSERVATION);
-            }
-
-            Integer analysisHour=match.getParsedValue(HOUR1, Integer.class);
-            Integer analysisMinute=match.getParsedValue(MINUTE1, Integer.class);
-            if (analysisHour!=null) {
-                PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
-                PartialOrCompleteTimeInstant pi = timeBuilder.build();
-                phenBuilder.setTime(pi);
-            }
-        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET obs or forecast not given in " + input)));
 
         // Analysisgeometry: after OBS_OR_FORECAST and before LEVEL, MOVEMENT, and INTENSITY_CHANGE
 
-        final List<LexemeIdentity> wanted=Arrays.asList(LexemeIdentity.SIGMET_LEVEL, LexemeIdentity.SIGMET_INTENSITY, LexemeIdentity.SIGMET_MOVING);
+        final List<LexemeIdentity> analysisLexemes=Arrays.asList(LexemeIdentity.SIGMET_LEVEL, LexemeIdentity.SIGMET_INTENSITY, LexemeIdentity.SIGMET_MOVING);
         final List<LexemeSequence> subSequences =lexed.splitBy(LexemeIdentity.OBS_OR_FORECAST, LexemeIdentity.SIGMET_FCST_AT);
-        List<TacOrGeoGeometry> analisysGeometries = new ArrayList<>();
+        List<TacOrGeoGeometry> analysisGeometries = new ArrayList<>();
         List<TacOrGeoGeometry> forecastGeometries = new ArrayList<>();
-        int cnt=0;
-        boolean forecastsFound=false;
 
         for (int i = 0; i < subSequences.size(); i++) {
             final LexemeSequence seq = subSequences.get(i);
@@ -284,73 +319,26 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             // }
             // System.err.println();
             Lexeme l=seq.getFirstLexeme();
-            cnt++;
-//            System.err.println("A["+cnt+"] "+l.getTailSequence().getTAC());
+
             if (LexemeIdentity.OBS_OR_FORECAST.equals(seq.getFirstLexeme().getIdentity())){
-                if (sequenceContains(seq, wanted)) {
-                    parseLevelMovingIntensity(seq, phenBuilder);
-                    analisysGeometries.add(parseGeometry(l.getTailSequence(), builder));
+                if (sequenceContains(seq, analysisLexemes)) {
+                    parseLevelMovingIntensity(seq, phenBuilder, result, input);
+                    analysisGeometries.add(parseGeometry(l.getTailSequence(), builder));
 
                 } else {
+                    //TODO: Check if there are NO movingSpeed/movingDirection in analysis
                     forecastGeometries.add(parseGeometry(l.getTailSequence(), builder));
-                    forecastsFound = true;
                 }
             }
         }
-        /* TODO The analysisType description(s) should go into the analysisgeometry too */
-        // builder.setAnalysisType(SigmetAnalysisType.FORECAST);
 
-        /* TODO The movement description(s) should go into the analysisgeometry too */
-        if (!forecastsFound) {
-            // Add movement description
-            lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_MOVING, (match) -> {
-
-                if (!match.getParsedValue(STATIONARY, Boolean.class).equals(Boolean.TRUE))  {
-                    String[] windDirs={"N", "NNE", "NE", "NNE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW",
-                                  "WSW", "W", "WNW", "NW", "NNW"};
-                    ArrayList<String> windDirList = new ArrayList<>(Arrays.asList(windDirs));
-                    Double movingSpeed=match.getParsedValue(ParsedValueName.VALUE, Double.class);
-                    String movingDirection = match.getParsedValue(ParsedValueName.DIRECTION, String.class);
-                    String unit = match.getParsedValue(ParsedValueName.UNIT, String.class);
-
-                    builder.setMovingSpeed(NumericMeasureImpl.of(movingSpeed,unit));
-                    if (windDirList.contains(movingDirection)){
-                        builder.setMovingDirection(NumericMeasureImpl.of(22.5*windDirList.indexOf(movingDirection), "degrees"));
-                    }
-                } else {
-                    builder.setMovingSpeed(Optional.empty());
-                    builder.setMovingDirection(Optional.empty());
-                }
-            });
-        }
-
-        /* TODO The intensity change(s) should go into the analysisgeometry too */
-        lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_INTENSITY, (match) -> {
-            String intensityChange=match.getParsedValue(INTENSITY, String.class);
-            if (intensityChange!=null) {
-                switch (intensityChange) {
-                case "NC":
-                    builder.setIntensityChange(SigmetIntensityChange.NO_CHANGE);
-                    break;
-                case "INTSF":
-                    builder.setIntensityChange(SigmetIntensityChange.INTENSIFYING);
-                    break;
-                case "WKN":
-                    builder.setIntensityChange(SigmetIntensityChange.WEAKENING);
-                    break;
-                }
-            }
-        });
-
-        phenBuilder.setGeometry(analisysGeometries.get(0)); //TODO list
+        phenBuilder.setGeometry(analysisGeometries.get(0)); //TODO list
 
         phenBuilder.setApproximateLocation(false);
 
         PhenomenonGeometryWithHeight phenGeom = phenBuilder.build();
-//        System.err.println("phenTime: "+phenGeom.getTime());
-        builder.setAnalysisGeometries(Arrays.asList(phenBuilder.build()));
 
-//        builder.setForecastGeometries(Arrays.asList(fcstBuilder.build()));
+        builder.setAnalysisGeometries(Arrays.asList(phenGeom));
 
         if (lexed.getTAC() != null) {
             builder.setTranslatedTAC(lexed.getTAC());
