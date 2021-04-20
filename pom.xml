@@ -25,7 +25,7 @@
     <dependency>
       <groupId>fi.fmi.avi.converter</groupId>
       <artifactId>fmi-avi-messageconverter</artifactId>
-      <version>6.0.0.KNMI-SNAPSHOT</version>
+      <version>6.0.0.KNMI-add-sigmet-tac-2-SNAPSHOT</version>
     </dependency>
 
     <!-- For JUnit tests -->
