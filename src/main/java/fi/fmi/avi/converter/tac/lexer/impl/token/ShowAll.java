@@ -12,7 +12,7 @@ import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Optional;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.EXER;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_USAGE;
 
 /**
  * Created by rinne on 10/02/17.

@@ -32,7 +32,8 @@
       "geometry":{
       "tacGeometry":{
         "data":"ENTIRE FIR"
-        }
+        },
+        "entireArea": true
       },
       "approximateLocation":false
     }

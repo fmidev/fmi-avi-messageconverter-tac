@@ -628,7 +628,9 @@ public interface Lexeme {
         LEVEL_MODIFIER,
         STATIONARY,
         INTENSITY,
-        IS_FORECAST
+        IS_FORECAST,
+        TESTOREXERCISE,
+        USAGEREASON
     }
 
     enum MeteorologicalBulletinSpecialCharacter {

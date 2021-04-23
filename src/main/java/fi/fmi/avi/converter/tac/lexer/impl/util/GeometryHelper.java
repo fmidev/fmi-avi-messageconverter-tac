@@ -1,6 +1,8 @@
 package fi.fmi.avi.converter.tac.lexer.impl.util;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +22,53 @@ public class GeometryHelper {
     private static final Set<String> LATITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lat", "latitude")));
     private static final Set<String> LONGITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lon", "long", "longitude")));
 
+    public static List<Lexeme> getCoordinateString(BigDecimal lat, BigDecimal lon, boolean lastPair, BiFunction<String, LexemeIdentity, Lexeme> createLexeme) {
+        List<Lexeme> lexemes = new ArrayList<>();
+        final StringBuilder latBuilder = new StringBuilder();
+        final StringBuilder lonBuilder = new StringBuilder();
+
+        MathContext mc = new MathContext(2, RoundingMode.HALF_UP);
+        if (lat.doubleValue() >= -90.0 && lat.doubleValue() <= 90.0 && lon.doubleValue() >= -180.0
+                && lon.doubleValue() <= 180.0) {
+            if (lat.doubleValue() < 0) {
+                latBuilder.append('S');
+            } else {
+                latBuilder.append('N');
+            }
+            if (lon.doubleValue() < 0) {
+                lonBuilder.append('W');
+            } else {
+                lonBuilder.append('E');
+            }
+            final BigDecimal latDecimalPart = lat.subtract(BigDecimal.valueOf(lat.intValue()));
+            final BigDecimal lonDecimalPart = lon.subtract(BigDecimal.valueOf(lon.intValue()));
+            latBuilder.append(String.format("%02d", lat.abs().intValue()));
+            lonBuilder.append(String.format("%03d", lon.abs().intValue()));
+            if (latDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
+                latBuilder.append(String.format("%02.0f", latDecimalPart.abs().multiply(BigDecimal.valueOf(60d)).round(mc)));
+            }
+            if (lonDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
+                lonBuilder.append(String.format("%02.0f", lonDecimalPart.abs().multiply(BigDecimal.valueOf(60d)).round(mc)));
+            }
+            lexemes.add(createLexeme.apply(
+                    latBuilder.toString() + Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
+                            + lonBuilder.toString(), LexemeIdentity.POLYGON_COORDINATE_PAIR));
+            if (lastPair) {
+                lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
+                        LexemeIdentity.WHITE_SPACE));
+                lexemes.add(createLexeme.apply("-", LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR));
+                lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
+                        LexemeIdentity.WHITE_SPACE));
+            }
+        } else {
+            System.err.println("ERROR with coordinate bounds"); //TODO Why is Exception handling failing?
+//                    throw new SerializingException(
+//                            "Coordinate values out of latitude longitude bounds at coordinate index " + coordPairIndex + "lat:" + lat
+//                                    + ", lon:" + lon);
+        }
+        return lexemes;
+
+    }
     public static List<Lexeme> getGeoLexemes(Geometry geom, BiFunction<String, LexemeIdentity, Lexeme> createLexeme) {
         List<Lexeme> lexemes = new ArrayList<>();
         if (geom instanceof PolygonGeometry) {
@@ -46,50 +95,11 @@ public class GeometryHelper {
             int latIndex;
             int lonIndex;
             for (int coordPairIndex = 0; coordPairIndex < coords.size() - 1; coordPairIndex = coordPairIndex + 2) {
-                final StringBuilder latBuilder = new StringBuilder();
-                final StringBuilder lonBuilder = new StringBuilder();
                 latIndex = coordPairIndex + latOffset;
                 lonIndex = coordPairIndex + lonOffset;
                 final BigDecimal lat = BigDecimal.valueOf(coords.get(latIndex));
                 final BigDecimal lon = BigDecimal.valueOf(coords.get(lonIndex));
-                if (lat.doubleValue() >= -90.0 && lat.doubleValue() <= 90.0 && lon.doubleValue() >= -180.0
-                        && lon.doubleValue() <= 180.0) {
-                    if (lat.doubleValue() < 0) {
-                        latBuilder.append('S');
-                    } else {
-                        latBuilder.append('N');
-                    }
-                    if (lon.doubleValue() < 0) {
-                        lonBuilder.append('W');
-                    } else {
-                        lonBuilder.append('E');
-                    }
-                    final BigDecimal latDecimalPart = lat.subtract(BigDecimal.valueOf(lat.intValue()));
-                    final BigDecimal lonDecimalPart = lon.subtract(BigDecimal.valueOf(lon.intValue()));
-                    latBuilder.append(String.format("%02d", lat.abs().intValue()));
-                    lonBuilder.append(String.format("%03d", lon.abs().intValue()));
-                    if (latDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
-                        latBuilder.append(String.format("%02d", latDecimalPart.abs().multiply(BigDecimal.valueOf(100d)).intValue()));
-                    }
-                    if (lonDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
-                        lonBuilder.append(String.format("%02d", lonDecimalPart.abs().multiply(BigDecimal.valueOf(100d)).intValue()));
-                    }
-                    lexemes.add(createLexeme.apply(
-                            latBuilder.toString() + Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
-                                    + lonBuilder.toString(), LexemeIdentity.POLYGON_COORDINATE_PAIR));
-                    if (coordPairIndex < coords.size() - 2) {
-                        lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
-                                LexemeIdentity.WHITE_SPACE));
-                        lexemes.add(createLexeme.apply("-", LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR));
-                        lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
-                                LexemeIdentity.WHITE_SPACE));
-                    }
-                } else {
-                    System.err.println("ERROR with coordinate bounds");
-//                    throw new SerializingException(
-//                            "Coordinate values out of latitude longitude bounds at coordinate index " + coordPairIndex + "lat:" + lat
-//                                    + ", lon:" + lon);
-                }
+                lexemes.addAll(getCoordinateString(lat, lon, (coordPairIndex < coords.size() - 2), createLexeme));
             }
         }
 

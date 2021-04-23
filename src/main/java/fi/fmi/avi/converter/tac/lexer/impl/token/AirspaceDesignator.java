@@ -39,7 +39,6 @@ public class AirspaceDesignator extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         //Must be first token:
-        System.err.println("AirpaceDesignator visit "+token.getTACToken());
         if (token == token.getFirst()) {
             for (String s : codeToCountryMap.keySet()) {
                 if (token.getTACToken().startsWith(s)) {

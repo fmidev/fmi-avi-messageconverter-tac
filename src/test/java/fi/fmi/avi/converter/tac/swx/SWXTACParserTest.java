@@ -694,7 +694,7 @@ public class SWXTACParserTest {
     @Test
     public void testPrecisePolygonCoordinates2() throws Exception {
         final String input = getInput("spacewx-precise-polygon-coordinates-2.tac");
-        final List<Double> expected = Arrays.asList(-20.0, -170.22, -20.01, -130.51, -10.99, -130.02, -11.03, -170.99, -20.0, -170.0);
+        final List<Double> expected = Arrays.asList(-20.0, -170.4, -20.1, -130.9, -10.9, -130.1, -11.1, -170.9, -20.0, -170.0);
         final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);

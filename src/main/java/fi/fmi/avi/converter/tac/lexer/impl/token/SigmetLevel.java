@@ -30,43 +30,8 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
     public SigmetLevel(final OccurrenceFrequency prio) {
         super(regex1, prio);
     }
-
-    // private void printMatcher(Matcher m) {
-    //     System.err.println(m.group("level")+"/"+m.group("level2")+m.group("unit2"));
-    //     StringBuilder sb=new StringBuilder();
-    //     sb.append(m.group(0)+"==>");
-    //     sb.append((m.group("level")!=null)?m.group("level"):"-");
-    //     sb.append(((m.group("unit")!=null)&&(m.group("unit").length()>0))?m.group("unit"):"*");
-    //     sb.append((m.group("level2")!=null)?m.group("level2"):"-");
-    //     sb.append((m.group("unit2")!=null)?m.group("unit2"):"*");
-    //     System.err.println(sb.toString());
-    // }
-
-    // private void printMatcherTop(Matcher m) {
-    // //    System.err.println(m.group("level")+"/"+m.group("level2")+m.group("unit2"));
-    //     StringBuilder sb=new StringBuilder();
-    //     sb.append(m.group(0)+"==>");
-    //     sb.append(m.group("top"));
-    //     sb.append(" ");
-    //     sb.append((m.group("level2")!=null)?m.group("level2"):"-");
-    //     sb.append((m.group("unit2")!=null)?m.group("unit2"):"*");
-    //     System.err.println(sb.toString());
-    // }
-
-    // private void printMatcherSfc(Matcher m) {
-    // //    System.err.println(m.group("level")+"/"+m.group("level2")+m.group("unit2"));
-    //     StringBuilder sb=new StringBuilder();
-    //     sb.append(m.group(0)+"==>");
-    //     sb.append(m.group("sfc"));
-    //     sb.append(" ");
-    //     sb.append((m.group("level2")!=null)?m.group("level2"):"-");
-    //     sb.append((m.group("unit2")!=null)?m.group("unit2"):"*");
-    //     System.err.println(sb.toString());
-    // }
-
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-
         String toMatch=match.group(0);
         String regex="^(?<level>[0-9]{4})?/?(?<level2>[0-9]{4})(?<unit2>M)$";
         Matcher m = Pattern.compile(regex).matcher(match.group(0));
@@ -214,7 +179,6 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
                             if (!"FL".equals(lowerLevel.getUom())){
                                 sb.append(lowerLevel.getUom());
                             }
-                            sb.append(lowerLevel.getUom());
                             sb.append("/");
                         }
                     }

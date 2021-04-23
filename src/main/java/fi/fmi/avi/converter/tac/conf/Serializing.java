@@ -81,6 +81,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetMoving;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetSequenceDescriptor;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetTacElement;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetUsage;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetWithin;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
@@ -321,6 +322,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.MWO_DESIGNATOR, new MWODesignator.Reconstructor());
         s.addReconstructor(LexemeIdentity.FIR_DESIGNATOR, new FIRDesignator.Reconstructor());
         s.addReconstructor(LexemeIdentity.FIR_NAME, new FIRName.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_USAGE, new SigmetUsage.Reconstructor());
         s.addReconstructor(LexemeIdentity.PHENOMENON_SIGMET, new PhenomenonSIGMET.Reconstructor());
         s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new ObsOrForecast.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());

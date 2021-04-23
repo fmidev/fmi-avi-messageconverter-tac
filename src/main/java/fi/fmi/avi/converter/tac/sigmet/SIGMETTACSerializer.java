@@ -58,12 +58,15 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
         if (appendToken(retval,LexemeIdentity.FIR_NAME, input, SIGMET.class, baseCtx)>0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
+        if (appendToken(retval,LexemeIdentity.SIGMET_USAGE, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+
         if (appendToken(retval,LexemeIdentity.PHENOMENON_SIGMET, input, SIGMET.class, baseCtx)>0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         input.getAnalysisGeometries().ifPresent(g-> {
-            int i=0;
-            for (PhenomenonGeometryWithHeight an: g) {
+            for (int i=0; i<g.size();i++) {
                 final ReconstructorContext<SIGMET> analysisCtx = baseCtx.copyWithParameter("analysisIndex", i);
                 try {
                     if (appendToken(retval,LexemeIdentity.OBS_OR_FORECAST, input, SIGMET.class, analysisCtx)>0) {
@@ -76,6 +79,9 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
                     if (appendToken(retval,LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SIGMET.class, analysisCtx)>0) {
+                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    }
+                    if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, analysisCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
                     if (appendToken(retval,LexemeIdentity.SIGMET_LEVEL, input, SIGMET.class, analysisCtx)>0) {
@@ -119,17 +125,27 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
         //             }
         //         });
         //     }));
-            if (appendToken(retval,LexemeIdentity.SIGMET_MOVING, input, SIGMET.class, baseCtx)>0) {
-                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-            }
+            // if (appendToken(retval,LexemeIdentity.SIGMET_MOVING, input, SIGMET.class, baseCtx)>0) {
+            //     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            // }
 
         input.getForecastGeometries().ifPresent(g-> {
-            int i=0;
-            for (PhenomenonGeometry fc: g) {
+            for (int i=0; i<g.size(); i++) {
                 final ReconstructorContext<SIGMET> forecastCtx = baseCtx.copyWithParameter("forecastIndex", i);
-
                 try {
+                    if (appendToken(retval,LexemeIdentity.OBS_OR_FORECAST, input, SIGMET.class, forecastCtx)>0) {
+                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    }
                     if (appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, forecastCtx)>0) {
+                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    }
+                    if (appendToken(retval,LexemeIdentity.SIGMET_WITHIN, input, SIGMET.class, forecastCtx)>0) {
+                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    }
+                    if (appendToken(retval,LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SIGMET.class, forecastCtx)>0) {
+                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    }
+                    if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, forecastCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
                 } catch (SerializingException e) {

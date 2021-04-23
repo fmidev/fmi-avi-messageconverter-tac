@@ -13,6 +13,7 @@ import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.immutable.AirspaceImpl;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
+import fi.fmi.avi.model.immutable.PhenomenonGeometryImpl;
 import fi.fmi.avi.model.immutable.PhenomenonGeometryWithHeightImpl;
 import fi.fmi.avi.model.immutable.PointGeometryImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
@@ -24,6 +25,8 @@ import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 import fi.fmi.avi.model.sigmet.SigmetIntensityChange;
 import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import fi.fmi.avi.model.PartialDateTime;
+import fi.fmi.avi.model.AviationCodeListUser.PermissibleUsage;
+import fi.fmi.avi.model.AviationCodeListUser.PermissibleUsageReason;
 import fi.fmi.avi.model.AviationWeatherMessage.ReportStatus;
 
 import java.time.ZoneId;
@@ -32,8 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.omg.CORBA.portable.InputStream;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
@@ -70,6 +71,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+            geomBuilder.setEntireArea(true);
             //TODO geomBuilder.setEntireFir(true);
             //TODO geomBuilder.setGeoGeometry(getFirGeometry());
         } else if (LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(firstLexeme.getIdentity())){
@@ -121,6 +123,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             String lowerUnit = match.getParsedValue(UNIT, String.class);
             String upperLevel = match.getParsedValue(VALUE2, String.class);
             String upperUnit = match.getParsedValue(UNIT2, String.class);
+            System.err.println("SIGMET PARSE LEVEL:"+lowerLevel+","+upperLevel);
             if ("SFC".equals(lowerLevel)){
                 //SFC
                 phenBuilder.setLowerLimit(NumericMeasureImpl.of(0, "FT"));
@@ -282,6 +285,19 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         //     lex=lex.getNext();
         // }
 
+        lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_USAGE, (match) -> {
+            builder.setPermissibleUsage(PermissibleUsage.NON_OPERATIONAL);
+            if ("TEST".equals(match.getParsedValue(TESTOREXERCISE, String.class))) {
+                builder.setPermissibleUsageReason(PermissibleUsageReason.TEST);
+            } else {
+                builder.setPermissibleUsageReason(PermissibleUsageReason.EXERCISE);
+            }
+            String supplement = match.getParsedValue(USAGEREASON, String.class);
+            if (supplement!=null) {
+                builder.setPermissibleUsageSupplementary(supplement);
+            }
+        });
+
         lexed.getFirstLexeme().findNext(LexemeIdentity.SEQUENCE_DESCRIPTOR, (match) -> {
             final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.VALID_TIME};
             final ConversionIssue issue = checkBeforeAnyOf(match, before);
@@ -339,6 +355,16 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         PhenomenonGeometryWithHeight phenGeom = phenBuilder.build();
 
         builder.setAnalysisGeometries(Arrays.asList(phenGeom));
+
+        if (forecastGeometries.size()>0) {
+            PhenomenonGeometryImpl.Builder fcstBuilder = new PhenomenonGeometryImpl.Builder();
+            fcstBuilder.setGeometry(forecastGeometries.get(0)); //TODO list
+
+            fcstBuilder.setApproximateLocation(false);
+
+            PhenomenonGeometry fcstGeom = fcstBuilder.build();
+            builder.setForecastGeometries(Arrays.asList(fcstGeom));
+        }
 
         if (lexed.getTAC() != null) {
             builder.setTranslatedTAC(lexed.getTAC());
