@@ -620,7 +620,7 @@ public interface Lexeme {
         SEQUENCE_NUMBER,
         SEQUENCE_DESCRIPTOR,
         FIR_TYPE,
-        SIGMET_PHENOMENON,
+        PHENOMENON,
         LOCATION_INDICATOR,
         AREA_TYPE,
         APRX_LINE_WIDTH,

@@ -72,7 +72,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setEntireArea(true);
-            //TODO geomBuilder.setEntireFir(true);
+
             //TODO geomBuilder.setGeoGeometry(getFirGeometry());
         } else if (LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
@@ -311,8 +311,8 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
 
         builder.setReportStatus(ReportStatus.NORMAL);
 
-        lexed.getFirstLexeme().findNext(LexemeIdentity.PHENOMENON_SIGMET, (match) -> {
-            String phen=match.getParsedValue(Lexeme.ParsedValueName.SIGMET_PHENOMENON, String.class);
+        lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_PHENOMENON, (match) -> {
+            String phen=match.getParsedValue(Lexeme.ParsedValueName.PHENOMENON, String.class);
             builder.setSigmetPhenomenon(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.valueOf(phen));
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET phenomenon not given in " + input)));
 

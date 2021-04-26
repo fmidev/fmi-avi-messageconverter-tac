@@ -62,7 +62,7 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
 
-        if (appendToken(retval,LexemeIdentity.PHENOMENON_SIGMET, input, SIGMET.class, baseCtx)>0) {
+        if (appendToken(retval,LexemeIdentity.SIGMET_PHENOMENON, input, SIGMET.class, baseCtx)>0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         input.getAnalysisGeometries().ifPresent(g-> {
@@ -129,6 +129,7 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
             //     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             // }
 
+        System.err.println("And now the forecasts: "+(input.getForecastGeometries().isPresent()?input.getForecastGeometries().get().size():"NA"));
         input.getForecastGeometries().ifPresent(g-> {
             for (int i=0; i<g.size(); i++) {
                 final ReconstructorContext<SIGMET> forecastCtx = baseCtx.copyWithParameter("forecastIndex", i);

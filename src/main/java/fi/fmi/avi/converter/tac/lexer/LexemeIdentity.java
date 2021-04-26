@@ -129,7 +129,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity FIR_DESIGNATOR = new LexemeIdentity("FIR_DESIGNATOR", EnumSet.of(VALUE, COUNTRY), Collections.emptySet());
     public static final LexemeIdentity FIR_NAME = new LexemeIdentity("FIR_NAME", EnumSet.of(VALUE, FIR_TYPE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_USAGE = new LexemeIdentity("SIGMET_USAGE", EnumSet.of(TESTOREXERCISE, USAGEREASON), Collections.emptySet());
-    public static final LexemeIdentity PHENOMENON_SIGMET = new LexemeIdentity("PHENOMENON_SIGMET", EnumSet.of(SIGMET_PHENOMENON), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_PHENOMENON = new LexemeIdentity("SIGMET_PHENOMENON", EnumSet.of(PHENOMENON), Collections.emptySet());
     public static final LexemeIdentity OBS_OR_FORECAST = new LexemeIdentity("OBS_OR_FORECAST",EnumSet.of(IS_FORECAST, HOUR1, MINUTE1), Collections.emptySet());
     public static final LexemeIdentity SIGMET_ENTIRE_AREA = new LexemeIdentity("SIGMET_ENTIRE_AREA", EnumSet.of(AREA_TYPE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_WITHIN = new LexemeIdentity("SIGMET_WITHIN", Collections.emptySet(), Collections.emptySet());

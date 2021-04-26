@@ -11,7 +11,6 @@ import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 
-import java.lang.reflect.AnnotatedArrayType;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -22,9 +21,9 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
 /**
  * Created by rinne on 10/02/17.
  */
-public class ObsOrForecast extends RegexMatchingLexemeVisitor {
+public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
 
-    public ObsOrForecast(final OccurrenceFrequency prio) {
+    public AirSigmetObsOrForecast(final OccurrenceFrequency prio) {
         super("^(OBS|FCST)(\\sAT\\s([0-9]{2})([0-9]{2})Z)?$", prio);
     }
 

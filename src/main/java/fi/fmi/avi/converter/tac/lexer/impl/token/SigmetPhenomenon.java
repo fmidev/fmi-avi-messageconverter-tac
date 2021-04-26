@@ -16,58 +16,58 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SIGMET_PHENOMENON;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.PHENOMENON;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.PHENOMENON_SIGMET;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_PHENOMENON;
 
 
 /**
  * Created by rinne on 10/02/17.
  */
-public class PhenomenonSIGMET extends RegexMatchingLexemeVisitor {
+public class SigmetPhenomenon extends RegexMatchingLexemeVisitor {
     static String regex= "^(OBSC\\sTS|OBSC\\sTSGR|EMBD\\sTS|EMBD\\sTSGR|FRQ\\sTS|FRQ\\sTSGR|SQL\\sTS||SQL\\sTSGR"+
                 "|SEV\\sTURB|SEV\\sICE|SEV\\sICE\\s\\(FZRA\\)|SEV\\sMTW|HVY\\sDS|HVY\\sSS|RDOACT\\sCLD|VA\\sCLD)";
-    public PhenomenonSIGMET(final OccurrenceFrequency prio) {
+    public SigmetPhenomenon(final OccurrenceFrequency prio) {
             super(regex, prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(PHENOMENON_SIGMET);
+        token.identify(SIGMET_PHENOMENON);
         String m=match.group(1);
         if (m.equals("OBSC TS")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "OBSC_TS");
+            token.setParsedValue(PHENOMENON, "OBSC_TS");
         } else if (m.equals("EMBD TS")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "EMBD_TS");
+            token.setParsedValue(PHENOMENON, "EMBD_TS");
         } else if (m.equals("FRQ TS")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "FRQ_TS");
+            token.setParsedValue(PHENOMENON, "FRQ_TS");
         } else if (m.equals("SQL TS")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "SQL_TS");
+            token.setParsedValue(PHENOMENON, "SQL_TS");
         } else if (m.equals("OBSC TSGR")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "OBSC_TSGR");
+            token.setParsedValue(PHENOMENON, "OBSC_TSGR");
         } else if (m.equals("EMBD TSGR")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "EMBD_TSGR");
+            token.setParsedValue(PHENOMENON, "EMBD_TSGR");
         } else if (m.equals("FRQ TSGR")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "FRQ_TSGR");
+            token.setParsedValue(PHENOMENON, "FRQ_TSGR");
         } else if (m.equals("SQL TSGR")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "SQL_TSGR");
+            token.setParsedValue(PHENOMENON, "SQL_TSGR");
 
         } else if (m.equals("SEV TURB")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "SEV_TURB");
+            token.setParsedValue(PHENOMENON, "SEV_TURB");
         } else if (m.equals("SEV ICE")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "SEV_ICE");
+            token.setParsedValue(PHENOMENON, "SEV_ICE");
         } else if (m.equals("SEV ICE (FZRA)")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "SEV_ICE_FZRA");
+            token.setParsedValue(PHENOMENON, "SEV_ICE_FZRA");
         } else if (m.equals("SEV MTW")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "SEV_MTW");
+            token.setParsedValue(PHENOMENON, "SEV_MTW");
         } else if (m.equals("HVY DS")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "HVY_DS");
+            token.setParsedValue(PHENOMENON, "HVY_DS");
         } else if (m.equals("HVY SS")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "HVY_SS");
+            token.setParsedValue(PHENOMENON, "HVY_SS");
         } else if (m.equals("RDOACT CLD")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "RDOACT_CLD");
+            token.setParsedValue(PHENOMENON, "RDOACT_CLD");
         } else if (m.equals("VA CLD")) {
-            token.setParsedValue(SIGMET_PHENOMENON, "VA_CLD");
+            token.setParsedValue(PHENOMENON, "VA_CLD");
         }
     }
 
@@ -89,9 +89,9 @@ public class PhenomenonSIGMET extends RegexMatchingLexemeVisitor {
             ));
 
             if (SIGMET.class.isAssignableFrom(clz)) {
-                if (tsPhenomena.contains(((SIGMET) msg).getSigmetPhenomenon())) {
-                    SIGMET sigmet = (SIGMET) msg;
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon phen=sigmet.getSigmetPhenomenon();
+                SIGMET sigmet = (SIGMET)msg;
+                if (sigmet.getSigmetPhenomenon().isPresent() && tsPhenomena.contains(sigmet.getSigmetPhenomenon().get())) {
+                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon phen=sigmet.getSigmetPhenomenon().get();
                     String text;
                     if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE_FZRA.equals(phen)){;
                         text = "SEV ICE (FZRA)";
@@ -99,7 +99,7 @@ public class PhenomenonSIGMET extends RegexMatchingLexemeVisitor {
                         text = phen.getText().replaceAll("_", " ");
                     }
 
-                    return Optional.of(this.createLexeme(text, LexemeIdentity.PHENOMENON_SIGMET));
+                    return Optional.of(this.createLexeme(text, LexemeIdentity.SIGMET_PHENOMENON));
                 }
             }
             return Optional.empty();

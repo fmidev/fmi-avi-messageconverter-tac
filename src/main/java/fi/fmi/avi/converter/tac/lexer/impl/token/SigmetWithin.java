@@ -9,6 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.util.GeometryHelper;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.Geometry;
+import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.TacOrGeoGeometry;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
@@ -42,16 +43,39 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
                     final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getAnalysisGeometries().get().get(analysisIndex.get()).getGeometry().get();
-                    if (tacOrGeoGeometry.getGeoGeometry().isPresent()&&!tacOrGeoGeometry.getTacGeometry().isPresent()) {
+                    if (tacOrGeoGeometry.getGeoGeometry().isPresent()
+                            &&!tacOrGeoGeometry.getTacGeometry().isPresent()
+                            &&tacOrGeoGeometry.getEntireArea().isPresent()
+                            &&!tacOrGeoGeometry.getEntireArea().get()) {
                         final Geometry geometry = tacOrGeoGeometry.getGeoGeometry().get();
-                        lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));
-                        lexemes.add(this.createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
-                        lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l)));
+                        if (geometry instanceof PolygonGeometry) {
+                            lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));
+                            lexemes.add(this.createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
+                            lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l)));
+                        }
                     } else {
                         // System.err.println("SIGMET_WITHIN recon has TACGeometry");
+                        // TODO should this condition be handled as error
                     }
                 }
-
+                final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
+                if (forecastIndex.isPresent()) {
+                    final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getForecastGeometries().get().get(forecastIndex.get()).getGeometry().get();
+                    if (tacOrGeoGeometry.getGeoGeometry().isPresent()
+                            &&!tacOrGeoGeometry.getTacGeometry().isPresent()
+                            &&tacOrGeoGeometry.getEntireArea().isPresent()
+                            &&!tacOrGeoGeometry.getEntireArea().get()) {
+                        final Geometry geometry = tacOrGeoGeometry.getGeoGeometry().get();
+                        if (geometry instanceof PolygonGeometry) {
+                            lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));
+                            lexemes.add(this.createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
+                            lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l)));
+                        }
+                    } else {
+                        // System.err.println("SIGMET_WITHIN recon has TACGeometry");
+                        // TODO should this condition be handled as error?
+                    }
+                }
             }
             return lexemes;
         }

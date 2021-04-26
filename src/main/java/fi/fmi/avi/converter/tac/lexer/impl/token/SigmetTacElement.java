@@ -45,9 +45,9 @@ public class SigmetTacElement extends RegexMatchingLexemeVisitor {
                         });
                     });
                 } else {
-                    final Optional<Integer> forecastIndex = ctx.getParameter("analysisIndex", Integer.class);
+                    final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
                     if (forecastIndex.isPresent()) {
-                        sigmet.getAnalysisGeometries().ifPresent(geoms -> {
+                        sigmet.getForecastGeometries().ifPresent(geoms -> {
                             geoms.get(forecastIndex.get()).getGeometry().ifPresent(geom -> {
                                 geom.getTacGeometry().ifPresent(t -> {
                                     sb.append(t.getData());
