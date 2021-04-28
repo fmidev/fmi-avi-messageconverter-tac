@@ -54,17 +54,17 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
                 if (analysisIndex.isPresent()) {
                     if (!sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().isPresent()) {
                         return Optional.of(createLexeme("STNR", SIGMET_MOVING));
-                    } else if (sigmet.getForecastGeometries().get().size()>0) {
+                    } else if (sigmet.getForecastGeometries().isPresent() && sigmet.getForecastGeometries().get().size()>0) {
                         return Optional.empty();
                     } else {
                         StringBuilder sb = new StringBuilder();
                         sb.append("MOV");
-                        sb.append(MeteorologicalBulletinSpecialCharacter.SPACE);
+                        sb.append(MeteorologicalBulletinSpecialCharacter.SPACE.getContent());
                         int index = (int) (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().get().getValue()/22.5);
                         if ((index>=0)&&(index<16)){
                             sb.append(windDirs[index]);
                         }
-                        sb.append(MeteorologicalBulletinSpecialCharacter.SPACE);
+                        sb.append(MeteorologicalBulletinSpecialCharacter.SPACE.getContent());
                         NumericMeasure spd = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingSpeed().get();
                         sb.append(String.format("%02.0f", spd.getValue()));
                         sb.append(spd.getUom());

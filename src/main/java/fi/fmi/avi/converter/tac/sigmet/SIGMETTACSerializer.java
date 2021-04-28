@@ -50,7 +50,8 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (appendToken(retval,LexemeIdentity.MWO_DESIGNATOR, input, SIGMET.class, baseCtx)>0) {
-            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
         if (appendToken(retval,LexemeIdentity.FIR_DESIGNATOR, input, SIGMET.class, baseCtx)>0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);

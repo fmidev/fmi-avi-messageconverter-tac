@@ -51,7 +51,6 @@ public class SigmetPhenomenon extends RegexMatchingLexemeVisitor {
             token.setParsedValue(PHENOMENON, "FRQ_TSGR");
         } else if (m.equals("SQL TSGR")) {
             token.setParsedValue(PHENOMENON, "SQL_TSGR");
-
         } else if (m.equals("SEV TURB")) {
             token.setParsedValue(PHENOMENON, "SEV_TURB");
         } else if (m.equals("SEV ICE")) {
@@ -68,6 +67,8 @@ public class SigmetPhenomenon extends RegexMatchingLexemeVisitor {
             token.setParsedValue(PHENOMENON, "RDOACT_CLD");
         } else if (m.equals("VA CLD")) {
             token.setParsedValue(PHENOMENON, "VA_CLD");
+        } else if (m.equals("TC")) {
+            token.setParsedValue(PHENOMENON, "TC");
         }
     }
 
@@ -75,26 +76,16 @@ public class SigmetPhenomenon extends RegexMatchingLexemeVisitor {
 
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
-            ArrayList<AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon> tsPhenomena= new ArrayList<>(Arrays.asList(
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.EMBD_TS,
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.EMBD_TSGR,
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.OBSC_TS,
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.OBSC_TSGR,
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SQL_TS,
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SQL_TSGR,
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.FRQ_TS,
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.FRQ_TSGR,
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE,
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE_FZRA
-            ));
 
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET)msg;
-                if (sigmet.getSigmetPhenomenon().isPresent() && tsPhenomena.contains(sigmet.getSigmetPhenomenon().get())) {
+                if (sigmet.getSigmetPhenomenon().isPresent()) {
                     AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon phen=sigmet.getSigmetPhenomenon().get();
                     String text;
-                    if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE_FZRA.equals(phen)){;
+                    if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE_FZRA.equals(phen)){
                         text = "SEV ICE (FZRA)";
+                    } else if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA.equals(phen)){
+                        text = "VA CLD";
                     } else {
                         text = phen.getText().replaceAll("_", " ");
                     }
