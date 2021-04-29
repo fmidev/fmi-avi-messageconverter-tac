@@ -119,33 +119,44 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         String input) {
         seq.getFirstLexeme().findNext(LexemeIdentity.SIGMET_LEVEL, (match) -> {
             String modifier = match.getParsedValue(LEVEL_MODIFIER, String.class);
-            String lowerLevel = match.getParsedValue(VALUE, String.class);
+            String lowerLimit = match.getParsedValue(VALUE, String.class);
             String lowerUnit = match.getParsedValue(UNIT, String.class);
-            String upperLevel = match.getParsedValue(VALUE2, String.class);
+            String upperLimit = match.getParsedValue(VALUE2, String.class);
             String upperUnit = match.getParsedValue(UNIT2, String.class);
-            System.err.println("SIGMET PARSE LEVEL:"+lowerLevel+","+upperLevel);
-            if ("SFC".equals(lowerLevel)){
-                //SFC
-                phenBuilder.setLowerLimit(NumericMeasureImpl.of(0, "FT"));
-            } else {
-                if (lowerLevel!=null)
-                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLevel), getLevelUnit(lowerUnit)));
-            }
-            if (upperLevel!=null)
-                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLevel), getLevelUnit(upperUnit)));
-            if (modifier!=null)  {
-                switch (modifier){
-                case "TOPS":
-                    break;
-                case "TOPS BLW":
-                    phenBuilder.setLowerLimitOperator(AviationCodeListUser.RelationalOperator.BELOW);
-                    break;
-                case "ABV":
+            System.err.println("SIGMET PARSE LEVEL:"+lowerLimit+","+upperLimit+","+modifier);
+            if (lowerLimit!=null) {
+                if (upperLimit!=null) {
+                    if ("SFC".equals(lowerLimit)) {
+                        // BETW_SFC
+                        phenBuilder.setLowerLimit(NumericMeasureImpl.of(0, "FT"));
+                        phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                    } else {
+                        // BETW
+                        phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), getLevelUnit(lowerUnit)));
+                        phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                    }
+                } else if ("ABV".equals(modifier)) {
+                    // ABV
+                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), getLevelUnit(lowerUnit)));
+                    phenBuilder.setLowerLimitOperator(AviationCodeListUser.RelationalOperator.ABOVE);
+                } else {
+                    // AT
+                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), getLevelUnit(lowerUnit)));
+                }
+            } else if (upperLimit!=null) {
+                if ("TOP ABV".equals(modifier)) {
+                    // TOP ABV
                     phenBuilder.setUpperLimitOperator(AviationCodeListUser.RelationalOperator.ABOVE);
-                    break;
-                case "TOPS ABV":
-                    phenBuilder.setUpperLimitOperator(AviationCodeListUser.RelationalOperator.ABOVE);
-                    break;
+                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                } else if ("TOP BLW".equals(modifier)) {
+                    // TOP BLW
+                    phenBuilder.setUpperLimitOperator(AviationCodeListUser.RelationalOperator.BELOW);
+                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                } else if ("TOP".equals(modifier)){
+                    //TOP
+                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                } else {
+                    //ERROR
                 }
             }
         });

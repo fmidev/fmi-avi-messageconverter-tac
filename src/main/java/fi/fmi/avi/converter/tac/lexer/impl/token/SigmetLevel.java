@@ -7,6 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.NumericMeasure;
 import fi.fmi.avi.model.sigmet.SIGMET;
@@ -150,6 +151,26 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
         }
     }
 
+    private static String stringifyHeight(NumericMeasure measure, boolean addUnit) {
+        StringBuilder sb = new StringBuilder();
+        if(addUnit && "FL".equals(measure.getUom())) {
+            sb.append("FL");
+        }
+        if ((measure.getValue()<1000)&&("FL".equals(measure.getUom()))) {
+            sb.append(String.format("%03.0f", measure.getValue()));
+        } else if ((measure.getValue()<1000)&&("M".equals(measure.getUom()))) {
+            sb.append(String.format("%03.0f", measure.getValue()));
+        } else if (measure.getValue()<10000) {
+            sb.append(String.format("%04.0f", measure.getValue()));
+        } else {
+            sb.append(String.format("%05.0f", measure.getValue()));
+        }
+        if (addUnit && ! "FL".equals(measure.getUom())) {
+            sb.append(measure.getUom());
+        }
+        return sb.toString();
+    }
+
 	public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
@@ -159,47 +180,61 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
                     StringBuilder sb=new StringBuilder();
+                    String unitSlash=null;
+                    NumericMeasure lowerLevel = null;
+                    NumericMeasure upperLevel = null;
+                    AviationCodeListUser.RelationalOperator lowerLimitOperator = null;
+                    AviationCodeListUser.RelationalOperator upperLimitOperator = null;;
+
                     if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().isPresent()) {
-                        NumericMeasure lowerLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().get();
-                        if (lowerLevel.getValue()==0.0){
-                            sb.append("SFC/");
-                        } else {
-                            if ("FL".equals(lowerLevel.getUom())){
-                                sb.append("FL");
-                            }
-                            if ((lowerLevel.getValue()<1000)&&("FL".equals(lowerLevel.getUom()))) {
-                                sb.append(String.format("%03.0f", lowerLevel.getValue()));
-                            } else if ((lowerLevel.getValue()<1000)&&("M".equals(lowerLevel.getUom()))) {
-                                sb.append(String.format("%03.0f", lowerLevel.getValue()));
-                            } else if (lowerLevel.getValue()<10000) {
-                                sb.append(String.format("%04.0f", lowerLevel.getValue()));
-                            } else {
-                                sb.append(String.format("%05.0f", lowerLevel.getValue()));
-                            }
-                            if (!"FL".equals(lowerLevel.getUom())){
-                                sb.append(lowerLevel.getUom());
-                            }
-                            sb.append("/");
-                        }
-                    }
-                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimitOperator().isPresent()) {
+                        lowerLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().get();
                     }
                     if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().isPresent()) {
-                        NumericMeasure upperLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().get();
-                        if ("FL".equals(upperLevel.getUom())){
-                            sb.append("FL");
+                        upperLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().get();
+                    }
+                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimitOperator().isPresent()) {
+                        lowerLimitOperator = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimitOperator().get();
+                    }
+                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimitOperator().isPresent()) {
+                        upperLimitOperator = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimitOperator().get();
+                    }
+                    if (lowerLevel!=null) {
+                        if (upperLevel!=null) {
+                            // BTW and BTW_SFC
+                            if (lowerLevel.getValue()==0.0){
+                                sb.append("SFC/");
+                                sb.append(stringifyHeight(upperLevel, true));
+                            } else {
+                                sb.append(stringifyHeight(lowerLevel, false));
+                                sb.append("/");
+                                sb.append(stringifyHeight(upperLevel, true));
+                            }
+                        } else if (lowerLimitOperator==null) {
+                            // AT
+                            sb.append(stringifyHeight(lowerLevel, true));
+                        } if (AviationCodeListUser.RelationalOperator.ABOVE.equals(lowerLimitOperator)) {
+                            // ABV
+                            sb.append("ABV ");
+                            sb.append(stringifyHeight(lowerLevel, true));
                         }
-                        if ((upperLevel.getValue()<1000)&&("FL".equals(upperLevel.getUom()))) {
-                            sb.append(String.format("%03.0f", upperLevel.getValue()));
-                        } else if ((upperLevel.getValue()<1000)&&("M".equals(upperLevel.getUom()))) {
-                            sb.append(String.format("%03.0f", upperLevel.getValue()));
-                        } else if (upperLevel.getValue()<10000) {
-                            sb.append(String.format("%04.0f", upperLevel.getValue()));
+                    } else {
+                        if (upperLevel==null) {
+                            sb = new StringBuilder();
                         } else {
-                            sb.append(String.format("%05.0f", upperLevel.getValue()));
-                        }
-                        if (!"FL".equals(upperLevel.getUom())){
-                            sb.append(upperLevel.getUom());
+                            System.err.println(upperLevel+" "+ upperLimitOperator);
+                            if (upperLimitOperator == null) {
+                                //TOP
+                                sb.append("TOP ");
+                                sb.append(stringifyHeight(upperLevel, true));
+                            } else if (AviationCodeListUser.RelationalOperator.ABOVE.equals(upperLimitOperator)) {
+                                // TOP ABV
+                                sb.append("TOP ABV");
+                                sb.append(stringifyHeight(upperLevel, true));
+                            } else if (AviationCodeListUser.RelationalOperator.BELOW.equals(upperLimitOperator)) {
+                                // TOP BLW
+                                sb.append("TOP BLW");
+                                sb.append(stringifyHeight(upperLevel, true));
+                            }
                         }
                     }
                     // The level string can be empty, so check for length>0
