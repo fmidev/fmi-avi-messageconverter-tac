@@ -922,7 +922,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(N|S|E|W)\sOF\s([NSEW]\\d+)$");
+                return s.matches("^(N|S|E|W)\\sOF\\s([NSEW]\\d+)$");
             }
         });
 
@@ -935,7 +935,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(N|S|E|W)\sOF\s([NSEW]\\d+)$");
+                return s.matches("^(N|S|E|W)\\sOF\\s([NSEW]\\d+)$");
             }
         });
 
