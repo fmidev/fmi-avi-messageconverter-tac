@@ -12,7 +12,7 @@
   <description>Aviation weather message conversions - TAC module</description>
   <groupId>fi.fmi.avi.converter</groupId>
   <artifactId>fmi-avi-messageconverter-tac</artifactId>
-  <version>5.0.6.KNMI-add-sigmet-tac-SNAPSHOT</version>
+  <version>5.0.7.KNMI-add-sigmet-tac-SNAPSHOT</version>
 
   <scm>
     <connection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</connection>
@@ -58,6 +58,12 @@
       <artifactId>cglib</artifactId>
       <version>3.1</version>
       <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.locationtech.jts/jts-core -->
+    <dependency>
+        <groupId>org.locationtech.jts.io</groupId>
+        <artifactId>jts-io-common</artifactId>
+        <version>1.18.1</version>
     </dependency>
 
   </dependencies>
