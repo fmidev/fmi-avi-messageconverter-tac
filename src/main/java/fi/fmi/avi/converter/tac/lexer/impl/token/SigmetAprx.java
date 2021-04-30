@@ -15,6 +15,10 @@ import java.util.regex.Matcher;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_APRX_LINE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_LINE_WIDTH;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_LINE_WIDTH_UNIT;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_POINT1;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_POINT2;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_POINT3;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_POINT4;
 
 /**
  * Created by rinne on 10/02/17.
@@ -22,14 +26,18 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_LINE_WI
 public class SigmetAprx extends RegexMatchingLexemeVisitor {
 
     public SigmetAprx(final OccurrenceFrequency prio) {
-        super("^APRX\\s(\\d{2})(KM|NM)\\sWID\\sLINE\\sBTN", prio);
+        super("^APRX\\s((\\d{2})(KM|NM))\\sWID\\sLINE\\sBTN\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5}))?(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5}))?$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(SIGMET_APRX_LINE);
-        token.setParsedValue(APRX_LINE_WIDTH, match.group(1));
-        token.setParsedValue(APRX_LINE_WIDTH_UNIT, match.group(2));
+        token.setParsedValue(APRX_LINE_WIDTH, match.group(2));
+        token.setParsedValue(APRX_LINE_WIDTH_UNIT, match.group(3));
+        token.setParsedValue(APRX_POINT1, match.group(4));
+        token.setParsedValue(APRX_POINT2, match.group(5));
+        token.setParsedValue(APRX_POINT3, match.group(6));
+        token.setParsedValue(APRX_POINT4, match.group(7));
     }
 
 	public static class Reconstructor extends FactoryBasedReconstructor {

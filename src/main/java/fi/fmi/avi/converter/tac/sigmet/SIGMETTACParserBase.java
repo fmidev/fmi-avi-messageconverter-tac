@@ -105,6 +105,23 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(sb.toString());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+        } else if (LexemeIdentity.SIGMET_BETWEEN_LATLON.equals(firstLexeme.getIdentity())){
+            TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
+            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+        } else if (LexemeIdentity.SIGMET_OUTSIDE_LATLON.equals(firstLexeme.getIdentity())){
+            TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
+            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+        } else if (LexemeIdentity.SIGMET_APRX_LINE.equals(firstLexeme.getIdentity())){
+            TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
+            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+        } else if (LexemeIdentity.SIGMET_LINE.equals(firstLexeme.getIdentity())){
+            TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
+            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+
         }
         return geomBuilder.build();
     }

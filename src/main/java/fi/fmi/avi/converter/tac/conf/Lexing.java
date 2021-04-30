@@ -109,8 +109,14 @@ public class Lexing {
         f.addTokenCombiningRule(intlSigmetVolcanoPosition());
 
         f.addTokenCombiningRule(intlSigmetLineCombinationRule());
+        f.addTokenCombiningRule(intlSigmetLineCombinationRule2());
+        f.addTokenCombiningRule(intlSigmetLineCombinationRule3());
         f.addTokenCombiningRule(intlSigmetOutsideLatLonCombinationRule());
+        f.addTokenCombiningRule(intlSigmetOutsideLatLonCombinationRuleWithAnd());
         f.addTokenCombiningRule(intlSigmetAprxCombinationRule());
+        f.addTokenCombiningRule(intlSigmetAprxCombinationRule2());
+        f.addTokenCombiningRule(intlSigmetAprxCombinationRule3());
+        f.addTokenCombiningRule(intlSigmetAprxCombinationRule4());
         f.addTokenCombiningRule(intlSigmetLevelCombinationRule1());
         f.addTokenCombiningRule(intlSigmetLevelCombinationRule2());
         f.addTokenCombiningRule(intlSigmetLevelCombinationRule3());
@@ -774,6 +780,7 @@ public class Lexing {
         });
         return retval;
     }
+
     private List<Predicate<String>> intlSigmetFirNameCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -808,7 +815,6 @@ public class Lexing {
         });
         return retval;
     }
-
     private List<Predicate<String>> intlSigmetLineCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -833,6 +839,60 @@ public class Lexing {
         return retval;
     }
 
+    private List<Predicate<String>> intlSigmetLineCombinationRule2() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^-$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetLineCombinationRule3() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^-$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+        return retval;
+    }
+
     private List<Predicate<String>> intlSigmetOutsideLatLonCombinationRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -851,11 +911,37 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(([NS]\\d+)|([SE]\\d+))");
+                return s.matches("^([NSEW]\\d+)");
             }
         });
             return retval;
     }
+
+    private List<Predicate<String>> intlSigmetOutsideLatLonCombinationRuleWithAnd() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(N|S|E|W)\sOF\s([NSEW]\\d+)$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^AND$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(N|S|E|W)\sOF\s([NSEW]\\d+)$");
+            }
+        });
+
+            return retval;
+    }
+
 
     private List<Predicate<String>> intlSigmetStartRule() {
         List<Predicate<String>> retval = new ArrayList<>();
@@ -1007,6 +1093,81 @@ public class Lexing {
             }
         });
 
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetAprxCombinationRule2() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^APRX\\s(\\d{2}(KM|NM))\\sWID\\sLINE\\sBTN$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^-$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetAprxCombinationRule3() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^APRX\\s(\\d{2}(KM|NM))\\sWID\\sLINE\\sBTN\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^-$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetAprxCombinationRule4() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^APRX\\s(\\d{2}(KM|NM))\\sWID\\sLINE\\sBTN\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^-$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
         return retval;
     }
 
@@ -1481,6 +1642,7 @@ public class Lexing {
         l.teach(new Latitude(OccurrenceFrequency.RARE));
         l.teach(new Longitude(OccurrenceFrequency.RARE));
         l.teach(new SigmetOutsideLatOrLon(OccurrenceFrequency.RARE));
+        l.teach(new SigmetBetweenLatOrLon(OccurrenceFrequency.RARE));
         l.teach(new SigmetAnd(OccurrenceFrequency.RARE));
         l.teach(new SigmetVaEruption(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetVaName(OccurrenceFrequency.AVERAGE));

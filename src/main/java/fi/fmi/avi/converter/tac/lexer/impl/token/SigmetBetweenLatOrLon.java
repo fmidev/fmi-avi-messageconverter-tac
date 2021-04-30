@@ -13,30 +13,29 @@ import fi.fmi.avi.model.sigmet.SIGMET;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_OUTSIDE_LATLON;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_BETWEEN_LATLON;
 
 /**
  * Created by rinne on 10/02/17.
  */
-public class SigmetOutsideLatOrLon extends RegexMatchingLexemeVisitor {
-    private static String re1="((N|S)\\sOF\\s([NS]\\d{2,4})(\\sAND\\s(W|E)\\sOF\\s([WE](\\d{3,5})))?)";
-    private static String re2="((W|E)\\sOF\\s([WE]\\d{3,5})(\\sAND\\s(N|S)\\sOF\\s([NS](\\d{2,4})))?)";
+public class SigmetBetweenLatOrLon extends RegexMatchingLexemeVisitor {
+    private static String re1="((N|S)\\sOF\\s([NS]\\d{2,4})\\sAND\\s(N|S)\\sOF\\s([NS](\\d{2,4})))";
+    private static String re2="((W|E)\\sOF\\s([WE]\\d{3,5})\\sAND\\s(W|E)\\sOF\\s([WE](\\d{3,5})))";
 
-    public SigmetOutsideLatOrLon(final OccurrenceFrequency prio) {
+    public SigmetBetweenLatOrLon(final OccurrenceFrequency prio) {
         super("^("+re1+")|("+re2+")$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(SIGMET_OUTSIDE_LATLON);
         for (int i=0; i<10; i++) {
             System.err.println(i+":"+match.group(i));
         }
-        token.setParsedValue(ParsedValueName.TACGEOMETRY, match.group(0));
+        token.identify(SIGMET_BETWEEN_LATLON);
         token.setParsedValue(ParsedValueName.RELATIONTYPE, match.group(3));
         token.setParsedValue(ParsedValueName.RELATEDLINE, match.group(4));
-        token.setParsedValue(ParsedValueName.RELATIONTYPE, match.group(5));
-        token.setParsedValue(ParsedValueName.RELATEDLINE, match.group(6));
+        token.setParsedValue(ParsedValueName.RELATIONTYPE2, match.group(5));
+        token.setParsedValue(ParsedValueName.RELATEDLINE2, match.group(6));
     }
 
 	public static class Reconstructor extends FactoryBasedReconstructor {
@@ -45,7 +44,7 @@ public class SigmetOutsideLatOrLon extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                return Optional.of(createLexeme("SIGMET_OUTSIDE_LATLON", SIGMET_OUTSIDE_LATLON));
+                return Optional.of(createLexeme("SIGMET_BETWEEN_LATLON", SIGMET_BETWEEN_LATLON));
             }
             return Optional.empty();
         }

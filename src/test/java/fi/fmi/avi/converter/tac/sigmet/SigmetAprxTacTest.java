@@ -9,16 +9,16 @@ import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 
-public class Sigmet1Test extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
+public class SigmetAprxTacTest extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
 
 	@Override
 	public String getJsonFilename() {
-		return "../sigmet/sigmet1a.json";
+		return "../sigmet/sigmet_aprx_tac.json";
 	}
 
 	@Override
 	public String getMessage() {
-		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR SEV ICE (FZRA) OBS ENTIRE FIR STNR NC=";
+		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR SEV ICE (FZRA) OBS APRX 50KM WID LINE BTN N5200 E00520 - N5400 E00540 - N5500 E00712 STNR NC=";
 //		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA NEW AMSTERDAM FIR SEV ICE (FZRA) OBS N OF N20 AND S OF N30=";
 //		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA NEW AMSTERDAM FIR SEV ICE (FZRA) OBS N10=";
 //		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA NEW AMSTERDAM FIR SEV ICE (FZRA) OBS N OF LINE N10 E110 - N11 W111 - N12 E112 - N13 E113 - N14 E114=";

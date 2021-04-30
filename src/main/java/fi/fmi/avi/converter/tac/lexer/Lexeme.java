@@ -625,12 +625,24 @@ public interface Lexeme {
         AREA_TYPE,
         APRX_LINE_WIDTH,
         APRX_LINE_WIDTH_UNIT,
+        APRX_POINT1,
+        APRX_POINT2,
+        APRX_POINT3,
+        APRX_POINT4,
+        LINE_POINT1,
+        LINE_POINT2,
+        LINE_POINT3,
         LEVEL_MODIFIER,
         STATIONARY,
         INTENSITY,
         IS_FORECAST,
         TESTOREXERCISE,
-        USAGEREASON
+        USAGEREASON,
+        RELATIONTYPE,
+        RELATEDLINE,
+        RELATIONTYPE2,
+        RELATEDLINE2,
+        TACGEOMETRY
     }
 
     enum MeteorologicalBulletinSpecialCharacter {
