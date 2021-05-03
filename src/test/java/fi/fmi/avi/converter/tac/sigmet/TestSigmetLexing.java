@@ -456,6 +456,23 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
           OBS_OR_FORECAST,
           END_TOKEN }));
     assertEquals(new Integer("12"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.HOUR1, Integer.class));
-    assertEquals(new Integer("00"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MINUTE1, Integer.class));  }
+    assertEquals(new Integer("00"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MINUTE1, Integer.class));
+  }
+
+  @Test
+  public void shouldBeCNL_Sigmet() {
+    String tacString = "CNL SIGMET 01 101300/101600=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START,
+          SIGMET_CANCEL,
+          END_TOKEN}));
+
+    assertEquals("01", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.SEQUENCE_DESCRIPTOR, String.class));
+    assertEquals(new Integer("10"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.DAY1, Integer.class));
+    assertEquals(new Integer("13"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.HOUR1, Integer.class));
+    assertEquals(new Integer("00"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MINUTE1, Integer.class));
+  }
 
 }

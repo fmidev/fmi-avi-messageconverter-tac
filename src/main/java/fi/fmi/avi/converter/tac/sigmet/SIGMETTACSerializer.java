@@ -7,11 +7,6 @@ import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.*;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.PhenomenonGeometry;
-import fi.fmi.avi.model.PhenomenonGeometryWithHeight;
-import fi.fmi.avi.model.TacGeometry;
-import fi.fmi.avi.model.immutable.TacGeometryImpl;
-import fi.fmi.avi.model.immutable.TacGeometryImpl.Builder;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
@@ -61,6 +56,11 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
         }
         if (appendToken(retval,LexemeIdentity.SIGMET_USAGE, input, SIGMET.class, baseCtx)>0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+
+        if (appendToken(retval,LexemeIdentity.SIGMET_CANCEL, input, SIGMET.class, baseCtx)>0) {
+            appendToken(retval, LexemeIdentity.END_TOKEN, input, SIGMET.class, baseCtx);
+            return retval.build();
         }
 
         if (appendToken(retval,LexemeIdentity.SIGMET_PHENOMENON, input, SIGMET.class, baseCtx)>0) {

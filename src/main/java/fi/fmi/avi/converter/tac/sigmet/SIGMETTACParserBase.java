@@ -24,6 +24,8 @@ import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 import fi.fmi.avi.model.sigmet.SigmetIntensityChange;
 import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
+import fi.fmi.avi.model.sigmet.immutable.SigmetReferenceImpl;
+import fi.fmi.avi.model.sigmet.immutable.SigmetReferenceImpl.Builder;
 import fi.fmi.avi.model.PartialDateTime;
 import fi.fmi.avi.model.AviationCodeListUser.PermissibleUsage;
 import fi.fmi.avi.model.AviationCodeListUser.PermissibleUsageReason;
@@ -270,6 +272,12 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             builder.setIssuingAirTrafficServicesUnit(getFicInfo("AMSTERDAM", atsu));
         });
 
+        lexed.getFirstLexeme().findNext(LexemeIdentity.ISSUE_TIME, (match) -> {
+            String iss = match.getParsedValue(VALUE, String.class);
+            System.err.println("iss:"+iss);
+           // builder.setIssueTime(null);
+        });
+
         lexed.getFirstLexeme().findNext(LexemeIdentity.FIR_DESIGNATOR, (match) -> {
             Lexeme l=match;
             StringBuilder firName=new StringBuilder();
@@ -307,14 +315,8 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                 .setName("AMSTERDAM FIR");
         builder.setAirspace(airspaceBuilder.build());
 
-        // Lexeme lex=lexed.getFirstLexeme();
-        // while (lex.hasNext()) {
-        //     System.err.println(lex+" ");
-        //     lex=lex.getNext();
-        // }
-
+        builder.setPermissibleUsage(PermissibleUsage.OPERATIONAL);
         lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_USAGE, (match) -> {
-            builder.setPermissibleUsage(PermissibleUsage.NON_OPERATIONAL);
             if ("TEST".equals(match.getParsedValue(TESTOREXERCISE, String.class))) {
                 builder.setPermissibleUsageReason(PermissibleUsageReason.TEST);
             } else {
@@ -337,63 +339,89 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET sequence descriptor not given in " + input)));
 
 
-        builder.setReportStatus(ReportStatus.NORMAL);
+        lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_CANCEL, (match) -> {
+            Builder ref = new SigmetReferenceImpl.Builder();
+            ref.setSequenceNumber(match.getParsedValue(ParsedValueName.SEQUENCE_DESCRIPTOR, String.class));
+            ref.setIssuingAirTrafficServicesUnit(builder.getIssuingAirTrafficServicesUnit());
+            ref.setMeteorologicalWatchOffice(builder.getMeteorologicalWatchOffice());
+            PartialOrCompleteTimePeriod.Builder periodBuilder = PartialOrCompleteTimePeriod.builder();
+            PartialOrCompleteTimeInstant startTime = PartialOrCompleteTimeInstant.of(
+                PartialDateTime.of(
+                    match.getParsedValue(DAY1, Integer.class),
+                    match.getParsedValue(HOUR1, Integer.class),
+                    match.getParsedValue(MINUTE1, Integer.class),
+                    ZoneId.of("Z")));
+            periodBuilder.setStartTime(startTime);
+            PartialOrCompleteTimeInstant endTime = PartialOrCompleteTimeInstant.of(
+                PartialDateTime.of(
+                    match.getParsedValue(DAY2, Integer.class),
+                    match.getParsedValue(HOUR2, Integer.class),
+                    match.getParsedValue(MINUTE2, Integer.class),
+                    ZoneId.of("Z")));
+            periodBuilder.setEndTime(endTime);
+            ref.setValidityPeriod(periodBuilder.build());
+            builder.setCancelledReference(ref.build());
+            builder.setCancelMessage(true);
+        });
+        if (!builder.isCancelMessage()){
+            builder.setReportStatus(ReportStatus.NORMAL);
 
-        lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_PHENOMENON, (match) -> {
-            String phen=match.getParsedValue(Lexeme.ParsedValueName.PHENOMENON, String.class);
-            builder.setSigmetPhenomenon(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.valueOf(phen));
-        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET phenomenon not given in " + input)));
+            lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_PHENOMENON, (match) -> {
+                String phen=match.getParsedValue(Lexeme.ParsedValueName.PHENOMENON, String.class);
+                builder.setSigmetPhenomenon(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.valueOf(phen));
+            }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET phenomenon not given in " + input)));
 
-        PhenomenonGeometryWithHeightImpl.Builder phenBuilder = new PhenomenonGeometryWithHeightImpl.Builder();
+            PhenomenonGeometryWithHeightImpl.Builder phenBuilder = new PhenomenonGeometryWithHeightImpl.Builder();
 
-        // Analysisgeometry: after OBS_OR_FORECAST and before LEVEL, MOVEMENT, and INTENSITY_CHANGE
+            // Analysisgeometry: after OBS_OR_FORECAST and before LEVEL, MOVEMENT, and INTENSITY_CHANGE
 
-        final List<LexemeIdentity> analysisLexemes=Arrays.asList(LexemeIdentity.SIGMET_LEVEL, LexemeIdentity.SIGMET_INTENSITY, LexemeIdentity.SIGMET_MOVING);
-        final List<LexemeSequence> subSequences =lexed.splitBy(LexemeIdentity.OBS_OR_FORECAST, LexemeIdentity.SIGMET_FCST_AT);
-        List<TacOrGeoGeometry> analysisGeometries = new ArrayList<>();
-        List<TacOrGeoGeometry> forecastGeometries = new ArrayList<>();
+            final List<LexemeIdentity> analysisLexemes=Arrays.asList(LexemeIdentity.SIGMET_LEVEL, LexemeIdentity.SIGMET_INTENSITY, LexemeIdentity.SIGMET_MOVING);
+            final List<LexemeSequence> subSequences =lexed.splitBy(LexemeIdentity.OBS_OR_FORECAST, LexemeIdentity.SIGMET_FCST_AT);
+            List<TacOrGeoGeometry> analysisGeometries = new ArrayList<>();
+            List<TacOrGeoGeometry> forecastGeometries = new ArrayList<>();
 
-        for (int i = 0; i < subSequences.size(); i++) {
-            final LexemeSequence seq = subSequences.get(i);
-            // System.err.print("["+i+"]: ");
-            // Lexeme l1=seq.getFirstLexeme();
-            // while (l1.hasNext()) {
-            //     System.err.print(l1+" - ");
-            //     l1=l1.getNext();
-            // }
-            // System.err.println();
-            Lexeme l=seq.getFirstLexeme();
+            for (int i = 0; i < subSequences.size(); i++) {
+                final LexemeSequence seq = subSequences.get(i);
+                // System.err.print("["+i+"]: ");
+                // Lexeme l1=seq.getFirstLexeme();
+                // while (l1.hasNext()) {
+                //     System.err.print(l1+" - ");
+                //     l1=l1.getNext();
+                // }
+                // System.err.println();
+                Lexeme l=seq.getFirstLexeme();
 
-            if (LexemeIdentity.OBS_OR_FORECAST.equals(seq.getFirstLexeme().getIdentity())){
-                if (sequenceContains(seq, analysisLexemes)) {
-                    parseLevelMovingIntensity(seq, phenBuilder, result, input);
-                    analysisGeometries.add(parseGeometry(l.getTailSequence(), builder));
+                if (LexemeIdentity.OBS_OR_FORECAST.equals(seq.getFirstLexeme().getIdentity())){
+                    if (sequenceContains(seq, analysisLexemes)) {
+                        parseLevelMovingIntensity(seq, phenBuilder, result, input);
+                        analysisGeometries.add(parseGeometry(l.getTailSequence(), builder));
 
-                } else {
-                    //TODO: Check if there are NO movingSpeed/movingDirection in analysis
-                    forecastGeometries.add(parseGeometry(l.getTailSequence(), builder));
+                    } else {
+                        //TODO: Check if there are NO movingSpeed/movingDirection in analysis
+                        forecastGeometries.add(parseGeometry(l.getTailSequence(), builder));
+                    }
                 }
             }
+
+            phenBuilder.setGeometry(analysisGeometries.get(0)); //TODO list
+
+            phenBuilder.setApproximateLocation(false);
+
+            PhenomenonGeometryWithHeight phenGeom = phenBuilder.build();
+
+            builder.setAnalysisGeometries(Arrays.asList(phenGeom));
+
+            if (forecastGeometries.size()>0) {
+                PhenomenonGeometryImpl.Builder fcstBuilder = new PhenomenonGeometryImpl.Builder();
+                fcstBuilder.setGeometry(forecastGeometries.get(0)); //TODO list
+
+                fcstBuilder.setApproximateLocation(false);
+
+                PhenomenonGeometry fcstGeom = fcstBuilder.build();
+                builder.setForecastGeometries(Arrays.asList(fcstGeom));
+            }
         }
-
-        phenBuilder.setGeometry(analysisGeometries.get(0)); //TODO list
-
-        phenBuilder.setApproximateLocation(false);
-
-        PhenomenonGeometryWithHeight phenGeom = phenBuilder.build();
-
-        builder.setAnalysisGeometries(Arrays.asList(phenGeom));
-
-        if (forecastGeometries.size()>0) {
-            PhenomenonGeometryImpl.Builder fcstBuilder = new PhenomenonGeometryImpl.Builder();
-            fcstBuilder.setGeometry(forecastGeometries.get(0)); //TODO list
-
-            fcstBuilder.setApproximateLocation(false);
-
-            PhenomenonGeometry fcstGeom = fcstBuilder.build();
-            builder.setForecastGeometries(Arrays.asList(fcstGeom));
-        }
-
+        builder.setTranslated(true);
         if (lexed.getTAC() != null) {
             builder.setTranslatedTAC(lexed.getTAC());
         }

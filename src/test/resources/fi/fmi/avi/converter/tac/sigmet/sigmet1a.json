@@ -39,5 +39,6 @@
     }
   ],
   "translatedTAC":"EHAA SIGMET M01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR SEV ICE (FZRA) OBS ENTIRE FIR STNR NC=",
-  "translated": false
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
 }

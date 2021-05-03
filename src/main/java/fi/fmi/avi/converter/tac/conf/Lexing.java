@@ -122,6 +122,7 @@ public class Lexing {
         f.addTokenCombiningRule(intlSigmetLevelCombinationRule3());
         f.addTokenCombiningRule(intlSigmetMovingCombinationRule());
         f.addTokenCombiningRule(intlSigmetObsFcstAtCombinationRule());
+        f.addTokenCombiningRule(intlSigmetCancelCombinationRule());
 
         //        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
 
@@ -1171,6 +1172,36 @@ public class Lexing {
         return retval;
     }
 
+    private List<Predicate<String>> intlSigmetCancelCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^CNL$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("SIGMET");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^\\w?\\d?\\d$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(\\d{2}\\d{2}\\d{2}/\\d{2}\\d{2}\\d{2})$");
+            }
+        });
+        return retval;
+}
+
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule1() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -1635,7 +1666,6 @@ public class Lexing {
         l.teach(new SigmetPhenomenon(OccurrenceFrequency.AVERAGE));
         l.teach(new PolygonCoordinatePair(OccurrenceFrequency.FREQUENT));
         l.teach(new PolygonCoordinatePairSeparator(OccurrenceFrequency.AVERAGE));
- //       l.teach(new ShowAll(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetEntireFir(OccurrenceFrequency.RARE));
         l.teach(new SigmetWithin(OccurrenceFrequency.RARE));
         l.teach(new SigmetLine(OccurrenceFrequency.RARE));
@@ -1654,6 +1684,7 @@ public class Lexing {
         l.teach(new SigmetMoving(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetIntensity(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetForecastAt(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetCancel(OccurrenceFrequency.AVERAGE));
         return l;
     }
 

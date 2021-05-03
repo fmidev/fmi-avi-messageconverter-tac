@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
+
 @JsonDeserialize(using = LexemeIdentity.Deserializer.class)
 @JsonSerialize(using = LexemeIdentity.Serializer.class)
 public class LexemeIdentity {
@@ -149,7 +151,8 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_MOVING = new LexemeIdentity("SIGMET_MOVING", EnumSet.of(DIRECTION, STATIONARY, VALUE, UNIT), Collections.emptySet());
     public static final LexemeIdentity SIGMET_INTENSITY = new LexemeIdentity("SIGMET_INTENSITY", EnumSet.of(INTENSITY), Collections.emptySet());
     public static final LexemeIdentity SIGMET_FCST_AT = new LexemeIdentity("SIGMET_FCST_AT", EnumSet.of(VALUE), Collections.emptySet());
-    public static final LexemeIdentity SIGMET_TAC_ELEMENT = new LexemeIdentity("SIGMET_TAC_ELEMENT", Collections.emptySet( ), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_TAC_ELEMENT = new LexemeIdentity("SIGMET_TAC_ELEMENT", Collections.emptySet(), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_CANCEL = new LexemeIdentity("SIGMET_CANCEL",EnumSet.of(ParsedValueName.SEQUENCE_DESCRIPTOR, DAY1, HOUR1, MINUTE1, DAY2, HOUR2, MINUTE2) , Collections.emptySet());
 
     private final String name;
     private final Set<Lexeme.ParsedValueName> possibleParameters;

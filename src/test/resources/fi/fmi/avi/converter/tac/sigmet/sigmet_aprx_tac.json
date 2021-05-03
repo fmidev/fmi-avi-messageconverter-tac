@@ -38,5 +38,6 @@
     }
   ],
   "translatedTAC":"EHAA SIGMET M01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR SEV ICE (FZRA) OBS APRX 50KM WID LINE BTN N5200 E00520 - N5400 E00540 - N5500 E00712 STNR NC=",
-  "translated": false
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
 }
