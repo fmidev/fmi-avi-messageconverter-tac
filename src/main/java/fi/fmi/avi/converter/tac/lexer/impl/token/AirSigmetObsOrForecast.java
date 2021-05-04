@@ -61,6 +61,15 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                         return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
                     }
                 }
+                final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
+                if (forecastIndex.isPresent()) {
+                    String tim="";
+                    if (m.getForecastGeometries().get().get(forecastIndex.get()).getTime().isPresent()) {
+                        PartialOrCompleteTimeInstant t = m.getForecastGeometries().get().get(0).getTime().get();
+                        tim=String.format(" AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
+                    }
+                    return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
+                }
             }
             return Optional.empty();
         }

@@ -52,10 +52,10 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
                 SIGMET sigmet = (SIGMET)msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    if (!sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().isPresent()) {
-                        return Optional.of(createLexeme("STNR", SIGMET_MOVING));
-                    } else if (sigmet.getForecastGeometries().isPresent() && sigmet.getForecastGeometries().get().size()>0) {
+                    if (sigmet.getForecastGeometries().isPresent() && sigmet.getForecastGeometries().get().size()>0) {
                         return Optional.empty();
+                    } else if (!sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().isPresent()) {
+                        return Optional.of(createLexeme("STNR", SIGMET_MOVING));
                     } else {
                         StringBuilder sb = new StringBuilder();
                         sb.append("MOV");
