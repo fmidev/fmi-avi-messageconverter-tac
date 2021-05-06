@@ -158,8 +158,6 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
         }
         if ((measure.getValue()<1000)&&("FL".equals(measure.getUom()))) {
             sb.append(String.format("%03.0f", measure.getValue()));
-        } else if ((measure.getValue()<1000)&&("M".equals(measure.getUom()))) {
-            sb.append(String.format("%03.0f", measure.getValue()));
         } else if (measure.getValue()<10000) {
             sb.append(String.format("%04.0f", measure.getValue()));
         } else {
@@ -180,7 +178,6 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
                     StringBuilder sb=new StringBuilder();
-                    String unitSlash=null;
                     NumericMeasure lowerLevel = null;
                     NumericMeasure upperLevel = null;
                     AviationCodeListUser.RelationalOperator lowerLimitOperator = null;
@@ -205,9 +202,10 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
                                 sb.append("SFC/");
                                 sb.append(stringifyHeight(upperLevel, true));
                             } else {
-                                sb.append(stringifyHeight(lowerLevel, false));
+                                System.err.println("LEVEL BETW:"+lowerLevel.getValue()+lowerLevel.getUom()+","+upperLevel.getValue()+upperLevel.getUom());
+                                sb.append(stringifyHeight(lowerLevel, "FL".equals(lowerLevel.getUom())));
                                 sb.append("/");
-                                sb.append(stringifyHeight(upperLevel, true));
+                                sb.append(stringifyHeight(upperLevel, !"FL".equals(lowerLevel.getUom())));
                             }
                         } else if (lowerLimitOperator==null) {
                             // AT
@@ -228,11 +226,11 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
                                 sb.append(stringifyHeight(upperLevel, true));
                             } else if (AviationCodeListUser.RelationalOperator.ABOVE.equals(upperLimitOperator)) {
                                 // TOP ABV
-                                sb.append("TOP ABV");
+                                sb.append("TOP ABV ");
                                 sb.append(stringifyHeight(upperLevel, true));
                             } else if (AviationCodeListUser.RelationalOperator.BELOW.equals(upperLimitOperator)) {
                                 // TOP BLW
-                                sb.append("TOP BLW");
+                                sb.append("TOP BLW ");
                                 sb.append(stringifyHeight(upperLevel, true));
                             }
                         }
