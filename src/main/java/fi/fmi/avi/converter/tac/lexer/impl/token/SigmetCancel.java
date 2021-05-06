@@ -45,7 +45,6 @@ public class SigmetCancel extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET)msg;
-                System.err.println("SIGMET Cancel recon: "+ sigmet.isCancelMessage());
                 if (sigmet.isCancelMessage()) {
                     StringBuilder sb = new StringBuilder();
                     SigmetReference ref = sigmet.getCancelledReference().get();
@@ -72,7 +71,6 @@ public class SigmetCancel extends RegexMatchingLexemeVisitor {
                             end.getDay().getAsInt(),
                             end.getHour().getAsInt(),
                             end.getMinute().getAsInt()));
-                    System.err.println("SB:"+sb.toString());
                     return Optional.of(createLexeme(sb.toString(), SIGMET_CANCEL));
                 }
             }

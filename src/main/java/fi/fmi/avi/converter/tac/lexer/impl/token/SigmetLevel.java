@@ -202,7 +202,6 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
                                 sb.append("SFC/");
                                 sb.append(stringifyHeight(upperLevel, true));
                             } else {
-                                System.err.println("LEVEL BETW:"+lowerLevel.getValue()+lowerLevel.getUom()+","+upperLevel.getValue()+upperLevel.getUom());
                                 sb.append(stringifyHeight(lowerLevel, "FL".equals(lowerLevel.getUom())));
                                 sb.append("/");
                                 sb.append(stringifyHeight(upperLevel, !"FL".equals(lowerLevel.getUom())));

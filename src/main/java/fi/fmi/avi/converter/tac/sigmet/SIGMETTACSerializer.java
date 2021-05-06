@@ -101,36 +101,6 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
             }
         });
 
-        // input.getAnalysisGeometries().ifPresent(l-> l.get(0).getGeometry()
-        //     .ifPresent(g -> {
-        //         g.getTacGeometry().ifPresent(t-> {
-        //             try {
-        //                 if (false && appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, baseCtx)>0) {
-        //                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-        //                 }
-
-        //             } catch (SerializingException e) {
-        //                 // TODO Auto-generated catch block
-        //                 e.printStackTrace();
-        //             }
-        //         });
-        //         g.getGeoGeometry().ifPresent(t-> {
-        //             try {
-        //                 if (false && appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, baseCtx)>0) {
-        //                     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-        //                 }
-
-        //             } catch (SerializingException e) {
-        //                 // TODO Auto-generated catch block
-        //                 e.printStackTrace();
-        //             }
-        //         });
-        //     }));
-            // if (appendToken(retval,LexemeIdentity.SIGMET_MOVING, input, SIGMET.class, baseCtx)>0) {
-            //     appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-            // }
-
-        System.err.println("And now the forecasts: "+(input.getForecastGeometries().isPresent()?input.getForecastGeometries().get().size():"NA"));
         input.getForecastGeometries().ifPresent(g-> {
             for (int i=0; i<g.size(); i++) {
                 final ReconstructorContext<SIGMET> forecastCtx = baseCtx.copyWithParameter("forecastIndex", i);
