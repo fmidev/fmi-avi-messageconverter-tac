@@ -166,62 +166,77 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                         final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
                         if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
                             PointGeometry pt = (PointGeometry)geoGeometry;
-                            //Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
-                            int latOffset = -1;
-                            int lonOffset = -1;
-                            final List<String> axisLabels = pt.getCrs().map(CoordinateReferenceSystem::getAxisLabels).orElse(Collections.emptyList());
-                            for (int i = axisLabels.size() - 1; i >= 0; i--) {
-                                final String axisLabel = axisLabels.get(i).toLowerCase(Locale.US);
-                                if (LATITUDE_AXIS_LABELS.contains(axisLabel)) {
-                                    latOffset = i;
-                                } else if (LONGITUDE_AXIS_LABELS.contains(axisLabel)) {
-                                    lonOffset = i;
-                                }
-                            }
-                            //defaults to EPSG:4326 (lat,lon) order:
-                            if (latOffset == -1) {
-                                latOffset = 0;
-                            }
-                            if (lonOffset == -1) {
-                                lonOffset = 1;
-                            }
-                            final List<Double> coords = pt.getCoordinates();
-                            StringBuilder latBuilder = new StringBuilder();
-                            StringBuilder lonBuilder = new StringBuilder();
-                            final BigDecimal lat = BigDecimal.valueOf(coords.get(latOffset));
-                            final BigDecimal lon = BigDecimal.valueOf(coords.get(lonOffset));
-                            if (lat.doubleValue() >= -90.0 && lat.doubleValue() <= 90.0 && lon.doubleValue() >= -180.0
-                                    && lon.doubleValue() <= 180.0) {
-                                if (lat.doubleValue() < 0) {
-                                    latBuilder.append('S');
-                                } else {
-                                    latBuilder.append('N');
-                                }
-                                if (lon.doubleValue() < 0) {
-                                    lonBuilder.append('W');
-                                } else {
-                                    lonBuilder.append('E');
-                                }
-                                final BigDecimal latDecimalPart = lat.subtract(BigDecimal.valueOf(lat.intValue()));
-                                final BigDecimal lonDecimalPart = lon.subtract(BigDecimal.valueOf(lon.intValue()));
-                                latBuilder.append(String.format("%02d", lat.abs().intValue()));
-                                lonBuilder.append(String.format("%03d", lon.abs().intValue()));
-                                if (latDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
-                                    latBuilder.append(String.format("%02d", latDecimalPart.abs().multiply(BigDecimal.valueOf(100d)).intValue()));
-                                }
-                                if (lonDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
-                                    lonBuilder.append(String.format("%02d", lonDecimalPart.abs().multiply(BigDecimal.valueOf(100d)).intValue()));
-                                }
-                                retval.add(this.createLexeme(
-                                            latBuilder.toString() + Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
-                                            + lonBuilder.toString(), LexemeIdentity.POLYGON_COORDINATE_PAIR));
-                            }
-
+                            handlePoint(pt, retval);
+                        }
+                    }
+                }
+                final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
+                if (forecastIndex.isPresent()) {
+                    final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getForecastGeometries().get().get(forecastIndex.get()).getGeometry().get();
+                    if (tacOrGeoGeometry.getGeoGeometry().isPresent()&&!tacOrGeoGeometry.getTacGeometry().isPresent()) {
+                        final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
+                        if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
+                            PointGeometry pt = (PointGeometry)geoGeometry;
+                            handlePoint(pt, retval);
                         }
                     }
                 }
             }
             return retval;
         }
+
+        private void handlePoint(PointGeometry pt, List<Lexeme> retval ){
+            //Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
+            int latOffset = -1;
+            int lonOffset = -1;
+            final List<String> axisLabels = pt.getCrs().map(CoordinateReferenceSystem::getAxisLabels).orElse(Collections.emptyList());
+            for (int i = axisLabels.size() - 1; i >= 0; i--) {
+                final String axisLabel = axisLabels.get(i).toLowerCase(Locale.US);
+                if (LATITUDE_AXIS_LABELS.contains(axisLabel)) {
+                    latOffset = i;
+                } else if (LONGITUDE_AXIS_LABELS.contains(axisLabel)) {
+                    lonOffset = i;
+                }
+            }
+            //defaults to EPSG:4326 (lat,lon) order:
+            if (latOffset == -1) {
+                latOffset = 0;
+            }
+            if (lonOffset == -1) {
+                lonOffset = 1;
+            }
+            final List<Double> coords = pt.getCoordinates();
+            StringBuilder latBuilder = new StringBuilder();
+            StringBuilder lonBuilder = new StringBuilder();
+            final BigDecimal lat = BigDecimal.valueOf(coords.get(latOffset));
+            final BigDecimal lon = BigDecimal.valueOf(coords.get(lonOffset));
+            if (lat.doubleValue() >= -90.0 && lat.doubleValue() <= 90.0 && lon.doubleValue() >= -180.0
+                    && lon.doubleValue() <= 180.0) {
+                if (lat.doubleValue() < 0) {
+                    latBuilder.append('S');
+                } else {
+                    latBuilder.append('N');
+                }
+                if (lon.doubleValue() < 0) {
+                    lonBuilder.append('W');
+                } else {
+                    lonBuilder.append('E');
+                }
+                final BigDecimal latDecimalPart = lat.subtract(BigDecimal.valueOf(lat.intValue()));
+                final BigDecimal lonDecimalPart = lon.subtract(BigDecimal.valueOf(lon.intValue()));
+                latBuilder.append(String.format("%02d", lat.abs().intValue()));
+                lonBuilder.append(String.format("%03d", lon.abs().intValue()));
+                if (latDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
+                    latBuilder.append(String.format("%02d", latDecimalPart.abs().multiply(BigDecimal.valueOf(100d)).intValue()));
+                }
+                if (lonDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
+                    lonBuilder.append(String.format("%02d", lonDecimalPart.abs().multiply(BigDecimal.valueOf(100d)).intValue()));
+                }
+                retval.add(this.createLexeme(
+                            latBuilder.toString() + Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
+                            + lonBuilder.toString(), LexemeIdentity.POLYGON_COORDINATE_PAIR));
+            }
+        }
+
     }
 }
