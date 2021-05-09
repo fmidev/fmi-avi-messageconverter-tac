@@ -18,6 +18,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 public class SigmetValidTime extends TimeHandlingRegex {
@@ -59,6 +60,23 @@ public class SigmetValidTime extends TimeHandlingRegex {
                     sigmet.getValidityPeriod().getEndTime().isPresent()) {
                     PartialOrCompleteTimeInstant start = sigmet.getValidityPeriod().getStartTime().get();
                     PartialOrCompleteTimeInstant end = sigmet.getValidityPeriod().getEndTime().get();
+
+                    StringBuilder sb=new StringBuilder("VALID ");
+                    sb.append(String.format("%02d%02d%02d/", start.getDay().getAsInt(),
+                              start.getHour().getAsInt(), start.getMinute().getAsInt()));
+                    sb.append(String.format("%02d%02d%02d", end.getDay().getAsInt(),
+                              end.getHour().getAsInt(), end.getMinute().getAsInt()));
+                    return Optional.of(createLexeme(sb.toString(), LexemeIdentity.VALID_TIME));
+                } else {
+                    // System.err.println("SigmetValid: start or end time missing");
+                }
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET airmet = (AIRMET)msg;
+                if (airmet.getValidityPeriod().getStartTime().isPresent()&&
+                    airmet.getValidityPeriod().getEndTime().isPresent()) {
+                    PartialOrCompleteTimeInstant start = airmet.getValidityPeriod().getStartTime().get();
+                    PartialOrCompleteTimeInstant end = airmet.getValidityPeriod().getEndTime().get();
 
                     StringBuilder sb=new StringBuilder("VALID ");
                     sb.append(String.format("%02d%02d%02d/", start.getDay().getAsInt(),

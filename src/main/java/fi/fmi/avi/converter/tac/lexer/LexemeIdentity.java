@@ -31,6 +31,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity AIREP_START = new LexemeIdentity("AIREP_START");
     public static final LexemeIdentity SIGMET_START = new LexemeIdentity("SIGMET_START");
     public static final LexemeIdentity US_SIGMET_START = new LexemeIdentity("US_SIGMET_START");
+    public static final LexemeIdentity AIRMET_START = new LexemeIdentity("AIRMET_START");
     public static final LexemeIdentity REP = new LexemeIdentity("REP");
     public static final LexemeIdentity SPACE_WEATHER_ADVISORY_START = new LexemeIdentity("SPACE_WEATHER_ADVISORY_START");
     public static final LexemeIdentity ADVISORY_PHENOMENA_LABEL = new LexemeIdentity("ADVISORY_PHENOMENA_LABEL", EnumSet.of(TYPE, HOUR1),
@@ -132,6 +133,11 @@ public class LexemeIdentity {
     public static final LexemeIdentity FIR_NAME = new LexemeIdentity("FIR_NAME", EnumSet.of(VALUE, FIR_TYPE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_USAGE = new LexemeIdentity("SIGMET_USAGE", EnumSet.of(TESTOREXERCISE, USAGEREASON), Collections.emptySet());
     public static final LexemeIdentity SIGMET_PHENOMENON = new LexemeIdentity("SIGMET_PHENOMENON", EnumSet.of(PHENOMENON), Collections.emptySet());
+    public static final LexemeIdentity AIRMET_PHENOMENON = new LexemeIdentity("AIRMET_PHENOMENON",
+                EnumSet.of(PHENOMENON, CLD_ABOVE_LEVEL, CLD_LOWLEVEL, CLD_HIGHLEVEL,
+                        CLD_LEVELUNIT, SURFACE_VISIBILITY, SURFACE_VISIBILITY_CAUSE,
+                        SURFACE_WIND_DIRECTION, SURFACE_WIND_SPEED, SURFACE_WIND_SPEED_UNIT),
+                Collections.emptySet());
     public static final LexemeIdentity OBS_OR_FORECAST = new LexemeIdentity("OBS_OR_FORECAST",EnumSet.of(IS_FORECAST, HOUR1, MINUTE1), Collections.emptySet());
     public static final LexemeIdentity SIGMET_ENTIRE_AREA = new LexemeIdentity("SIGMET_ENTIRE_AREA", EnumSet.of(AREA_TYPE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_WITHIN = new LexemeIdentity("SIGMET_WITHIN", Collections.emptySet(), Collections.emptySet());
@@ -142,6 +148,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_OUTSIDE_LATLON = new LexemeIdentity("SIGMET_OUTSIDE_LATLON",EnumSet.of(RELATIONTYPE, RELATEDLINE, RELATIONTYPE2, RELATEDLINE2, TACGEOMETRY) , Collections.emptySet());
     public static final LexemeIdentity SIGMET_BETWEEN_LATLON = new LexemeIdentity("SIGMET_BETWEEN_LATLON",EnumSet.of(RELATIONTYPE, RELATEDLINE, RELATIONTYPE2, RELATEDLINE2, TACGEOMETRY) , Collections.emptySet());
     public static final LexemeIdentity REAL_SIGMET_START = new LexemeIdentity("REAL_SIGMET_START", EnumSet.of(LOCATION_INDICATOR), Collections.emptySet());
+    public static final LexemeIdentity REAL_AIRMET_START = new LexemeIdentity("REAL_AIRMET_START", EnumSet.of(LOCATION_INDICATOR), Collections.emptySet());
     public static final LexemeIdentity SIGMET_VA_NAME = new LexemeIdentity("SIGMET_VA_NAME", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_VA_ERUPTION = new LexemeIdentity("SIGMET_VA_ERUPTION");
     public static final LexemeIdentity SIGMET_VA_POSITION = new LexemeIdentity("SIGMET_VA_POSITION");
@@ -153,6 +160,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_FCST_AT = new LexemeIdentity("SIGMET_FCST_AT", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_TAC_ELEMENT = new LexemeIdentity("SIGMET_TAC_ELEMENT", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity SIGMET_CANCEL = new LexemeIdentity("SIGMET_CANCEL",EnumSet.of(ParsedValueName.SEQUENCE_DESCRIPTOR, DAY1, HOUR1, MINUTE1, DAY2, HOUR2, MINUTE2) , Collections.emptySet());
+    public static final LexemeIdentity AIRMET_CANCEL = new LexemeIdentity("AIRMET_CANCEL",EnumSet.of(ParsedValueName.SEQUENCE_DESCRIPTOR, DAY1, HOUR1, MINUTE1, DAY2, HOUR2, MINUTE2) , Collections.emptySet());
 
     private final String name;
     private final Set<Lexeme.ParsedValueName> possibleParameters;

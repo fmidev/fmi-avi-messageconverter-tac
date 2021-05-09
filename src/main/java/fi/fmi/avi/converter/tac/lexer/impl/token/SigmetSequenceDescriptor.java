@@ -7,6 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Optional;
@@ -22,7 +23,8 @@ public class SigmetSequenceDescriptor extends TimeHandlingRegex {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (LexemeIdentity.REAL_SIGMET_START.equals(token.getPrevious().getIdentity())) {
+        if (LexemeIdentity.REAL_SIGMET_START.equals(token.getPrevious().getIdentity())||
+                LexemeIdentity.REAL_AIRMET_START.equals(token.getPrevious().getIdentity())) {
             final String id = match.group(0);
 
             token.identify(LexemeIdentity.SEQUENCE_DESCRIPTOR);
@@ -36,6 +38,10 @@ public class SigmetSequenceDescriptor extends TimeHandlingRegex {
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET)msg;
+                return Optional.of(createLexeme(sigmet.getSequenceNumber(), LexemeIdentity.SEQUENCE_DESCRIPTOR));
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET sigmet = (AIRMET)msg;
                 return Optional.of(createLexeme(sigmet.getSequenceNumber(), LexemeIdentity.SEQUENCE_DESCRIPTOR));
             }
             return Optional.empty();

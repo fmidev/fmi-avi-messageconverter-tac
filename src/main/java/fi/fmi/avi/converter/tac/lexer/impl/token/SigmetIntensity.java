@@ -7,6 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Optional;
@@ -40,6 +41,20 @@ public class SigmetIntensity extends RegexMatchingLexemeVisitor {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
                     switch (sm.getAnalysisGeometries().get().get(analysisIndex.get()).getIntensityChange().get()) {
+                    case NO_CHANGE:
+                        return Optional.of(createLexeme("NC", SIGMET_INTENSITY));
+                    case WEAKENING:
+                        return Optional.of(createLexeme("WKN", SIGMET_INTENSITY));
+                    case INTENSIFYING:
+                        return Optional.of(createLexeme("INTSF", SIGMET_INTENSITY));
+                    }
+                }
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET am = (AIRMET) msg;
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    switch (am.getAnalysisGeometries().get().get(analysisIndex.get()).getIntensityChange().get()) {
                     case NO_CHANGE:
                         return Optional.of(createLexeme("NC", SIGMET_INTENSITY));
                     case WEAKENING:

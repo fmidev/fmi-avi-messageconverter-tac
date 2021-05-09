@@ -51,6 +51,7 @@ public class Lexing {
         l.addTokenLexer(wxRepTokenLexer());
         l.addTokenLexer(intlSigmetTokenLexer());
         l.addTokenLexer(usSigmetTokenLexer());
+        l.addTokenLexer(intlAirmetTokenLexer());
         l.addTokenLexer(spaceWeatherAdvisoryTokenLexer());
         l.addTokenLexer(volcanicAshAdvisoryTokenLexer());
         l.addTokenLexer(genericAviationWeatherMessageTokenLexer()); //Keep this last, matches anything
@@ -123,6 +124,20 @@ public class Lexing {
         f.addTokenCombiningRule(intlSigmetMovingCombinationRule());
         f.addTokenCombiningRule(intlSigmetObsFcstAtCombinationRule());
         f.addTokenCombiningRule(intlSigmetCancelCombinationRule());
+        f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule1());
+        f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule2());
+        f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule3());
+        f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule4());
+        f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule5());
+        f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule6());
+        f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule7());
+        f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule8());
+        f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule9());
+        f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule10());
+
+
+//        f.addTokenCombiningRule(intlAirmetStartRule());
+//        f.addTokenCombiningRule(intlAirmetCancelCombinationRule());
 
         //        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
 
@@ -135,6 +150,7 @@ public class Lexing {
         f.setMessageStartToken(MessageType.SPACE_WEATHER_ADVISORY,
                 f.createLexeme("SWX ADVISORY", LexemeIdentity.SPACE_WEATHER_ADVISORY_START, Lexeme.Status.OK, true));
         f.setMessageStartToken(MessageType.SIGMET, f.createLexeme("SIGMET", LexemeIdentity.SIGMET_START, Lexeme.Status.OK, true));
+        f.setMessageStartToken(MessageType.AIRMET, f.createLexeme("AIRMET", LexemeIdentity.AIRMET_START, Lexeme.Status.OK, true));
 
         //Non-standard types:
         f.setMessageStartToken(lowWind(), f.createLexeme("LOW WIND", LOW_WIND_START, Lexeme.Status.OK, true));
@@ -955,7 +971,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.equals("SIGMET");
+                return s.matches("^(SIGMET|AIRMET)$");
             }
         });
        return retval;
@@ -1183,7 +1199,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.equals("SIGMET");
+                return s.matches("^(SIGMET|AIRMET)$");
             }
         });
         retval.add(new Predicate<String>() {
@@ -1200,7 +1216,190 @@ public class Lexing {
             }
         });
         return retval;
-}
+    }
+
+    private List<Predicate<String>> intlAirmetPhenomenonCombinationRule1() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(ISOL|OCNL)$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(TS|TSGR)$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlAirmetPhenomenonCombinationRule2() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("MT");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("OBSC");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlAirmetPhenomenonCombinationRule3() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(ISOL|OCNL|FRQ)$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(CB|TCU)$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlAirmetPhenomenonCombinationRule4() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("MOD");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(TURB|ICE|MTW)$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlAirmetPhenomenonCombinationRule5() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(BKN|OVC)$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("CLD");
+            }
+        });
+
+        return retval;
+    }
+
+    private List<Predicate<String>> intlAirmetPhenomenonCombinationRule6() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(SFC)$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(WIND|VIS)$");
+            }
+        });
+
+        return retval;
+    }
+
+    private List<Predicate<String>> intlAirmetPhenomenonCombinationRule7() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("SFC VIS");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(\\d{2,4}M)$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlAirmetPhenomenonCombinationRule8() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(SFC VIS\\s\\d{2,4}M)$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(\\((BR|DS|DU|DZ|FC|FG|FU|GR|GS|HZ|PL|PO|RA|SA|SG|SN|SQ|SS|VA)\\))$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlAirmetPhenomenonCombinationRule9() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("SFC WIND");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(\\d{3}/\\d{2,3})(KT|MPS)$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlAirmetPhenomenonCombinationRule10() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(BKN|OVC)\\sCLD$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^((\\d{3,4})|SFC)/(ABV)?((\\d{3,4}M)|(\\d{4,5}FT))$");
+            }
+        });
+
+        return retval;
+    }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule1() {
         List<Predicate<String>> retval = new ArrayList<>();
@@ -1707,6 +1906,63 @@ public class Lexing {
         l.teach(new USSigmetValidUntil(OccurrenceFrequency.AVERAGE));
         l.teach(new EndToken(OccurrenceFrequency.RARE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
+        return l;
+    }
+
+    private RecognizingAviMessageTokenLexer intlAirmetTokenLexer() {
+        final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
+        //Lambdas not allowed in Spring 3.x Java config files:
+        l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
+            @Override
+            public boolean test(final LexemeSequence sequence) {
+                /* 2021-03-30 You can not call the getIdentity in some cases (for Airmet lexing) */
+                if (sequence.
+                  getFirstLexeme().
+                    getIdentity() == null) {
+                        return false;
+                    }
+                return "AIRMET".equals(sequence.
+                getFirstLexeme().getTACToken());
+            }
+
+            @Override
+            public MessageType getMessageType() {
+                return MessageType.AIRMET;
+            }
+        });
+        l.teach(new AirmetStart(OccurrenceFrequency.RARE));
+        l.teach(new SigmetSequenceDescriptor(OccurrenceFrequency.AVERAGE));
+        l.teach(new AirspaceDesignator(OccurrenceFrequency.RARE));
+        l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));
+        l.teach(new MWODesignator(OccurrenceFrequency.RARE));
+        l.teach(new EndToken(OccurrenceFrequency.RARE));
+        l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
+        l.teach(new AirSigmetObsOrForecast(OccurrenceFrequency.FREQUENT));
+        l.teach(new FIRDesignator(OccurrenceFrequency.AVERAGE));
+        l.teach(new FIRName(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetUsage(OccurrenceFrequency.RARE));
+        l.teach(new AirmetPhenomenon(OccurrenceFrequency.AVERAGE));
+        l.teach(new PolygonCoordinatePair(OccurrenceFrequency.FREQUENT));
+        l.teach(new PolygonCoordinatePairSeparator(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetEntireFir(OccurrenceFrequency.RARE));
+        l.teach(new SigmetWithin(OccurrenceFrequency.RARE));
+        l.teach(new SigmetLine(OccurrenceFrequency.RARE));
+        l.teach(new Latitude(OccurrenceFrequency.RARE));
+        l.teach(new Longitude(OccurrenceFrequency.RARE));
+        l.teach(new SigmetOutsideLatOrLon(OccurrenceFrequency.RARE));
+        l.teach(new SigmetBetweenLatOrLon(OccurrenceFrequency.RARE));
+        l.teach(new SigmetAnd(OccurrenceFrequency.RARE));
+        l.teach(new SigmetVaEruption(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetVaName(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetVaPosition(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetVaName(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetFirNameWord(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetAprx(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetLevel(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetMoving(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetIntensity(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetForecastAt(OccurrenceFrequency.AVERAGE));
+        l.teach(new AirmetCancel(OccurrenceFrequency.AVERAGE));
         return l;
     }
 

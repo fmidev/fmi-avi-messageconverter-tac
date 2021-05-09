@@ -26,7 +26,9 @@ public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (LexemeIdentity.SIGMET_START.equals(token.getFirst().getIdentity())) {        boolean afterLMC=false;
+        if (LexemeIdentity.SIGMET_START.equals(token.getFirst().getIdentity())||
+                LexemeIdentity.AIRMET_START.equals(token.getFirst().getIdentity())) {
+            boolean afterLMC=false;
             Lexeme l = token.getPrevious();
             while (l!=null) {
                 if (LexemeIdentity.SIGMET_LEVEL.equals(l.getIdentity())||

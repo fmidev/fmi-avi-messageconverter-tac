@@ -9,6 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Optional;
@@ -66,6 +67,28 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
                         }
                         sb.append(MeteorologicalBulletinSpecialCharacter.SPACE.getContent());
                         NumericMeasure spd = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingSpeed().get();
+                        sb.append(String.format("%02.0f", spd.getValue()));
+                        sb.append(spd.getUom());
+                        return Optional.of(createLexeme(sb.toString(), SIGMET_MOVING));
+                    }
+                }
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET airmet = (AIRMET)msg;
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    if (!airmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().isPresent()) {
+                        return Optional.of(createLexeme("STNR", SIGMET_MOVING));
+                    } else {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("MOV");
+                        sb.append(MeteorologicalBulletinSpecialCharacter.SPACE.getContent());
+                        int index = (int) (airmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().get().getValue()/22.5);
+                        if ((index>=0)&&(index<16)){
+                            sb.append(windDirs[index]);
+                        }
+                        sb.append(MeteorologicalBulletinSpecialCharacter.SPACE.getContent());
+                        NumericMeasure spd = airmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingSpeed().get();
                         sb.append(String.format("%02.0f", spd.getValue()));
                         sb.append(spd.getUom());
                         return Optional.of(createLexeme(sb.toString(), SIGMET_MOVING));

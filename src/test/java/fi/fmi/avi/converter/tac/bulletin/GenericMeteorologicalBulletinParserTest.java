@@ -262,7 +262,7 @@ public class GenericMeteorologicalBulletinParserTest {
 
     }
 
-    @Test //TODO DISABLED
+    @Test
     public void testSIGMETBulletinParsing() {
         ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("WSFI31 EFHK 310555\n" //
                         + "EFIN SIGMET 3 VALID 300830/301030 EFKL- EFIN FINLAND FIR SEV ICE (FZRA) "
@@ -309,6 +309,30 @@ public class GenericMeteorologicalBulletinParserTest {
         assertTrue(msg.getValidityTime().isPresent());
         assertTrue(msg.getValidityTime().get().getEndTime().isPresent());
         assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(-1, 14, 55, ZoneId.of("Z"))), msg.getValidityTime().get().getEndTime().get());
+    }
+
+    @Test
+    public void testAIRMETBulletinParsing() {
+        ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("WAFI31 EFHK 310555\n" //
+                        + "EFIN AIRMET 3 VALID 300830/301030 EFKL- EFIN FINLAND FIR ISOL TSGR "
+                        + "OBS N6044 E02512 - N6051 E02821 - N6132 E02933 - N6325 E02743 - N6315 E02653 - N6045 E02510 SFC/4000FT MOV ENE 15KT NC=",
+                TACConverter.TAC_TO_GENERIC_BULLETIN_POJO);
+        assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
+        Optional<GenericMeteorologicalBulletin> bulletin = result.getConvertedMessage();
+        assertTrue(bulletin.isPresent());
+        assertEquals(DataTypeDesignatorT1.WARNINGS, bulletin.get().getHeading().getDataTypeDesignatorT1ForTAC());
+        assertEquals(DataTypeDesignatorT2.WarningsDataTypeDesignatorT2.WRN_AIRMET, bulletin.get().getHeading().getDataTypeDesignatorT2());
+        assertEquals(1, bulletin.get().getMessages().size());
+        GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
+
+        assertTrue(msg.getMessageType().isPresent());
+        assertEquals(MessageType.AIRMET, msg.getMessageType().get());
+
+        assertTrue(msg.getValidityTime().isPresent());
+        final PartialOrCompleteTimeInstant start = PartialOrCompleteTimeInstant.of(PartialDateTime.of(30, 8, 30, ZoneId.of("Z")));
+        final PartialOrCompleteTimeInstant end = PartialOrCompleteTimeInstant.of(PartialDateTime.of(30, 10, 30, ZoneId.of("Z")));
+        assertEquals(PartialOrCompleteTimePeriod.builder().setStartTime(start).setEndTime(end).build(), msg.getValidityTime().get());
+
     }
 
     @Test

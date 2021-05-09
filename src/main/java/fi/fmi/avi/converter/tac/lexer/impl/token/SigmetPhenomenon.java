@@ -8,11 +8,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Matcher;
 

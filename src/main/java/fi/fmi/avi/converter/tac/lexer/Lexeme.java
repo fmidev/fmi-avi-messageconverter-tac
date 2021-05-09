@@ -642,7 +642,16 @@ public interface Lexeme {
         RELATEDLINE,
         RELATIONTYPE2,
         RELATEDLINE2,
-        TACGEOMETRY
+        TACGEOMETRY,
+        CLD_LEVELUNIT,
+        CLD_LOWLEVEL,
+        CLD_HIGHLEVEL,
+        CLD_ABOVE_LEVEL,
+        SURFACE_WIND_DIRECTION,
+        SURFACE_WIND_SPEED,
+        SURFACE_WIND_SPEED_UNIT,
+        SURFACE_VISIBILITY,
+        SURFACE_VISIBILITY_CAUSE
     }
 
     enum MeteorologicalBulletinSpecialCharacter {

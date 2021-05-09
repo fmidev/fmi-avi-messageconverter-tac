@@ -7,6 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Optional;
@@ -42,6 +43,11 @@ public class FIRName extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET m = (SIGMET) msg;
+                String firName = m.getAirspace().getName();
+                return Optional.of(this.createLexeme(firName, LexemeIdentity.FIR_NAME));
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET m = (AIRMET) msg;
                 String firName = m.getAirspace().getName();
                 return Optional.of(this.createLexeme(firName, LexemeIdentity.FIR_NAME));
             }

@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_NAME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
 /**
@@ -24,8 +25,10 @@ public class SigmetVaName extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        token.identify(SIGMET_VA_NAME);
-        token.setParsedValue(VALUE, match.group(1));
+        if (SIGMET_START.equals(token.getFirst().getIdentity())){
+            token.identify(SIGMET_VA_NAME);
+            token.setParsedValue(VALUE, match.group(1));
+        }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {

@@ -1,0 +1,52 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator":"EHAA",
+    "name":"AMSTERDAM FIR",
+    "type":"FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--27T13:30Z"
+    },
+    "endTime": {
+      "partialTime": "--27T15:30Z"
+    }
+  },
+  "cancelMessage": true,
+  "cancelledReference": {
+    "sequenceNumber":"M01",
+    "issuingAirTrafficServicesUnit": {
+      "name": "AMSTERDAM",
+      "type": "FIC",
+      "designator": "EHAA"
+    },
+    "validityPeriod": {
+      "startTime": {
+        "partialTime": "--27T11:30Z"
+      },
+      "endTime": {
+        "partialTime": "--27T15:30Z"
+      }
+    },
+    "meteorologicalWatchOffice": {
+      "name": "De Bilt",
+      "type": "MWO",
+      "designator": "EHDB"
+    }
+  },
+  "permissibleUsage":"OPERATIONAL",
+  "sequenceNumber": "M03",
+  "translated": true,
+  "translatedTAC": "EHAA AIRMET M03 VALID 271330/271530 EHDB-\r\nEHAA AMSTERDAM FIR CNL AIRMET M01 271130/271530="
+}

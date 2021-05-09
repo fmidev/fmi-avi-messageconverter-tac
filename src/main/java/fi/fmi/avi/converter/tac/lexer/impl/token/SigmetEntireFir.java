@@ -7,8 +7,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.TacGeometry;
 import fi.fmi.avi.model.TacOrGeoGeometry;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Optional;
@@ -61,8 +61,26 @@ public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
                         if (!(geom.getTacGeometry().isPresent()
                                 && (geom.getTacGeometry().get()!=null)
                                 && (geom.getTacGeometry().get().getData().length()>0))
-                                && geom.getEntireArea().isPresent()
-                                && geom.getEntireArea().get()){
+                                || geom.getEntireArea().isPresent()
+                                || geom.getEntireArea().get()){
+                            String firType = "FIR"; //TODO Adapt for ENTIRE FIR/UIR etc.
+                            return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
+                        }
+                    }
+                }
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET airmet = (AIRMET)msg;
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    if (airmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().isPresent()) {
+                        TacOrGeoGeometry geom = airmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().get();
+
+                        if (!(geom.getTacGeometry().isPresent()
+                                && (geom.getTacGeometry().get()!=null)
+                                && (geom.getTacGeometry().get().getData().length()>0))
+                                || geom.getEntireArea().isPresent()
+                                || geom.getEntireArea().get()){
                             String firType = "FIR"; //TODO Adapt for ENTIRE FIR/UIR etc.
                             return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
                         }

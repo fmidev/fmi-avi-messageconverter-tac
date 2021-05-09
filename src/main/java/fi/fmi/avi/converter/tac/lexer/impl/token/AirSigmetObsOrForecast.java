@@ -8,6 +8,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 
@@ -18,6 +19,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.IS_FORECAST;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_START;
 /**
  * Created by rinne on 10/02/17.
  */
@@ -30,7 +32,8 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         //OBS_OR_FORECAST should come after SIGMET_PHENOMENON but before SIGMET_LEVEL, SIGMET_MOVEMENT, SIGMET_INTENSITIY_CHANGE
-        if (SIGMET_START.equals(token.getFirst().getIdentity())) {
+        if (SIGMET_START.equals(token.getFirst().getIdentity())||
+            AIRMET_START.equals(token.getFirst().getIdentity())) {
             token.identify(LexemeIdentity.OBS_OR_FORECAST);
             token.setParsedValue(IS_FORECAST, !("OBS".equals(match.group(1))));
             if ((match.group(3)!=null)&&(match.group(3).length()>0)&&
@@ -69,6 +72,22 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                         tim=String.format(" AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
                     return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
+                }
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET m = (AIRMET) msg;
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    String tim="";
+                    if (m.getAnalysisGeometries().get().get(analysisIndex.get()).getTime().isPresent()) {
+                        PartialOrCompleteTimeInstant t = m.getAnalysisGeometries().get().get(0).getTime().get();
+                        tim=String.format(" AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
+                    }
+                    if (SigmetAnalysisType.OBSERVATION.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
+                        return Optional.of(this.createLexeme("OBS"+tim, LexemeIdentity.OBS_OR_FORECAST));
+                    } else if (SigmetAnalysisType.FORECAST.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
+                        return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
+                    }
                 }
             }
             return Optional.empty();
