@@ -15,6 +15,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
@@ -39,7 +40,7 @@ public class TestAirmetLexing extends AbstractAirmetLexingTest{
   }
 
   @Test
-  public void shouldBeCNL_Sigmet() {
+  public void shouldBeCNL_Airmet() {
     String tacString = "CNL AIRMET 01 101300/101600=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
@@ -78,6 +79,9 @@ public class TestAirmetLexing extends AbstractAirmetLexingTest{
     String tacString = "SFC WIND 100/30KT";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    for (Lexeme l: result.getLexemes()) {
+      System.err.println(">:"+l.getIdentity());
+    }
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { AIRMET_START, AIRMET_PHENOMENON }));
     assertEquals("SFC_WIND", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.PHENOMENON, String.class));
     assertEquals("100", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.SURFACE_WIND_DIRECTION, String.class));
