@@ -111,15 +111,16 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
                     }
                     if (appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, forecastCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                    }
-                    if (appendToken(retval,LexemeIdentity.SIGMET_WITHIN, input, SIGMET.class, forecastCtx)>0) {
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                    }
-                    if (appendToken(retval,LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SIGMET.class, forecastCtx)>0) {
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                    }
-                    if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, forecastCtx)>0) {
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    } else {
+                        if (appendToken(retval,LexemeIdentity.SIGMET_WITHIN, input, SIGMET.class, forecastCtx)>0) {
+                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        }
+                        if (appendToken(retval,LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SIGMET.class, forecastCtx)>0) {
+                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        }
+                        if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, forecastCtx)>0) {
+                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        }
                     }
                 } catch (SerializingException e) {
                     // TODO Auto-generated catch block
