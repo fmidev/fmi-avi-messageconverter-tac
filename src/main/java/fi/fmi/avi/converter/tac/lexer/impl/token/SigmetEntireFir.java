@@ -37,18 +37,15 @@ public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
+            String firType = "FIR"; //TODO Adapt for ENTIRE FIR/UIR etc.
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET)msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
                     if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().isPresent()) {
                         TacOrGeoGeometry geom = sigmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().get();
-                        if (!(geom.getTacGeometry().isPresent()
-                                && (geom.getTacGeometry().get()!=null)
-                                && (geom.getTacGeometry().get().getData().length()>0))
-                                && geom.getEntireArea().isPresent()
+                        if (geom.getEntireArea().isPresent()
                                 && geom.getEntireArea().get()){
-                            String firType = "FIR"; //TODO Adapt for ENTIRE FIR/UIR etc.
                             return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
                         }
                     }
@@ -58,12 +55,8 @@ public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
                 if (forecastIndex.isPresent()) {
                     if (sigmet.getForecastGeometries().get().get(forecastIndex.get().intValue()).getGeometry().isPresent()) {
                         TacOrGeoGeometry geom = sigmet.getForecastGeometries().get().get(forecastIndex.get().intValue()).getGeometry().get();
-                        if (!(geom.getTacGeometry().isPresent()
-                                && (geom.getTacGeometry().get()!=null)
-                                && (geom.getTacGeometry().get().getData().length()>0))
-                                || geom.getEntireArea().isPresent()
-                                || geom.getEntireArea().get()){
-                            String firType = "FIR"; //TODO Adapt for ENTIRE FIR/UIR etc.
+                        if (geom.getEntireArea().isPresent()
+                                && geom.getEntireArea().get()){
                             return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
                         }
                     }
@@ -76,12 +69,8 @@ public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
                     if (airmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().isPresent()) {
                         TacOrGeoGeometry geom = airmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().get();
 
-                        if (!(geom.getTacGeometry().isPresent()
-                                && (geom.getTacGeometry().get()!=null)
-                                && (geom.getTacGeometry().get().getData().length()>0))
-                                || geom.getEntireArea().isPresent()
-                                || geom.getEntireArea().get()){
-                            String firType = "FIR"; //TODO Adapt for ENTIRE FIR/UIR etc.
+                        if (geom.getEntireArea().isPresent()
+                                && geom.getEntireArea().get()){
                             return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
                         }
                     }

@@ -7,6 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Optional;
@@ -55,6 +56,22 @@ public class SigmetTacElement extends RegexMatchingLexemeVisitor {
                             });
                         });
                     }
+                }
+                if (sb.length()>0) {
+                    return Optional.of(createLexeme(sb.toString(), SIGMET_TAC_ELEMENT));
+                }
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET airmet = (AIRMET)msg;
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    airmet.getAnalysisGeometries().ifPresent(geoms -> {
+                        geoms.get(analysisIndex.get()).getGeometry().ifPresent(geom -> {
+                          geom.getTacGeometry().ifPresent(t -> {
+                              sb.append(t.getData());
+                          });
+                        });
+                    });
                 }
                 if (sb.length()>0) {
                     return Optional.of(createLexeme(sb.toString(), SIGMET_TAC_ELEMENT));

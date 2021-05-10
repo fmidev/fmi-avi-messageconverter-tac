@@ -75,15 +75,16 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
                     }
                     if (appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, analysisCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                    }
-                    if (appendToken(retval,LexemeIdentity.SIGMET_WITHIN, input, SIGMET.class, analysisCtx)>0) {
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                    }
-                    if (appendToken(retval,LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SIGMET.class, analysisCtx)>0) {
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                    }
-                    if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, analysisCtx)>0) {
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    } else {
+                        if (appendToken(retval,LexemeIdentity.SIGMET_WITHIN, input, SIGMET.class, analysisCtx)>0) {
+                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        }
+                        if (appendToken(retval,LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SIGMET.class, analysisCtx)>0) {
+                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        }
+                        if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, analysisCtx)>0) {
+                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        }
                     }
                     if (appendToken(retval,LexemeIdentity.SIGMET_LEVEL, input, SIGMET.class, analysisCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
