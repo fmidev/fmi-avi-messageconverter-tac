@@ -10,10 +10,10 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.PhenomenonGeometryWithHeight;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -169,79 +169,164 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
         return sb.toString();
     }
 
+
 	public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
+            // if (SIGMET.class.isAssignableFrom(clz)) {
+            //     SIGMET sigmet = (SIGMET) msg;
+            //     final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+            //     if (analysisIndex.isPresent()) {
+            //         StringBuilder sb=new StringBuilder();
+            //         NumericMeasure lowerLevel = null;
+            //         NumericMeasure upperLevel = null;
+            //         AviationCodeListUser.RelationalOperator lowerLimitOperator = null;
+            //         AviationCodeListUser.RelationalOperator upperLimitOperator = null;;
+
+            //         if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().isPresent()) {
+            //             lowerLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().get();
+            //         }
+            //         if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().isPresent()) {
+            //             upperLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().get();
+            //         }
+            //         if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimitOperator().isPresent()) {
+            //             lowerLimitOperator = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimitOperator().get();
+            //         }
+            //         if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimitOperator().isPresent()) {
+            //             upperLimitOperator = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimitOperator().get();
+            //         }
+            //         if (lowerLevel!=null) {
+            //             if (upperLevel!=null) {
+            //                 // BTW and BTW_SFC
+            //                 if (lowerLevel.getValue()==0.0){
+            //                     sb.append("SFC/");
+            //                     sb.append(stringifyHeight(upperLevel, true));
+            //                 } else {
+            //                     sb.append(stringifyHeight(lowerLevel, "FL".equals(lowerLevel.getUom())));
+            //                     sb.append("/");
+            //                     sb.append(stringifyHeight(upperLevel, !"FL".equals(lowerLevel.getUom())));
+            //                 }
+            //             } else if (lowerLimitOperator==null) {
+            //                 // AT
+            //                 sb.append(stringifyHeight(lowerLevel, true));
+            //             } if (AviationCodeListUser.RelationalOperator.ABOVE.equals(lowerLimitOperator)) {
+            //                 // ABV
+            //                 sb.append("ABV ");
+            //                 sb.append(stringifyHeight(lowerLevel, true));
+            //             }
+            //         } else {
+            //             if (upperLevel==null) {
+            //                 sb = new StringBuilder();
+            //             } else {
+            //                 System.err.println(upperLevel+" "+ upperLimitOperator);
+            //                 if (upperLimitOperator == null) {
+            //                     //TOP
+            //                     sb.append("TOP ");
+            //                     sb.append(stringifyHeight(upperLevel, true));
+            //                 } else if (AviationCodeListUser.RelationalOperator.ABOVE.equals(upperLimitOperator)) {
+            //                     // TOP ABV
+            //                     sb.append("TOP ABV ");
+            //                     sb.append(stringifyHeight(upperLevel, true));
+            //                 } else if (AviationCodeListUser.RelationalOperator.BELOW.equals(upperLimitOperator)) {
+            //                     // TOP BLW
+            //                     sb.append("TOP BLW ");
+            //                     sb.append(stringifyHeight(upperLevel, true));
+            //                 }
+            //             }
+            //         }
+            //         // The level string can be empty, so check for length>0
+            //         if (sb.length()>0) {
+            //             return Optional.of(this.createLexeme(
+            //             sb.toString(), LexemeIdentity.SIGMET_LEVEL));
+            //         }
+            //     }
+            // }
             if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET sigmet = (SIGMET) msg;
+                SIGMET airmet = (SIGMET) msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    StringBuilder sb=new StringBuilder();
-                    NumericMeasure lowerLevel = null;
-                    NumericMeasure upperLevel = null;
-                    AviationCodeListUser.RelationalOperator lowerLimitOperator = null;
-                    AviationCodeListUser.RelationalOperator upperLimitOperator = null;;
-
-                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().isPresent()) {
-                        lowerLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().get();
-                    }
-                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().isPresent()) {
-                        upperLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().get();
-                    }
-                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimitOperator().isPresent()) {
-                        lowerLimitOperator = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimitOperator().get();
-                    }
-                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimitOperator().isPresent()) {
-                        upperLimitOperator = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimitOperator().get();
-                    }
-                    if (lowerLevel!=null) {
-                        if (upperLevel!=null) {
-                            // BTW and BTW_SFC
-                            if (lowerLevel.getValue()==0.0){
-                                sb.append("SFC/");
-                                sb.append(stringifyHeight(upperLevel, true));
-                            } else {
-                                sb.append(stringifyHeight(lowerLevel, "FL".equals(lowerLevel.getUom())));
-                                sb.append("/");
-                                sb.append(stringifyHeight(upperLevel, !"FL".equals(lowerLevel.getUom())));
-                            }
-                        } else if (lowerLimitOperator==null) {
-                            // AT
-                            sb.append(stringifyHeight(lowerLevel, true));
-                        } if (AviationCodeListUser.RelationalOperator.ABOVE.equals(lowerLimitOperator)) {
-                            // ABV
-                            sb.append("ABV ");
-                            sb.append(stringifyHeight(lowerLevel, true));
-                        }
-                    } else {
-                        if (upperLevel==null) {
-                            sb = new StringBuilder();
-                        } else {
-                            System.err.println(upperLevel+" "+ upperLimitOperator);
-                            if (upperLimitOperator == null) {
-                                //TOP
-                                sb.append("TOP ");
-                                sb.append(stringifyHeight(upperLevel, true));
-                            } else if (AviationCodeListUser.RelationalOperator.ABOVE.equals(upperLimitOperator)) {
-                                // TOP ABV
-                                sb.append("TOP ABV ");
-                                sb.append(stringifyHeight(upperLevel, true));
-                            } else if (AviationCodeListUser.RelationalOperator.BELOW.equals(upperLimitOperator)) {
-                                // TOP BLW
-                                sb.append("TOP BLW ");
-                                sb.append(stringifyHeight(upperLevel, true));
-                            }
-                        }
-                    }
-                    // The level string can be empty, so check for length>0
-                    if (sb.length()>0) {
+                    String level = getLevel(airmet.getAnalysisGeometries().get().get(0));
+                    if (level.length()>0){
                         return Optional.of(this.createLexeme(
-                        sb.toString(), LexemeIdentity.SIGMET_LEVEL));
+                            level, LexemeIdentity.SIGMET_LEVEL));
+                    }
+                }
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET airmet = (AIRMET) msg;
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    String level = getLevel(airmet.getAnalysisGeometries().get().get(0));
+                    if (level.length()>0){
+                        return Optional.of(this.createLexeme(
+                            level, LexemeIdentity.SIGMET_LEVEL));
                     }
                 }
             }
             return Optional.empty();
         }
+
+        private String getLevel(PhenomenonGeometryWithHeight geom) {
+            StringBuilder sb=new StringBuilder();
+            NumericMeasure lowerLevel = null;
+            NumericMeasure upperLevel = null;
+            AviationCodeListUser.RelationalOperator lowerLimitOperator = null;
+            AviationCodeListUser.RelationalOperator upperLimitOperator = null;;
+            if (geom.getLowerLimit().isPresent()) {
+                lowerLevel = geom.getLowerLimit().get();
+            }
+            if (geom.getUpperLimit().isPresent()) {
+                upperLevel = geom.getUpperLimit().get();
+            }
+            if (geom.getLowerLimitOperator().isPresent()) {
+                lowerLimitOperator = geom.getLowerLimitOperator().get();
+            }
+            if (geom.getUpperLimitOperator().isPresent()) {
+                upperLimitOperator = geom.getUpperLimitOperator().get();
+            }
+            if (lowerLevel!=null) {
+                if (upperLevel!=null) {
+                    // BTW and BTW_SFC
+                    if (lowerLevel.getValue()==0.0){
+                        sb.append("SFC/");
+                        sb.append(stringifyHeight(upperLevel, true));
+                    } else {
+                        sb.append(stringifyHeight(lowerLevel, "FL".equals(lowerLevel.getUom())));
+                        sb.append("/");
+                        sb.append(stringifyHeight(upperLevel, !"FL".equals(lowerLevel.getUom())));
+                    }
+                } else if (lowerLimitOperator==null) {
+                    // AT
+                    sb.append(stringifyHeight(lowerLevel, true));
+                } if (AviationCodeListUser.RelationalOperator.ABOVE.equals(lowerLimitOperator)) {
+                    // ABV
+                    sb.append("ABV ");
+                    sb.append(stringifyHeight(lowerLevel, true));
+                }
+            } else {
+                if (upperLevel==null) {
+                    sb = new StringBuilder();
+                } else {
+                    System.err.println(upperLevel+" "+ upperLimitOperator);
+                    if (upperLimitOperator == null) {
+                        //TOP
+                        sb.append("TOP ");
+                        sb.append(stringifyHeight(upperLevel, true));
+                    } else if (AviationCodeListUser.RelationalOperator.ABOVE.equals(upperLimitOperator)) {
+                        // TOP ABV
+                        sb.append("TOP ABV ");
+                        sb.append(stringifyHeight(upperLevel, true));
+                    } else if (AviationCodeListUser.RelationalOperator.BELOW.equals(upperLimitOperator)) {
+                        // TOP BLW
+                        sb.append("TOP BLW ");
+                        sb.append(stringifyHeight(upperLevel, true));
+                    }
+                }
+            }
+            return sb.toString();
+
+        }
+
     }
 }

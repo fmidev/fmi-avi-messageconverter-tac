@@ -154,6 +154,7 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                                 sb.append(String.format("%4.0f", val));
                             }
                             sb.append("M");
+
                             if (airmet.getObscuration().isPresent()) {
                                 sb.append(" (");
                                 sb.append(airmet.getObscuration().get().get(0).getText());

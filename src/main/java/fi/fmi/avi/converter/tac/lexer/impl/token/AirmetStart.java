@@ -40,7 +40,7 @@ public class AirmetStart extends PrioritizedLexemeVisitor {
             if (AIRMET.class.isAssignableFrom(clz)) {
                 AIRMET airmet = (AIRMET)msg;
                 StringBuilder sb=new StringBuilder();
-                sb.append(airmet.getAirspace().getDesignator());
+                sb.append(airmet.getIssuingAirTrafficServicesUnit().getDesignator());
                 sb.append(" ");
                 sb.append("AIRMET");
                 return Optional.of(createLexeme(sb.toString(), REAL_AIRMET_START));

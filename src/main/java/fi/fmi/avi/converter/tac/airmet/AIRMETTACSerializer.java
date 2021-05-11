@@ -86,12 +86,15 @@ public class AIRMETTACSerializer extends AbstractTACSerializer<AIRMET> {
                             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                         }
                     }
+
                     if (appendToken(retval,LexemeIdentity.SIGMET_LEVEL, input, AIRMET.class, analysisCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
+
                     if (appendToken(retval,LexemeIdentity.SIGMET_MOVING, input, AIRMET.class, analysisCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
+
                     if (appendToken(retval, LexemeIdentity.SIGMET_INTENSITY, input, AIRMET.class, analysisCtx) > 0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
