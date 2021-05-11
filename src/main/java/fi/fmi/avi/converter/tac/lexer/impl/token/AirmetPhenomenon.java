@@ -124,6 +124,10 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
 
     private static String getUnit(String unit) {
         switch (unit) {
+            case "kt":
+            return "KT";
+            case "mps":
+            return "MPS";
             default:
             return unit;
         }
@@ -206,7 +210,7 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                         if (airmet.getWind().isPresent()) {
                             sb.append(" ");
                             AirmetWind airmetWind = airmet.getWind().get();
-                            sb.append(String.format("%03.0f", airmetWind.getDirection().getValue()));
+                            sb.append(String.format("%03.0f/", airmetWind.getDirection().getValue()));
                             NumericMeasure wind = airmetWind.getSpeed();
                             if (wind.getValue()<100) {
                                 sb.append(String.format("%02.0f", wind.getValue()));
