@@ -198,9 +198,9 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                                 if (top.getValue()==0) {
                                     sb.append("SFC");
                                 } else if (top.getValue()<10000){
-                                    sb.append(String.format("%04.0f", base.getValue()));
+                                    sb.append(String.format("%04.0f", top.getValue()));
                                 } else if (top.getValue()<100000) {
-                                    sb.append(String.format("%05.0f", base.getValue()));
+                                    sb.append(String.format("%05.0f", top.getValue()));
                                 }
                             }
                             sb.append(getUnit(top.getUom()));
