@@ -40,13 +40,15 @@ public class SigmetIntensity extends RegexMatchingLexemeVisitor {
                 SIGMET sm = (SIGMET) msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    switch (sm.getAnalysisGeometries().get().get(analysisIndex.get()).getIntensityChange().get()) {
-                    case NO_CHANGE:
-                        return Optional.of(createLexeme("NC", SIGMET_INTENSITY));
-                    case WEAKENING:
-                        return Optional.of(createLexeme("WKN", SIGMET_INTENSITY));
-                    case INTENSIFYING:
-                        return Optional.of(createLexeme("INTSF", SIGMET_INTENSITY));
+                    if (sm.getAnalysisGeometries().get().get(analysisIndex.get()).getIntensityChange().isPresent()){
+                        switch (sm.getAnalysisGeometries().get().get(analysisIndex.get()).getIntensityChange().get()) {
+                        case NO_CHANGE:
+                            return Optional.of(createLexeme("NC", SIGMET_INTENSITY));
+                        case WEAKENING:
+                            return Optional.of(createLexeme("WKN", SIGMET_INTENSITY));
+                        case INTENSIFYING:
+                            return Optional.of(createLexeme("INTSF", SIGMET_INTENSITY));
+                        }
                     }
                 }
             }

@@ -372,11 +372,6 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             builder.setReportStatus(ReportStatus.NORMAL);
 
             lexed.getFirstLexeme().findNext(LexemeIdentity.AIRMET_PHENOMENON, (match) -> {
-                // builder.setCloudLevels(Optional.empty());
-                // builder.setVisibility(Optional.empty());
-                // builder.setObscuration(Optional.empty());
-                // builder.setWind(Optional.empty());
-
                 String phen=match.getParsedValue(Lexeme.ParsedValueName.PHENOMENON, String.class);
                 AviationCodeListUser.AeronauticalAirmetWeatherPhenomenon airmetPhenomenon = AviationCodeListUser.AeronauticalAirmetWeatherPhenomenon.valueOf(phen);
                 switch (airmetPhenomenon) {
@@ -420,7 +415,6 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
                     default:
                 }
                 builder.setAirmetPhenomenon(AviationCodeListUser.AeronauticalAirmetWeatherPhenomenon.valueOf(phen));
-                AirmetCloudLevelsImpl.Builder cldBuilder = new AirmetCloudLevelsImpl.Builder();
             }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET phenomenon not given in " + input)));
 
             PhenomenonGeometryWithHeightImpl.Builder phenBuilder = new PhenomenonGeometryWithHeightImpl.Builder();
