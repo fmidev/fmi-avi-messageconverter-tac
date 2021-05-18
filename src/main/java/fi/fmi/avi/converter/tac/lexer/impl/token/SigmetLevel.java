@@ -174,74 +174,6 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            // if (SIGMET.class.isAssignableFrom(clz)) {
-            //     SIGMET sigmet = (SIGMET) msg;
-            //     final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
-            //     if (analysisIndex.isPresent()) {
-            //         StringBuilder sb=new StringBuilder();
-            //         NumericMeasure lowerLevel = null;
-            //         NumericMeasure upperLevel = null;
-            //         AviationCodeListUser.RelationalOperator lowerLimitOperator = null;
-            //         AviationCodeListUser.RelationalOperator upperLimitOperator = null;;
-
-            //         if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().isPresent()) {
-            //             lowerLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimit().get();
-            //         }
-            //         if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().isPresent()) {
-            //             upperLevel = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimit().get();
-            //         }
-            //         if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimitOperator().isPresent()) {
-            //             lowerLimitOperator = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getLowerLimitOperator().get();
-            //         }
-            //         if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimitOperator().isPresent()) {
-            //             upperLimitOperator = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getUpperLimitOperator().get();
-            //         }
-            //         if (lowerLevel!=null) {
-            //             if (upperLevel!=null) {
-            //                 // BTW and BTW_SFC
-            //                 if (lowerLevel.getValue()==0.0){
-            //                     sb.append("SFC/");
-            //                     sb.append(stringifyHeight(upperLevel, true));
-            //                 } else {
-            //                     sb.append(stringifyHeight(lowerLevel, "FL".equals(lowerLevel.getUom())));
-            //                     sb.append("/");
-            //                     sb.append(stringifyHeight(upperLevel, !"FL".equals(lowerLevel.getUom())));
-            //                 }
-            //             } else if (lowerLimitOperator==null) {
-            //                 // AT
-            //                 sb.append(stringifyHeight(lowerLevel, true));
-            //             } if (AviationCodeListUser.RelationalOperator.ABOVE.equals(lowerLimitOperator)) {
-            //                 // ABV
-            //                 sb.append("ABV ");
-            //                 sb.append(stringifyHeight(lowerLevel, true));
-            //             }
-            //         } else {
-            //             if (upperLevel==null) {
-            //                 sb = new StringBuilder();
-            //             } else {
-            //                 System.err.println(upperLevel+" "+ upperLimitOperator);
-            //                 if (upperLimitOperator == null) {
-            //                     //TOP
-            //                     sb.append("TOP ");
-            //                     sb.append(stringifyHeight(upperLevel, true));
-            //                 } else if (AviationCodeListUser.RelationalOperator.ABOVE.equals(upperLimitOperator)) {
-            //                     // TOP ABV
-            //                     sb.append("TOP ABV ");
-            //                     sb.append(stringifyHeight(upperLevel, true));
-            //                 } else if (AviationCodeListUser.RelationalOperator.BELOW.equals(upperLimitOperator)) {
-            //                     // TOP BLW
-            //                     sb.append("TOP BLW ");
-            //                     sb.append(stringifyHeight(upperLevel, true));
-            //                 }
-            //             }
-            //         }
-            //         // The level string can be empty, so check for length>0
-            //         if (sb.length()>0) {
-            //             return Optional.of(this.createLexeme(
-            //             sb.toString(), LexemeIdentity.SIGMET_LEVEL));
-            //         }
-            //     }
-            // }
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET airmet = (SIGMET) msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
@@ -292,7 +224,7 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
                         sb.append("SFC/");
                         sb.append(stringifyHeight(upperLevel, true));
                     } else {
-                        sb.append(stringifyHeight(lowerLevel, "FL".equals(lowerLevel.getUom())));
+                        sb.append(stringifyHeight(lowerLevel, "FL".equals(upperLevel.getUom())));
                         sb.append("/");
                         sb.append(stringifyHeight(upperLevel, !"FL".equals(lowerLevel.getUom())));
                     }
@@ -306,9 +238,8 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
                 }
             } else {
                 if (upperLevel==null) {
-                    sb = new StringBuilder();
+                     sb = new StringBuilder();  // In this case no levels are specified
                 } else {
-                    System.err.println(upperLevel+" "+ upperLimitOperator);
                     if (upperLimitOperator == null) {
                         //TOP
                         sb.append("TOP ");
