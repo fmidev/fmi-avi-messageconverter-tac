@@ -1,6 +1,10 @@
 package fi.fmi.avi.converter.tac.airmet;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_CANCEL;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_PHENOMENON;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.END_TOKEN;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REAL_AIRMET_START;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEQUENCE_DESCRIPTOR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -15,7 +19,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
@@ -79,9 +82,6 @@ public class TestAirmetLexing extends AbstractAirmetLexingTest{
     String tacString = "SFC WIND 100/30KT";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    for (Lexeme l: result.getLexemes()) {
-      System.err.println(">:"+l.getIdentity());
-    }
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { AIRMET_START, AIRMET_PHENOMENON }));
     assertEquals("SFC_WIND", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.PHENOMENON, String.class));
     assertEquals("100", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.SURFACE_WIND_DIRECTION, String.class));
@@ -102,10 +102,10 @@ public class TestAirmetLexing extends AbstractAirmetLexingTest{
 
   @Test
   public void shouldBeBKN_CLD() {
-    String tacString = "BKN CLD 200/1200M";
+    String tacString = "BKN CLD 200/1200M=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { AIRMET_START, AIRMET_PHENOMENON}));
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { AIRMET_START, AIRMET_PHENOMENON, END_TOKEN}));
     assertEquals("BKN_CLD", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.PHENOMENON, String.class));
     assertEquals("200", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.CLD_LOWLEVEL, String.class));
     assertEquals("1200", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.CLD_HIGHLEVEL, String.class));

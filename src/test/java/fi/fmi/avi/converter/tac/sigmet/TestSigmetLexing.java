@@ -390,7 +390,7 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
       "TOP ABV FL100=", "ABV FL200=", "ABV 10000FT=", "TOP ABV 10000FT=",
       "FL100=", "SFC/FL100=", "1000M=", "SFC/1000M=", "1000FT=", "SFC/1000FT=",
       "10000FT=", "SFC/10000FT=", "FL100/200=",
-      /* "2000M/9000FT", "TOP FL100=", "ABV 1000M=", "TOP 1000FT=" */
+      "TOP FL100=",
     };
     for (String tacString: tacStrings) {
       Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
@@ -398,12 +398,6 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
       assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
             SIGMET_START, SIGMET_LEVEL,
             END_TOKEN }));
-      System.err.print(tacString+"==>");
-      System.err.print("/"+trimWhitespaces(result.getLexemes()).get(2).getParsedValue(VALUE, String.class)+"/");
-      System.err.print(trimWhitespaces(result.getLexemes()).get(2).getParsedValue(UNIT, String.class)+"/");
-      System.err.print(trimWhitespaces(result.getLexemes()).get(2).getParsedValue(VALUE2, String.class)+"/");
-      System.err.print(trimWhitespaces(result.getLexemes()).get(2).getParsedValue(UNIT2, String.class)+"/");
-      System.err.println(trimWhitespaces(result.getLexemes()).get(2).getParsedValue(LEVEL_MODIFIER, String.class)+"/");
     }
   }
 

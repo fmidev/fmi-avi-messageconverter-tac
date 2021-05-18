@@ -28,9 +28,6 @@ public class SigmetBetweenLatOrLon extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        for (int i=0; i<10; i++) {
-            System.err.println(i+":"+match.group(i));
-        }
         token.identify(SIGMET_BETWEEN_LATLON);
         token.setParsedValue(ParsedValueName.RELATIONTYPE, match.group(3));
         token.setParsedValue(ParsedValueName.RELATEDLINE, match.group(4));

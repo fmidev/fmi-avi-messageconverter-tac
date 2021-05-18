@@ -999,13 +999,13 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(TOP|ABV)$");
+                return s.matches("^(TOP ABV|ABV)$");
             }
         });
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(FL[0-9]{3}|[0-9]{4,5}FT|[0-9]{4}M)$");
+                return s.matches("^(FL[0-9]{3}|[0-9]{4,5}FT)$");
             }
         });
        return retval;
@@ -1016,14 +1016,13 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(TOP ABV|TOP BLW)$");
+                return s.matches("^(TOP ABV|TOP BLW|TOP)$");
             }
         });
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-//                return s.matches("^(FL\\d{3}/\\d{3})|((SFC/)?(FL\\d{3}|\\d{4}M|\\d{4,5}FT))");
-                return s.matches("^(FL[0-9]{3}|[0-9]{4,5}FT|[0-9]{4}M)$");
+            return s.matches("^(FL[0-9]{3})$");
             }
         });
        return retval;

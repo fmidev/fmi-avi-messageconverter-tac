@@ -27,8 +27,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 /**
- * 
- * TODO: 
+ *
+ * TODO:
  * - OBS_OR_FORECAST is not detecting correctly
  * - FirType with three words fails (NEW AMSTERDAM FIR)
  * - Wrong phenomenon is returned (EMB_TS instead of SEV_ICE_FZRA)
@@ -40,14 +40,14 @@ public abstract class AbstractSigmetLexingTest {
 
   @Autowired
   private AviMessageLexer lexer;
-  
+
   public ConversionSpecification<String, SIGMET> getParsingSpecification() {
 		return TACConverter.TAC_TO_SIGMET_POJO;
     }
     public ConversionHints getLexerParsingHints() {
       return ConversionHints.SIGMET;
     }
-  
+
 protected LexemeIdentity[] spacify(final LexemeIdentity[] input) {
   final List<LexemeIdentity> retval = new ArrayList<>();
   if (input != null) {
@@ -74,8 +74,8 @@ protected LexemeIdentity[] spacify(final LexemeIdentity[] input) {
   }
 
   protected void assertTokenSequenceIdentityMatch(final List<Lexeme> lexemes, final LexemeIdentity... expectedIdentities) {
-    System.err.print("lexemes: ");
-    lexemes.forEach((l)->{ if (! LexemeIdentity.WHITE_SPACE.equals(l.getIdentity())) System.err.println(l);});
+    // System.err.print("lexemes: ");
+    // lexemes.forEach((l)->{ if (! LexemeIdentity.WHITE_SPACE.equals(l.getIdentity())) System.err.println(l);});
     assertEquals("Token sequence size does not match", expectedIdentities.length, lexemes.size());
     for (int i = 0; i < expectedIdentities.length; i++) {
         assertEquals("Mismatch at index " + i, expectedIdentities[i], lexemes.get(i).getIdentityIfAcceptable());

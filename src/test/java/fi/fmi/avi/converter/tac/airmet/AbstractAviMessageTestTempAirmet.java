@@ -185,7 +185,7 @@ public abstract class AbstractAviMessageTestTempAirmet<S, T> {
         return ConversionResult.Status.SUCCESS;
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void testLexer() {
         Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
@@ -227,7 +227,7 @@ public abstract class AbstractAviMessageTestTempAirmet<S, T> {
         }
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void testPOJOToStringSerialiazer() throws IOException {
         final ConversionSpecification<T, S> spec = getSerializationSpecification();
@@ -272,8 +272,8 @@ public abstract class AbstractAviMessageTestTempAirmet<S, T> {
     }
 
     protected void assertTokenSequenceIdentityMatch(final List<Lexeme> lexemes, final LexemeIdentity... expectedIdentities) {
-        System.err.print("lexemes: ");
-        lexemes.forEach((l)->{ if (! LexemeIdentity.WHITE_SPACE.equals(l.getIdentity())) System.err.println(l);});
+        // System.err.print("lexemes: ");
+        // lexemes.forEach((l)->{ if (! LexemeIdentity.WHITE_SPACE.equals(l.getIdentity())) System.err.println(l);});
         assertEquals("Token sequence size does not match", expectedIdentities.length, lexemes.size());
         for (int i = 0; i < expectedIdentities.length; i++) {
             assertEquals("Mismatch at index " + i, expectedIdentities[i], lexemes.get(i).getIdentityIfAcceptable());

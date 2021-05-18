@@ -142,7 +142,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             String lowerUnit = match.getParsedValue(UNIT, String.class);
             String upperLimit = match.getParsedValue(VALUE2, String.class);
             String upperUnit = match.getParsedValue(UNIT2, String.class);
-            System.err.println("SIGMET PARSE LEVEL:"+lowerLimit+","+upperLimit+","+modifier);
             if (lowerLimit!=null) {
                 if (upperLimit!=null) {
                     if ("SFC".equals(lowerLimit)) {

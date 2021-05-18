@@ -26,7 +26,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
  */
 public class SigmetLevel extends RegexMatchingLexemeVisitor {
 
-    static String regex1="^(([0-9]{4}/)?($?[0-9]{4}M))|(([0-9]{4,5}/)?([0-9]{4,5}FT))|(([0-9]{4}M/)?(FL[0-9]{3}))|(([0-9]{4,5}FT/)?(FL[0-9]{3}))|(((TOP\\s)?(ABV|BLW)\\s)?((FL[0-9]{3})|([0-9]{4,5}FT)))|((SFC/)?(FL[0-9]{3}))|((SFC/)?([0-9]{4,5}FT))|((SFC/)?([0-9]{4}M))|(FL[0-9]{3}(/[0-9]{3})?)$";
+    static String regex1="^(([0-9]{4}/)?($?[0-9]{4}M))|(([0-9]{4,5}/)?([0-9]{4,5}FT))|(([0-9]{4}M/)?(FL[0-9]{3}))|(([0-9]{4,5}FT/)?(FL[0-9]{3}))|((TOP\\s)?((ABV|BLW)\\s)?((FL[0-9]{3})|([0-9]{4,5}FT)))|((SFC/)?(FL[0-9]{3}))|((SFC/)?([0-9]{4,5}FT))|((SFC/)?([0-9]{4}M))|(FL[0-9]{3}(/[0-9]{3})?)$";
     static String regex="^(?<meters>(([0-9]{4}/)?($?[0-9]{4}M))||(?<feet>([0-9]{4,5}/)?([0-9]{4,5}FT)))$";
     public SigmetLevel(final OccurrenceFrequency prio) {
         super(regex1, prio);
@@ -35,8 +35,8 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         String toMatch=match.group(0);
         String regex="^(?<level>[0-9]{4})?/?(?<level2>[0-9]{4})(?<unit2>M)$";
-        Matcher m = Pattern.compile(regex).matcher(match.group(0));
-         if (m.matches()){
+        Matcher m = Pattern.compile(regex).matcher(toMatch);
+        if (m.matches()){
             token.identify(SIGMET_LEVEL);
             token.setParsedValue(VALUE, m.group("level"));
             token.setParsedValue(UNIT, m.group("unit2"));
@@ -45,7 +45,7 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
             return;
         }
         regex="^(?<level>[0-9]{4,5})?/?(?<level2>[0-9]{4,5})(?<unit2>FT)$";
-        m = Pattern.compile(regex).matcher(match.group(0));
+        m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()){
             token.identify(SIGMET_LEVEL);
             token.setParsedValue(LEVEL_MODIFIER, null);
@@ -56,7 +56,7 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
             return;
         }
         regex="^(?<level>[0-9]{4})(?<unit>M)/(?<unit2>FL)(?<level2>[0-9]{3})$";
-        m = Pattern.compile(regex).matcher(match.group(0));
+        m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()){
             token.identify(SIGMET_LEVEL);
             token.setParsedValue(LEVEL_MODIFIER, null);
@@ -88,7 +88,7 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
             token.setParsedValue(UNIT2, m.group("unit2"));
             return;
         }
-        regex="^(?<top>TOP ABV|ABV|BLW)\\s(?<unit2>FL)(?<level2>[0-9]{3})$";
+        regex="^(?<top>(TOP ABV|ABV|BLW|TOP))\\s(?<unit2>FL)(?<level2>[0-9]{3})$";
         m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()){
             token.identify(SIGMET_LEVEL);
