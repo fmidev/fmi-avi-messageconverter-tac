@@ -16,6 +16,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.CoordinateReferenceSystem;
 import fi.fmi.avi.model.Geometry;
+import fi.fmi.avi.model.PointGeometry;
 import fi.fmi.avi.model.PolygonGeometry;
 
 public class GeometryHelper {
@@ -53,7 +54,7 @@ public class GeometryHelper {
             lexemes.add(createLexeme.apply(
                     latBuilder.toString() + Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
                             + lonBuilder.toString(), LexemeIdentity.POLYGON_COORDINATE_PAIR));
-            if (lastPair) {
+            if (!lastPair) {
                 lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
                         LexemeIdentity.WHITE_SPACE));
                 lexemes.add(createLexeme.apply("-", LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR));
@@ -99,8 +100,32 @@ public class GeometryHelper {
                 lonIndex = coordPairIndex + lonOffset;
                 final BigDecimal lat = BigDecimal.valueOf(coords.get(latIndex));
                 final BigDecimal lon = BigDecimal.valueOf(coords.get(lonIndex));
-                lexemes.addAll(getCoordinateString(lat, lon, (coordPairIndex < coords.size() - 2), createLexeme));
+                lexemes.addAll(getCoordinateString(lat, lon, (coordPairIndex >= (coords.size() - 2)), createLexeme));
             }
+        } else if (geom instanceof PointGeometry) {
+            //Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
+            int latOffset = -1;
+            int lonOffset = -1;
+            final List<String> axisLabels = geom.getCrs().map(CoordinateReferenceSystem::getAxisLabels).orElse(Collections.emptyList());
+            for (int i = axisLabels.size() - 1; i >= 0; i--) {
+                final String axisLabel = axisLabels.get(i).toLowerCase(Locale.US);
+                if (LATITUDE_AXIS_LABELS.contains(axisLabel)) {
+                    latOffset = i;
+                } else if (LONGITUDE_AXIS_LABELS.contains(axisLabel)) {
+                    lonOffset = i;
+                }
+            }
+            //defaults to EPSG:4326 (lat,lon) order:
+            if (latOffset == -1) {
+                latOffset = 0;
+            }
+            if (lonOffset == -1) {
+                lonOffset = 1;
+            }
+            final List<Double> coords = ((PointGeometry) geom).getCoordinates();
+            final BigDecimal lat = BigDecimal.valueOf(coords.get(latOffset));
+            final BigDecimal lon = BigDecimal.valueOf(coords.get(lonOffset));
+            lexemes.addAll(getCoordinateString(lat, lon, true, createLexeme));
         }
 
         return lexemes;
