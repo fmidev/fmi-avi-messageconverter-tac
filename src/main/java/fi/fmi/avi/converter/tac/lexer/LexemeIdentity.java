@@ -151,13 +151,13 @@ public class LexemeIdentity {
     public static final LexemeIdentity REAL_AIRMET_START = new LexemeIdentity("REAL_AIRMET_START", EnumSet.of(LOCATION_INDICATOR), Collections.emptySet());
     public static final LexemeIdentity SIGMET_VA_NAME = new LexemeIdentity("SIGMET_VA_NAME", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_VA_ERUPTION = new LexemeIdentity("SIGMET_VA_ERUPTION");
-    public static final LexemeIdentity SIGMET_VA_POSITION = new LexemeIdentity("SIGMET_VA_POSITION");
+    public static final LexemeIdentity SIGMET_VA_POSITION = new LexemeIdentity("SIGMET_VA_POSITION", EnumSet.of(VOLCANO_LATITUDE, VOLCANO_LONGITUDE),Collections.emptySet());
     public static final LexemeIdentity SIGMET_FIR_NAME_WORD = new LexemeIdentity("SIGMET_FIR_NAME_WORD", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_APRX_LINE = new LexemeIdentity("SIGMET_APRX_LINE",EnumSet.of(APRX_LINE_WIDTH, APRX_LINE_WIDTH_UNIT, APRX_POINT1, APRX_POINT2, APRX_POINT3, APRX_POINT4, TACGEOMETRY) , Collections.emptySet());
     public static final LexemeIdentity SIGMET_LEVEL = new LexemeIdentity("SIGMET_LEVEL", EnumSet.of(VALUE, UNIT, VALUE2, UNIT2, LEVEL_MODIFIER), Collections.emptySet());
     public static final LexemeIdentity SIGMET_MOVING = new LexemeIdentity("SIGMET_MOVING", EnumSet.of(DIRECTION, STATIONARY, VALUE, UNIT), Collections.emptySet());
     public static final LexemeIdentity SIGMET_INTENSITY = new LexemeIdentity("SIGMET_INTENSITY", EnumSet.of(INTENSITY), Collections.emptySet());
-    public static final LexemeIdentity SIGMET_FCST_AT = new LexemeIdentity("SIGMET_FCST_AT", EnumSet.of(VALUE), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_FCST_AT = new LexemeIdentity("SIGMET_FCST_AT", EnumSet.of(HOUR1, MINUTE1), Collections.emptySet());
     public static final LexemeIdentity SIGMET_TAC_ELEMENT = new LexemeIdentity("SIGMET_TAC_ELEMENT", Collections.emptySet(), Collections.emptySet());
     public static final LexemeIdentity SIGMET_CANCEL = new LexemeIdentity("SIGMET_CANCEL",EnumSet.of(ParsedValueName.SEQUENCE_DESCRIPTOR, DAY1, HOUR1, MINUTE1, DAY2, HOUR2, MINUTE2) , Collections.emptySet());
     public static final LexemeIdentity AIRMET_CANCEL = new LexemeIdentity("AIRMET_CANCEL",EnumSet.of(ParsedValueName.SEQUENCE_DESCRIPTOR, DAY1, HOUR1, MINUTE1, DAY2, HOUR2, MINUTE2) , Collections.emptySet());

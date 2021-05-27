@@ -6,6 +6,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEQUENCE_DESCRIPTOR;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
@@ -200,16 +202,18 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
   }
 
   @Test
+  @Ignore("2 word volcano names not needed")
   public void shouldBeVA_NAME_2WORDS() {
     String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA ERUPTION MT VESUVIUS A VA CLD=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { SIGMET_START, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, SIGMET_VA_ERUPTION, SIGMET_VA_NAME, SIGMET_PHENOMENON, END_TOKEN }));
     assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(16).getParsedValue(ParsedValueName.PHENOMENON, String.class));
-    assertEquals("VESUVIUS A", trimWhitespaces(result.getLexemes()).get(14).getParsedValue(ParsedValueName.VALUE, String.class));
+    assertEquals("MT VESUVIUS", trimWhitespaces(result.getLexemes()).get(14).getParsedValue(ParsedValueName.VALUE, String.class));
   }
 
   @Test
+  @Ignore("3 word volcano names not needed")
   public void shouldBeVA_NAME_3words() {
     String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA ERUPTION MT VESUVIUS A B VA CLD=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
@@ -442,15 +446,16 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
 
   @Test
   public void shouldBeFCST_AT_1200() {
-    String tacString = "FCST AT 1200Z=";
+    String tacString = "NC FCST AT 1200Z=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
           SIGMET_START,
-          OBS_OR_FORECAST,
+          SIGMET_INTENSITY,
+          SIGMET_FCST_AT,
           END_TOKEN }));
-    assertEquals(new Integer("12"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.HOUR1, Integer.class));
-    assertEquals(new Integer("00"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MINUTE1, Integer.class));
+    assertEquals(new Integer("12"), trimWhitespaces(result.getLexemes()).get(4).getParsedValue(ParsedValueName.HOUR1, Integer.class));
+    assertEquals(new Integer("00"), trimWhitespaces(result.getLexemes()).get(4).getParsedValue(ParsedValueName.MINUTE1, Integer.class));
   }
 
   @Test

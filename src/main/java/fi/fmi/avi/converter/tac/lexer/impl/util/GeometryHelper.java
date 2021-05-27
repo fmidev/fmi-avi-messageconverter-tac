@@ -18,6 +18,7 @@ import fi.fmi.avi.model.CoordinateReferenceSystem;
 import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.PointGeometry;
 import fi.fmi.avi.model.PolygonGeometry;
+import fi.fmi.avi.model.immutable.PointGeometryImpl;
 
 public class GeometryHelper {
     private static final Set<String> LATITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lat", "latitude")));
@@ -62,14 +63,25 @@ public class GeometryHelper {
                         LexemeIdentity.WHITE_SPACE));
             }
         } else {
-            System.err.println("ERROR with coordinate bounds"); //TODO Why is Exception handling failing?
-//                    throw new SerializingException(
-//                            "Coordinate values out of latitude longitude bounds at coordinate index " + coordPairIndex + "lat:" + lat
-//                                    + ", lon:" + lon);
+
         }
         return lexemes;
-
     }
+
+    // public static List<Lexeme> getCoordinateLexemes(BigDecimal lat, BigDecimal lon, boolean lastPair, BiFunction<String, LexemeIdentity, Lexeme> createLexeme) {
+    //     List<Lexeme> lexemes = new ArrayList<>();
+    //      lexemes.add(createLexeme.apply(getCoordinateString(lat, lon), LexemeIdentity.POLYGON_COORDINATE_PAIR));
+    //     if (!lastPair) {
+    //         lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
+    //                 LexemeIdentity.WHITE_SPACE));
+    //         lexemes.add(createLexeme.apply("-", LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR));
+    //         lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
+    //                 LexemeIdentity.WHITE_SPACE));
+    //     }
+    //     return lexemes;
+
+    // }
+
     public static List<Lexeme> getGeoLexemes(Geometry geom, BiFunction<String, LexemeIdentity, Lexeme> createLexeme) {
         List<Lexeme> lexemes = new ArrayList<>();
         if (geom instanceof PolygonGeometry) {
@@ -100,7 +112,7 @@ public class GeometryHelper {
                 lonIndex = coordPairIndex + lonOffset;
                 final BigDecimal lat = BigDecimal.valueOf(coords.get(latIndex));
                 final BigDecimal lon = BigDecimal.valueOf(coords.get(lonIndex));
-                lexemes.addAll(getCoordinateString(lat, lon, (coordPairIndex >= (coords.size() - 2)), createLexeme));
+                lexemes.addAll(getCoordinateString(lat, lon, (coordPairIndex >= coords.size() - 2), createLexeme));
             }
         } else if (geom instanceof PointGeometry) {
             //Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
@@ -129,6 +141,70 @@ public class GeometryHelper {
         }
 
         return lexemes;
+    }
+
+    public static PointGeometry parsePoint(String latStr, String lonStr) {
+        double latitude;
+        double longitude;
+        if (latStr.length() > 3) {
+            double latitudeMinutes = Double.parseDouble(latStr.substring(3))/60.;
+            latitude = Double.parseDouble(latStr.substring(1, 3) + ".") + latitudeMinutes;
+        } else {
+            latitude = Double.parseDouble(latStr.substring(1));
+        }
+        if (latStr.charAt(0) == 'S') {
+            latitude *= -1;
+        }
+        if (lonStr.length() > 4) {
+            double longitudeMinutes = Double.parseDouble(lonStr.substring(4))/60.;
+            longitude = Double.parseDouble(lonStr.substring(1, 4) + ".") + longitudeMinutes;
+        } else {
+            longitude = Double.parseDouble(lonStr.substring(1));
+        }
+        if (lonStr.charAt(0) == 'W') {
+            longitude *= -1;
+        }
+        PointGeometryImpl.Builder pointBuilder = PointGeometryImpl.builder();
+        pointBuilder.addCoordinates(latitude, longitude);
+        return pointBuilder.build();
+
+    }
+    public class Point {
+        final double latitude;
+        final double longitude;
+        public Point(String latStr, String lonStr) {
+            double lat;
+            double lon;
+            if (latStr.length() > 3) {
+                double latitudeMinutes = Double.parseDouble(latStr.substring(3))/60.;
+                lat = Double.parseDouble(latStr.substring(1, 3) + ".") + latitudeMinutes;
+            } else {
+                lat = Double.parseDouble(latStr.substring(1));
+            }
+            if (latStr.charAt(0) == 'S') {
+                latitude = lat * -1;
+            } else {
+                latitude=lat;
+            }
+            if (lonStr.length() > 4) {
+                double longitudeMinutes = Double.parseDouble(lonStr.substring(4))/60.;
+                lon = Double.parseDouble(lonStr.substring(1, 4) + ".") + longitudeMinutes;
+            } else {
+                lon = Double.parseDouble(lonStr.substring(1));
+            }
+            if (lonStr.charAt(0) == 'W') {
+                longitude = lon * -1;
+            } else {
+                longitude = lon;
+            }
+        }
+        public double getLongitude() {
+            return longitude;
+        }
+
+        public double getLatitude() {
+            return latitude;
+        }
     }
 
 }

@@ -651,7 +651,9 @@ public interface Lexeme {
         SURFACE_WIND_SPEED,
         SURFACE_WIND_SPEED_UNIT,
         SURFACE_VISIBILITY,
-        SURFACE_VISIBILITY_CAUSE
+        SURFACE_VISIBILITY_CAUSE,
+        VOLCANO_LONGITUDE,
+        VOLCANO_LATITUDE
     }
 
     enum MeteorologicalBulletinSpecialCharacter {

@@ -56,6 +56,7 @@ public class PolygonCoordinatePairTest {
         final PolygonCoordinatePair.Reconstructor reconstructor = new PolygonCoordinatePair.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         final List<Lexeme> lexemes = reconstructor.getAsLexemes(airmet, AIRMET.class, ctx);
+        assert(lexemes.size()>0);
         assertEquals("N52 E00512", lexemes.get(0).getTACToken());
     }
 

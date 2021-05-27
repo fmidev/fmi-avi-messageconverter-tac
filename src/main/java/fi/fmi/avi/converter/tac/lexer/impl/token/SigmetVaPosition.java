@@ -1,17 +1,23 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
-import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.sigmet.SIGMET;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_POSITION;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_POSITION;
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.converter.tac.lexer.impl.util.GeometryHelper;
+import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.sigmet.SIGMET;
 
 /**
  * Created by rinne on 10/02/17.
@@ -24,6 +30,8 @@ public class SigmetVaPosition extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(SIGMET_VA_POSITION);
+        token.setParsedValue(ParsedValueName.VOLCANO_LATITUDE, match.group(2) );
+        token.setParsedValue(ParsedValueName.VOLCANO_LONGITUDE, match.group(3));
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -31,7 +39,20 @@ public class SigmetVaPosition extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET m = (SIGMET) msg;
+                SIGMET sigmet = (SIGMET) msg;
+                if (sigmet.getSigmetPhenomenon().get().equals(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA)) {
+                    if (sigmet.getVAInfo().isPresent()) {
+                        if (sigmet.getVAInfo().isPresent()&& sigmet.getVAInfo().get().getVolcano().getVolcanoPosition().isPresent()) {
+                            List<Double> coords = sigmet.getVAInfo().get().getVolcano().getVolcanoPosition().get().getCoordinates();
+                            List<Lexeme> lexemes = GeometryHelper.getCoordinateString(BigDecimal.valueOf(coords.get(0)),
+                                                                    BigDecimal.valueOf(coords.get(1)),
+                                                                    true,
+                                                                    (s, id) -> this.createLexeme(s, id));
+                            return Optional.of(this.createLexeme("PSN "+lexemes.get(0).getTACToken(), LexemeIdentity.SIGMET_VA_POSITION));
+                        }
+                   }
+                   return Optional.empty();
+                }
             }
             return Optional.empty();
         }

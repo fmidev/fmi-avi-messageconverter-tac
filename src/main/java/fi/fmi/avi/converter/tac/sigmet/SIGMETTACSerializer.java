@@ -63,6 +63,16 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
             return retval.build();
         }
 
+        if (appendToken(retval,LexemeIdentity.SIGMET_VA_ERUPTION, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        if (appendToken(retval,LexemeIdentity.SIGMET_VA_NAME, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+        if (appendToken(retval,LexemeIdentity.SIGMET_VA_POSITION, input, SIGMET.class, baseCtx)>0) {
+            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        }
+
         if (appendToken(retval,LexemeIdentity.SIGMET_PHENOMENON, input, SIGMET.class, baseCtx)>0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
         }
@@ -106,7 +116,7 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
             for (int i=0; i<g.size(); i++) {
                 final ReconstructorContext<SIGMET> forecastCtx = baseCtx.copyWithParameter("forecastIndex", i);
                 try {
-                    if (appendToken(retval,LexemeIdentity.OBS_OR_FORECAST, input, SIGMET.class, forecastCtx)>0) {
+                    if (appendToken(retval,LexemeIdentity.SIGMET_FCST_AT, input, SIGMET.class, forecastCtx)>0) {
                         appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
                     if (appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, forecastCtx)>0) {

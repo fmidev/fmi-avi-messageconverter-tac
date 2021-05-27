@@ -20,6 +20,8 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.IS_FORECAST;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_PHENOMENON;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_PHENOMENON;
 /**
  * Created by rinne on 10/02/17.
  */
@@ -32,8 +34,10 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         //OBS_OR_FORECAST should come after SIGMET_PHENOMENON but before SIGMET_LEVEL, SIGMET_MOVEMENT, SIGMET_INTENSITIY_CHANGE
-        if (SIGMET_START.equals(token.getFirst().getIdentity())||
-            AIRMET_START.equals(token.getFirst().getIdentity())) {
+        if ((SIGMET_START.equals(token.getFirst().getIdentity())&&
+            SIGMET_PHENOMENON.equals(token.getPrevious().getIdentity()))||
+            (AIRMET_START.equals(token.getFirst().getIdentity())&&
+            AIRMET_PHENOMENON.equals(token.getPrevious().getIdentity()))) {
             token.identify(LexemeIdentity.OBS_OR_FORECAST);
             token.setParsedValue(IS_FORECAST, !("OBS".equals(match.group(1))));
             if ((match.group(3)!=null)&&(match.group(3).length()>0)&&

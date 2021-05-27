@@ -288,8 +288,6 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
     }
 
     protected void assertTokenSequenceIdentityMatch(final List<Lexeme> lexemes, final LexemeIdentity... expectedIdentities) {
-        // System.err.print("lexemes: ");
-        // lexemes.forEach((l)->{ if (! LexemeIdentity.WHITE_SPACE.equals(l.getIdentity())) System.err.println(l);});
         assertEquals("Token sequence size does not match", expectedIdentities.length, lexemes.size());
         for (int i = 0; i < expectedIdentities.length; i++) {
             assertEquals("Mismatch at index " + i, expectedIdentities[i], lexemes.get(i).getIdentityIfAcceptable());
@@ -308,12 +306,6 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
         final ObjectMapper om = new ObjectMapper();
         om.registerModule(new Jdk8Module());
         om.registerModule(new JavaTimeModule());
-        final InputStream is2 = AbstractAviMessageTestTempSigmet.class.getResourceAsStream(fileName);
-        String text=new BufferedReader(
-            new InputStreamReader(is2,  StandardCharsets.UTF_8))
-            .lines()
-            .collect(Collectors.joining("\n"));
-        // System.err.println("JSON: "+text);
         final InputStream is = AbstractAviMessageTestTempSigmet.class.getResourceAsStream(fileName);
         if (is != null) {
             final Class<? extends AviationWeatherMessage> clz = getTokenizerImplmentationClass();

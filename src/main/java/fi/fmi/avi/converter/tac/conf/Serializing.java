@@ -83,6 +83,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetAnd;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetCancel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetEntireFir;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetForecastAt;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetIntensity;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetLevel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetMoving;
@@ -90,6 +91,9 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetSequenceDescriptor;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetTacElement;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetUsage;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaEruption;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaName;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaPosition;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetWithin;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
@@ -350,6 +354,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SIGMET_USAGE, new SigmetUsage.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_PHENOMENON, new SigmetPhenomenon.Reconstructor());
         s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new AirSigmetObsOrForecast.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_FCST_AT, new SigmetForecastAt.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_INTENSITY, new SigmetIntensity.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
@@ -360,6 +365,10 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SIGMET_MOVING, new SigmetMoving.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_AND, new SigmetAnd.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_CANCEL, new SigmetCancel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_VA_ERUPTION, new SigmetVaEruption.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_VA_NAME, new SigmetVaName.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_VA_POSITION, new SigmetVaPosition.Reconstructor());
+
         s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
         return s;
     }

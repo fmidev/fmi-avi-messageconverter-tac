@@ -2,9 +2,11 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
@@ -36,9 +38,20 @@ public class SigmetVaName extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET m = (SIGMET) msg;
+                SIGMET sigmet = (SIGMET) msg;
+                if (sigmet.getSigmetPhenomenon().get().equals(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA)) {
+                    if (sigmet.getVAInfo().isPresent()) {
+                        if (sigmet.getVAInfo().isPresent()&& sigmet.getVAInfo().get().getVolcano().getVolcanoName().isPresent()) {
+                            String volcanoName = sigmet.getVAInfo().get().getVolcano().getVolcanoName().get();
+                            return Optional.of(this.createLexeme("MT "+volcanoName, LexemeIdentity.SIGMET_VA_NAME));
+                        }
+                   }
+                   return Optional.empty();
+                }
+
             }
             return Optional.empty();
         }
+
     }
 }

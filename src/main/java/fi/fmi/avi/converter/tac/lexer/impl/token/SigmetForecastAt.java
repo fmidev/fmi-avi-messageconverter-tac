@@ -8,12 +8,14 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 
 /**
  * Created by rinne on 10/02/17.
@@ -21,7 +23,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
 
     public SigmetForecastAt(final OccurrenceFrequency prio) {
-        super("^xFCST AT ([0-9]{4})Z$", prio);
+        super("^FCST AT ([0-9]{2})([0-9]{2})Z$", prio);
     }
 
     @Override
@@ -41,7 +43,11 @@ public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
             }
             if (afterLMC) {
                 token.identify(LexemeIdentity.SIGMET_FCST_AT);
-                token.setParsedValue(VALUE, match.group(1));
+                if ((match.group(1)!=null)&&(match.group(1).length()>0)&&
+                        (match.group(2)!=null)&&(match.group(1).length()>0)) {
+                    token.setParsedValue(HOUR1, Integer.valueOf(match.group(1)));
+                    token.setParsedValue(MINUTE1, Integer.valueOf(match.group(2)));
+                }
             }
         }
     }
@@ -52,8 +58,18 @@ public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                return Optional.of(createLexeme("AND", LexemeIdentity.SIGMET_FCST_AT));
+                final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
+                SIGMET sigmet = (SIGMET)msg;
+                if (forecastIndex.isPresent()) {
+                    String tim="";
+                    if (sigmet.getForecastGeometries().get().get(forecastIndex.get()).getTime().isPresent()) {
+                        PartialOrCompleteTimeInstant t = sigmet.getForecastGeometries().get().get(0).getTime().get();
+                        tim=String.format(" AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
+                    }
+                    return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
+                }
             }
+
             return Optional.empty();
         }
     }

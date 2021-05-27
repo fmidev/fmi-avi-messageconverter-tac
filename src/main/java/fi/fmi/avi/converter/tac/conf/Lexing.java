@@ -104,8 +104,6 @@ public class Lexing {
         f.addTokenCombiningRule(intlSigmetPhenomenonCombinationRule4());
         f.addTokenCombiningRule(intlSigmetPhenomenonCombinationRule5());
         f.addTokenCombiningRule(intlSigmetPhenomenonCombinationRule6());
-        f.addTokenCombiningRule(intlSigmetVolcanoName3());
-        f.addTokenCombiningRule(intlSigmetVolcanoName2());
         f.addTokenCombiningRule(intlSigmetVolcanoName1());
         f.addTokenCombiningRule(intlSigmetVolcanoPosition());
 
@@ -1521,42 +1519,6 @@ public class Lexing {
             @Override
             public boolean test(final String s) {
                 return s.matches("^(\\w*)$");
-            }
-        });
-        return retval;
-    }
-
-    private List<Predicate<String>> intlSigmetVolcanoName2() {
-        List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(MT\\s(\\w*))$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\w*)$") && !s.matches("^(VA)$");
-            }
-        });
-        return retval;
-    }
-
-    private List<Predicate<String>> intlSigmetVolcanoName3() {
-        List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(MT\\s(\\w*)\\s(\\w*))$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\w*)$") && !s.matches("^(VA)$");
             }
         });
         return retval;
