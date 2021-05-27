@@ -653,7 +653,8 @@ public interface Lexeme {
         SURFACE_VISIBILITY,
         SURFACE_VISIBILITY_CAUSE,
         VOLCANO_LONGITUDE,
-        VOLCANO_LATITUDE
+        VOLCANO_LATITUDE,
+        MOVED_TO
     }
 
     enum MeteorologicalBulletinSpecialCharacter {

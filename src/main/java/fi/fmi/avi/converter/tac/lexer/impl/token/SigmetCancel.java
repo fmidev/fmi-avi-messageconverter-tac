@@ -9,6 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon;
 import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SigmetReference;
 
@@ -23,7 +24,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_CANCEL;
 public class SigmetCancel extends RegexMatchingLexemeVisitor {
 
     public SigmetCancel(final OccurrenceFrequency prio) {
-        super("^CNL SIGMET (\\w?\\d?\\d) (\\d{2})(\\d{2})(\\d{2})/(\\d{2})(\\d{2})(\\d{2})$", prio);
+        super("^CNL SIGMET (\\w?\\d?\\d) (\\d{2})(\\d{2})(\\d{2})/(\\d{2})(\\d{2})(\\d{2})(\\sVA\\sMOV\\sTO\\s(\\w{4})\\sFIR)?$", prio);
     }
 
     @Override
@@ -36,6 +37,7 @@ public class SigmetCancel extends RegexMatchingLexemeVisitor {
         token.setParsedValue(ParsedValueName.DAY2, Integer.valueOf(match.group(5)));
         token.setParsedValue(ParsedValueName.HOUR2, Integer.valueOf(match.group(6)));
         token.setParsedValue(ParsedValueName.MINUTE2, Integer.valueOf(match.group(7)));
+        token.setParsedValue(ParsedValueName.MOVED_TO, match.group(9));
     }
 
 	public static class Reconstructor extends FactoryBasedReconstructor {
@@ -71,6 +73,12 @@ public class SigmetCancel extends RegexMatchingLexemeVisitor {
                             end.getDay().getAsInt(),
                             end.getHour().getAsInt(),
                             end.getMinute().getAsInt()));
+
+                    if (sigmet.getVAInfo().isPresent()&& sigmet.getVAInfo().get().getVolcanicAshMovedToFIR().isPresent()) {
+                        sb.append("VA MOV TO ");
+                        sb.append(sigmet.getVAInfo().get().getVolcanicAshMovedToFIR().get());
+                        sb.append(" FIR");
+                    }
                     return Optional.of(createLexeme(sb.toString(), SIGMET_CANCEL));
                 }
             }

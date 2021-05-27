@@ -159,7 +159,8 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_INTENSITY = new LexemeIdentity("SIGMET_INTENSITY", EnumSet.of(INTENSITY), Collections.emptySet());
     public static final LexemeIdentity SIGMET_FCST_AT = new LexemeIdentity("SIGMET_FCST_AT", EnumSet.of(HOUR1, MINUTE1), Collections.emptySet());
     public static final LexemeIdentity SIGMET_TAC_ELEMENT = new LexemeIdentity("SIGMET_TAC_ELEMENT", Collections.emptySet(), Collections.emptySet());
-    public static final LexemeIdentity SIGMET_CANCEL = new LexemeIdentity("SIGMET_CANCEL",EnumSet.of(ParsedValueName.SEQUENCE_DESCRIPTOR, DAY1, HOUR1, MINUTE1, DAY2, HOUR2, MINUTE2) , Collections.emptySet());
+    public static final LexemeIdentity SIGMET_CANCEL = new LexemeIdentity("SIGMET_CANCEL",EnumSet.of(ParsedValueName.SEQUENCE_DESCRIPTOR, DAY1, HOUR1, MINUTE1, DAY2, HOUR2, MINUTE2, MOVED_TO) , Collections.emptySet());
+    public static final LexemeIdentity SIGMET_NO_VA_EXP = new LexemeIdentity("SIGMET_NO_VA_EXP");
     public static final LexemeIdentity AIRMET_CANCEL = new LexemeIdentity("AIRMET_CANCEL",EnumSet.of(ParsedValueName.SEQUENCE_DESCRIPTOR, DAY1, HOUR1, MINUTE1, DAY2, HOUR2, MINUTE2) , Collections.emptySet());
 
     private final String name;

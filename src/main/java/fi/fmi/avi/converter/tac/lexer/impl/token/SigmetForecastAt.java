@@ -62,6 +62,8 @@ public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
                 SIGMET sigmet = (SIGMET)msg;
                 if (forecastIndex.isPresent()) {
                     String tim="";
+                    System.err.println(">>>"+sigmet.getForecastGeometries().get().size());
+                    System.err.println(">>>>"+sigmet.getForecastGeometries().get().get(forecastIndex.get()));
                     if (sigmet.getForecastGeometries().get().get(forecastIndex.get()).getTime().isPresent()) {
                         PartialOrCompleteTimeInstant t = sigmet.getForecastGeometries().get().get(0).getTime().get();
                         tim=String.format(" AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());

@@ -474,4 +474,33 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     assertEquals(new Integer("00"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MINUTE1, Integer.class));
   }
 
+  @Test
+  public void shouldBeNOVAEXP() {
+    String tacString = "NO VA EXP=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    for (Lexeme l: result.getLexemes()) System.err.println(l);
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START,
+          SIGMET_NO_VA_EXP,
+          END_TOKEN}));
+  }
+
+  @Test
+  public void shouldBeCNL_VASigmet() {
+    String tacString = "CNL SIGMET 01 101300/101600 VA MOV TO LFPG FIR=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    for (Lexeme l: result.getLexemes()) System.err.println(l);
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START,
+          SIGMET_CANCEL,
+          END_TOKEN}));
+
+    assertEquals("01", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.SEQUENCE_DESCRIPTOR, String.class));
+    assertEquals(new Integer("10"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.DAY1, Integer.class));
+    assertEquals(new Integer("13"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.HOUR1, Integer.class));
+    assertEquals(new Integer("00"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MINUTE1, Integer.class));
+    assertEquals("LFPG", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MOVED_TO, String.class));
+  }
 }

@@ -87,6 +87,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetForecastAt;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetIntensity;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetLevel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetMoving;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetNoVaExp;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetSequenceDescriptor;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetTacElement;
@@ -368,6 +369,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SIGMET_VA_ERUPTION, new SigmetVaEruption.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_VA_NAME, new SigmetVaName.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_VA_POSITION, new SigmetVaPosition.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_NO_VA_EXP, new SigmetNoVaExp.Reconstructor());
 
         s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
         return s;

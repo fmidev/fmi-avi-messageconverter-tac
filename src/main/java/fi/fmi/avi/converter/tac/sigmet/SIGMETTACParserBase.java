@@ -26,7 +26,6 @@ import fi.fmi.avi.model.immutable.VolcanoDescriptionImpl;
 import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 import fi.fmi.avi.model.sigmet.SigmetIntensityChange;
-import fi.fmi.avi.model.sigmet.VAInfo;
 import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import fi.fmi.avi.model.sigmet.immutable.SigmetReferenceImpl;
 import fi.fmi.avi.model.sigmet.immutable.VAInfoImpl;
@@ -140,7 +139,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
     protected void parseAnalysisType(LexemeSequence seq,
             PhenomenonGeometryWithHeightImpl.Builder phenBuilder,
             ConversionResult<SIGMETImpl> result,
-            String input    ) {
+            String input) {
         Lexeme first = seq.getFirstLexeme();
         Boolean isForecast=first.getParsedValue(IS_FORECAST, Boolean.class);
         if (isForecast) {
@@ -161,7 +160,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
     protected void parseForecastTime(LexemeSequence seq,
             PhenomenonGeometryImpl.Builder forecastBuilder,
             ConversionResult<SIGMETImpl> result,
-            String input    ) {
+            String input) {
         Lexeme first = seq.getFirstLexeme();
         Integer analysisHour=first.getParsedValue(HOUR1, Integer.class);
         Integer analysisMinute=first.getParsedValue(MINUTE1, Integer.class);
@@ -351,7 +350,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             if (supplement!=null) {
                 builder.setPermissibleUsageSupplementary(supplement);
             }
-            PhenomenonGeometryImpl.Builder fcstBuilder = new PhenomenonGeometryImpl.Builder();
         });
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.SEQUENCE_DESCRIPTOR, (match) -> {
@@ -423,11 +421,12 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET phenomenon not given in " + input)));
 
             PhenomenonGeometryWithHeightImpl.Builder phenBuilder = new PhenomenonGeometryWithHeightImpl.Builder();
-            PhenomenonGeometryImpl.Builder fcstBuilder = new PhenomenonGeometryImpl.Builder();
+            PhenomenonGeometryImpl.Builder firstFcstBuilder = new PhenomenonGeometryImpl.Builder();
 
             // Analysisgeometry: after OBS_OR_FORECAST and before LEVEL, MOVEMENT, and INTENSITY_CHANGE
 
             final List<LexemeIdentity> analysisLexemes=Arrays.asList(LexemeIdentity.SIGMET_LEVEL, LexemeIdentity.SIGMET_INTENSITY, LexemeIdentity.SIGMET_MOVING);
+            final List<LexemeIdentity> noVaExpLexemes=Arrays.asList(LexemeIdentity.SIGMET_NO_VA_EXP);
             final List<LexemeSequence> subSequences =lexed.splitBy(LexemeIdentity.OBS_OR_FORECAST, LexemeIdentity.SIGMET_FCST_AT);
             List<TacOrGeoGeometry> analysisGeometries = new ArrayList<>();
             List<TacOrGeoGeometry> forecastGeometries = new ArrayList<>();
@@ -444,8 +443,11 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                     analysisGeometries.add(parseGeometry(l.getTailSequence(), builder));
                 }
                 if (LexemeIdentity.SIGMET_FCST_AT.equals(seq.getFirstLexeme().getIdentity())){
-                    parseForecastTime(seq, fcstBuilder, result, input);
+                    parseForecastTime(seq, firstFcstBuilder, result, input);
                     forecastGeometries.add(parseGeometry(l.getTailSequence(), builder));
+                    if (sequenceContains(seq, noVaExpLexemes)){
+                        builder.setNoVaExpected(true);
+                    }
                }
             }
 
@@ -456,12 +458,15 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             PhenomenonGeometryWithHeight phenGeom = phenBuilder.build();
 
             builder.setAnalysisGeometries(Arrays.asList(phenGeom));
-            if (forecastGeometries.size()>0) {
-                fcstBuilder.setGeometry(forecastGeometries.get(0)); //TODO list
+            if (builder.getNoVaExpected().isPresent()&&builder.getNoVaExpected().get()) {
+                firstFcstBuilder.clearApproximateLocation();
+                PhenomenonGeometry fcstGeom = firstFcstBuilder.build();
+                builder.setForecastGeometries(Arrays.asList(fcstGeom));
+            } else if (forecastGeometries.size()>0) {
+                firstFcstBuilder.setGeometry(forecastGeometries.get(0)); //TODO list
+                firstFcstBuilder.setApproximateLocation(false);
 
-                fcstBuilder.setApproximateLocation(false);
-
-                PhenomenonGeometry fcstGeom = fcstBuilder.build();
+                PhenomenonGeometry fcstGeom = firstFcstBuilder.build();
                 builder.setForecastGeometries(Arrays.asList(fcstGeom));
             }
         }

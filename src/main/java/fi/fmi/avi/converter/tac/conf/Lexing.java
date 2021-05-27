@@ -122,6 +122,8 @@ public class Lexing {
         f.addTokenCombiningRule(intlSigmetMovingCombinationRule());
         f.addTokenCombiningRule(intlSigmetObsFcstAtCombinationRule());
         f.addTokenCombiningRule(intlSigmetCancelCombinationRule());
+        f.addTokenCombiningRule(intlSigmetVaCancelCombinationRule());
+        f.addTokenCombiningRule(intlSigmetNoVaExpCombinationRule());
         f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule1());
         f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule2());
         f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule3());
@@ -1215,6 +1217,72 @@ public class Lexing {
         return retval;
     }
 
+    private List<Predicate<String>> intlSigmetVaCancelCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^CNL SIGMET (\\w?\\d?\\d) (\\d{2}\\d{2}\\d{2}/\\d{2}\\d{2}\\d{2})$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("VA");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("MOV");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("TO");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^\\w*$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("FIR");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetNoVaExpCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("NO");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("VA");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.equals("EXP");
+            }
+        });
+
+        return retval;
+    }
+
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule1() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -1845,6 +1913,7 @@ public class Lexing {
         l.teach(new SigmetIntensity(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetForecastAt(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetCancel(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetNoVaExp(OccurrenceFrequency.AVERAGE));
         return l;
     }
 

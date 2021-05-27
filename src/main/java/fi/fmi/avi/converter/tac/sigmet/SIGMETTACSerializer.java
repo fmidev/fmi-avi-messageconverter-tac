@@ -112,33 +112,44 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
             }
         });
 
-        input.getForecastGeometries().ifPresent(g-> {
-            for (int i=0; i<g.size(); i++) {
-                final ReconstructorContext<SIGMET> forecastCtx = baseCtx.copyWithParameter("forecastIndex", i);
-                try {
-                    if (appendToken(retval,LexemeIdentity.SIGMET_FCST_AT, input, SIGMET.class, forecastCtx)>0) {
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                    }
-                    if (appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, forecastCtx)>0) {
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                    } else {
-                        if (appendToken(retval,LexemeIdentity.SIGMET_WITHIN, input, SIGMET.class, forecastCtx)>0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                        }
-                        if (appendToken(retval,LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SIGMET.class, forecastCtx)>0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                        }
-                        if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, forecastCtx)>0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
-                        }
-                    }
-                } catch (SerializingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+        if (input.getNoVaExpected().isPresent()&&input.getNoVaExpected().get()) {
+            final ReconstructorContext<SIGMET> forecastCtx = baseCtx.copyWithParameter("forecastIndex", 0);
+            if (appendToken(retval,LexemeIdentity.SIGMET_FCST_AT, input, SIGMET.class, forecastCtx)>0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
             }
-        });
-
+            if (appendToken(retval,LexemeIdentity.SIGMET_NO_VA_EXP, input, SIGMET.class, forecastCtx)>0) {
+                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+        } else {
+            input.getForecastGeometries().ifPresent(g-> {
+                for (int i=0; i<g.size(); i++) {
+                    final ReconstructorContext<SIGMET> forecastCtx = baseCtx.copyWithParameter("forecastIndex", i);
+                    try {
+                        if (appendToken(retval,LexemeIdentity.SIGMET_FCST_AT, input, SIGMET.class, forecastCtx)>0) {
+                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        }
+                        if (appendToken(retval,LexemeIdentity.SIGMET_TAC_ELEMENT, input, SIGMET.class, forecastCtx)>0) {
+                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        } else {
+                            if (appendToken(retval,LexemeIdentity.SIGMET_WITHIN, input, SIGMET.class, forecastCtx)>0) {
+                                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                            }
+                            if (appendToken(retval,LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SIGMET.class, forecastCtx)>0) {
+                                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                            }
+                            if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, forecastCtx)>0) {
+                                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                            }
+                            if (i==0) { //TODO currently only for the first forecast
+                            }
+                        }
+                    } catch (SerializingException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
 
         if (appendToken(retval, LexemeIdentity.AMENDMENT, input, SIGMET.class, baseCtx) > 0) {
             appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);

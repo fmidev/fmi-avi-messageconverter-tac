@@ -210,7 +210,7 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
         assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), getLexerTokenSequenceIdentity());
     }
 
-
+    // @Ignore
     @Test
     public void testTokenizer() throws SerializingException, IOException {
         Assume.assumeTrue(String.class.isAssignableFrom(getSerializationSpecification().getOutputClass()));
