@@ -446,7 +446,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                     parseForecastTime(seq, firstFcstBuilder, result, input);
                     forecastGeometries.add(parseGeometry(l.getTailSequence(), builder));
                     if (sequenceContains(seq, noVaExpLexemes)){
-                        builder.setNoVaExpected(true);
+                        firstFcstBuilder.setNoVaExpected(true);
                     }
                }
             }
@@ -458,14 +458,13 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             PhenomenonGeometryWithHeight phenGeom = phenBuilder.build();
 
             builder.setAnalysisGeometries(Arrays.asList(phenGeom));
-            if (builder.getNoVaExpected().isPresent()&&builder.getNoVaExpected().get()) {
+            if (firstFcstBuilder.getNoVaExpected().isPresent()&&firstFcstBuilder.getNoVaExpected().get()) {
                 firstFcstBuilder.clearApproximateLocation();
                 PhenomenonGeometry fcstGeom = firstFcstBuilder.build();
                 builder.setForecastGeometries(Arrays.asList(fcstGeom));
             } else if (forecastGeometries.size()>0) {
                 firstFcstBuilder.setGeometry(forecastGeometries.get(0)); //TODO list
                 firstFcstBuilder.setApproximateLocation(false);
-
                 PhenomenonGeometry fcstGeom = firstFcstBuilder.build();
                 builder.setForecastGeometries(Arrays.asList(fcstGeom));
             }

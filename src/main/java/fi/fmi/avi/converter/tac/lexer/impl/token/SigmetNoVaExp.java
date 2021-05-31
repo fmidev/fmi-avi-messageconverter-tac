@@ -35,8 +35,13 @@ public class SigmetNoVaExp extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET) msg;
-                if (sigmet.getNoVaExpected().isPresent()&&sigmet.getNoVaExpected().get()) {
-                    return Optional.of(createLexeme("NO VA EXP", SIGMET_NO_VA_EXP));
+                final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
+                if (forecastIndex.isPresent()) {
+
+                    if (sigmet.getForecastGeometries().get().get(forecastIndex.get()).getNoVaExpected().isPresent()&&
+                        sigmet.getForecastGeometries().get().get(forecastIndex.get()).getNoVaExpected().get()) {
+                        return Optional.of(createLexeme("NO VA EXP", SIGMET_NO_VA_EXP));
+                    }
                 }
             }
             return Optional.empty();

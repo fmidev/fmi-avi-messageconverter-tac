@@ -59,7 +59,8 @@
     {
       "time": {
         "partialTime": "--T21:30Z"
-      }
+      },
+      "noVaExpected": true
     }
   ],
   "VAInfo": {
@@ -71,7 +72,6 @@
           }
       }
   },
-  "noVaExpected": true,
   "translatedTAC":"EHAA SIGMET 4 VALID 171610/172210 EHDB-\r\nEHAA AMSTERDAM FIR VA ERUPTION MT SABANCAYA PSN S1547 W07150 VA CLD OBS AT 1520Z WI S1534 W07117 - S1554 W07101 - S1618 W07151 - S1558 W07158 - S1546 W07150 - S1534 W07117 SFC/FL230 NC FCST AT 2130Z NO VA EXP=",
   "translated": true,
   "permissibleUsage": "OPERATIONAL"
