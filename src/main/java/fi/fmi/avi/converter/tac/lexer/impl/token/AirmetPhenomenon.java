@@ -150,13 +150,7 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                             sb.append(" ");
                             NumericMeasure vis = airmet.getVisibility().get();
                             Double val = vis.getValue();
-                            if (val<100) {
-                                sb.append(String.format("%2.0f", val));
-                            } else if (val<1000) {
-                                sb.append(String.format("%3.0f", val));
-                            } else if (val<10000) {
-                                sb.append(String.format("%4.0f", val));
-                            }
+                            sb.append(String.format("%04.0f", val));
                             sb.append("M");
 
                             if (airmet.getObscuration().isPresent()) {

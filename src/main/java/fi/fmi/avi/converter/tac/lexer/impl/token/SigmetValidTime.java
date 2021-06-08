@@ -67,8 +67,6 @@ public class SigmetValidTime extends TimeHandlingRegex {
                     sb.append(String.format("%02d%02d%02d", end.getDay().getAsInt(),
                               end.getHour().getAsInt(), end.getMinute().getAsInt()));
                     return Optional.of(createLexeme(sb.toString(), LexemeIdentity.VALID_TIME));
-                } else {
-                    // System.err.println("SigmetValid: start or end time missing");
                 }
             }
             if (AIRMET.class.isAssignableFrom(clz)) {
@@ -84,8 +82,6 @@ public class SigmetValidTime extends TimeHandlingRegex {
                     sb.append(String.format("%02d%02d%02d", end.getDay().getAsInt(),
                               end.getHour().getAsInt(), end.getMinute().getAsInt()));
                     return Optional.of(createLexeme(sb.toString(), LexemeIdentity.VALID_TIME));
-                } else {
-                    // System.err.println("SigmetValid: start or end time missing");
                 }
             }
             return Optional.empty();

@@ -1,0 +1,50 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--11T11:30Z"
+    },
+    "endTime": {
+      "partialTime": "--11T15:30Z"
+    }
+  },
+  "sigmetPhenomenon": "OBSC_TSGR",
+  "sequenceNumber": "1",
+  "analysisGeometries": [{
+    "geometry":{
+      "tacGeometry":{
+        "data":"N OF N5200"
+      },
+      "geoGeometry" : {
+        "type" : "Polygon",
+        "crs" : {
+          "name" : "http://www.opengis.net/def/crs/EPSG/0/4326",
+          "dimension" : 2,
+          "axisLabels" : [ "Lat", "Lon" ]
+        },
+        "exteriorRingPositions" : [ 52.0, 6.923695883462752, 52.0, 2.428571428571429, 55.0, 5.0, 55.0, 6.5, 53.66666667, 6.5, 53.25, 7.3, 52.21882119, 7.10288428, 52.0, 6.923695883462752, 55.76431389, 3.36881667, 55.33264444, 4.33191389, 55.0, 5.0, 52.93100278, 3.16004722, 53.30089722, 3.05528611, 53.46923611, 3.01528056, 53.58423889, 2.98694167, 53.667575, 2.95527222, 53.96258333, 2.86525833, 54.37926111, 2.76190833, 54.62093889, 2.89690278, 55.76431389, 3.36881667 ]
+      }
+    },
+    "analysisType": "FORECAST",
+    "intensityChange": "INTENSIFYING",
+    "approximateLocation":false,
+    "time": { "partialTime": "--T12:00Z"}}],
+  "translatedTAC":"EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR OBSC TSGR FCST AT 1200Z N OF N5200 STNR INTSF=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
+}
