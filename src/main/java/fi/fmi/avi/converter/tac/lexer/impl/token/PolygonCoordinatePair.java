@@ -22,6 +22,7 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CoordinateReferenceSystem;
 import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.PolygonGeometry;
+import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.swx.AirspaceVolume;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
@@ -132,13 +133,13 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                                                 lonBuilder.append(String.format("%02d", lonDecimalPart.abs().multiply(BigDecimal.valueOf(100d)).intValue()));
                                             }
                                             retval.add(this.createLexeme(
-                                                    latBuilder.toString() + Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
+                                                    latBuilder.toString() + MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
                                                             + lonBuilder.toString(), LexemeIdentity.POLYGON_COORDINATE_PAIR));
                                             if (coordPairIndex < coords.size() - 2) {
-                                                retval.add(this.createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
+                                                retval.add(this.createLexeme(MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
                                                         LexemeIdentity.WHITE_SPACE));
                                                 retval.add(this.createLexeme("-", LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR));
-                                                retval.add(this.createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
+                                                retval.add(this.createLexeme(MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
                                                         LexemeIdentity.WHITE_SPACE));
                                             }
                                         } else {

@@ -16,6 +16,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.Weather;
+import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
@@ -52,27 +53,27 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
         final LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
         final ReconstructorContext<TAF> baseCtx = new ReconstructorContext<>(input, hints);
         appendToken(retval, LexemeIdentity.TAF_START, input, TAF.class, baseCtx);
-        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+        appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
         if (appendToken(retval, LexemeIdentity.AMENDMENT, input, TAF.class, baseCtx) > 0) {
-            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (appendToken(retval, LexemeIdentity.CORRECTION, input, TAF.class, baseCtx) > 0) {
-            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (appendToken(retval, LexemeIdentity.AERODROME_DESIGNATOR, input, TAF.class, baseCtx) > 0) {
-            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (appendToken(retval, LexemeIdentity.ISSUE_TIME, input, TAF.class, baseCtx) > 0) {
-            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
         }
 
         if (!input.isMissingMessage()) {
             if (appendToken(retval, LexemeIdentity.VALID_TIME, input, TAF.class, baseCtx) > 0) {
-                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
 
             if (appendToken(retval, LexemeIdentity.CANCELLATION, input, TAF.class, baseCtx) > 0) {
-                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
             if (!input.isCancelMessage()) {
                 final Optional<TAFBaseForecast> baseFct = input.getBaseForecast();
@@ -81,18 +82,18 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                 }
                 final ReconstructorContext<TAF> baseFctCtx = baseCtx.copyWithParameter("forecast", baseFct.get());
                 if (appendToken(retval, LexemeIdentity.SURFACE_WIND, input, TAF.class, baseFctCtx) > 0) {
-                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                 }
                 if (appendToken(retval, LexemeIdentity.CAVOK, input, TAF.class, baseFctCtx) > 0) {
-                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                 }
                 if (appendToken(retval, LexemeIdentity.HORIZONTAL_VISIBILITY, input, TAF.class, baseFctCtx) > 0) {
-                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                 }
                 if (baseFct.get().getForecastWeather().isPresent()) {
                     for (final Weather weather : baseFct.get().getForecastWeather().get()) {
                         appendToken(retval, LexemeIdentity.WEATHER, input, TAF.class, baseFctCtx.copyWithParameter("weather", weather));
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
                 }
                 final Optional<CloudForecast> clouds = baseFct.get().getCloud();
@@ -104,9 +105,9 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                     for (final TAFAirTemperatureForecast tempFct : baseFct.get().getTemperatures().get()) {
                         final ReconstructorContext<TAF> tempCtx = baseFctCtx.copyWithParameter("temp", tempFct);
                         appendToken(retval, LexemeIdentity.MAX_TEMPERATURE, input, TAF.class, tempCtx);
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                         appendToken(retval, LexemeIdentity.MIN_TEMPERATURE, input, TAF.class, tempCtx);
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
                 }
 
@@ -114,30 +115,30 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                     for (final TAFChangeForecast changeFct : input.getChangeForecasts().get()) {
                         final ReconstructorContext<TAF> changeFctCtx = baseCtx.copyWithParameter("forecast", changeFct);
                         retval.removeLast(); //last whitespace
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED);
+                        appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
+                        appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
                         if (appendToken(retval, LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR, input, TAF.class, changeFctCtx) > 0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                         }
                         if (appendToken(retval, LexemeIdentity.TAF_CHANGE_FORECAST_TIME_GROUP, input, TAF.class, changeFctCtx) > 0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                         }
                         if (appendToken(retval, LexemeIdentity.SURFACE_WIND, input, TAF.class, changeFctCtx) > 0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                         }
                         if (appendToken(retval, LexemeIdentity.CAVOK, input, TAF.class, changeFctCtx) > 0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                         }
                         if (appendToken(retval, LexemeIdentity.HORIZONTAL_VISIBILITY, input, TAF.class, changeFctCtx) > 0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                         }
                         if (appendToken(retval, LexemeIdentity.NO_SIGNIFICANT_WEATHER, input, TAF.class, changeFctCtx) > 0) {
-                            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                         }
                         if (changeFct.getForecastWeather().isPresent()) {
                             for (final Weather weather : changeFct.getForecastWeather().get()) {
                                 appendToken(retval, LexemeIdentity.WEATHER, input, TAF.class, changeFctCtx.copyWithParameter("weather", weather));
-                                appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                                appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                             }
                         }
                         if (changeFct.getCloud().isPresent()) {
@@ -147,16 +148,16 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
                 }
                 if (input.getRemarks().isPresent()) {
                     appendToken(retval, LexemeIdentity.REMARKS_START, input, TAF.class, baseCtx);
-                    appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                    appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                     for (final String remark : input.getRemarks().get()) {
                         this.appendToken(retval, LexemeIdentity.REMARK, input, TAF.class, baseCtx.copyWithParameter("remark", remark));
-                        appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                        appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
                 }
             }
         } else {
             appendToken(retval, LexemeIdentity.NIL, input, TAF.class, baseCtx);
-            appendWhitespace(retval, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         retval.removeLast();
         appendToken(retval, LexemeIdentity.END_TOKEN, input, TAF.class, baseCtx);
@@ -168,12 +169,12 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
         if (clouds != null) {
             if (clouds.getVerticalVisibility().isPresent()) {
                 this.appendToken(builder, LexemeIdentity.CLOUD, input, TAF.class, ctx.copyWithParameter("verticalVisibility", Boolean.TRUE));
-                appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                appendWhitespace(builder, MeteorologicalBulletinSpecialCharacter.SPACE);
             } else if (clouds.getLayers().isPresent()) {
                 this.appendCloudLayers(builder, input, TAF.class, clouds.getLayers().get(), ctx);
             } else if (clouds.isNoSignificantCloud()) {
                 this.appendToken(builder, LexemeIdentity.CLOUD, input, TAF.class, ctx);
-                appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                appendWhitespace(builder, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
         }
     }
