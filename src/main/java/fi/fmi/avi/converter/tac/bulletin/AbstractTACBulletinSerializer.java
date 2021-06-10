@@ -53,8 +53,6 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
         final T input = accepts(msg);
         final LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
         final ReconstructorContext<T> baseCtx = new ReconstructorContext<>(input, hints);
-        appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN, 2);
-        appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         appendToken(retval, LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS, input, getBulletinClass(), baseCtx);
         appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
         appendToken(retval, LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR, input, getBulletinClass(), baseCtx);

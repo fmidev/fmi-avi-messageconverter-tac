@@ -59,8 +59,7 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(stringResult.getConversionIssues().isEmpty());
         assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "FCFI33 EFPP 020500 AAA"//
+                "FCFI33 EFPP 020500 AAA"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF AMD EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
@@ -94,8 +93,7 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(stringResult.getConversionIssues().isEmpty());
         assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "FCFI33 EFPP 020500 RRZ" //
+                        "FCFI33 EFPP 020500 RRZ" //
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004 BECMG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
@@ -153,8 +151,7 @@ public class TAFBulletinTACSerializationTest {
         assertTrue(stringResult.getConversionIssues().isEmpty());
         assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "FCFI33 EFPP 020500 CCB"//
+                "FCFI33 EFPP 020500 CCB"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF COR EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     BECMG 0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
@@ -187,8 +184,7 @@ public class TAFBulletinTACSerializationTest {
         final Optional<String> tacBulletin = tacResult.getConvertedMessage();
         assertTrue(tacBulletin.isPresent());
         assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "FCFI33 EFPP 020500"//
+                "FCFI33 EFPP 020500"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF EFKE 020532Z 0206/0215 05005KT 9999 -SHRA BKN004 BECMG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
@@ -221,8 +217,7 @@ public class TAFBulletinTACSerializationTest {
         final Optional<String> tacBulletin = tacResult.getConvertedMessage();
         assertTrue(tacBulletin.isPresent());
         assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "FTFI33 EFPP 020500"//
+                "FTFI33 EFPP 020500"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "TAF EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//

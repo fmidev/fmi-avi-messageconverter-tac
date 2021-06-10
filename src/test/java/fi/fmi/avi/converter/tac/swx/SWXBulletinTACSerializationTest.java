@@ -70,8 +70,7 @@ public class SWXBulletinTACSerializationTest {
         assertTrue(stringResult.getConversionIssues().isEmpty());
         assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "FNXX01 EFKL 020500"//
+                        "FNXX01 EFKL 020500"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "SWX ADVISORY" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "STATUS:             TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
