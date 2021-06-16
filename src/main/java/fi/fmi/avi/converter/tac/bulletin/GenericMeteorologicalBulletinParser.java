@@ -148,8 +148,9 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
 
             lm = messageSequence.getFirstLexeme();
 
-            lm.findNext(LexemeIdentity.AERODROME_DESIGNATOR, designator -> msgBuilder.setTargetAerodrome(
-                    AerodromeImpl.builder().setDesignator(designator.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)).build()));
+            lm.findNext(LexemeIdentity.AERODROME_DESIGNATOR,
+                    designator -> msgBuilder.putLocationIndicators(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME,
+                            designator.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class)));
             lm.findNext(LexemeIdentity.ISSUE_TIME, (time) -> {
                 final Integer year = time.getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
                 final Integer month = time.getParsedValue(Lexeme.ParsedValueName.MONTH, Integer.class);
