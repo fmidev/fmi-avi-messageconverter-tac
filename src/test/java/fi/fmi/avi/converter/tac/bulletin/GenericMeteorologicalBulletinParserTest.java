@@ -158,8 +158,7 @@ public class GenericMeteorologicalBulletinParserTest {
         final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
         assertEquals(MessageType.METAR, msg.getMessageType().get());
-        assertTrue(msg.getTargetAerodrome().isPresent());
-        assertEquals("EFUT", msg.getTargetAerodrome().get().getDesignator());
+        assertEquals("EFUT", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME));
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
         assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(11, 11, 15, ZoneId.of("Z"))), msg.getIssueTime().get());
@@ -179,8 +178,7 @@ public class GenericMeteorologicalBulletinParserTest {
         final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
         assertEquals("LOW_WIND", msg.getMessageType().get().name());
-        assertTrue(msg.getTargetAerodrome().isPresent());
-        assertEquals("EFHK", msg.getTargetAerodrome().get().getDesignator());
+        assertEquals("EFHK", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME));
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
         assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(4, 8, 20, ZoneId.of("Z"))), msg.getIssueTime().get());
@@ -201,8 +199,7 @@ public class GenericMeteorologicalBulletinParserTest {
         assertTrue(msg.getMessageType().isPresent());
         assertEquals("WX_WARNING", msg.getMessageType().get().name());
 
-        assertTrue(msg.getTargetAerodrome().isPresent());
-        assertEquals("EFHK", msg.getTargetAerodrome().get().getDesignator());
+        assertEquals("EFHK", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME));
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
@@ -417,8 +414,7 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(1, bulletin.get().getMessages().size());
         final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
-        assertTrue(msg.getTargetAerodrome().isPresent());
-        assertEquals("EFHK", msg.getTargetAerodrome().get().getDesignator());
+        assertEquals("EFHK", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME));
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
