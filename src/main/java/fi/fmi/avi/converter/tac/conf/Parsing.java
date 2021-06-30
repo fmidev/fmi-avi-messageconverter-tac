@@ -1,12 +1,14 @@
 package fi.fmi.avi.converter.tac.conf;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.tac.TACParser;
+import fi.fmi.avi.converter.tac.bulletin.GenericAviationWeatherMessageParser;
 import fi.fmi.avi.converter.tac.bulletin.GenericMeteorologicalBulletinParser;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.metar.ImmutableMETARTACParser;
@@ -15,6 +17,7 @@ import fi.fmi.avi.converter.tac.metar.SPECITACParser;
 import fi.fmi.avi.converter.tac.swx.SWXTACParser;
 import fi.fmi.avi.converter.tac.taf.ImmutableTAFTACParser;
 import fi.fmi.avi.converter.tac.taf.TAFTACParser;
+import fi.fmi.avi.model.GenericAviationWeatherMessage;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
@@ -78,6 +81,14 @@ public class Parsing {
     @Bean
     AviMessageSpecificConverter<String, SpaceWeatherAdvisory> swxTACParser() {
         final TACParser<SpaceWeatherAdvisory> p = new SWXTACParser();
+        p.setTACLexer(aviMessageLexer);
+        return p;
+    }
+
+    @Bean
+    @Qualifier("GenericAviationWeatherMessageTACParser")
+    AviMessageSpecificConverter<String, GenericAviationWeatherMessage> GenericAviationWeatherMessageTACParser() {
+        final GenericAviationWeatherMessageParser p = new GenericAviationWeatherMessageParser();
         p.setTACLexer(aviMessageLexer);
         return p;
     }

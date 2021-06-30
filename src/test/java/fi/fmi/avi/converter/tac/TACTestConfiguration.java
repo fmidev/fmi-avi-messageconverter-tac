@@ -10,6 +10,7 @@ import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.json.conf.JSONConverter;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
+import fi.fmi.avi.model.GenericAviationWeatherMessage;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
@@ -75,6 +76,10 @@ public class TACTestConfiguration {
     @Autowired
     private AviMessageSpecificConverter<SpaceWeatherBulletin, String> swxBulletinTACSerializer;
 
+    @Autowired
+    @Qualifier("GenericAviationWeatherMessageTACParser")
+    private AviMessageSpecificConverter<String, GenericAviationWeatherMessage> TACGenericAviationWeatherMessageParser;
+
     @Bean
     public AviMessageConverter aviMessageConverter() {
         final AviMessageConverter p = new AviMessageConverter();
@@ -99,6 +104,8 @@ public class TACTestConfiguration {
 
         p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_POJO, swxTACParser);
         p.setMessageSpecificConverter(TACConverter.SWX_POJO_TO_TAC, swxTACSerializer);
+
+        p.setMessageSpecificConverter(TACConverter.TAC_TO_GENERIC_AVIATION_WEATHER_MESSAGE_POJO, TACGenericAviationWeatherMessageParser);
 
         return p;
     }
