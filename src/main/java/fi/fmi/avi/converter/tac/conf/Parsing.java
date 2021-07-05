@@ -88,8 +88,8 @@ public class Parsing {
     @Bean
     @Qualifier("GenericAviationWeatherMessageTACParser")
     AviMessageSpecificConverter<String, GenericAviationWeatherMessage> GenericAviationWeatherMessageTACParser() {
-        final GenericAviationWeatherMessageParser p = new GenericAviationWeatherMessageParser();
-        p.setTACLexer(aviMessageLexer);
+        final GenericAviationWeatherMessageParser p = new GenericAviationWeatherMessageParser(aviMessageLexer);
+        //p.setTACLexer(aviMessageLexer);
         return p;
     }
 
