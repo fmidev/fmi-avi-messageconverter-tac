@@ -4,6 +4,8 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -66,7 +68,10 @@ public class GenericAviationWeatherMessageParserTest {
                 .map(Optional::get)
                 .map(PartialDateTime::toString)
                 .orElse(null));
-        assertEquals("EVRA", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME));
+
+        Map<GenericAviationWeatherMessage.LocationIndicatorType, String> expectedIndicators =
+                Collections.singletonMap(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME, "EVRA");
+        assertEquals(expectedIndicators, msg.getLocationIndicators());
     }
 
     @Test
@@ -105,7 +110,10 @@ public class GenericAviationWeatherMessageParserTest {
                 .map(Optional::get)
                 .map(PartialDateTime::toString)
                 .orElse(null));
-        assertEquals("DONLON", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.ISSUING_CENTRE ));
+
+        Map<GenericAviationWeatherMessage.LocationIndicatorType, String> expectedIndicators =
+                Collections.singletonMap(GenericAviationWeatherMessage.LocationIndicatorType.ISSUING_CENTRE, "DONLON");
+        assertEquals(expectedIndicators, msg.getLocationIndicators());
     }
 
     @Test
@@ -175,7 +183,10 @@ public class GenericAviationWeatherMessageParserTest {
               .map(Optional::get)
               .map(PartialDateTime::toString)
               .orElse(null));
-        assertEquals("EVRA", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME));
+
+        Map<GenericAviationWeatherMessage.LocationIndicatorType, String> expectedIndicators =
+                Collections.singletonMap(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME, "EVRA");
+        assertEquals(expectedIndicators, msg.getLocationIndicators());
     }
 
 }

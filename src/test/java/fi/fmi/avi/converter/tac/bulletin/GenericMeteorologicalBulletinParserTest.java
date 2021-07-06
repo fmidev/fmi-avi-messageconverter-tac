@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -158,7 +160,9 @@ public class GenericMeteorologicalBulletinParserTest {
         final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
         assertEquals(MessageType.METAR, msg.getMessageType().get());
-        assertEquals("EFUT", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME));
+        Map<GenericAviationWeatherMessage.LocationIndicatorType, String> expectedIndicators =
+                Collections.singletonMap(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME, "EFUT");
+        assertEquals(expectedIndicators, msg.getLocationIndicators());
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
         assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(11, 11, 15, ZoneId.of("Z"))), msg.getIssueTime().get());
@@ -178,7 +182,9 @@ public class GenericMeteorologicalBulletinParserTest {
         final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
         assertTrue(msg.getMessageType().isPresent());
         assertEquals("LOW_WIND", msg.getMessageType().get().name());
-        assertEquals("EFHK", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME));
+        Map<GenericAviationWeatherMessage.LocationIndicatorType, String> expectedIndicators =
+                Collections.singletonMap(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME, "EFHK");
+        assertEquals(expectedIndicators, msg.getLocationIndicators());
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
         assertEquals(PartialOrCompleteTimeInstant.of(PartialDateTime.of(4, 8, 20, ZoneId.of("Z"))), msg.getIssueTime().get());
@@ -199,7 +205,9 @@ public class GenericMeteorologicalBulletinParserTest {
         assertTrue(msg.getMessageType().isPresent());
         assertEquals("WX_WARNING", msg.getMessageType().get().name());
 
-        assertEquals("EFHK", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME));
+        Map<GenericAviationWeatherMessage.LocationIndicatorType, String> expectedIndicators =
+                Collections.singletonMap(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME, "EFHK");
+        assertEquals(expectedIndicators, msg.getLocationIndicators());
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
@@ -414,7 +422,9 @@ public class GenericMeteorologicalBulletinParserTest {
         assertEquals(1, bulletin.get().getMessages().size());
         final GenericAviationWeatherMessage msg = bulletin.get().getMessages().get(0);
 
-        assertEquals("EFHK", msg.getLocationIndicators().get(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME));
+        Map<GenericAviationWeatherMessage.LocationIndicatorType, String> expectedIndicators =
+                Collections.singletonMap(GenericAviationWeatherMessage.LocationIndicatorType.AERODROME, "EFHK");
+        assertEquals(expectedIndicators, msg.getLocationIndicators());
 
         assertTrue(msg.getIssueTime().isPresent());
         assertTrue(msg.getIssueTime().get().getPartialTime().isPresent());
