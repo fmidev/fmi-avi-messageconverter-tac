@@ -84,13 +84,14 @@ public class GenericMeteorologicalBulletinParser extends AbstractTACParser<Gener
         if (hints != null && hints.containsKey(ConversionHints.KEY_BULLETIN_ID)) {
             String bulletinID = hints.get(ConversionHints.KEY_BULLETIN_ID, String.class);
             //the bulletinID could be used to provide full (or more complete message time info:
+            /*
             try {
                 bulletinMetadata = GTSExchangeFileInfo.Builder.from(bulletinID).build();
             } catch (IllegalArgumentException iae) {
                 result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
                         "Could not parse bulletin metadata " + "from bulletinID '" + bulletinID + "'"));
             }
-
+            */
         }
         final ConversionHints messageSpecificHints = new ConversionHints(hints);
         messageSpecificHints.put(ConversionHints.KEY_BULLETING_HEADING, bulletinHeading);
