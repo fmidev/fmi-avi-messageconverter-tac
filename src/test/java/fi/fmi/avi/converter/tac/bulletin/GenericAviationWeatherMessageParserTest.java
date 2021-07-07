@@ -53,19 +53,15 @@ public class GenericAviationWeatherMessageParserTest {
         assertEquals(MessageType.TAF, msg.getMessageType().get());
         assertEquals(GenericAviationWeatherMessage.Format.TAC, msg.getMessageFormat());
         assertEquals("--30T11:03Z",
-                msg.getIssueTime().map(PartialOrCompleteTimeInstant::getPartialTime).map(Optional::get).map(PartialDateTime::toString).orElse(null));
+                msg.getIssueTime().flatMap(PartialOrCompleteTimeInstant::getPartialTime).map(PartialDateTime::toString).orElse(null));
         assertEquals("--30T12:Z", msg.getValidityTime()
-                .map(PartialOrCompleteTimePeriod::getStartTime)
-                .map(Optional::get)
-                .map(PartialOrCompleteTimeInstant::getPartialTime)
-                .map(Optional::get)
+                .flatMap(PartialOrCompleteTimePeriod::getStartTime)
+                .flatMap(PartialOrCompleteTimeInstant::getPartialTime)
                 .map(PartialDateTime::toString)
                 .orElse(null));
         assertEquals("--31T12:Z", msg.getValidityTime()
-                .map(PartialOrCompleteTimePeriod::getEndTime)
-                .map(Optional::get)
-                .map(PartialOrCompleteTimeInstant::getPartialTime)
-                .map(Optional::get)
+                .flatMap(PartialOrCompleteTimePeriod::getEndTime)
+                .flatMap(PartialOrCompleteTimeInstant::getPartialTime)
                 .map(PartialDateTime::toString)
                 .orElse(null));
 
@@ -95,19 +91,15 @@ public class GenericAviationWeatherMessageParserTest {
         assertEquals(MessageType.SPACE_WEATHER_ADVISORY, msg.getMessageType().get());
         assertEquals(GenericAviationWeatherMessage.Format.TAC, msg.getMessageFormat());
         assertEquals("2016-11-08T01:00Z",
-                msg.getIssueTime().map(PartialOrCompleteTimeInstant::getCompleteTime).map(Optional::get).map(ZonedDateTime::toString).orElse(null));
+                msg.getIssueTime().flatMap(PartialOrCompleteTimeInstant::getCompleteTime).map(ZonedDateTime::toString).orElse(null));
         assertEquals("--08T01:00Z", msg.getValidityTime()
-                .map(PartialOrCompleteTimePeriod::getStartTime)
-                .map(Optional::get)
-                .map(PartialOrCompleteTimeInstant::getPartialTime)
-                .map(Optional::get)
+                .flatMap(PartialOrCompleteTimePeriod::getStartTime)
+                .flatMap(PartialOrCompleteTimeInstant::getPartialTime)
                 .map(PartialDateTime::toString)
                 .orElse(null));
         assertEquals("--09T01:00Z", msg.getValidityTime()
-                .map(PartialOrCompleteTimePeriod::getEndTime)
-                .map(Optional::get)
-                .map(PartialOrCompleteTimeInstant::getPartialTime)
-                .map(Optional::get)
+                .flatMap(PartialOrCompleteTimePeriod::getEndTime)
+                .flatMap(PartialOrCompleteTimeInstant::getPartialTime)
                 .map(PartialDateTime::toString)
                 .orElse(null));
 
@@ -168,19 +160,15 @@ public class GenericAviationWeatherMessageParserTest {
         assertEquals(MessageType.TAF, msg.getMessageType().get());
         assertEquals(GenericAviationWeatherMessage.Format.TAC, msg.getMessageFormat());
         assertEquals("--30T11:03Z",
-                msg.getIssueTime().map(PartialOrCompleteTimeInstant::getPartialTime).map(Optional::get).map(PartialDateTime::toString).orElse(null));
+                msg.getIssueTime().flatMap(PartialOrCompleteTimeInstant::getPartialTime).map(PartialDateTime::toString).orElse(null));
         assertEquals("--30T12:Z", msg.getValidityTime()
-              .map(PartialOrCompleteTimePeriod::getStartTime)
-              .map(Optional::get)
-              .map(PartialOrCompleteTimeInstant::getPartialTime)
-              .map(Optional::get)
+              .flatMap(PartialOrCompleteTimePeriod::getStartTime)
+              .flatMap(PartialOrCompleteTimeInstant::getPartialTime)
               .map(PartialDateTime::toString)
               .orElse(null));
         assertEquals("--31T12:Z", msg.getValidityTime()
-              .map(PartialOrCompleteTimePeriod::getEndTime)
-              .map(Optional::get)
-              .map(PartialOrCompleteTimeInstant::getPartialTime)
-              .map(Optional::get)
+              .flatMap(PartialOrCompleteTimePeriod::getEndTime)
+              .flatMap(PartialOrCompleteTimeInstant::getPartialTime)
               .map(PartialDateTime::toString)
               .orElse(null));
 
