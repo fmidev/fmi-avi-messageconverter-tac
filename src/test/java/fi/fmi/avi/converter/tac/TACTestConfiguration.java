@@ -78,7 +78,7 @@ public class TACTestConfiguration {
 
     @Autowired
     @Qualifier("GenericAviationWeatherMessageTACParser")
-    private AviMessageSpecificConverter<String, GenericAviationWeatherMessage> TACGenericAviationWeatherMessageParser;
+    private AviMessageSpecificConverter<String, GenericAviationWeatherMessage> genericAviationWeatherMessageTACParser;
 
     @Bean
     public AviMessageConverter aviMessageConverter() {
@@ -105,7 +105,7 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_POJO, swxTACParser);
         p.setMessageSpecificConverter(TACConverter.SWX_POJO_TO_TAC, swxTACSerializer);
 
-        p.setMessageSpecificConverter(TACConverter.TAC_TO_GENERIC_AVIATION_WEATHER_MESSAGE_POJO, TACGenericAviationWeatherMessageParser);
+        p.setMessageSpecificConverter(TACConverter.TAC_TO_GENERIC_AVIATION_WEATHER_MESSAGE_POJO, genericAviationWeatherMessageTACParser);
 
         return p;
     }

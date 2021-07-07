@@ -120,7 +120,7 @@ public class TACConverter {
      *
      */
     public static final ConversionSpecification<String, GenericAviationWeatherMessage> TAC_TO_GENERIC_AVIATION_WEATHER_MESSAGE_POJO =
-            new ConversionSpecification<>(String.class, GenericAviationWeatherMessage.class, "TAC string", null);
+            new ConversionSpecification<>(String.class, GenericAviationWeatherMessage.class, "ICAO Annex 3 TAC", null);
 
     // **********************
     // Space weather messages
