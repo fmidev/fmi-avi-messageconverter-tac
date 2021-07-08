@@ -1,7 +1,6 @@
 package fi.fmi.avi.converter.tac.conf;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -86,11 +85,8 @@ public class Parsing {
     }
 
     @Bean
-    @Qualifier("GenericAviationWeatherMessageTACParser")
-    AviMessageSpecificConverter<String, GenericAviationWeatherMessage> GenericAviationWeatherMessageTACParser() {
-        final GenericAviationWeatherMessageParser p = new GenericAviationWeatherMessageParser(aviMessageLexer);
-        //p.setTACLexer(aviMessageLexer);
-        return p;
+    AviMessageSpecificConverter<String, GenericAviationWeatherMessage> genericAviationWeatherMessageTACParser() {
+        return new GenericAviationWeatherMessageParser(aviMessageLexer);
     }
 
 }

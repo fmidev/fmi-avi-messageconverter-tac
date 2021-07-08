@@ -77,7 +77,6 @@ public class TACTestConfiguration {
     private AviMessageSpecificConverter<SpaceWeatherBulletin, String> swxBulletinTACSerializer;
 
     @Autowired
-    @Qualifier("GenericAviationWeatherMessageTACParser")
     private AviMessageSpecificConverter<String, GenericAviationWeatherMessage> genericAviationWeatherMessageTACParser;
 
     @Bean
