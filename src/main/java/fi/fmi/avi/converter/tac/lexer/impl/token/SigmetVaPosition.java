@@ -42,8 +42,9 @@ public class SigmetVaPosition extends RegexMatchingLexemeVisitor {
                 SIGMET sigmet = (SIGMET) msg;
                 if (sigmet.getSigmetPhenomenon().get().equals(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA)) {
                     if (sigmet.getVAInfo().isPresent()) {
-                        if (sigmet.getVAInfo().isPresent()&& sigmet.getVAInfo().get().getVolcano().getVolcanoPosition().isPresent()) {
-                            List<Double> coords = sigmet.getVAInfo().get().getVolcano().getVolcanoPosition().get().getCoordinates();
+                        if (sigmet.getVAInfo().get().getVolcano().isPresent()&&
+                            sigmet.getVAInfo().get().getVolcano().get().getVolcanoPosition().isPresent()) {
+                            List<Double> coords = sigmet.getVAInfo().get().getVolcano().get().getVolcanoPosition().get().getCoordinates();
                             List<Lexeme> lexemes = GeometryHelper.getCoordinateString(BigDecimal.valueOf(coords.get(0)),
                                                                     BigDecimal.valueOf(coords.get(1)),
                                                                     true,

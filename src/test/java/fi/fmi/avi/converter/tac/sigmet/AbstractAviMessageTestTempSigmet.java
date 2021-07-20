@@ -55,12 +55,13 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.SPECIImpl;
+import fi.fmi.avi.model.sigmet.SIGMET;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
 public abstract class AbstractAviMessageTestTempSigmet<S, T> {
 
-    private static final double FLOAT_EQUIVALENCE_THRESHOLD = 0.0000000001d;
+    private static final double FLOAT_EQUIVALENCE_THRESHOLD = 0.00000001d;
 
     @Autowired
     private AviMessageLexer lexer;
@@ -132,6 +133,32 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
             @Override
             public boolean canCompare(final Object left, final Object right) {
                 return left instanceof Double && right instanceof Double;
+            }
+
+        });
+        comparatorChain.addFirst(new Comparator() {
+            @Override
+            public Difference compare(final Object left, final Object right, final boolean onlyFirstDifference,
+                    final ReflectionComparator reflectionComparator) {
+                Double[]lefts=(Double[])left;
+                Double[]rights=(Double[])right;
+                System.err.println("compare "+lefts+" and "+rights);
+                if (rights.length!=lefts.length) {
+                    return new Difference("lengths differ", lefts.length, rights.length);
+                }
+                for (int i=0; i<rights.length; i++) {
+                    final double diff = Math.abs(lefts[i] - rights[i]);
+                    if (diff >= FLOAT_EQUIVALENCE_THRESHOLD) {
+                        return new Difference("Floating point values differ more than set threshold", left, right);
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            public boolean canCompare(final Object left, final Object right) {
+                System.err.println("canCompare Double[] "+(left instanceof Double[] && right instanceof Double[])+" "+left+"<>"+right);
+                return left instanceof Double[] && right instanceof Double[];
             }
 
         });
@@ -225,6 +252,9 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
         assertParsingIssues(result.getConversionIssues());
 
         if (result.getConvertedMessage().isPresent()) {
+            SIGMET sm = (SIGMET)result.getConvertedMessage().get();
+//            System.err.println("SM:"+sm.getAnalysisGeometries().get().get(0).getGeometry().get().getGeoGeometry().get());
+//            System.err.println("SIGMET: "+GeoUtils.toGeoJSON(sm.getAnalysisGeometries().get().get(0).getGeometry().get().getGeoGeometry().get()));
             assertAviationWeatherMessageEquals(readFromJSON(getJsonFilename()), result.getConvertedMessage().get());
         }
     }
@@ -274,6 +304,9 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
     }
 
     protected void assertTokenSequenceIdentityMatch(final List<Lexeme> lexemes, final LexemeIdentity... expectedIdentities) {
+        for (int i = 0; i < lexemes.size(); i++) {
+            System.err.println("lexeme["+i+"]: "+lexemes.get(i));
+        }
         assertEquals("Token sequence size does not match", expectedIdentities.length, lexemes.size());
         for (int i = 0; i < expectedIdentities.length; i++) {
             assertEquals("Mismatch at index " + i, expectedIdentities[i], lexemes.get(i).getIdentityIfAcceptable());

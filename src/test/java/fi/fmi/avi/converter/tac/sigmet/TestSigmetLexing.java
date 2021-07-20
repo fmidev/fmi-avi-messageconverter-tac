@@ -30,8 +30,6 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
 public class TestSigmetLexing extends AbstractSigmetLexingTest{
-  @Autowired
-  private AviMessageLexer lexer;
 
   @Test
   public void shouldBeObservation() {
@@ -350,10 +348,13 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS E OF LINE N5210 E00520 - N5410 E00540 - N5510 E00530 AND W OF LINE N4800 E00700 - N5600 E00700=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    for (Lexeme l: trimWhitespaces(result.getLexemes())) {
+      System.err.println(l);
+    }
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
           SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
           FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, SIGMET_PHENOMENON, OBS_OR_FORECAST,
-          SIGMET_LINE, SIGMET_AND, SIGMET_LINE,
+          SIGMET_2_LINES,
           END_TOKEN }));
     assertEquals("VA_CLD", trimWhitespaces(result.getLexemes()).get(12).getParsedValue(ParsedValueName.PHENOMENON, String.class));
   }
@@ -488,7 +489,7 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
 
   @Test
   public void shouldBeCNL_VASigmet() {
-    String tacString = "CNL SIGMET 01 101300/101600 VA MOV TO LFPG FIR=";
+    String tacString = "CNL SIGMET M01 101300/101600 VA MOV TO LFFF FIR=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
     for (Lexeme l: result.getLexemes()) System.err.println(l);
@@ -497,10 +498,10 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
           SIGMET_CANCEL,
           END_TOKEN}));
 
-    assertEquals("01", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.SEQUENCE_DESCRIPTOR, String.class));
+    assertEquals("M01", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.SEQUENCE_DESCRIPTOR, String.class));
     assertEquals(new Integer("10"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.DAY1, Integer.class));
     assertEquals(new Integer("13"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.HOUR1, Integer.class));
     assertEquals(new Integer("00"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MINUTE1, Integer.class));
-    assertEquals("LFPG", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MOVED_TO, String.class));
+    assertEquals("LFFF", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MOVED_TO, String.class));
   }
 }

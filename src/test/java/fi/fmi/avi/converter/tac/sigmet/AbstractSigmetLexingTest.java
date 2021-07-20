@@ -39,7 +39,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 public abstract class AbstractSigmetLexingTest {
 
   @Autowired
-  private AviMessageLexer lexer;
+  protected AviMessageLexer lexer;
 
   public ConversionSpecification<String, SIGMET> getParsingSpecification() {
 		return TACConverter.TAC_TO_SIGMET_POJO;

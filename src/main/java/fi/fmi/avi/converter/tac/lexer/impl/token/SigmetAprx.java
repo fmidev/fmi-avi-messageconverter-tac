@@ -36,8 +36,8 @@ public class SigmetAprx extends RegexMatchingLexemeVisitor {
         token.setParsedValue(APRX_LINE_WIDTH_UNIT, match.group(3));
         token.setParsedValue(APRX_POINT1, match.group(4));
         token.setParsedValue(APRX_POINT2, match.group(5));
-        token.setParsedValue(APRX_POINT3, match.group(6));
-        token.setParsedValue(APRX_POINT4, match.group(7));
+        token.setParsedValue(APRX_POINT3, match.group(7));
+        token.setParsedValue(APRX_POINT4, match.group(9));
     }
 
 	public static class Reconstructor extends FactoryBasedReconstructor {

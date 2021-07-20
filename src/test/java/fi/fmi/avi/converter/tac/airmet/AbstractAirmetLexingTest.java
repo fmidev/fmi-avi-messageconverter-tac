@@ -39,7 +39,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 public abstract class AbstractAirmetLexingTest {
 
   @Autowired
-  private AviMessageLexer lexer;
+  protected AviMessageLexer lexer;
 
   public ConversionSpecification<String, AIRMET> getParsingSpecification() {
 		return TACConverter.TAC_TO_AIRMET_POJO;

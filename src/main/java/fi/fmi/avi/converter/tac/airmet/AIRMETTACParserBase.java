@@ -93,6 +93,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
     }
 
     protected TacOrGeoGeometry parseGeometry(LexemeSequence seq, AIRMETImpl.Builder builder){
+        System.err.println("parseGeometry");
         TacOrGeoGeometryImpl.Builder geomBuilder=TacOrGeoGeometryImpl.builder();
         String firName = builder.getAirspace().getDesignator();
         Lexeme firstLexeme = seq.getFirstLexeme();
@@ -147,15 +148,22 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setGeoGeometry(GeoUtils.getPolygonOutside(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_APRX_LINE.equals(firstLexeme.getIdentity())){
+            System.err.println("APRX!");
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+            geomBuilder.setGeoGeometry(GeoUtils.getPolygonAprxWidth(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_LINE.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
-
-        }
+            geomBuilder.setGeoGeometry(GeoUtils.getRelativeToLine(firstLexeme, firName, firInfo));
+        } else if (LexemeIdentity.SIGMET_2_LINES.equals(firstLexeme.getIdentity())){
+            TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
+            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+            geomBuilder.setGeoGeometry(GeoUtils.getRelativeTo2Lines(firstLexeme, firName, firInfo));
+            System.err.println(geomBuilder.getGeoGeometry());        }
         return geomBuilder.build();
     }
 

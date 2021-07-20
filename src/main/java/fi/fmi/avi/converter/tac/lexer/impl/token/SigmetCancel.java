@@ -75,8 +75,8 @@ public class SigmetCancel extends RegexMatchingLexemeVisitor {
                             end.getMinute().getAsInt()));
 
                     if (sigmet.getVAInfo().isPresent()&& sigmet.getVAInfo().get().getVolcanicAshMovedToFIR().isPresent()) {
-                        sb.append("VA MOV TO ");
-                        sb.append(sigmet.getVAInfo().get().getVolcanicAshMovedToFIR().get());
+                        sb.append(" VA MOV TO ");
+                        sb.append(sigmet.getVAInfo().get().getVolcanicAshMovedToFIR().get().getDesignator());
                         sb.append(" FIR");
                     }
                     return Optional.of(createLexeme(sb.toString(), SIGMET_CANCEL));

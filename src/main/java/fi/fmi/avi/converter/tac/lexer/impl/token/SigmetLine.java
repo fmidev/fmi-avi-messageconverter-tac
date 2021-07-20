@@ -22,7 +22,8 @@ public class SigmetLine extends RegexMatchingLexemeVisitor {
 
     public SigmetLine(final OccurrenceFrequency prio) {
         //super("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE$", prio);
-        super("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5}))?$", prio);
+        super("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5}))?(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5}))?$", prio);
+        //       1                                   2                                   3                            4       5                              6       7
     }
 
     @Override
@@ -31,7 +32,8 @@ public class SigmetLine extends RegexMatchingLexemeVisitor {
         token.setParsedValue(ParsedValueName.RELATIONTYPE, match.group(1));
         token.setParsedValue(ParsedValueName.LINE_POINT1, match.group(2));
         token.setParsedValue(ParsedValueName.LINE_POINT2, match.group(3));
-        token.setParsedValue(ParsedValueName.LINE_POINT3, match.group(4));
+        token.setParsedValue(ParsedValueName.LINE_POINT3, match.group(5));
+        token.setParsedValue(ParsedValueName.LINE_POINT4, match.group(7));
     }
 
 	public static class Reconstructor extends FactoryBasedReconstructor {

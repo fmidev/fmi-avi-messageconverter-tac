@@ -110,6 +110,8 @@ public class Lexing {
         f.addTokenCombiningRule(intlSigmetLineCombinationRule());
         f.addTokenCombiningRule(intlSigmetLineCombinationRule2());
         f.addTokenCombiningRule(intlSigmetLineCombinationRule3());
+        f.addTokenCombiningRule(intlSigmetLineCombinationRule4());
+        f.addTokenCombiningRule(intlSigmet2LineCombinationRule());
         f.addTokenCombiningRule(intlSigmetOutsideLatLonCombinationRule());
         f.addTokenCombiningRule(intlSigmetOutsideLatLonCombinationRuleWithAnd());
         f.addTokenCombiningRule(intlSigmetAprxCombinationRule());
@@ -905,6 +907,54 @@ public class Lexing {
             @Override
             public boolean test(final String s) {
                 return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetLineCombinationRule4() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^-$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmet2LineCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})){0,2}$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^AND$");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})){0,2}$");
             }
         });
         return retval;
@@ -1897,6 +1947,7 @@ public class Lexing {
         l.teach(new SigmetEntireFir(OccurrenceFrequency.RARE));
         l.teach(new SigmetWithin(OccurrenceFrequency.RARE));
         l.teach(new SigmetLine(OccurrenceFrequency.RARE));
+        l.teach(new Sigmet2Lines(OccurrenceFrequency.RARE));
         l.teach(new SigmetOutsideLatOrLon(OccurrenceFrequency.RARE));
         l.teach(new SigmetBetweenLatOrLon(OccurrenceFrequency.RARE));
         l.teach(new SigmetAnd(OccurrenceFrequency.RARE));
@@ -1943,6 +1994,9 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
+                System.err.println("testing "+sequence.
+                getFirstLexeme().
+                  getIdentity()+" from "+sequence.getTAC());
                 /* 2021-03-30 You can not call the getIdentity in some cases (for Airmet lexing) */
                 if (sequence.
                   getFirstLexeme().
@@ -1975,6 +2029,7 @@ public class Lexing {
         l.teach(new SigmetEntireFir(OccurrenceFrequency.RARE));
         l.teach(new SigmetWithin(OccurrenceFrequency.RARE));
         l.teach(new SigmetLine(OccurrenceFrequency.RARE));
+        l.teach(new Sigmet2Lines(OccurrenceFrequency.RARE));
         l.teach(new Latitude(OccurrenceFrequency.RARE));
         l.teach(new Longitude(OccurrenceFrequency.RARE));
         l.teach(new SigmetOutsideLatOrLon(OccurrenceFrequency.RARE));

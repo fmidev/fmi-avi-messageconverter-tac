@@ -155,11 +155,18 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+            geomBuilder.setGeoGeometry(GeoUtils.getPolygonAprxWidth(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_LINE.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
-
+            geomBuilder.setGeoGeometry(GeoUtils.getRelativeToLine(firstLexeme, firName, firInfo));
+        } else if (LexemeIdentity.SIGMET_2_LINES.equals(firstLexeme.getIdentity())){
+            TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
+            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+            geomBuilder.setGeoGeometry(GeoUtils.getRelativeTo2Lines(firstLexeme, firName, firInfo));
+            System.err.println(geomBuilder.getGeoGeometry());
         }
         return geomBuilder.build();
     }
@@ -421,6 +428,24 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             ref.setValidityPeriod(periodBuilder.build());
             builder.setCancelledReference(ref.build());
             builder.setCancelMessage(true);
+
+            // A MOVED_TO value determines this as a CANCEL of a VA_CLD SIGMET
+            String movedToFir = match.getParsedValue(ParsedValueName.MOVED_TO, String.class);
+            if (movedToFir!=null) {
+                VAInfoImpl.Builder vaInfoBuilder = new VAInfoImpl.Builder();
+                UnitPropertyGroupImpl.Builder firBuilder = new UnitPropertyGroupImpl.Builder();
+                firBuilder.setDesignator(movedToFir);
+                String firName = firInfo.getFirName(movedToFir);
+                if (firName!=null) {
+                    firBuilder.setType(getFirType(firName));
+                    firBuilder.setName(firName);
+                } else {
+                    firBuilder.setType(AirspaceType.FIR.toString());
+                    firBuilder.setName(movedToFir);
+                }
+                vaInfoBuilder.setVolcanicAshMovedToFIR(firBuilder.build());
+                builder.setVAInfo(vaInfoBuilder.build());
+            }
         });
 
         if (!builder.isCancelMessage()){
@@ -535,7 +560,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         return firType;
     }
 
-    String getFirName(String firFullName){
+    String getBaseFirName(String firFullName){
         return firFullName.trim().replaceFirst("(\\w+)\\s((FIR|UIR|CTA|UIR/FIR)$)", "$1");
     }
 
@@ -547,7 +572,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
     }
 
     private UnitPropertyGroup getFirInfo(String firFullName, String icao) {
-        String firName=getFirName(firFullName);
+        String firName=getBaseFirName(firFullName);
         UnitPropertyGroupImpl.Builder unit = new UnitPropertyGroupImpl.Builder();
         unit.setPropertyGroup(firName, icao, getFirType(firFullName));
         return unit.build();

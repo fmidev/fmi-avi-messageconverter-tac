@@ -128,6 +128,24 @@ public abstract class AbstractAviMessageTestTempAirmet<S, T> {
             }
 
         });
+        comparatorChain.addFirst(new Comparator() {
+            @Override
+            public Difference compare(final Object left, final Object right, final boolean onlyFirstDifference,
+                    final ReflectionComparator reflectionComparator) {
+                final float diff = Math.abs(((float) left) - ((float) right));
+                if (diff >= FLOAT_EQUIVALENCE_THRESHOLD) {
+                    return new Difference("Floating point values differ more than set threshold", left, right);
+                }
+
+                return null;
+            }
+
+            @Override
+            public boolean canCompare(final Object left, final Object right) {
+                return left instanceof Float && right instanceof Float;
+            }
+
+        });
 
         final ReflectionComparator reflectionComparator = new ReflectionComparator(comparatorChain);
         return reflectionComparator.getDifference(expected, actual);

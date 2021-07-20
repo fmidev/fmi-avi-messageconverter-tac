@@ -253,5 +253,25 @@ public class FirInfoImpl implements FirInfo {
         }
     }
 
-
+    @Override
+    public String getFirName(String icaoCode) {
+        Feature f = lookup(icaoCode, false);
+        if (f!=null) {
+          String firName = f.getProperty("FIRname");
+          if (firName!=null) {
+            if (firName.startsWith("FIR ")) {
+              firName = firName.replaceFirst("FIR ", "");
+              return firName + " FIR";
+            } else if (firName.endsWith(" FIR")) {
+              return firName;
+            } else if (firName.endsWith(" UIR")) {
+              return firName;
+            } else if (firName.startsWith("UIR ")) {
+              firName = firName.replaceFirst("UIR ", "");
+              return firName + " UIR";
+            }
+          }
+        }
+        return null;
+    }
 }

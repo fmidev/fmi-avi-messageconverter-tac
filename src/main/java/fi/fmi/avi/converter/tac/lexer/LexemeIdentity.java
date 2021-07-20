@@ -141,7 +141,8 @@ public class LexemeIdentity {
     public static final LexemeIdentity OBS_OR_FORECAST = new LexemeIdentity("OBS_OR_FORECAST",EnumSet.of(IS_FORECAST, HOUR1, MINUTE1), Collections.emptySet());
     public static final LexemeIdentity SIGMET_ENTIRE_AREA = new LexemeIdentity("SIGMET_ENTIRE_AREA", EnumSet.of(AREA_TYPE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_WITHIN = new LexemeIdentity("SIGMET_WITHIN", Collections.emptySet(), Collections.emptySet());
-    public static final LexemeIdentity SIGMET_LINE = new LexemeIdentity("SIGMET_LINE",EnumSet.of(RELATIONTYPE, LINE_POINT1, LINE_POINT2, LINE_POINT3, TACGEOMETRY) , Collections.emptySet());
+    public static final LexemeIdentity SIGMET_LINE = new LexemeIdentity("SIGMET_LINE",EnumSet.of(RELATIONTYPE, LINE_POINT1, LINE_POINT2, LINE_POINT3, LINE_POINT4, TACGEOMETRY) , Collections.emptySet());
+    public static final LexemeIdentity SIGMET_2_LINES = new LexemeIdentity("SIGMET_2_LINES",EnumSet.of(RELATIONTYPE, LINE_POINT1, LINE_POINT2, LINE_POINT3, LINE_POINT4, TACGEOMETRY, RELATIONTYPE2, LINE2_POINT1, LINE2_POINT2, LINE2_POINT3, LINE2_POINT4), Collections.emptySet());
     public static final LexemeIdentity LONGITUDE = new LexemeIdentity("LONGITUDE",EnumSet.of(VALUE) , Collections.emptySet());
     public static final LexemeIdentity LATITUDE = new LexemeIdentity("LATITUDE",EnumSet.of(VALUE) , Collections.emptySet());
     public static final LexemeIdentity SIGMET_AND = new LexemeIdentity("SIGMET_AND",EnumSet.of(VALUE) , Collections.emptySet());

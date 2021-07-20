@@ -41,8 +41,9 @@ public class SigmetVaName extends RegexMatchingLexemeVisitor {
                 SIGMET sigmet = (SIGMET) msg;
                 if (sigmet.getSigmetPhenomenon().get().equals(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA)) {
                     if (sigmet.getVAInfo().isPresent()) {
-                        if (sigmet.getVAInfo().isPresent()&& sigmet.getVAInfo().get().getVolcano().getVolcanoName().isPresent()) {
-                            String volcanoName = sigmet.getVAInfo().get().getVolcano().getVolcanoName().get();
+                        if (sigmet.getVAInfo().isPresent() && sigmet.getVAInfo().get().getVolcano().isPresent()
+                            && sigmet.getVAInfo().get().getVolcano().get().getVolcanoName().isPresent()) {
+                            String volcanoName = sigmet.getVAInfo().get().getVolcano().get().getVolcanoName().get();
                             return Optional.of(this.createLexeme("MT "+volcanoName, LexemeIdentity.SIGMET_VA_NAME));
                         }
                    }
