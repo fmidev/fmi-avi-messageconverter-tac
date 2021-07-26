@@ -1,5 +1,21 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.CLD_ABOVE_LEVEL;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.CLD_HIGHLEVEL;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.CLD_LEVELUNIT;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.CLD_LOWLEVEL;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.PHENOMENON;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_VISIBILITY;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_VISIBILITY_CAUSE;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_WIND_DIRECTION;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_WIND_SPEED;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_WIND_SPEED_UNIT;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_PHENOMENON;
+
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -9,27 +25,9 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.PhenomenonGeometryWithHeight;
 import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.AirmetCloudLevels;
 import fi.fmi.avi.model.sigmet.AirmetWind;
-
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.PHENOMENON;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.CLD_ABOVE_LEVEL;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.CLD_LOWLEVEL;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.CLD_HIGHLEVEL;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.CLD_LEVELUNIT;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_WIND_SPEED_UNIT;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_WIND_SPEED;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_WIND_DIRECTION;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_VISIBILITY;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_VISIBILITY_CAUSE;
-
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_PHENOMENON;
 
 
 /**

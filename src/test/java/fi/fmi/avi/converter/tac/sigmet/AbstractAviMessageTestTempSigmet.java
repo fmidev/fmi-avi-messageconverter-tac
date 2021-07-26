@@ -34,9 +34,7 @@ import org.unitils.reflectionassert.comparator.Comparator;
 import org.unitils.reflectionassert.difference.Difference;
 import org.unitils.reflectionassert.report.impl.DefaultDifferenceReport;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -53,9 +51,11 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.SPECIImpl;
 import fi.fmi.avi.model.sigmet.SIGMET;
+import fi.fmi.avi.converter.tac.geoinfo.GeoUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -157,7 +157,6 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
 
             @Override
             public boolean canCompare(final Object left, final Object right) {
-                System.err.println("canCompare Double[] "+(left instanceof Double[] && right instanceof Double[])+" "+left+"<>"+right);
                 return left instanceof Double[] && right instanceof Double[];
             }
 
@@ -253,9 +252,10 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
 
         if (result.getConvertedMessage().isPresent()) {
             SIGMET sm = (SIGMET)result.getConvertedMessage().get();
-//            System.err.println("SM:"+sm.getAnalysisGeometries().get().get(0).getGeometry().get().getGeoGeometry().get());
-//            System.err.println("SIGMET: "+GeoUtils.toGeoJSON(sm.getAnalysisGeometries().get().get(0).getGeometry().get().getGeoGeometry().get()));
-            assertAviationWeatherMessageEquals(readFromJSON(getJsonFilename()), result.getConvertedMessage().get());
+            System.err.println(sm);
+            AviationWeatherMessage fromJson = readFromJSON(getJsonFilename());
+            System.err.println("FROMJSON:"+fromJson.toString());
+            assertAviationWeatherMessageEquals(fromJson, sm);
         }
     }
 
@@ -304,9 +304,9 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
     }
 
     protected void assertTokenSequenceIdentityMatch(final List<Lexeme> lexemes, final LexemeIdentity... expectedIdentities) {
-        for (int i = 0; i < lexemes.size(); i++) {
-            System.err.println("lexeme["+i+"]: "+lexemes.get(i));
-        }
+        // for (int i = 0; i < lexemes.size(); i++) {
+        //     System.err.println("lexeme["+i+"]: "+lexemes.get(i));
+        // }
         assertEquals("Token sequence size does not match", expectedIdentities.length, lexemes.size());
         for (int i = 0; i < expectedIdentities.length; i++) {
             assertEquals("Mismatch at index " + i, expectedIdentities[i], lexemes.get(i).getIdentityIfAcceptable());

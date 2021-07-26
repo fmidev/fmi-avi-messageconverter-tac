@@ -167,6 +167,37 @@ public class GeoUtils {
 		Feature f=jtsGeometry2jsonFeature(gNew);
 		return f;
 	}
+
+    public static Feature fixWinding(Feature f) {
+        Geometry g=jsonFeature2jtsGeometry(f);
+
+		Coordinate[] coords=g.getCoordinates();
+		if (!Orientation.isCCW(coords)) {
+			g=g.reverse();
+		}
+		Feature newFeature=jtsGeometry2jsonFeature(g);
+		return newFeature;
+    }
+
+    public static Geometry fixWinding(Geometry g) {
+        Coordinate[] coords=g.getCoordinates();
+		if (!Orientation.isCCW(coords)) {
+            System.err.print("Reversing "+g);
+            Geometry reversed = g.reverse();
+            System.err.println(" to:"+ reversed);
+			return reversed;
+		}
+        return g;
+    }
+
+    public static String getWinding(Geometry g) {
+        Coordinate[] coords=g.getCoordinates();
+		if (!Orientation.isCCW(coords)) {
+			return "CW";
+		}
+        return "CCW";
+    }
+
     public static  PolygonGeometry jts2PolygonGeometry(Geometry geom) {
         PolygonGeometryImpl.Builder bldr = PolygonGeometryImpl.builder();
         bldr.setCrs(CoordinateReferenceSystemImpl.wgs84());
@@ -449,7 +480,15 @@ public class GeoUtils {
                 output.add(candpoly);
             }
         }
-        return poly.getFactory().createGeometryCollection(GeometryFactory.toGeometryArray(output));
+        Geometry[] geoms = GeometryFactory.toGeometryArray(output);
+        Geometry[] fixedGeoms = new Geometry[geoms.length];
+        int i=0;
+        for (Geometry geom: geoms) {
+            fixedGeoms[i]=GeoUtils.fixWinding(geom);
+            i++;
+        }
+
+        return poly.getFactory().createGeometryCollection(fixedGeoms);
     }
 
     public static PolygonGeometry getRelativeTo2Lines(Lexeme lexeme, String firName, FirInfo firInfo) {

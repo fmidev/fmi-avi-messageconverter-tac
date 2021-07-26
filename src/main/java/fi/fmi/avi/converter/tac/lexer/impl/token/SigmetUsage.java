@@ -1,22 +1,20 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
-import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
-import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.OccurrenceFrequency;
-import fi.fmi.avi.model.AviationCodeListUser;
-import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.sigmet.AIRMET;
-import fi.fmi.avi.model.sigmet.SIGMET;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TESTOREXERCISE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_USAGE;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_USAGE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TESTOREXERCISE;
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.sigmet.AIRMET;
+import fi.fmi.avi.model.sigmet.SIGMET;
 
 /**
  * Created by rinne on 10/02/17.

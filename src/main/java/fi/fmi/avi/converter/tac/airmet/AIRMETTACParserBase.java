@@ -93,7 +93,6 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
     }
 
     protected TacOrGeoGeometry parseGeometry(LexemeSequence seq, AIRMETImpl.Builder builder){
-        System.err.println("parseGeometry");
         TacOrGeoGeometryImpl.Builder geomBuilder=TacOrGeoGeometryImpl.builder();
         String firName = builder.getAirspace().getDesignator();
         Lexeme firstLexeme = seq.getFirstLexeme();

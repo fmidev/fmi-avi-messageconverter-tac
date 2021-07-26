@@ -1,21 +1,20 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
-import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.sigmet.SIGMET;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COUNTRY;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRSPACE_DESIGNATOR;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.COUNTRY;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.sigmet.SIGMET;
 
 /**
  * Created by rinne on 10/02/17.

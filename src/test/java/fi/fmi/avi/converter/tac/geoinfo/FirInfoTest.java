@@ -12,12 +12,16 @@ public class FirInfoTest {
     @Test
     public void TestFirInfo() {
         FirInfo fi = new FirInfoImpl();
+        //18 points without delegated area
         Geometry geom = fi.getFir("EHAA", false);
-        System.err.println(geom);
+        assertEquals(18, geom.getNumPoints());
+
+        //28 points with delegated area
         geom = fi.getFir("EHAA", true);
-        System.err.println(geom);
+        assertEquals(28, geom.getNumPoints());
         geom = fi.getFir("EFIN", true);
-        System.err.println(geom);
+        assertEquals(68, geom.getNumPoints());
+
         String scottish = fi.getFirName("EGPX");
         assertEquals("SCOTTISH FIR", scottish);
     }

@@ -138,7 +138,7 @@ public class Lexing {
         f.addTokenCombiningRule(intlAirmetPhenomenonCombinationRule10());
 
 
-//        f.addTokenCombiningRule(intlAirmetStartRule());
+        f.addTokenCombiningRule(intlAirmetStartRule());
 //        f.addTokenCombiningRule(intlAirmetCancelCombinationRule());
 
         //        f.addTokenCombiningRule(spaceWeatherAdvisoryPolygonCombinationRule());
@@ -1009,7 +1009,6 @@ public class Lexing {
             return retval;
     }
 
-
     private List<Predicate<String>> intlSigmetStartRule() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -1021,7 +1020,24 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(SIGMET|AIRMET)$");
+                return s.matches("^(SIGMET)$");
+            }
+        });
+       return retval;
+    }
+
+    private List<Predicate<String>> intlAirmetStartRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^[A-Z]{4}");
+            }
+        });
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(AIRMET)$");
             }
         });
        return retval;
@@ -1994,9 +2010,6 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                System.err.println("testing "+sequence.
-                getFirstLexeme().
-                  getIdentity()+" from "+sequence.getTAC());
                 /* 2021-03-30 You can not call the getIdentity in some cases (for Airmet lexing) */
                 if (sequence.
                   getFirstLexeme().

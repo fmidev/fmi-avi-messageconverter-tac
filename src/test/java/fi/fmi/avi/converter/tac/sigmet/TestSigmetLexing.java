@@ -1,21 +1,49 @@
 package fi.fmi.avi.converter.tac.sigmet;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.IS_FORECAST;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.END_TOKEN;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_DESIGNATOR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_NAME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.MWO_DESIGNATOR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.OBS_OR_FORECAST;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.POLYGON_COORDINATE_PAIR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REAL_SIGMET_START;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEQUENCE_DESCRIPTOR;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_2_LINES;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_APRX_LINE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_BETWEEN_LATLON;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_CANCEL;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_ENTIRE_AREA;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_FCST_AT;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_FIR_NAME_WORD;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_INTENSITY;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_LEVEL;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_LINE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_MOVING;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_NO_VA_EXP;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_OUTSIDE_LATLON;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_PHENOMENON;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_USAGE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_ERUPTION;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_NAME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_POSITION;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_WITHIN;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.VALID_TIME;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
-import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -23,9 +51,6 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 
 /**
  *
- * TODO:
- * - Wrong phenomenon is returned (EMB_TS instead of SEV_ICE_FZRA)
- * - sigmet1a.json is not yet correct ()
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -200,7 +225,7 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
   }
 
   @Test
-  @Ignore("2 word volcano names not needed")
+  @Ignore("2 word volcano names not fixed yet")
   public void shouldBeVA_NAME_2WORDS() {
     String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA ERUPTION MT VESUVIUS A VA CLD=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
@@ -211,7 +236,7 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
   }
 
   @Test
-  @Ignore("3 word volcano names not needed")
+  @Ignore("3 word volcano names not fixed yet")
   public void shouldBeVA_NAME_3words() {
     String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA ERUPTION MT VESUVIUS A B VA CLD=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));

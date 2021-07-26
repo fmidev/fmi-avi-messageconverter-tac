@@ -35,8 +35,6 @@ import java.util.function.Consumer;
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionHints;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
-
 /**
  * Lexeme is a basic lexical unit of an aviation weather message.
  * A Lexeme is an abstraction of a single semantic character string

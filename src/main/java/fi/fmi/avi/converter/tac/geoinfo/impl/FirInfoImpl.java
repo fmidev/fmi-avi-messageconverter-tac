@@ -47,16 +47,12 @@ public class FirInfoImpl implements FirInfo {
     private Map<String, Feature> simplifiedFIRInfos;
     private Map<String, List<Feature>> delegatedAirspaces;
 
-    private boolean initFailed;
-
     public FirInfoImpl() {
         this.worldFIRFile = "world_firs.json";
         this.delegatedFile = "delegated.json";
         this.simplifiedFIRFile = "simplified_firs.json";
-        initFailed = true;
         try {
             initStore();
-            initFailed = false;
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -189,8 +185,6 @@ public class FirInfoImpl implements FirInfo {
         this.delegatedAirspaces = new HashMap<String, List<Feature>>();
         this.simplifiedFIRInfos = new HashMap<String, Feature>();
 
-        this.initFailed=false;
-
         final ObjectMapper om = new ObjectMapper();
 
         try {
@@ -207,7 +201,6 @@ public class FirInfoImpl implements FirInfo {
           }
         } catch (final IOException e) {
           log.error(e.getMessage());
-          initFailed = true;
         }
         log.debug("Found " + worldFIRInfos.size() + " records of FIRinfo");
 
@@ -225,7 +218,6 @@ public class FirInfoImpl implements FirInfo {
           }
         } catch (final IOException e) {
           log.error(e.getMessage());
-          initFailed = true;
         }
         log.debug(
           "Found " + simplifiedFIRInfos.size() + " records of simplified FIRinfo"
@@ -248,7 +240,6 @@ public class FirInfoImpl implements FirInfo {
             delegatedAirspaces.get(FIRname).add(f);
           }
         } catch (final IOException e) {
-            initFailed = true;
             log.error(e.getMessage());
         }
     }
