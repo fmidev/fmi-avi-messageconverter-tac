@@ -19,7 +19,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.geojson.Feature;
@@ -81,6 +83,23 @@ public class GeoUtils {
 		}
 		return om;
 	}
+
+    public static org.locationtech.jts.geom.Geometry PolygonGeometry2jtsGeometry(PolygonGeometry geometry) {
+        String json=toGeoJSON(geometry);
+        Feature feature;
+
+        try {
+            feature = getObjectMapper().readValue(json, Feature.class);
+            return jsonFeature2jtsGeometry(feature);
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 	public static Geometry jsonFeature2jtsGeometry(Feature F)  {
 		try {
@@ -184,7 +203,6 @@ public class GeoUtils {
 		if (!Orientation.isCCW(coords)) {
             System.err.print("Reversing "+g);
             Geometry reversed = g.reverse();
-            System.err.println(" to:"+ reversed);
 			return reversed;
 		}
         return g;

@@ -38,6 +38,7 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.ConversionSpecification;
+import fi.fmi.avi.converter.tac.geoinfo.GeoUtils;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
@@ -46,6 +47,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessage;
+import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.SPECIImpl;
 
@@ -143,6 +145,30 @@ public abstract class AbstractAviMessageTestTempAirmet<S, T> {
             @Override
             public boolean canCompare(final Object left, final Object right) {
                 return left instanceof Float && right instanceof Float;
+            }
+
+        });
+
+        comparatorChain.addFirst(new Comparator() {
+            @Override
+            public Difference compare(final Object left, final Object right, final boolean onlyFirstDifference,
+                    final ReflectionComparator reflectionComparator) {
+                PolygonGeometry leftGeometry=(PolygonGeometry)left;
+                PolygonGeometry rightGeometry=(PolygonGeometry)right;
+                System.err.println("compare PolygonGeometries "+leftGeometry+" and "+rightGeometry);
+
+                org.locationtech.jts.geom.Geometry leftJtsGeom = GeoUtils.PolygonGeometry2jtsGeometry(leftGeometry);
+                org.locationtech.jts.geom.Geometry rightJtsGeom = GeoUtils.PolygonGeometry2jtsGeometry(rightGeometry);
+
+                if (!leftJtsGeom.equalsTopo(rightJtsGeom)) {
+                    return new Difference("geometries differ", left, right);
+                }
+                return null;
+            }
+
+            @Override
+            public boolean canCompare(final Object left, final Object right) {
+                return left instanceof PolygonGeometry && right instanceof PolygonGeometry;
             }
 
         });

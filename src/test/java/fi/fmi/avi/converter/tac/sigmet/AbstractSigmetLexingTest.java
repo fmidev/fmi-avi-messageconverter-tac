@@ -33,6 +33,7 @@ public abstract class AbstractSigmetLexingTest {
   public ConversionSpecification<String, SIGMET> getParsingSpecification() {
 		return TACConverter.TAC_TO_SIGMET_POJO;
   }
+
   public ConversionHints getLexerParsingHints() {
     return ConversionHints.SIGMET;
   }
