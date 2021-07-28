@@ -201,7 +201,6 @@ public class GeoUtils {
     public static Geometry fixWinding(Geometry g) {
         Coordinate[] coords=g.getCoordinates();
 		if (!Orientation.isCCW(coords)) {
-            System.err.print("Reversing "+g);
             Geometry reversed = g.reverse();
 			return reversed;
 		}
@@ -366,7 +365,6 @@ public class GeoUtils {
     }
 
     public static PolygonGeometry getRelativeToLine(Lexeme lexeme, String firName, FirInfo firInfo) {
-        System.err.println("found relative to 1 line "+lexeme.getTACToken());
         Geometry fir = firInfo.getFir(firName, true);
         GeometryFactory geomFact = new GeometryFactory();
         List<Coordinate> coordinateList = new ArrayList<>();
@@ -386,7 +384,6 @@ public class GeoUtils {
         if (coord4!=null) {
             coordinateList.add(getCoordinate(coord4));
         }
-        System.err.println("PRE:"+coordinateList);
         //Extend first and last segments
         if (coordinateList.size()==3) {
             double x1 = coordinateList.get(1).getX();
@@ -413,13 +410,8 @@ public class GeoUtils {
             coordinateList.get(3).setX(x2+1.1*dLon);
             coordinateList.get(3).setY(y2+1.1*dLat);
         }
-        System.err.println("POST:"+coordinateList);
         Geometry line = geomFact.createLineString(coordinateList.toArray(new Coordinate[0]));
         Geometry split = splitPolygon(fir, line);
-
-        if (split.getGeometryType().equals("GeometryCollection")) {
-            System.err.println("Coll 1 line"+toGeoJSON((GeometryCollection)split));
-        }
 
         //Take end of first line segment, apply direction to that
         Coordinate testPoint = line.copy().getCoordinates()[1];
@@ -459,16 +451,12 @@ public class GeoUtils {
 
         GeometryCollection splitcollection = (GeometryCollection)split;
         org.locationtech.jts.geom.Point test = GeometryFactory.createPointFromInternalCoord(testPoint, fir);
-        System.err.println("TEST:"+test);
         Geometry retVal=null;
         if (test.within(splitcollection.getGeometryN(0))) {
-            System.err.println("NR 0");
             retVal = splitcollection.getGeometryN(0);
         } else if ((splitcollection.getNumGeometries()>1) && test.within(splitcollection.getGeometryN(1))) {
-            System.err.println("NR 1");
             retVal = splitcollection.getGeometryN(1);
         } else {
-            System.err.println("FALLBACK to FIR");
             retVal = fir;
         }
         return jts2PolygonGeometry(retVal);
@@ -486,7 +474,6 @@ public class GeoUtils {
     }
 
     public static Geometry splitPolygon(Geometry poly, Geometry line) {
-        System.err.println("Splitting "+poly+" by "+line);
         Geometry nodedLinework = poly.getBoundary().union(line);
         Geometry polys = polygonize(nodedLinework);
 
@@ -513,13 +500,9 @@ public class GeoUtils {
         //Construct a polygon by concatenating the 2 lines. If the polygon self intersects
         //reverse the coordinates of the second line.
         //intersect the resulting polygon with the fir to get the final Geometry
-        System.err.println("found relative to 2 lines "+lexeme.getTACToken());
         Geometry fir = firInfo.getFir(firName, true);
         GeometryFactory geomFact = new GeometryFactory();
         List<Coordinate> coordinateList = new ArrayList<>();
-        // for (Lexeme.ParsedValueName n: lexeme.getParsedValues().keySet()) {
-        //     System.err.println(">:"+n.name()+":"+lexeme.getParsedValue(n, String.class));
-        // }
         String coord1 = lexeme.getParsedValue(LINE_POINT1, String.class);
         if (coord1!=null) {
             coordinateList.add(getCoordinate(coord1));
@@ -589,11 +572,6 @@ public class GeoUtils {
     }
 
     public static PolygonGeometry getPolygonAprxWidth(Lexeme lexeme, String firName, FirInfo firInfo) {
-        // System.err.println("APRX");
-        // for (Lexeme.ParsedValueName n: lexeme.getParsedValues().keySet()) {
-        //     System.err.println(">:"+n.name()+":"+lexeme.getParsedValue(n, String.class));
-
-        // }
 
         Geometry fir = firInfo.getFir(firName, true);
         GeometryFactory geomFact = new GeometryFactory();
@@ -625,16 +603,13 @@ public class GeoUtils {
                 coordinateList.add(getCoordinate(coord4));
             }
             Geometry line = geomFact.createLineString(coordinateList.toArray(new Coordinate[0]));
-            System.err.println("Before buffer of "+width+" : "+line);
             //Base width of line in degrees on lat of first point.
             double lat = coordinateList.get(0).getY();
             double metersperdegree = Math.cos(Math.toRadians(lat))*400075./360.*1000.;
             double widthInDegrees = width/metersperdegree;
             //Generate a polygon as a buffer around that lineString
             Geometry poly = line.buffer(widthInDegrees);
-            System.err.println("After buffer:"+poly);
             poly=poly.intersection(fir);
-            System.err.println("After buffer:"+poly);
             return jts2PolygonGeometry(poly);
         }
         return null;

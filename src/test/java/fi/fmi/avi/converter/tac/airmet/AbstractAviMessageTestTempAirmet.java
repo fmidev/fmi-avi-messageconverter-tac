@@ -57,6 +57,8 @@ public abstract class AbstractAviMessageTestTempAirmet<S, T> {
 
     private static final double FLOAT_EQUIVALENCE_THRESHOLD = 0.0000000001d;
 
+    private boolean debug=false;
+
     @Autowired
     private AviMessageLexer lexer;
 
@@ -155,7 +157,6 @@ public abstract class AbstractAviMessageTestTempAirmet<S, T> {
                     final ReflectionComparator reflectionComparator) {
                 PolygonGeometry leftGeometry=(PolygonGeometry)left;
                 PolygonGeometry rightGeometry=(PolygonGeometry)right;
-                System.err.println("compare PolygonGeometries "+leftGeometry+" and "+rightGeometry);
 
                 org.locationtech.jts.geom.Geometry leftJtsGeom = GeoUtils.PolygonGeometry2jtsGeometry(leftGeometry);
                 org.locationtech.jts.geom.Geometry rightJtsGeom = GeoUtils.PolygonGeometry2jtsGeometry(rightGeometry);
@@ -175,6 +176,10 @@ public abstract class AbstractAviMessageTestTempAirmet<S, T> {
 
         final ReflectionComparator reflectionComparator = new ReflectionComparator(comparatorChain);
         return reflectionComparator.getDifference(expected, actual);
+    }
+
+    public void setDebug(boolean dbg) {
+        debug=dbg;
     }
 
     public abstract S getMessage();
@@ -311,9 +316,11 @@ public abstract class AbstractAviMessageTestTempAirmet<S, T> {
     }
 
     protected void assertTokenSequenceIdentityMatch(final List<Lexeme> lexemes, final LexemeIdentity... expectedIdentities) {
-        // System.err.print("lexemes: ");
-        // lexemes.forEach((l)->{ if (! LexemeIdentity.WHITE_SPACE.equals(l.getIdentity())) System.err.println(l);});
-        assertEquals("Token sequence size does not match", expectedIdentities.length, lexemes.size());
+        if (debug) {
+            for (int i = 0; i < lexemes.size(); i++) {
+                System.err.println("lexeme["+i+"]: "+lexemes.get(i));
+            }
+        }        assertEquals("Token sequence size does not match", expectedIdentities.length, lexemes.size());
         for (int i = 0; i < expectedIdentities.length; i++) {
             assertEquals("Mismatch at index " + i, expectedIdentities[i], lexemes.get(i).getIdentityIfAcceptable());
         }

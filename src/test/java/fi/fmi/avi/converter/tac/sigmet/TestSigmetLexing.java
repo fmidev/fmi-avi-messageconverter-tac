@@ -373,9 +373,6 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     String tacString = "VALID 111130/111530 EHDB- EHAA AMSTERDAM FIR VA CLD OBS E OF LINE N5210 E00520 - N5410 E00540 - N5510 E00530 AND W OF LINE N4800 E00700 - N5600 E00700=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    for (Lexeme l: trimWhitespaces(result.getLexemes())) {
-      System.err.println(l);
-    }
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
           SIGMET_START, VALID_TIME, MWO_DESIGNATOR,
           FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME, SIGMET_PHENOMENON, OBS_OR_FORECAST,
@@ -505,7 +502,6 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     String tacString = "NO VA EXP=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    for (Lexeme l: result.getLexemes()) System.err.println(l);
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
           SIGMET_START,
           SIGMET_NO_VA_EXP,
@@ -517,7 +513,6 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     String tacString = "CNL SIGMET M01 101300/101600 VA MOV TO LFFF FIR=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    for (Lexeme l: result.getLexemes()) System.err.println(l);
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
           SIGMET_START,
           SIGMET_CANCEL,

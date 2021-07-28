@@ -58,6 +58,8 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
 
     private static final double FLOAT_EQUIVALENCE_THRESHOLD = 0.00000001d;
 
+    private boolean debug=false;
+
     @Autowired
     private AviMessageLexer lexer;
 
@@ -137,7 +139,6 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
                     final ReflectionComparator reflectionComparator) {
                 Double[]lefts=(Double[])left;
                 Double[]rights=(Double[])right;
-                System.err.println("compare "+lefts+" and "+rights);
                 if (rights.length!=lefts.length) {
                     return new Difference("lengths differ", lefts.length, rights.length);
                 }
@@ -163,7 +164,6 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
                     final ReflectionComparator reflectionComparator) {
                 PolygonGeometry leftGeometry=(PolygonGeometry)left;
                 PolygonGeometry rightGeometry=(PolygonGeometry)right;
-                System.err.println("compare PolygonGeometries "+leftGeometry+" and "+rightGeometry);
 
                 org.locationtech.jts.geom.Geometry leftJtsGeom = GeoUtils.PolygonGeometry2jtsGeometry(leftGeometry);
                 org.locationtech.jts.geom.Geometry rightJtsGeom = GeoUtils.PolygonGeometry2jtsGeometry(rightGeometry);
@@ -183,6 +183,10 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
 
         final ReflectionComparator reflectionComparator = new ReflectionComparator(comparatorChain);
         return reflectionComparator.getDifference(expected, actual);
+    }
+
+    public void setDebug(boolean dbg) {
+        debug=dbg;
     }
 
     public abstract S getMessage();
@@ -271,9 +275,7 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
 
         if (result.getConvertedMessage().isPresent()) {
             SIGMET sm = (SIGMET)result.getConvertedMessage().get();
-            System.err.println(sm);
             AviationWeatherMessage fromJson = readFromJSON(getJsonFilename());
-            System.err.println("FROMJSON:"+fromJson.toString());
             assertAviationWeatherMessageEquals(fromJson, sm);
         }
     }
@@ -323,9 +325,11 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
     }
 
     protected void assertTokenSequenceIdentityMatch(final List<Lexeme> lexemes, final LexemeIdentity... expectedIdentities) {
-        // for (int i = 0; i < lexemes.size(); i++) {
-        //     System.err.println("lexeme["+i+"]: "+lexemes.get(i));
-        // }
+        if (debug) {
+            for (int i = 0; i < lexemes.size(); i++) {
+                System.err.println("lexeme["+i+"]: "+lexemes.get(i));
+            }
+        }
         assertEquals("Token sequence size does not match", expectedIdentities.length, lexemes.size());
         for (int i = 0; i < expectedIdentities.length; i++) {
             assertEquals("Mismatch at index " + i, expectedIdentities[i], lexemes.get(i).getIdentityIfAcceptable());

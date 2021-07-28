@@ -166,7 +166,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setGeoGeometry(GeoUtils.getRelativeTo2Lines(firstLexeme, firName, firInfo));
-            System.err.println(geomBuilder.getGeoGeometry());
         }
         return geomBuilder.build();
     }
