@@ -1,8 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import java.util.Optional;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -13,6 +10,9 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.bulletin.BulletinHeading;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
+
+import java.util.Optional;
+import java.util.regex.Matcher;
 
 public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
 
@@ -38,7 +38,7 @@ public class BulletinHeadingBBBIndicator extends RegexMatchingLexemeVisitor {
             if (MeteorologicalBulletin.class.isAssignableFrom(clz)) {
                 final BulletinHeading heading = ((MeteorologicalBulletin<?>) msg).getHeading();
                 if (heading != null) {
-                    final Optional<Integer> augNumber = heading.getBulletinAugmentationNumber();
+                    final Optional<Integer> augNumber = heading.getAugmentationNumber();
                     if (augNumber.isPresent()) {
                         if (heading.getType() == BulletinHeading.Type.NORMAL) {
                             throw new SerializingException("Bulletin contains augmentation number, but the type is " + BulletinHeading.Type.NORMAL);

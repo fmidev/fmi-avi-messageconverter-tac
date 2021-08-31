@@ -1,19 +1,5 @@
 package fi.fmi.avi.converter.tac.taf;
 
-import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
-import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-
-import java.util.Optional;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
@@ -25,6 +11,19 @@ import fi.fmi.avi.model.bulletin.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFBulletinImpl;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import java.util.Optional;
+
+import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
+import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -46,8 +45,7 @@ public class TAFBulletinTACSerializationTest {
                 .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setType(BulletinHeading.Type.AMENDED)//
-                        .setBulletinAugmentationNumber(1)//
+                        .setAugmentationIndicator(BulletinHeading.Type.AMENDED, 1)
                         .setGeographicalDesignator("FI")//
                         .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
                         .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
@@ -80,8 +78,7 @@ public class TAFBulletinTACSerializationTest {
                 .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setType(BulletinHeading.Type.DELAYED)//
-                        .setBulletinAugmentationNumber(26)//
+                        .setAugmentationIndicator(BulletinHeading.Type.DELAYED, 26)
                         .setGeographicalDesignator("FI")//
                         .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
                         .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
@@ -115,8 +112,7 @@ public class TAFBulletinTACSerializationTest {
                 .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setType(BulletinHeading.Type.DELAYED)//
-                        .setBulletinAugmentationNumber(27)//
+                        .setAugmentationIndicator(BulletinHeading.Type.DELAYED, 27)
                         .setGeographicalDesignator("FI")//
                         .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
                         .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
@@ -138,8 +134,7 @@ public class TAFBulletinTACSerializationTest {
                 .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFPP")//
                         .setBulletinNumber(33)//
-                        .setType(BulletinHeading.Type.CORRECTED)//
-                        .setBulletinAugmentationNumber(2)//
+                        .setAugmentationIndicator(BulletinHeading.Type.CORRECTED, 2)
                         .setGeographicalDesignator("FI")//
                         .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_AERODROME_VT_SHORT)
                         .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
