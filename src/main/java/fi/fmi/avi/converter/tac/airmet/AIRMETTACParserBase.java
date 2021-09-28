@@ -240,7 +240,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
         });
         seq.getFirstLexeme().findNext(LexemeIdentity.SIGMET_MOVING, (match) -> {
             if (!match.getParsedValue(STATIONARY, Boolean.class).equals(Boolean.TRUE))  {
-                String[] windDirs={"N", "NNE", "NE", "NNE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW",
+                String[] windDirs={"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW",
                               "WSW", "W", "WNW", "NW", "NNW"};
                 ArrayList<String> windDirList = new ArrayList<>(Arrays.asList(windDirs));
                 Double movingSpeed=match.getParsedValue(ParsedValueName.VALUE, Double.class);
