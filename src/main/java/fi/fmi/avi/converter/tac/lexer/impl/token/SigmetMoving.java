@@ -23,7 +23,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
  */
 public class SigmetMoving extends RegexMatchingLexemeVisitor {
 
-    static String[] windDirs={"N", "NNE", "NE", "NNE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW",
+    static String[] windDirs={"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW",
     "WSW", "W", "WNW", "NW", "NNW"};
 
     public SigmetMoving(final OccurrenceFrequency prio) {
