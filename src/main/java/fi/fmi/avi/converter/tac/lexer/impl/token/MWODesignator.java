@@ -7,6 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Map;
@@ -38,7 +39,6 @@ public class MWODesignator extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        System.err.println(token.getPrevious().getTACToken());
         if (token.hasPrevious()&&LexemeIdentity.VALID_TIME.equals(token.getPrevious().getIdentity())) {
             for (String s : codeToCountryMap.keySet()) {
                 if (token.getTACToken().startsWith(s)) {
@@ -59,7 +59,13 @@ public class MWODesignator extends RegexMatchingLexemeVisitor {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET m = (SIGMET) msg;
                 if (m.getMeteorologicalWatchOffice().getDesignator() != null) {
-                    return Optional.of(this.createLexeme(m.getAirspace().getDesignator(), MWO_DESIGNATOR));
+                    return Optional.of(this.createLexeme(m.getMeteorologicalWatchOffice().getDesignator()+"-", MWO_DESIGNATOR));
+                }
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET m = (AIRMET) msg;
+                if (m.getMeteorologicalWatchOffice().getDesignator() != null) {
+                    return Optional.of(this.createLexeme(m.getMeteorologicalWatchOffice().getDesignator()+"-", MWO_DESIGNATOR));
                 }
             }
             return Optional.empty();

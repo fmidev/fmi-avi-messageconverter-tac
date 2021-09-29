@@ -8,7 +8,7 @@ import fi.fmi.avi.model.metar.METAR;
 public class METARTACSerializer extends METARTACSerializerBase<METAR> {
 
     @Override
-    protected METAR narrow(AviationWeatherMessageOrCollection msg, ConversionHints hints) {
+    protected METAR narrow(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) {
         if (msg instanceof METAR) {
             return (METAR) msg;
         } else {

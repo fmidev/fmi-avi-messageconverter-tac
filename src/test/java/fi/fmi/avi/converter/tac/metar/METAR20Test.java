@@ -20,50 +20,46 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR20Test extends AbstractAviMessageTest<String, METAR> {
+public class METAR20Test extends AbstractAviMessageTest<METAR> {
 
-	@Override
-	public String getJsonFilename() {
-		return "metar/metar20.json";
-	}
-	
-	@Override
-	public String getMessage() {
-        return "METAR EFTU 011350Z VRB02KT CAVOK " + "22/12 Q1008 " + "15R//////=";
-	}
-	
-	@Override
-	public Optional<String> getCanonicalMessage() {
-        return Optional.of("METAR EFTU 011350Z VRB02KT CAVOK " + "22/12 Q1008 " + "65//////=");
-	}
-	
-	@Override
-	public ConversionHints getTokenizerParsingHints() {
-		ConversionHints ret = new ConversionHints(ConversionHints.KEY_SERIALIZATION_POLICY, ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
-		return ret;
-	}
-	
-	@Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-		return spacify(new LexemeIdentity[] {
-				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, CAVOK,
-				AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, 
-				RUNWAY_STATE, END_TOKEN
-		});
-	}
+    @Override
+    public String getJsonFilename() {
+        return "metar/metar20.json";
+    }
 
-	@Override
+    @Override
+    public String getMessage() {
+        return "METAR EFTU 011350Z VRB02KT CAVOK 22/12 Q1008 15R//////=";
+    }
+
+    @Override
+    public Optional<String> getCanonicalMessage() {
+        return Optional.of("METAR EFTU 011350Z VRB02KT CAVOK 22/12 Q1008 65//////=");
+    }
+
+    @Override
+    public ConversionHints getTokenizerParsingHints() {
+        return new ConversionHints(ConversionHints.KEY_SERIALIZATION_POLICY, ConversionHints.VALUE_SERIALIZATION_POLICY_ANNEX3_16TH);
+    }
+
+    @Override
+    public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+        return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, CAVOK, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH,
+                RUNWAY_STATE, END_TOKEN });
+    }
+
+    @Override
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
-	
-	@Override
+
+    @Override
     public ConversionSpecification<METAR, String> getSerializationSpecification() {
         return TACConverter.METAR_POJO_TO_TAC;
     }
 
     @Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
+    public Class<? extends METAR> getTokenizerImplementationClass() {
         return METARImpl.class;
     }
 

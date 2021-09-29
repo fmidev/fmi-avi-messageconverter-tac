@@ -28,73 +28,71 @@ import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
+public class METAR15Test extends AbstractAviMessageTest<METAR> {
 
-	@Override
-	public String getJsonFilename() {
-		return "metar/metar15.json";
-	}
-
-	@Override
-	public String getMessage() {
-		return "METAR EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046 ///// Q////=";
+    @Override
+    public String getJsonFilename() {
+        return "metar/metar15.json";
     }
 
-	@Override
-	public Optional<String> getCanonicalMessage() {
-		return Optional.of("METAR EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046=");
+    @Override
+    public String getMessage() {
+        return "METAR EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046 ///// Q////=";
     }
 
-	@Override
+    @Override
+    public Optional<String> getCanonicalMessage() {
+        return Optional.of("METAR EFKK 091050Z AUTO 01009KT 340V040 9999 FEW012 BKN046=");
+    }
+
+    @Override
     public ConversionHints getLexerParsingHints() {
         return ConversionHints.METAR;
     }
 
     @Override
     public ConversionHints getParserConversionHints() {
-        ConversionHints hints = new ConversionHints();
+        final ConversionHints hints = new ConversionHints();
         hints.put(ConversionHints.KEY_MESSAGE_TYPE, MessageType.METAR);
         hints.put(ConversionHints.KEY_PARSING_MODE, ConversionHints.VALUE_PARSING_MODE_ALLOW_SYNTAX_ERRORS);
         return hints;
     }
 
-	@Override
+    @Override
     public Status getExpectedParsingStatus() {
         return Status.WITH_ERRORS;
     }
 
     @Override
-    public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
+    public void assertParsingIssues(final List<ConversionIssue> conversionIssues) {
         assertEquals(4, conversionIssues.size());
 
         ConversionIssue issue = conversionIssues.get(0);
         assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
-        assertTrue("Unexpected error message", issue.getMessage().indexOf("Values for air and/or dew point temperature missing") > -1);
+        assertTrue("Unexpected error message", issue.getMessage().contains("Values for air and/or dew point temperature missing"));
 
         issue = conversionIssues.get(1);
         assertEquals(ConversionIssue.Type.SYNTAX, issue.getType());
-        assertTrue("Unxexpected error message", issue.getMessage().indexOf("Missing value for air pressure") > -1);
+        assertTrue("Unxexpected error message", issue.getMessage().contains("Missing value for air pressure"));
 
         issue = conversionIssues.get(2);
         assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
-        assertTrue("Unxexpected error message", issue.getMessage().indexOf("Missing air temperature and dewpoint temperature values in /////") > -1);
+        assertTrue("Unxexpected error message", issue.getMessage().contains("Missing air temperature and dewpoint temperature values in /////"));
 
         issue = conversionIssues.get(3);
         assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
-        assertTrue("Unxexpected error message", issue.getMessage().indexOf("Missing air pressure value: Q////") > -1);
-
+        assertTrue("Unxexpected error message", issue.getMessage().contains("Missing air pressure value: Q////"));
 
     }
 
-	@Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-		return spacify(new LexemeIdentity[] {
-				METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, VARIABLE_WIND_DIRECTION,
-                HORIZONTAL_VISIBILITY, CLOUD, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, END_TOKEN
-		});
-	}
+    @Override
+    public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+        return spacify(
+                new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, VARIABLE_WIND_DIRECTION, HORIZONTAL_VISIBILITY,
+                        CLOUD, CLOUD, AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, END_TOKEN });
+    }
 
-	@Override
+    @Override
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
@@ -104,8 +102,8 @@ public class METAR15Test extends AbstractAviMessageTest<String, METAR> {
         return TACConverter.METAR_POJO_TO_TAC;
     }
 
-	@Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
+    @Override
+    public Class<? extends METAR> getTokenizerImplementationClass() {
         return METARImpl.class;
     }
 

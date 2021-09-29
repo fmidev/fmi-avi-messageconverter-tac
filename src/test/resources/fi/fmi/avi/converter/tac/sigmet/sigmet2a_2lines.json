@@ -1,0 +1,69 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--22T10:10Z"
+    },
+    "endTime": {
+      "partialTime": "--22T16:10Z"
+    }
+  },
+  "sigmetPhenomenon": "VA",
+  "sequenceNumber": "2",
+  "analysisGeometries": [{
+    "geometry":{
+      "tacGeometry":{
+        "data":"S OF LINE N5400 E00100 - N5400 E00300 - N5400 E00600 - N5400 E01000 AND N OF LINE N5100 E00100 - N5100 E01000"
+      },
+      "geoGeometry" : {
+        "type" : "Polygon",
+        "crs" : {
+          "name" : "http://www.opengis.net/def/crs/EPSG/0/4326",
+          "dimension" : 2,
+          "axisLabels" : [ "Lat", "Lon" ]
+        },
+        "exteriorRingPositions" : [ 54.0, 2.855977746704918, 54.0, 3.0, 54.0, 6.0, 54.0, 6.5, 53.66666667, 6.5, 53.25, 7.3, 52.21882119, 7.10288428, 51.84, 6.79267501, 51.79106877, 6.05437694, 51.37958259, 6.32737948, 51.0, 6.216172593753686, 51.0, 5.68898493261051, 51.10068034, 5.77839523, 51.39763031, 4.55225671, 51.17178805, 3.89619528, 51.2345945, 3.33493218, 51.37305556, 3.36305556, 51.5, 2.0, 52.73642077, 3.05978923, 53.30089722, 3.05528611, 53.46923611, 3.01528056, 53.58423889, 2.98694167, 53.667575, 2.95527222, 53.96258333, 2.86525833, 54.0, 2.855977746704918 ]
+      }
+    },
+    "upperLimit": {
+      "value": 240.0,
+      "uom": "FL"
+    },
+    "lowerLimit": {
+      "value": 0.0,
+      "uom": "FT"
+    },
+
+    "analysisType": "OBSERVATION",
+    "intensityChange": "INTENSIFYING",
+    "approximateLocation":false,
+    "time": { "partialTime": "--T10:00Z"}}],
+  "VAInfo": {
+    "volcano": {
+        "volcanoName": "SABANCAYA",
+        "volcanoPosition": {
+            "type": "ElevatedPoint",
+            "coordinates": [-15.783333333333333, -71.83333333333333]
+        }
+    }
+  },
+
+  "translatedTAC":"EHAA SIGMET 2 VALID 221010/221610 EHDB-\r\nEHAA AMSTERDAM FIR VA ERUPTION MT SABANCAYA PSN S1547 W07150 VA CLD OBS AT 1000Z S OF LINE N5400 E00100 - N5400 E00300 - N5400 E00600 - N5400 E01000 AND N OF LINE N5100 E00100 - N5100 E01000 SFC/FL240 STNR INTSF=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
+}

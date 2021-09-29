@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.function.Consumer;
@@ -27,15 +28,27 @@ import fi.fmi.avi.model.MessageType;
 public class LexingFactoryImpl implements LexingFactory {
 
     private static final String TAC_DELIMS = Arrays.stream(Lexeme.MeteorologicalBulletinSpecialCharacter.values())
-            .map(Lexeme.MeteorologicalBulletinSpecialCharacter::getContent).collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString()
-            + "=";
+            .map(Lexeme.MeteorologicalBulletinSpecialCharacter::getContent)
+            .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+            .append("=")
+            .toString();
 
     private final List<List<Predicate<String>>> tokenCombiningRules = new ArrayList<>();
 
     private final Map<MessageType, Lexeme> startTokens = new HashMap<>();
 
+    private static MessageType toMessageType(final Object messageType) {
+        if (messageType instanceof MessageType) {
+            return (MessageType) messageType;
+        } else if (messageType == null) {
+            return null;
+        } else {
+            return new MessageType(messageType.toString());
+        }
+    }
+
     public void addTokenCombiningRule(final List<Predicate<String>> rule) {
-        this.tokenCombiningRules.add(rule);
+        this.tokenCombiningRules.add(Collections.unmodifiableList(new ArrayList<>(rule)));
     }
 
     public void setMessageStartToken(final MessageType type, final Lexeme token) {
@@ -44,7 +57,7 @@ public class LexingFactoryImpl implements LexingFactory {
 
     @Override
     public List<List<Predicate<String>>> getTokenCombiningRules() {
-        return this.tokenCombiningRules;
+        return Collections.unmodifiableList(this.tokenCombiningRules);
     }
 
     @Override
@@ -82,7 +95,7 @@ public class LexingFactoryImpl implements LexingFactory {
 
     private void appendArtifialStartTokenIfNecessary(final String input, final LexemeSequenceImpl result, final ConversionHints hints) {
         if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
-            final Lexeme artificialStartToken = this.startTokens.get(hints.get(ConversionHints.KEY_MESSAGE_TYPE));
+            final Lexeme artificialStartToken = this.startTokens.get(toMessageType(hints.get(ConversionHints.KEY_MESSAGE_TYPE)));
             if (artificialStartToken != null) {
                 if (!input.startsWith(artificialStartToken.getTACToken() + " ") && !input.startsWith(artificialStartToken.getTACToken() + "\n")) {
                     result.addAsFirst(new LexemeImpl(this, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE));
@@ -155,7 +168,7 @@ public class LexingFactoryImpl implements LexingFactory {
             final List<LexemeSequence> retval = new ArrayList<>();
             LexemeSequenceBuilder builder = new LexemeSequenceBuilderImpl(this.factory);
             LexemeImpl l = this.head;
-            boolean matchFound = false;
+            boolean matchFound;
             while (l != null) {
                 matchFound = false;
                 for (final LexemeIdentity toMatch : ids) {
@@ -895,7 +908,7 @@ public class LexingFactoryImpl implements LexingFactory {
         }
 
         public String toString() {
-            return "\'" + this.tacToken + "\'(" + this.id + "," + this.status + ")";
+            return "'" + this.tacToken + "'(" + this.id + "," + this.status + ")";
         }
 
         @Override
@@ -921,7 +934,7 @@ public class LexingFactoryImpl implements LexingFactory {
             if (parsedValues.equals(lexeme.parsedValues)) {
                 return false;
             }
-            return lexerMessage != null ? lexerMessage.equals(lexeme.lexerMessage) : lexeme.lexerMessage == null;
+            return Objects.equals(lexerMessage, lexeme.lexerMessage);
         }
 
         @Override

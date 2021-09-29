@@ -8,7 +8,7 @@ import fi.fmi.avi.model.metar.SPECI;
 public class SPECITACSerializer extends METARTACSerializerBase<SPECI> {
 
     @Override
-    protected SPECI narrow(AviationWeatherMessageOrCollection msg, ConversionHints hints) {
+    protected SPECI narrow(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) {
         if (msg instanceof SPECI) {
             return (SPECI) msg;
         } else {

@@ -19,37 +19,36 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR14Test extends AbstractAviMessageTest<String, METAR> {
+public class METAR14Test extends AbstractAviMessageTest<METAR> {
 
-	@Override
-	public String getJsonFilename() {
-		return "metar/metar14.json";
-	}
-	
-	@Override
-	public String getMessage() {
+    @Override
+    public String getJsonFilename() {
+        return "metar/metar14.json";
+    }
+
+    @Override
+    public String getMessage() {
         return "METAR EFOU 181750Z AUTO 18007KT 9999 OVC010 02/01 Q1015 R/SNOCLO=";
     }
-	
-	@Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-		return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD,
-				AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, SNOW_CLOSURE, END_TOKEN
-		});
-	}
 
-	@Override
+    @Override
+    public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+        return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, AUTOMATED, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD,
+                AIR_DEWPOINT_TEMPERATURE, AIR_PRESSURE_QNH, SNOW_CLOSURE, END_TOKEN });
+    }
+
+    @Override
     public ConversionSpecification<String, METAR> getParsingSpecification() {
         return TACConverter.TAC_TO_METAR_POJO;
     }
-	
-	@Override
+
+    @Override
     public ConversionSpecification<METAR, String> getSerializationSpecification() {
         return TACConverter.METAR_POJO_TO_TAC;
     }
 
-	@Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
+    @Override
+    public Class<? extends METAR> getTokenizerImplementationClass() {
         return METARImpl.class;
     }
 

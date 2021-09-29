@@ -21,7 +21,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
 
-public class METAR7Test extends AbstractAviMessageTest<String, METAR> {
+public class METAR7Test extends AbstractAviMessageTest<METAR> {
 
 	@Override
 	public String getJsonFilename() {
@@ -31,9 +31,9 @@ public class METAR7Test extends AbstractAviMessageTest<String, METAR> {
 	// Equivalent to METAR8 but with different colors
 	@Override
 	public String getMessage() {
-        return "METAR EGXE 061150Z 03010KT 9999 FEW020 17/11 Q1014 BLU TEMPO 6000 SHRA SCT020 WHT=";
-    }
-	
+		return "METAR EGXE 061150Z 03010KT 9999 FEW020 17/11 Q1014 BLU TEMPO 6000 SHRA SCT020 WHT=";
+	}
+
 	@Override
 	public ConversionHints getLexerParsingHints() {
 		return ConversionHints.METAR;
@@ -44,27 +44,26 @@ public class METAR7Test extends AbstractAviMessageTest<String, METAR> {
 		return ConversionHints.METAR;
 	}
 
-    @Override
+	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-        return spacify(new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD, AIR_DEWPOINT_TEMPERATURE,
-                AIR_PRESSURE_QNH, COLOR_CODE, TREND_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, COLOR_CODE,
-                END_TOKEN
-		});
+		return spacify(
+				new LexemeIdentity[] { METAR_START, AERODROME_DESIGNATOR, ISSUE_TIME, SURFACE_WIND, HORIZONTAL_VISIBILITY, CLOUD, AIR_DEWPOINT_TEMPERATURE,
+						AIR_PRESSURE_QNH, COLOR_CODE, TREND_CHANGE_INDICATOR, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, COLOR_CODE, END_TOKEN });
 	}
 
-    @Override
-    public ConversionSpecification<String, METAR> getParsingSpecification() {
-        return TACConverter.TAC_TO_METAR_POJO;
-    }
-	
 	@Override
-    public ConversionSpecification<METAR, String> getSerializationSpecification() {
-        return TACConverter.METAR_POJO_TO_TAC;
-    }
+	public ConversionSpecification<String, METAR> getParsingSpecification() {
+		return TACConverter.TAC_TO_METAR_POJO;
+	}
 
 	@Override
-    public Class<? extends METAR> getTokenizerImplmentationClass() {
-        return METARImpl.class;
-    }
+	public ConversionSpecification<METAR, String> getSerializationSpecification() {
+		return TACConverter.METAR_POJO_TO_TAC;
+	}
+
+	@Override
+	public Class<? extends METAR> getTokenizerImplementationClass() {
+		return METARImpl.class;
+	}
 
 }

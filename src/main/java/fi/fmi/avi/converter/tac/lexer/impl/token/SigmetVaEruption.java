@@ -6,32 +6,26 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.sigmet.SIGMET;
-import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_ERUPTION;
 
 /**
  * Created by rinne on 10/02/17.
  */
-public class ObsOrForecast extends RegexMatchingLexemeVisitor {
-
-    public ObsOrForecast(final OccurrenceFrequency prio) {
-        super("^OBS|FCST$", prio);
+public class SigmetVaEruption extends RegexMatchingLexemeVisitor {
+    public SigmetVaEruption(final OccurrenceFrequency prio) {
+        super("^(VA ERUPTION)$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious()&&LexemeIdentity.SIGMET_START.equals(token.getFirst().getIdentity())) {
-            if (token.getTACToken().startsWith("OBS")) {
-                token.identify(LexemeIdentity.OBS_OR_FORECAST);
-                return;
-            }
-        }
+        token.identify(SIGMET_VA_ERUPTION);
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -39,11 +33,11 @@ public class ObsOrForecast extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET m = (SIGMET) msg;
-                if (SigmetAnalysisType.OBSERVATION.equals(m.getAnalysisType())) {
-                    return Optional.of(this.createLexeme("OBS", LexemeIdentity.OBS_OR_FORECAST));
-                } else if (SigmetAnalysisType.FORECAST.equals(m.getAnalysisType())) {
-                    return Optional.of(this.createLexeme("FCST", LexemeIdentity.OBS_OR_FORECAST));
+                SIGMET sigmet = (SIGMET) msg;
+                if (sigmet.getSigmetPhenomenon().get().equals(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA)) {
+                    return Optional.of(this.createLexeme("VA ERUPTION", LexemeIdentity.SIGMET_VA_ERUPTION));
+                } else {
+                    return Optional.empty();
                 }
             }
             return Optional.empty();

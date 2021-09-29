@@ -1,63 +1,66 @@
 {
-  "status" : "NORMAL",
-  "issueTime" : {
-    "partialTime" : "--20T10:04Z"
+  "reportStatus": "NORMAL",
+  "issueTime": {
+    "partialTime": "--20T10:04Z"
   },
-  "aerodrome" : {
-    "designator" : "KORD"
+  "aerodrome": {
+    "designator": "KORD"
   },
   "presentWeather": [
-  	{
-      "code" : "-DZ",
-      "description" : "Light precipitation of drizzle"
+    {
+      "code": "-DZ",
+      "description": "Light precipitation of drizzle"
     },
-  	{
-      "code" : "BR",
-      "description" : "Mist"
-  	}
+    {
+      "code": "BR",
+      "description": "Mist"
+    }
   ],
-  "airTemperature" : {
+  "airTemperature": {
     "value": 3.0,
-    "uom" : "degC"
+    "uom": "degC"
   },
-  "dewpointTemperature" : {
+  "dewpointTemperature": {
     "value": 3.0,
-    "uom" : "degC"
+    "uom": "degC"
   },
-  "altimeterSettingQNH" : {
+  "altimeterSettingQNH": {
     "value": 2964.0,
-    "uom" : "in Hg"
+    "uom": "in Hg"
   },
-  "surfaceWind" : {
-    "meanWindDirection" : {
+  "surfaceWind": {
+    "meanWindDirection": {
       "value": 50.0,
-      "uom" : "deg"
+      "uom": "deg"
     },
-    "meanWindSpeed" : {
+    "meanWindSpeed": {
       "value": 8.0,
-      "uom" : "[kn_i]"
+      "uom": "[kn_i]"
     }
   },
-  "visibility" : {
-    "prevailingVisibility" : {
+  "visibility": {
+    "prevailingVisibility": {
       "value": 1.5,
-      "uom" : "sm"
+      "uom": "sm"
     }
   },
-  "clouds" : {
+  "clouds": {
     "layers": [
       {
-        "amount" : "OVC",
-        "base" : {
+        "amount": "OVC",
+        "base": {
           "value": 600,
-          "uom" : "[ft_i]"
+          "uom": "[ft_i]"
         }
       }
     ]
   },
   "remarks": [
-  	"AO2", "DZB04", "P0000", "T00330028"
+    "AO2",
+    "DZB04",
+    "P0000",
+    "T00330028"
   ],
-  "translatedTAC" : "METAR KORD 201004Z 05008KT 1 1/2SM -DZ BR OVC006 03/03 A2964 RMK AO2 DZB04 P0000 T00330028=",
+  "translatedTAC": "METAR KORD 201004Z 05008KT 1 1/2SM -DZ BR OVC006 03/03 A2964 RMK AO2 DZB04 P0000 T00330028=",
   "translated": true
 }

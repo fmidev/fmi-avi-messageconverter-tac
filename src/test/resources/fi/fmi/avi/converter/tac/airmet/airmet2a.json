@@ -1,0 +1,45 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--11T11:30Z"
+    },
+    "endTime": {
+      "partialTime": "--11T15:30Z"
+    }
+  },
+  "airmetPhenomenon": "ISOL_TSGR",
+  "sequenceNumber": "1",
+  "analysisGeometries": [{
+    "geometry":{
+      "tacGeometry":{
+        "data":"ENTIRE FIR"
+      },
+    "entireArea": true
+    },
+    "analysisType": "FORECAST",
+    "intensityChange": "INTENSIFYING",
+    "approximateLocation":false,
+    "time": {
+        "partialTime": "--T12:00Z"
+    }
+  }],
+  "translatedTAC":"EHAA AIRMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR ISOL TSGR FCST AT 1200Z ENTIRE FIR STNR INTSF=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
+ }

@@ -27,7 +27,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
-public class Taf19BaseWeatherNSWTest extends AbstractAviMessageTest<String, TAF> {
+public class Taf19BaseWeatherNSWTest extends AbstractAviMessageTest<TAF> {
 
     @Override
     public String getJsonFilename() {
@@ -36,12 +36,14 @@ public class Taf19BaseWeatherNSWTest extends AbstractAviMessageTest<String, TAF>
 
     @Override
     public String getMessage() {
-        return "TAF EFHK 010825Z 0109/0209 25015KT 5000 NSW NSC\r\n" + "FM011530 00000KT CAVOK=";
+        return "TAF EFHK 010825Z 0109/0209 25015KT 5000 NSW NSC\r\n" //
+                + "FM011530 00000KT CAVOK=";
     }
 
     @Override
     public Optional<String> getCanonicalMessage() {
-        return Optional.of("TAF EFHK 010825Z 0109/0209 25015KT 5000 NSC\r\n" + "FM011530 00000KT CAVOK=");
+        return Optional.of("TAF EFHK 010825Z 0109/0209 25015KT 5000 NSC\r\n" //
+                + "FM011530 00000KT CAVOK=");
     }
 
     @Override
@@ -83,7 +85,7 @@ public class Taf19BaseWeatherNSWTest extends AbstractAviMessageTest<String, TAF>
     }
 
     @Override
-    public Class<? extends TAF> getTokenizerImplmentationClass() {
+    public Class<? extends TAF> getTokenizerImplementationClass() {
         return TAFImpl.class;
     }
 

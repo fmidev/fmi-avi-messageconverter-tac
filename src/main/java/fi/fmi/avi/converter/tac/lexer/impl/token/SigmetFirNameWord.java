@@ -2,34 +2,34 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_FIR_NAME_WORD;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_DESIGNATOR;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 
 /**
  * Created by rinne on 10/02/17.
  */
-public class FIRType extends RegexMatchingLexemeVisitor {
-
-    public FIRType(final OccurrenceFrequency prio) {
-        super("^([\\w|\\s]+)\\s(FIR|UIR|FIR/UIR|CTA)$", prio);
+public class SigmetFirNameWord extends RegexMatchingLexemeVisitor {
+    public SigmetFirNameWord(final OccurrenceFrequency prio) {
+        super("^(\\w*)$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious()) {
-            token.identify(LexemeIdentity.FIR_NAME);
-            token.setParsedValue(Lexeme.ParsedValueName.VALUE, match.group(1));
-            token.setParsedValue(Lexeme.ParsedValueName.FIR_TYPE, match.group(2));
-        }
+        if (token.hasPrevious()&&(FIR_DESIGNATOR.equals(token.getPrevious().getIdentity())||
+                      SIGMET_FIR_NAME_WORD.equals(token.getPrevious().getIdentity()))) {
+                          token.identify(SIGMET_FIR_NAME_WORD);
+                          token.setParsedValue(VALUE, match.group(0));
+                      }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
@@ -37,10 +37,7 @@ public class FIRType extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET m = (SIGMET) msg;
-                if (m.getMeteorologicalWatchOffice().getDesignator() != null) {
-                    return Optional.of(this.createLexeme(m.getAirspace().getDesignator(), LexemeIdentity.FIR_DESIGNATOR));
-                }
+                // SIGMET m = (SIGMET) msg;
             }
             return Optional.empty();
         }

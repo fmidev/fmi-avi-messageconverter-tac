@@ -24,7 +24,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.metar.SPECI;
 
-public class SPECIMissingStartTokenTest extends AbstractAviMessageTest<String, SPECI> {
+public class SPECIMissingStartTokenTest extends AbstractAviMessageTest<SPECI> {
 
     @Override
     public String getJsonFilename() {
@@ -72,7 +72,7 @@ public class SPECIMissingStartTokenTest extends AbstractAviMessageTest<String, S
     }
 
     @Override
-    public Class<? extends SPECI> getTokenizerImplmentationClass() {
+    public Class<? extends SPECI> getTokenizerImplementationClass() {
         return SPECI.class;
     }
 
@@ -82,7 +82,7 @@ public class SPECIMissingStartTokenTest extends AbstractAviMessageTest<String, S
     }
 
     @Override
-    public void assertParsingIssues(List<ConversionIssue> conversionIssues) {
+    public void assertParsingIssues(final List<ConversionIssue> conversionIssues) {
         assertEquals(1, conversionIssues.size());
         assertSame(ConversionIssue.Type.SYNTAX, conversionIssues.get(0).getType());
         assertEquals("Message does not start with a start token: SPECI", conversionIssues.get(0).getMessage());

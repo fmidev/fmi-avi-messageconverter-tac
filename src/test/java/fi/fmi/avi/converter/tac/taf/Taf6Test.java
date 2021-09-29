@@ -20,40 +20,40 @@ import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
-public class Taf6Test extends AbstractAviMessageTest<String, TAF> {
+public class Taf6Test extends AbstractAviMessageTest<TAF> {
 
-	@Override
-	public String getJsonFilename() {
-		return "taf/taf6.json";
-	}
-	
-	@Override
-	public String getMessage() {
-		return "TAF EFKU 190830Z 1909/2009 23010KT CAVOK\r\n" + "PROB30 TEMPO 1915/1919 7000 SHRA SCT030CB BKN045\r\n" +
-				"BECMG 1923/2001 30010KT=";
-	}
-	
-	@Override
-	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
+    @Override
+    public String getJsonFilename() {
+        return "taf/taf6.json";
+    }
+
+    @Override
+    public String getMessage() {
+        return "TAF EFKU 190830Z 1909/2009 23010KT CAVOK\r\n" //
+                + "PROB30 TEMPO 1915/1919 7000 SHRA SCT030CB BKN045\r\n" //
+                + "BECMG 1923/2001 30010KT=";
+    }
+
+    @Override
+    public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(new LexemeIdentity[] { TAF_START, AERODROME_DESIGNATOR, ISSUE_TIME, VALID_TIME, SURFACE_WIND, CAVOK, TAF_FORECAST_CHANGE_INDICATOR,
                 TAF_CHANGE_FORECAST_TIME_GROUP, HORIZONTAL_VISIBILITY, WEATHER, CLOUD, CLOUD, TAF_FORECAST_CHANGE_INDICATOR, TAF_CHANGE_FORECAST_TIME_GROUP,
                 SURFACE_WIND, END_TOKEN });
     }
 
-	@Override
+    @Override
     public ConversionSpecification<String, TAF> getParsingSpecification() {
         return TACConverter.TAC_TO_TAF_POJO;
     }
-    
+
     @Override
     public ConversionSpecification<TAF, String> getSerializationSpecification() {
         return TACConverter.TAF_POJO_TO_TAC;
     }
 
-
-	@Override
-	public Class<? extends TAF> getTokenizerImplmentationClass() {
-		return TAFImpl.class;
-	}
+    @Override
+    public Class<? extends TAF> getTokenizerImplementationClass() {
+        return TAFImpl.class;
+    }
 
 }

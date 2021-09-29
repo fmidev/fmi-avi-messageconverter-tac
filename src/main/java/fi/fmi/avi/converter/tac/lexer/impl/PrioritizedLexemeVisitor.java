@@ -1,24 +1,11 @@
 package fi.fmi.avi.converter.tac.lexer.impl;
 
 import fi.fmi.avi.converter.tac.lexer.LexemeVisitor;
+
 /**
  * Created by rinne on 18/01/17.
  */
 public abstract class PrioritizedLexemeVisitor implements LexemeVisitor, Comparable<LexemeVisitor> {
-
-    public enum OccurrenceFrequency {
-        FREQUENT(1), AVERAGE(2), RARE(3);
-
-        private final int occurrence;
-
-        OccurrenceFrequency(final int occurrence) {
-            this.occurrence = occurrence;
-        }
-
-        public int asNumber() {
-            return this.occurrence;
-        }
-    }
 
     private OccurrenceFrequency expectedOccurrence;
 
@@ -38,7 +25,7 @@ public abstract class PrioritizedLexemeVisitor implements LexemeVisitor, Compara
         this.expectedOccurrence = prio;
     }
 
-    public PrioritizedLexemeVisitor withExpectedOccurrence(OccurrenceFrequency prio) {
+    public PrioritizedLexemeVisitor withExpectedOccurrence(final OccurrenceFrequency prio) {
         this.setExpectedOccurrence(prio);
         return this;
     }
@@ -53,6 +40,20 @@ public abstract class PrioritizedLexemeVisitor implements LexemeVisitor, Compara
     }
 
     public String toString() {
-        return new StringBuilder().append("expected occurrence frequency:").append(this.expectedOccurrence).toString();
+        return "expected occurrence frequency:" + this.expectedOccurrence;
+    }
+
+    public enum OccurrenceFrequency {
+        FREQUENT(1), AVERAGE(2), RARE(3);
+
+        private final int occurrence;
+
+        OccurrenceFrequency(final int occurrence) {
+            this.occurrence = occurrence;
+        }
+
+        public int asNumber() {
+            return this.occurrence;
+        }
     }
 }

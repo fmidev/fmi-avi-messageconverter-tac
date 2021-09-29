@@ -1,50 +1,50 @@
 {
-  "status" : "NORMAL",
-  "issueTime" : {
-    "partialTime" : "--05T10:52Z"
+  "reportStatus": "NORMAL",
+  "issueTime": {
+    "partialTime": "--05T10:52Z"
   },
-  "aerodrome" : {
-    "designator" : "EFHK"
+  "aerodrome": {
+    "designator": "EFHK"
   },
   "automatedStation": false,
-  "airTemperature" : {
+  "airTemperature": {
     "value": -0.0,
-    "uom" : "degC"
+    "uom": "degC"
   },
-  "dewpointTemperature" : {
+  "dewpointTemperature": {
     "value": -2.0,
-    "uom" : "degC"
+    "uom": "degC"
   },
-  "altimeterSettingQNH" : {
+  "altimeterSettingQNH": {
     "value": 1005.0,
-    "uom" : "hPa"
+    "uom": "hPa"
   },
-  "visibility" : {
-    "prevailingVisibility" : {
+  "visibility": {
+    "prevailingVisibility": {
       "value": 10000,
-      "uom" : "m"
+      "uom": "m"
     },
-    "prevailingVisibilityOperator" : "ABOVE"
+    "prevailingVisibilityOperator": "ABOVE"
   },
-  "clouds" : {
+  "clouds": {
     "layers": [
       {
-        "amount" : "FEW",
-        "base" : {
+        "amount": "FEW",
+        "base": {
           "value": 3300.0,
-          "uom" : "[ft_i]"
+          "uom": "[ft_i]"
         }
       },
       {
-        "amount" : "BKN",
-        "base" : {
+        "amount": "BKN",
+        "base": {
           "value": 11000.0,
-          "uom" : "[ft_i]"
+          "uom": "[ft_i]"
         }
       }
     ]
   },
   "noSignificantChanges": true,
-  "translatedTAC" : "METAR EFHK 051052Z blaablaa 9999 FEW033 BKN110 M00/M02 Q1005 NOSIG=",
+  "translatedTAC": "METAR EFHK 051052Z blaablaa 9999 FEW033 BKN110 M00/M02 Q1005 NOSIG=",
   "translated": true
 }

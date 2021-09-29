@@ -1,8 +1,8 @@
 {
-  "status": "NORMAL",
+  "reportStatus": "NORMAL",
   "issuingAirTrafficServicesUnit": {
-    "name": "AMSTERDAM FIR",
-    "type": "FIR",
+    "name": "AMSTERDAM",
+    "type": "FIC",
     "designator": "EHAA"
   },
   "meteorologicalWatchOffice": {
@@ -10,27 +10,35 @@
     "type": "MWO",
     "designator": "EHDB"
   },
-  "issueTime": {
-    "completeTime": "2020-10-11T11:30:00Z"
-  },
   "airspace": {
-    "designator":"EHAA",
-    "name":"AMSTERDAM",
-    "type":"FIR"
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
   },
   "validityPeriod": {
     "startTime": {
-      "completeTime": "2020-10-11T11:30:00Z"
+      "partialTime": "--11T11:30Z"
     },
     "endTime": {
-      "completeTime": "2020-10-11T15:30:00Z"
+      "partialTime": "--11T15:30Z"
     }
   },
-  "sigmetPhenomenon": "EMBD_TS",
-  "analysisType": "OBSERVATION",
+  "sigmetPhenomenon": "SEV_ICE_FZRA",
   "sequenceNumber": "M01",
-  "intensityChange": "NO_CHANGE",
-  "analysisGeometries": [{}],
-  "forecastGeometries":[{}],
-  "translated": false
+  "analysisGeometries": [
+    {
+      "intensityChange": "NO_CHANGE",
+      "analysisType": "OBSERVATION",
+      "geometry":{
+      "tacGeometry":{
+        "data":"ENTIRE FIR"
+        },
+        "entireArea": true
+      },
+      "approximateLocation":false
+    }
+  ],
+  "translatedTAC":"EHAA SIGMET M01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR SEV ICE (FZRA) OBS ENTIRE FIR STNR NC=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
 }
