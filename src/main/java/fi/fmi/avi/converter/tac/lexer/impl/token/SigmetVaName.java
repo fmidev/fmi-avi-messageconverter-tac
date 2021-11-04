@@ -44,7 +44,9 @@ public class SigmetVaName extends RegexMatchingLexemeVisitor {
                         if (sigmet.getVAInfo().isPresent() && sigmet.getVAInfo().get().getVolcano().isPresent()
                             && sigmet.getVAInfo().get().getVolcano().get().getVolcanoName().isPresent()) {
                             String volcanoName = sigmet.getVAInfo().get().getVolcano().get().getVolcanoName().get();
-                            return Optional.of(this.createLexeme("MT "+volcanoName, LexemeIdentity.SIGMET_VA_NAME));
+                            if (volcanoName.length()>0) {
+                                return Optional.of(this.createLexeme("MT "+volcanoName, LexemeIdentity.SIGMET_VA_NAME));
+                            }
                         }
                    }
                    return Optional.empty();
