@@ -832,7 +832,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().getTACToken().equals("METAR");
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && "METAR".equals(firstLexeme.getTACToken());
             }
 
             @Override
@@ -850,7 +851,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().getTACToken().equals("SPECI");
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && "SPECI".equals(firstLexeme.getTACToken());
             }
 
             @Override
@@ -901,7 +903,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().getTACToken().equals("TAF");
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && "TAF".equals(firstLexeme.getTACToken());
             }
 
             @Override
@@ -943,10 +946,8 @@ public class Lexing {
             public boolean test(final LexemeSequence sequence) {
                 //Just check the first Lexeme for now, add checks for further Lexemes if
                 // collisions arise with other token lexers:
-                if (sequence.getFirstLexeme() != null) {
-                    return BULLETIN_START_PATTERN.matcher(sequence.getFirstLexeme().getTACToken()).matches();
-                }
-                return false;
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && BULLETIN_START_PATTERN.matcher(firstLexeme.getTACToken()).matches();
             }
 
             @Override
@@ -990,7 +991,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().getTACToken().equals("LOW WIND");
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && "LOW WIND".equals(firstLexeme.getTACToken());
             }
 
             @Override
@@ -1012,7 +1014,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().getTACToken().equals("WX WRNG");
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && "WX WRNG".equals(firstLexeme.getTACToken());
             }
 
             @Override
@@ -1034,7 +1037,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().getTACToken().equals("WXREP");
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && "WXREP".equals(firstLexeme.getTACToken());
             }
 
             @Override
@@ -1056,7 +1060,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().hasNext() && sequence.getFirstLexeme().getNext().getTACToken().equals("SIGMET");
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && firstLexeme.hasNext() && "SIGMET".equals(firstLexeme.getNext().getTACToken());
             }
 
             @Override
@@ -1077,7 +1082,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().getTACToken().matches("^SIG[CWE]$");
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && firstLexeme.getTACToken().matches("^SIG[CWE]$");
             }
 
             @Override
@@ -1099,7 +1105,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().getTACToken().matches("^SWX\\s+ADVISORY$");
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && firstLexeme.getTACToken().matches("^SWX\\s+ADVISORY$");
             }
 
             @Override
@@ -1148,7 +1155,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                return sequence.getFirstLexeme().getTACToken().matches("^VA\\s+ADVISORY$");
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
+                return firstLexeme != null && firstLexeme.getTACToken().matches("^VA\\s+ADVISORY$");
             }
 
             @Override
