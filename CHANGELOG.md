@@ -25,7 +25,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- ...
+- Fix NullPointerException in Lexing. [#114]
 
 ### Security
 
@@ -52,9 +52,9 @@ Previous changelog entries are available on [GitHub releases page](https://githu
 [v4.0.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-4.0.0
 
 [#90]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/90
-
 [#95]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/95
-
 [#97]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/97
 
 [#101]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/101
+
+[#114]:https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/114
