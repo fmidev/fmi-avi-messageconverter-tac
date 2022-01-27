@@ -15,7 +15,6 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONTYPE
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,10 +24,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.geojson.Feature;
-import org.geojson.FeatureCollection;
-import org.geojson.LngLatAlt;
-import org.geojson.Point;
-import org.geojson.Polygon;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -36,7 +31,6 @@ import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.util.LineStringExtracter;
-import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
@@ -44,12 +38,13 @@ import org.locationtech.jts.operation.polygonize.Polygonizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.model.PolygonGeometry;
+import fi.fmi.avi.model.Geometry.Winding;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
-import fi.fmi.avi.model.immutable.MultiPolygonGeometryImpl;
-import fi.fmi.avi.model.immutable.PointGeometryImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
+import fi.fmi.avi.util.geoutil.GeoUtils;
 
-public class GeoUtils {
+
+public class GeoUtilsTac {
 
 	private static GeometryFactory gf;
 	private static ObjectMapper om;
@@ -63,20 +58,6 @@ public class GeoUtils {
 		return gf;
 	}
 
-	private static GeoJsonWriter getWriter() {
-		if (writer==null) {
-			writer=new GeoJsonWriter();
-		}
-		return writer;
-	}
-
-	private static GeoJsonReader getReader() {
-		if (reader==null) {
-			reader=new GeoJsonReader(GeoUtils.getGeometryFactory());
-		}
-		return reader;
-	}
-
 	private static ObjectMapper getObjectMapper() {
 		if (om==null) {
 			om=new ObjectMapper();
@@ -84,138 +65,7 @@ public class GeoUtils {
 		return om;
 	}
 
-    public static org.locationtech.jts.geom.Geometry PolygonGeometry2jtsGeometry(PolygonGeometry geometry) {
-        String json=toGeoJSON(geometry);
-        Feature feature;
-
-        try {
-            feature = getObjectMapper().readValue(json, Feature.class);
-            return jsonFeature2jtsGeometry(feature);
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-	public static Geometry jsonFeature2jtsGeometry(Feature F)  {
-		try {
-			ObjectMapper om=getObjectMapper();
-			if (F.getGeometry()==null) {
-				return null;
-			}
-			String json=om.writeValueAsString(F.getGeometry());
-			return getReader().read(json);
-		} catch(ParseException | JsonProcessingException e) {
-			System.err.println(e.getMessage());
-		}
-		return null;
-	}
-
-	/* TODO: Implement circle */
-	public static fi.fmi.avi.model.Geometry jsonFeatureCollection2FmiAviGeometry(FeatureCollection f) {
-		if (f.getFeatures().size() == 1) {
-			if (f.getFeatures().get(0).getGeometry() instanceof Polygon) {
-				PolygonGeometryImpl.Builder builder = PolygonGeometryImpl.builder();
-				Polygon polygon = (Polygon)f.getFeatures().get(0).getGeometry();
-				if (polygon.getCoordinates().size()>0) {
-					List<LngLatAlt> lls = ((Polygon)f.getFeatures().get(0).getGeometry()).getExteriorRing();
-					List<Double> extPoints=new ArrayList<>();
-					for (LngLatAlt ll: lls) {
-						extPoints.add(ll.getLatitude());
-						extPoints.add(ll.getLongitude());
-					}
-					builder.addAllExteriorRingPositions(extPoints);
-					return builder.build();
-				} else {
-					List<Double> extPoints=new ArrayList<>();
-					builder.addAllExteriorRingPositions(extPoints);
-					return builder.build();
-				}
-			} else if (f.getFeatures().get(0).getGeometry() instanceof Point) {
-				PointGeometryImpl.Builder builder= PointGeometryImpl.builder();
-				LngLatAlt ll = ((Point)f.getFeatures().get(0).getGeometry()).getCoordinates();
-				List<Double> pts = Arrays.asList(ll.getLatitude(), ll.getLongitude());
-				builder.addAllCoordinates(pts);
-				return builder.build();
-			}
-			return null;
-		} else {
-			MultiPolygonGeometryImpl.Builder builder = MultiPolygonGeometryImpl.builder();
-			for (Feature feat: f.getFeatures()) {
-				if (feat.getGeometry() instanceof Polygon) {
-					List<LngLatAlt> lls = ((Polygon)feat.getGeometry()).getExteriorRing();
-					List<Double> extPoints=new ArrayList<>();
-					for (LngLatAlt ll: lls) {
-							extPoints.add(ll.getLatitude());
-							extPoints.add(ll.getLongitude());
-					}
-					builder.addExteriorRingPositions(extPoints);
-				}
-			}
-			return builder.build();
-		}
-	}
-
-	public static Feature jtsGeometry2jsonFeature(Geometry g)  {
-		Feature f=null;
-		try {
-			ObjectMapper om=getObjectMapper();
-			String json=getWriter().write(g);
-			org.geojson.Geometry<Double> geo= om.readValue(json, org.geojson.Geometry.class);
-			f=new Feature();
-			f.setGeometry(geo);
-		} catch(IOException e) {
-			System.err.println(e.getMessage());
-		}
-		return f;
-	}
-
-	public static Feature merge(Feature f1, Feature f2) {
-		Geometry g1=jsonFeature2jtsGeometry(f1);
-		Geometry g2=jsonFeature2jtsGeometry(f2);
-
-        Geometry gNew=g1.union(g2);
-		Coordinate[] coords=gNew.getCoordinates();
-		if (!Orientation.isCCW(coords)) {
-			gNew=gNew.reverse();
-		}
-		Feature f=jtsGeometry2jsonFeature(gNew);
-		return f;
-	}
-
-    public static Feature fixWinding(Feature f) {
-        Geometry g=jsonFeature2jtsGeometry(f);
-
-		Coordinate[] coords=g.getCoordinates();
-		if (!Orientation.isCCW(coords)) {
-			g=g.reverse();
-		}
-		Feature newFeature=jtsGeometry2jsonFeature(g);
-		return newFeature;
-    }
-
-    public static Geometry fixWinding(Geometry g) {
-        Coordinate[] coords=g.getCoordinates();
-		if (!Orientation.isCCW(coords)) {
-            Geometry reversed = g.reverse();
-			return reversed;
-		}
-        return g;
-    }
-
-    public static String getWinding(Geometry g) {
-        Coordinate[] coords=g.getCoordinates();
-		if (!Orientation.isCCW(coords)) {
-			return "CW";
-		}
-        return "CCW";
-    }
-
-    public static  PolygonGeometry jts2PolygonGeometry(Geometry geom) {
+    public static PolygonGeometry jts2PolygonGeometry(Geometry geom) {
         PolygonGeometryImpl.Builder bldr = PolygonGeometryImpl.builder();
         bldr.setCrs(CoordinateReferenceSystemImpl.wgs84());
         List<Double> coords = new ArrayList<>();
@@ -322,18 +172,36 @@ public class GeoUtils {
         return null;
     }
 
+    public static org.locationtech.jts.geom.Geometry PolygonGeometry2jtsGeometry(PolygonGeometry geometry) {
+        String json=toGeoJSON(geometry);
+        Feature feature;
+
+        try {
+            feature = getObjectMapper().readValue(json, Feature.class);
+            return GeoUtils.jsonFeature2jtsGeometry(feature);
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static String toGeoJSON(fi.fmi.avi.model.Geometry g) {
         PolygonGeometry pg = (PolygonGeometry)g;
         String polygonAsString="{\"type\": \"Feature\", \"properties\":{},"+
             "\"geometry\": { \"type\": \"Polygon\", \"coordinates\":[[";
-            int l = pg.getExteriorRingPositions().size()/2;
+            List<Double>exteriorRingPositions = pg.getExteriorRingPositions(Winding.CW);
+            int l = exteriorRingPositions.size()/2;
             for (int i=0; i<l; i++){
                 if (i>0) {
                     polygonAsString=polygonAsString+",";
                 }
                 polygonAsString=polygonAsString+String.format("[%f, %f]",
-                        pg.getExteriorRingPositions().get(i*2+1),
-                        pg.getExteriorRingPositions().get(i*2));
+                        exteriorRingPositions.get(i*2+1),
+                        exteriorRingPositions.get(i*2));
             }
             polygonAsString=polygonAsString+"]]}}";
         return polygonAsString;
@@ -345,7 +213,7 @@ public class GeoUtils {
         String featureCollectionAsString="{\"type\": \"FeatureCollection\", \"features\": [";
         boolean first = true;
         for (int i=0; i< geomCollection.getNumGeometries(); i++){
-            Feature f = jtsGeometry2jsonFeature(geomCollection.getGeometryN(i));
+            Feature f = GeoUtils.jtsGeometry2jsonFeature(geomCollection.getGeometryN(i));
             String featureString="ERR";
 
             try {
@@ -489,7 +357,7 @@ public class GeoUtils {
         Geometry[] fixedGeoms = new Geometry[geoms.length];
         int i=0;
         for (Geometry geom: geoms) {
-            fixedGeoms[i]=GeoUtils.fixWinding(geom);
+            fixedGeoms[i]=GeoUtilsTac.fixWinding(geom);
             i++;
         }
 
@@ -671,5 +539,12 @@ public class GeoUtils {
         return null;
     }
 
-
+    public static Geometry fixWinding(Geometry g) {
+        Coordinate[] coords=g.getCoordinates();
+		if (!Orientation.isCCW(coords)) {
+            Geometry reversed = g.reverse();
+			return reversed;
+		}
+        return g;
+    }
 }

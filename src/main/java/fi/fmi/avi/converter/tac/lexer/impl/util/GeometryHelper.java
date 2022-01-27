@@ -18,6 +18,7 @@ import fi.fmi.avi.model.CoordinateReferenceSystem;
 import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.PointGeometry;
 import fi.fmi.avi.model.PolygonGeometry;
+import fi.fmi.avi.model.Geometry.Winding;
 import fi.fmi.avi.model.immutable.PointGeometryImpl;
 
 public class GeometryHelper {
@@ -104,7 +105,7 @@ public class GeometryHelper {
             if (lonOffset == -1) {
                 lonOffset = 1;
             }
-            final List<Double> coords = ((PolygonGeometry) geom).getExteriorRingPositions();
+            final List<Double> coords = ((PolygonGeometry) geom).getExteriorRingPositions(Winding.CW);
             int latIndex;
             int lonIndex;
             for (int coordPairIndex = 0; coordPairIndex < coords.size() - 1; coordPairIndex = coordPairIndex + 2) {

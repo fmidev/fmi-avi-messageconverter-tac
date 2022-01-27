@@ -32,7 +32,7 @@ import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACParser;
 import fi.fmi.avi.converter.tac.geoinfo.FirInfo;
-import fi.fmi.avi.converter.tac.geoinfo.GeoUtils;
+import fi.fmi.avi.converter.tac.geoinfo.GeoUtilsTac;
 import fi.fmi.avi.converter.tac.geoinfo.impl.FirInfoImpl;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -150,22 +150,22 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
-            geomBuilder.setGeoGeometry(GeoUtils.getPolygonOutside(firstLexeme, firName, firInfo));
+            geomBuilder.setGeoGeometry(GeoUtilsTac.getPolygonOutside(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_APRX_LINE.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
-            geomBuilder.setGeoGeometry(GeoUtils.getPolygonAprxWidth(firstLexeme, firName, firInfo));
+            geomBuilder.setGeoGeometry(GeoUtilsTac.getPolygonAprxWidth(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_LINE.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
-            geomBuilder.setGeoGeometry(GeoUtils.getRelativeToLine(firstLexeme, firName, firInfo));
+            geomBuilder.setGeoGeometry(GeoUtilsTac.getRelativeToLine(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_2_LINES.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setData(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
-            geomBuilder.setGeoGeometry(GeoUtils.getRelativeTo2Lines(firstLexeme, firName, firInfo));
+            geomBuilder.setGeoGeometry(GeoUtilsTac.getRelativeTo2Lines(firstLexeme, firName, firInfo));
         }
         return geomBuilder.build();
     }
