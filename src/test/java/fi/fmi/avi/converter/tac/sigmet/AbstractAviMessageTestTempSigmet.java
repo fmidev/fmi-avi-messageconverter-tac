@@ -39,7 +39,7 @@ import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
-import fi.fmi.avi.converter.tac.geoinfo.GeoUtils;
+import fi.fmi.avi.converter.tac.geoinfo.GeoUtilsTac;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -165,8 +165,8 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
                 PolygonGeometry leftGeometry=(PolygonGeometry)left;
                 PolygonGeometry rightGeometry=(PolygonGeometry)right;
 
-                org.locationtech.jts.geom.Geometry leftJtsGeom = GeoUtils.PolygonGeometry2jtsGeometry(leftGeometry);
-                org.locationtech.jts.geom.Geometry rightJtsGeom = GeoUtils.PolygonGeometry2jtsGeometry(rightGeometry);
+                org.locationtech.jts.geom.Geometry leftJtsGeom = GeoUtilsTac.PolygonGeometry2jtsGeometry(leftGeometry);
+                org.locationtech.jts.geom.Geometry rightJtsGeom = GeoUtilsTac.PolygonGeometry2jtsGeometry(rightGeometry);
 
                 if (!leftJtsGeom.equalsTopo(rightJtsGeom)) {
                     return new Difference("geometries differ", left, right);

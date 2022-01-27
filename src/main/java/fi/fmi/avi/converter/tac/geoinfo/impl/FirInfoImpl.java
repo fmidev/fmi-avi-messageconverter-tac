@@ -28,7 +28,8 @@ import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.springframework.core.io.ClassPathResource;
 
 import fi.fmi.avi.converter.tac.geoinfo.FirInfo;
-import fi.fmi.avi.converter.tac.geoinfo.GeoUtils;
+import fi.fmi.avi.converter.tac.geoinfo.GeoUtilsTac;
+import fi.fmi.avi.util.geoutil.GeoUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,7 +163,6 @@ public class FirInfoImpl implements FirInfo {
           oos.close();
         }
       }
-
 
     @Override
     public Geometry getFir(String firName, boolean addDelegate) {
