@@ -25,13 +25,26 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Fix NullPointerException in Lexing. [#114]
+- ...
 
 ### Security
 
 - ...
 
-## [v4.0.0] - 2014-04-13
+## [v5.0.0] - 2022-02-22
+
+### Changed
+
+- Removed preceding CR/LF characters in front of serialized/parsed bulletin. [#102]
+- Adapted to location indicator model changes in GenericAviationMessage. [#106]
+- Separated generic message parsing from generic bulletin parsing. [#107]
+- Depend on fmi-avi-messageconverter:6.0.0
+
+### Fixed
+
+-  Fixed NullPointerException in Lexing. [#114]
+
+## [v4.0.0] - 2021-04-13
 
 ### Added
 
@@ -47,14 +60,24 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Previous changelog entries are available on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
 
-[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-4.0.0...HEAD
+[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.0.0...HEAD
+
+[v5.0.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.0.0
 
 [v4.0.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-4.0.0
 
 [#90]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/90
+
 [#95]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/95
+
 [#97]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/97
 
 [#101]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/101
+
+[#102]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/102
+
+[#106]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/106
+
+[#107]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/107
 
 [#114]:https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/114
