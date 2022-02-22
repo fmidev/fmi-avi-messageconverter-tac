@@ -38,6 +38,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Removed preceding CR/LF characters in front of serialized/parsed bulletin. [#102]
 - Adapted to location indicator model changes in GenericAviationMessage. [#106]
 - Separated generic message parsing from generic bulletin parsing. [#107]
+- Depend on fmi-avi-messageconverter:6.0.0
 
 ### Fixed
 
