@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac.swx;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
+import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
+import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
@@ -70,8 +70,7 @@ public class SWXBulletinTACSerializationTest {
         assertTrue(stringResult.getConversionIssues().isEmpty());
         assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "FNXX01 EFKL 020500"//
+                        "FNXX01 EFKL 020500"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "SWX ADVISORY" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "STATUS:             TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//

@@ -20,6 +20,7 @@ import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.LexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.model.MessageType;
+import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 
 /**
  * Default LexingFactory implementation.
@@ -27,8 +28,8 @@ import fi.fmi.avi.model.MessageType;
 
 public class LexingFactoryImpl implements LexingFactory {
 
-    private static final String TAC_DELIMS = Arrays.stream(Lexeme.MeteorologicalBulletinSpecialCharacter.values())
-            .map(Lexeme.MeteorologicalBulletinSpecialCharacter::getContent)
+    private static final String TAC_DELIMS = Arrays.stream(MeteorologicalBulletinSpecialCharacter.values())
+            .map(MeteorologicalBulletinSpecialCharacter::getContent)
             .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
             .append("=")
             .toString();
@@ -98,7 +99,7 @@ public class LexingFactoryImpl implements LexingFactory {
             final Lexeme artificialStartToken = this.startTokens.get(toMessageType(hints.get(ConversionHints.KEY_MESSAGE_TYPE)));
             if (artificialStartToken != null) {
                 if (!input.startsWith(artificialStartToken.getTACToken() + " ") && !input.startsWith(artificialStartToken.getTACToken() + "\n")) {
-                    result.addAsFirst(new LexemeImpl(this, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE));
+                    result.addAsFirst(new LexemeImpl(this, MeteorologicalBulletinSpecialCharacter.SPACE));
                     result.addAsFirst(artificialStartToken);
                 }
             }
@@ -377,7 +378,7 @@ public class LexingFactoryImpl implements LexingFactory {
                     final String s = st.nextToken();
                     start = tac.indexOf(s, start);
                     //Special chars or space:
-                    final Lexeme.MeteorologicalBulletinSpecialCharacter specialCharacter = Lexeme.MeteorologicalBulletinSpecialCharacter.fromChar(s.charAt(0));
+                    final MeteorologicalBulletinSpecialCharacter specialCharacter = MeteorologicalBulletinSpecialCharacter.fromChar(s.charAt(0));
                     if (s.length() == 1 && specialCharacter != null) {
                         final LexemeImpl l = new LexemeImpl(this.factory, s, LexemeIdentity.WHITE_SPACE);
                         l.setStartIndex(start);
