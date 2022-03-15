@@ -51,7 +51,7 @@ public class PolygonCoordinatePairTest {
     public void shouldBeCase1() throws Exception {
         AIRMET airmet = initPoint(52, 5.2);
         ctx = new ReconstructorContext<>(msg, new ConversionHints());
-        ctx.setParameter("analysisIndex", new Integer(0));
+        ctx.setParameter("analysisIndex", Integer.valueOf(0));
 
         final PolygonCoordinatePair.Reconstructor reconstructor = new PolygonCoordinatePair.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
@@ -64,11 +64,70 @@ public class PolygonCoordinatePairTest {
     public void shouldBeCase2() throws Exception {
         AIRMET airmet = initPoint(52.5, 5.8);
         ctx = new ReconstructorContext<>(msg, new ConversionHints());
-        ctx.setParameter("analysisIndex", new Integer(0));
+        ctx.setParameter("analysisIndex", Integer.valueOf(0));
 
         final PolygonCoordinatePair.Reconstructor reconstructor = new PolygonCoordinatePair.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         final List<Lexeme> lexemes = reconstructor.getAsLexemes(airmet, AIRMET.class, ctx);
         assertEquals("N5230 E00548", lexemes.get(0).getTACToken());
+    }
+
+    @Test
+    public void shouldBeCase3() throws Exception {
+        AIRMET airmet = initPoint(52.98, 5.995);
+        ctx = new ReconstructorContext<>(msg, new ConversionHints());
+        ctx.setParameter("analysisIndex", Integer.valueOf(0));
+
+        final PolygonCoordinatePair.Reconstructor reconstructor = new PolygonCoordinatePair.Reconstructor();
+        reconstructor.setLexingFactory(this.lexingFactory);
+        final List<Lexeme> lexemes = reconstructor.getAsLexemes(airmet, AIRMET.class, ctx);
+        assertEquals("N5259 E006", lexemes.get(0).getTACToken());
+    }
+
+    @Test
+    public void shouldBeCase4() throws Exception {
+        AIRMET airmet = initPoint(-52.98, -5.995);
+        ctx = new ReconstructorContext<>(msg, new ConversionHints());
+        ctx.setParameter("analysisIndex", Integer.valueOf(0));
+
+        final PolygonCoordinatePair.Reconstructor reconstructor = new PolygonCoordinatePair.Reconstructor();
+        reconstructor.setLexingFactory(this.lexingFactory);
+        final List<Lexeme> lexemes = reconstructor.getAsLexemes(airmet, AIRMET.class, ctx);
+        assertEquals("S5259 W006", lexemes.get(0).getTACToken());
+    }
+
+    @Test
+    public void shouldBeCase5() throws Exception {
+        AIRMET airmet = initPoint(-52.00, -5.00);
+
+        ConversionHints hints = new ConversionHints();
+
+        // No hint about specifying zeros for minutes in coordinates (default behaviour) S52 W005
+        ctx = new ReconstructorContext<>(msg, hints);
+        ctx.setParameter("analysisIndex", Integer.valueOf(0));
+
+        final PolygonCoordinatePair.Reconstructor reconstructor = new PolygonCoordinatePair.Reconstructor();
+        reconstructor.setLexingFactory(this.lexingFactory);
+        final List<Lexeme> lexemes = reconstructor.getAsLexemes(airmet, AIRMET.class, ctx);
+        assertEquals("S52 W005", lexemes.get(0).getTACToken());
+
+        // Hint to specify zeros for minutes in coordinates: S5200 W00500
+        hints.put(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES, ConversionHints.VALUE_SPECIFY_ZERO_MINUTES);
+        ctx = new ReconstructorContext<>(msg, hints);
+        ctx.setParameter("analysisIndex", Integer.valueOf(0));
+
+        reconstructor.setLexingFactory(this.lexingFactory);
+        final List<Lexeme> lexemes2 = reconstructor.getAsLexemes(airmet, AIRMET.class, ctx);
+        assertEquals("S5200 W00500", lexemes2.get(0).getTACToken());
+
+        // Hint to drop zeros for minutes in coordinates: S52 W005
+        hints.put(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES, ConversionHints.VALUE_DROP_ZERO_MINUTES);
+        ctx = new ReconstructorContext<>(msg, hints);
+        ctx.setParameter("analysisIndex", Integer.valueOf(0));
+
+        final List<Lexeme> lexemes3 = reconstructor.getAsLexemes(airmet, AIRMET.class, ctx);
+        assertEquals("S52 W005", lexemes3.get(0).getTACToken());
+
+
     }
 }
