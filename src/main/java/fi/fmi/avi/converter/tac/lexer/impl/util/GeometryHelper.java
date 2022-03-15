@@ -25,7 +25,7 @@ public class GeometryHelper {
     private static final Set<String> LATITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lat", "latitude")));
     private static final Set<String> LONGITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lon", "long", "longitude")));
 
-    public static List<Lexeme> getCoordinateString(BigDecimal lat, BigDecimal lon, boolean lastPair, BiFunction<String, LexemeIdentity, Lexeme> createLexeme) {
+    public static List<Lexeme> getCoordinateString(BigDecimal lat, BigDecimal lon, boolean lastPair, BiFunction<String, LexemeIdentity, Lexeme> createLexeme, boolean specifyZeros) {
         List<Lexeme> lexemes = new ArrayList<>();
         final StringBuilder latBuilder = new StringBuilder();
         final StringBuilder lonBuilder = new StringBuilder();
@@ -47,10 +47,10 @@ public class GeometryHelper {
             final BigDecimal lonDecimalPart = lon.subtract(BigDecimal.valueOf(lon.intValue()));
             latBuilder.append(String.format("%02d", lat.abs().intValue()));
             lonBuilder.append(String.format("%03d", lon.abs().intValue()));
-            if (latDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
+            if (specifyZeros || (latDecimalPart.compareTo(BigDecimal.ZERO) != 0)) {
                 latBuilder.append(String.format("%02.0f", latDecimalPart.abs().multiply(BigDecimal.valueOf(60d)).round(mc)));
             }
-            if (lonDecimalPart.compareTo(BigDecimal.ZERO) != 0) {
+            if ((specifyZeros || lonDecimalPart.compareTo(BigDecimal.ZERO) != 0)) {
                 lonBuilder.append(String.format("%02.0f", lonDecimalPart.abs().multiply(BigDecimal.valueOf(60d)).round(mc)));
             }
             lexemes.add(createLexeme.apply(
@@ -69,21 +69,11 @@ public class GeometryHelper {
         return lexemes;
     }
 
-    // public static List<Lexeme> getCoordinateLexemes(BigDecimal lat, BigDecimal lon, boolean lastPair, BiFunction<String, LexemeIdentity, Lexeme> createLexeme) {
-    //     List<Lexeme> lexemes = new ArrayList<>();
-    //      lexemes.add(createLexeme.apply(getCoordinateString(lat, lon), LexemeIdentity.POLYGON_COORDINATE_PAIR));
-    //     if (!lastPair) {
-    //         lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
-    //                 LexemeIdentity.WHITE_SPACE));
-    //         lexemes.add(createLexeme.apply("-", LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR));
-    //         lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
-    //                 LexemeIdentity.WHITE_SPACE));
-    //     }
-    //     return lexemes;
-
-    // }
-
     public static List<Lexeme> getGeoLexemes(Geometry geom, BiFunction<String, LexemeIdentity, Lexeme> createLexeme) {
+        return  getGeoLexemes(geom, createLexeme, false);
+    }
+
+    public static List<Lexeme> getGeoLexemes(Geometry geom, BiFunction<String, LexemeIdentity, Lexeme> createLexeme, boolean specifyZeros) {
         List<Lexeme> lexemes = new ArrayList<>();
         if (geom instanceof PolygonGeometry) {
             //Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
@@ -111,9 +101,9 @@ public class GeometryHelper {
             for (int coordPairIndex = 0; coordPairIndex < coords.size() - 1; coordPairIndex = coordPairIndex + 2) {
                 latIndex = coordPairIndex + latOffset;
                 lonIndex = coordPairIndex + lonOffset;
-                final BigDecimal lat = BigDecimal.valueOf(coords.get(latIndex));
-                final BigDecimal lon = BigDecimal.valueOf(coords.get(lonIndex));
-                lexemes.addAll(getCoordinateString(lat, lon, (coordPairIndex >= coords.size() - 2), createLexeme));
+                final BigDecimal lat = BigDecimal.valueOf(coords.get(latIndex)).setScale(2, RoundingMode.HALF_UP);
+                final BigDecimal lon = BigDecimal.valueOf(coords.get(lonIndex)).setScale(2, RoundingMode.HALF_UP);
+                lexemes.addAll(getCoordinateString(lat, lon, (coordPairIndex >= coords.size() - 2), createLexeme, specifyZeros));
             }
         } else if (geom instanceof PointGeometry) {
             //Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
@@ -136,9 +126,9 @@ public class GeometryHelper {
                 lonOffset = 1;
             }
             final List<Double> coords = ((PointGeometry) geom).getCoordinates();
-            final BigDecimal lat = BigDecimal.valueOf(coords.get(latOffset));
-            final BigDecimal lon = BigDecimal.valueOf(coords.get(lonOffset));
-            lexemes.addAll(getCoordinateString(lat, lon, true, createLexeme));
+            final BigDecimal lat = BigDecimal.valueOf(coords.get(latOffset)).setScale(2, RoundingMode.HALF_UP);
+            final BigDecimal lon = BigDecimal.valueOf(coords.get(lonOffset)).setScale(2, RoundingMode.HALF_UP);
+            lexemes.addAll(getCoordinateString(lat, lon, true, createLexeme, specifyZeros));
         }
 
         return lexemes;

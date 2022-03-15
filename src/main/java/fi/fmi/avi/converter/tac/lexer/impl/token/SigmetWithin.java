@@ -39,6 +39,9 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             List<Lexeme> lexemes = new ArrayList<>();
+            ConversionHints hints = ctx.getHints();
+            Boolean specifyZeros = hints.containsKey(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES)&&
+                ConversionHints.VALUE_SPECIFY_ZERO_MINUTES.equals(hints.get(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES));
             if (SIGMET.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
@@ -51,7 +54,7 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
                         if (geometry instanceof PolygonGeometry) {
                             lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));
                             lexemes.add(this.createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
-                            lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l)));
+                            lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l), specifyZeros));
                         }
                     } else {
                         // System.err.println("SIGMET_WITHIN recon has TACGeometry");
@@ -69,7 +72,7 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
                         if (geometry instanceof PolygonGeometry) {
                             lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));
                             lexemes.add(this.createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
-                            lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l)));
+                            lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l), specifyZeros));
                         }
                     } else {
                         // System.err.println("SIGMET_WITHIN recon has TACGeometry");

@@ -65,6 +65,9 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
+            ConversionHints hints = ctx.getHints();
+            Boolean specifyZeros = (hints!=null)&&hints.containsKey(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES)&&
+                ConversionHints.VALUE_SPECIFY_ZERO_MINUTES.equals(hints.get(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES));
             final List<Lexeme> retval = new ArrayList<>();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
@@ -89,7 +92,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                         final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
                         if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
                             PointGeometry pt = (PointGeometry)geoGeometry;
-                            retval.addAll(GeometryHelper.getGeoLexemes(pt, (s,id) -> this.createLexeme(s, id)));
+                            retval.addAll(GeometryHelper.getGeoLexemes(pt, (s,id) -> this.createLexeme(s, id), specifyZeros));
                         }
                     }
                 }
@@ -100,7 +103,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                         final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
                         if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
                             PointGeometry pt = (PointGeometry)geoGeometry;
-                            retval.addAll(GeometryHelper.getGeoLexemes(pt, (s,id) -> this.createLexeme(s, id)));
+                            retval.addAll(GeometryHelper.getGeoLexemes(pt, (s,id) -> this.createLexeme(s, id), specifyZeros));
                         }
                     }
                 }
@@ -112,7 +115,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                         final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
                         if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
                             PointGeometry pt = (PointGeometry)geoGeometry;
-                            retval.addAll(GeometryHelper.getGeoLexemes(pt, (s,id) -> this.createLexeme(s, id)));
+                            retval.addAll(GeometryHelper.getGeoLexemes(pt, (s,id) -> this.createLexeme(s, id), specifyZeros));
                         }
                     }
                 }
