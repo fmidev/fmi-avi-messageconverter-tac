@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import fi.fmi.avi.converter.ConversionSpecification;
+import fi.fmi.avi.model.GenericAviationWeatherMessage;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
@@ -127,6 +128,12 @@ public class TACConverter {
      */
     public static final ConversionSpecification<GenericMeteorologicalBulletin, String> GENERIC_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(
             GenericMeteorologicalBulletin.class, String.class, null, "WMO GTS bulletin");
+
+    /**
+     *
+     */
+    public static final ConversionSpecification<String, GenericAviationWeatherMessage> TAC_TO_GENERIC_AVIATION_WEATHER_MESSAGE_POJO =
+            new ConversionSpecification<>(String.class, GenericAviationWeatherMessage.class, "ICAO Annex 3 TAC", null);
 
     // **********************
     // Space weather messages

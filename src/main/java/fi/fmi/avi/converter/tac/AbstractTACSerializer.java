@@ -18,6 +18,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.TACTokenReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CloudLayer;
+import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 
 /**
  * Created by rinne on 07/06/17.
@@ -63,7 +64,7 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
             for (final CloudLayer layer : layers) {
                 ctx.setParameter("layer", layer);
                 retval += appendToken(builder, LexemeIdentity.CLOUD, msg, clz, ctx);
-                retval += appendWhitespace(builder, Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE);
+                retval += appendWhitespace(builder, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
         }
         return retval;
@@ -85,11 +86,11 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
         return retval;
     }
 
-    protected int appendWhitespace(final LexemeSequenceBuilder builder, final Lexeme.MeteorologicalBulletinSpecialCharacter toAppend) {
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final MeteorologicalBulletinSpecialCharacter toAppend) {
         return appendWhitespace(builder, toAppend, 1);
     }
 
-    protected int appendWhitespace(final LexemeSequenceBuilder builder, final Lexeme.MeteorologicalBulletinSpecialCharacter toAppend, final int count) {
+    protected int appendWhitespace(final LexemeSequenceBuilder builder, final MeteorologicalBulletinSpecialCharacter toAppend, final int count) {
         for (int i = 0; i < count; i++) {
             final Lexeme l = factory.createLexeme(toAppend.getContent(), LexemeIdentity.WHITE_SPACE);
             l.setParsedValue(Lexeme.ParsedValueName.TYPE, toAppend);

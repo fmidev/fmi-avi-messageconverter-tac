@@ -3,8 +3,7 @@
   <parent>
     <groupId>fi.fmi</groupId>
     <artifactId>fmi-os-parent-pom</artifactId>
-    <version>0.8.1</version>
-    <relativePath />
+    <version>0.8.2</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -12,13 +11,13 @@
   <description>Aviation weather message conversions - TAC module</description>
   <groupId>fi.fmi.avi.converter</groupId>
   <artifactId>fmi-avi-messageconverter-tac</artifactId>
-  <version>KNMI-4.0.3-SNAPSHOT</version>
+  <version>KNMI-5.0.0</version>
 
   <scm>
     <connection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</connection>
     <developerConnection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</developerConnection>
     <url>https://github.com/fmidev/fmi-avi-messageconverter-tac</url>
-    <tag>fmi-avi-messageconverter-tac-3.0.4</tag>
+    <tag>fmi-avi-messageconverter-tac-5.0.0</tag>
   </scm>
 
   <dependencies>
@@ -50,7 +49,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>2.8.9</version>
+      <version>4.5.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -3,12 +3,12 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.NumericMeasure;
+import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 

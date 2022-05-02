@@ -11,6 +11,7 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.TacOrGeoGeometry;
+import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
                         final Geometry geometry = tacOrGeoGeometry.getGeoGeometry().get();
                         if (geometry instanceof PolygonGeometry) {
                             lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));
-                            lexemes.add(this.createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
+                            lexemes.add(this.createLexeme(MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
                             lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l), specifyZeros));
                         }
                     } else {
@@ -71,7 +72,7 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
                         final Geometry geometry = tacOrGeoGeometry.getGeoGeometry().get();
                         if (geometry instanceof PolygonGeometry) {
                             lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));
-                            lexemes.add(this.createLexeme(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
+                            lexemes.add(this.createLexeme(MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
                             lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l), specifyZeros));
                         }
                     } else {

@@ -1,7 +1,7 @@
 package fi.fmi.avi.converter.tac.bulletin;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
+import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
+import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
 import static fi.fmi.avi.model.bulletin.DataTypeDesignatorT1.UPPER_AIR_DATA;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -47,8 +47,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
         final Optional<String> tacBulletin = tacResult.getConvertedMessage();
         assertTrue(tacBulletin.isPresent());
         TestCase.assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "UXFI81 EFKL 271402"//
+                "UXFI81 EFKL 271402"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
                         + "LOW WIND EFHK 270925Z 1000FT 2000FT FL050 FL100 200/05" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "     260/05 310/05 320/15=", tacBulletin.get());
@@ -64,8 +63,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
         final Optional<String> tacBulletin = tacResult.getConvertedMessage();
         assertTrue(tacBulletin.isPresent());
         TestCase.assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "UXFI81 EFKL 271402"//
+                "UXFI81 EFKL 271402"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "LOW WIND EFHK 270925Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
@@ -83,8 +81,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
         final Optional<String> tacBulletin = tacResult.getConvertedMessage();
         assertTrue(tacBulletin.isPresent());
         TestCase.assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "UXFI81 EFKL 271402"//
+                "UXFI81 EFKL 271402"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "LOW WIND EFHK 270925Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
@@ -102,8 +99,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
         final Optional<String> tacBulletin = tacResult.getConvertedMessage();
         assertTrue(tacBulletin.isPresent());
         TestCase.assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "UXFI81 EFKL 271402"//
+                "UXFI81 EFKL 271402"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "LOW WIND EFHK 270925Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
@@ -121,8 +117,7 @@ public class GenericMeteorologicalBulletinTACSerializerTest {
         final Optional<String> tacBulletin = tacResult.getConvertedMessage();
         assertTrue(tacBulletin.isPresent());
         TestCase.assertEquals(//
-                CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "UXFI81 EFKL 271402"//
+                "UXFI81 EFKL 271402"//
                         + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "LOW WIND EFHK 270925Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//

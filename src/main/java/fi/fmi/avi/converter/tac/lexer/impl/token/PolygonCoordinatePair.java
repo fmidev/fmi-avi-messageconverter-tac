@@ -19,6 +19,8 @@ import fi.fmi.avi.model.PointGeometry;
 import fi.fmi.avi.model.TacOrGeoGeometry;
 import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
+import fi.fmi.avi.model.PolygonGeometry;
+import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.swx.AirspaceVolume;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;

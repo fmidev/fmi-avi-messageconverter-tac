@@ -19,6 +19,7 @@ import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.PointGeometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.Geometry.Winding;
+import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.immutable.PointGeometryImpl;
 
 public class GeometryHelper {
@@ -54,13 +55,13 @@ public class GeometryHelper {
                 lonBuilder.append(String.format("%02.0f", lonDecimalPart.abs().multiply(BigDecimal.valueOf(60d)).round(mc)));
             }
             lexemes.add(createLexeme.apply(
-                    latBuilder.toString() + Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
+                    latBuilder.toString() + MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
                             + lonBuilder.toString(), LexemeIdentity.POLYGON_COORDINATE_PAIR));
             if (!lastPair) {
-                lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
+                lexemes.add(createLexeme.apply(MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
                         LexemeIdentity.WHITE_SPACE));
                 lexemes.add(createLexeme.apply("-", LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR));
-                lexemes.add(createLexeme.apply(Lexeme.MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
+                lexemes.add(createLexeme.apply(MeteorologicalBulletinSpecialCharacter.SPACE.getContent(),
                         LexemeIdentity.WHITE_SPACE));
             }
         } else {
