@@ -31,6 +31,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v5.1.0] - 2022-06-06
+
+### Changed
+
+- Depend on fmi-avi-messageconverter:6.1.0
+
 ## [v5.0.0] - 2022-02-22
 
 ### Changed
@@ -60,7 +66,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Previous changelog entries are available on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
 
-[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.0.0...HEAD
+[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.1.0...HEAD
+
+[v5.1.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.1.0
 
 [v5.0.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.0.0
 
