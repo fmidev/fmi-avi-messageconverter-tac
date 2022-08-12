@@ -11,7 +11,7 @@
   <description>Aviation weather message conversions - TAC module</description>
   <groupId>fi.fmi.avi.converter</groupId>
   <artifactId>fmi-avi-messageconverter-tac</artifactId>
-  <version>5.1.1-SNAPSHOT</version>
+  <version>5.2.0-SNAPSHOT</version>
 
   <scm>
     <connection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</connection>
