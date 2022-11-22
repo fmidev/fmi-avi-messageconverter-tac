@@ -39,7 +39,7 @@ public class SigmetVaName extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET) msg;
-                if (sigmet.getSigmetPhenomenon().get().equals(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA)) {
+                if (sigmet.getPhenomenon().get().equals(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA)) {
                     if (sigmet.getVAInfo().isPresent()) {
                         if (sigmet.getVAInfo().isPresent() && sigmet.getVAInfo().get().getVolcano().isPresent()
                             && sigmet.getVAInfo().get().getVolcano().get().getVolcanoName().isPresent()) {

@@ -23,12 +23,12 @@
       "partialTime": "--11T15:30Z"
     }
   },
-  "sigmetPhenomenon": "OBSC_TSGR",
+  "phenomenon": "OBSC_TSGR",
   "sequenceNumber": "1",
   "analysisGeometries": [{
     "geometry":{
       "tacGeometry":{
-        "data":"WI N5200 E00524 - N5300 E00630 - N5100 E00718 - N5200 E00524"
+        "tacContent":"WI N5200 E00524 - N5300 E00630 - N5100 E00718 - N5200 E00524"
       },
       "geoGeometry" : {
         "type" : "Polygon",

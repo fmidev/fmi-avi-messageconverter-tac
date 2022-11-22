@@ -38,10 +38,11 @@ import org.locationtech.jts.operation.polygonize.Polygonizer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.model.PolygonGeometry;
-import fi.fmi.avi.model.Geometry.Winding;
+import fi.fmi.avi.model.Winding;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
-import fi.fmi.avi.util.geoutil.GeoUtils;
+import fi.fmi.avi.util.JtsTools;
+import fi.fmi.avi.util.JtsToolsException;
 
 
 public class GeoUtilsTac {
@@ -172,13 +173,13 @@ public class GeoUtilsTac {
         return null;
     }
 
-    public static org.locationtech.jts.geom.Geometry PolygonGeometry2jtsGeometry(PolygonGeometry geometry) {
+    public static org.locationtech.jts.geom.Geometry PolygonGeometry2jtsGeometry(PolygonGeometry geometry) throws JtsToolsException {
         String json=toGeoJSON(geometry);
         Feature feature;
 
         try {
             feature = getObjectMapper().readValue(json, Feature.class);
-            return GeoUtils.jsonFeature2jtsGeometry(feature);
+            return JtsTools.jsonFeature2jtsGeometry(feature);
         } catch (JsonParseException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
@@ -193,7 +194,7 @@ public class GeoUtilsTac {
         PolygonGeometry pg = (PolygonGeometry)g;
         String polygonAsString="{\"type\": \"Feature\", \"properties\":{},"+
             "\"geometry\": { \"type\": \"Polygon\", \"coordinates\":[[";
-            List<Double>exteriorRingPositions = pg.getExteriorRingPositions(Winding.CW);
+            List<Double>exteriorRingPositions = pg.getExteriorRingPositions(Winding.CLOCKWISE);
             int l = exteriorRingPositions.size()/2;
             for (int i=0; i<l; i++){
                 if (i>0) {
@@ -207,13 +208,13 @@ public class GeoUtilsTac {
         return polygonAsString;
     }
 
-    public static String toGeoJSON(GeometryCollection g) {
+    public static String toGeoJSON(GeometryCollection g) throws JtsToolsException {
         GeometryCollection geomCollection = (GeometryCollection)g;
         ObjectMapper om = getObjectMapper();
         String featureCollectionAsString="{\"type\": \"FeatureCollection\", \"features\": [";
         boolean first = true;
         for (int i=0; i< geomCollection.getNumGeometries(); i++){
-            Feature f = GeoUtils.jtsGeometry2jsonFeature(geomCollection.getGeometryN(i));
+            Feature f = JtsTools.jtsGeometry2jsonFeature(geomCollection.getGeometryN(i));
             String featureString="ERR";
 
             try {

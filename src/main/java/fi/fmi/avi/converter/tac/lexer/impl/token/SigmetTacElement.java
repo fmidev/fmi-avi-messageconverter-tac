@@ -41,7 +41,7 @@ public class SigmetTacElement extends RegexMatchingLexemeVisitor {
                     sigmet.getAnalysisGeometries().ifPresent(geoms -> {
                         geoms.get(analysisIndex.get()).getGeometry().ifPresent(geom -> {
                           geom.getTacGeometry().ifPresent(t -> {
-                              sb.append(t.getData());
+                              sb.append(t.getTacContent());
                           });
                         });
                     });
@@ -51,7 +51,7 @@ public class SigmetTacElement extends RegexMatchingLexemeVisitor {
                         sigmet.getForecastGeometries().ifPresent(geoms -> {
                             geoms.get(forecastIndex.get()).getGeometry().ifPresent(geom -> {
                                 geom.getTacGeometry().ifPresent(t -> {
-                                    sb.append(t.getData());
+                                    sb.append(t.getTacContent());
                             });
                             });
                         });
@@ -68,7 +68,7 @@ public class SigmetTacElement extends RegexMatchingLexemeVisitor {
                     airmet.getAnalysisGeometries().ifPresent(geoms -> {
                         geoms.get(analysisIndex.get()).getGeometry().ifPresent(geom -> {
                           geom.getTacGeometry().ifPresent(t -> {
-                              sb.append(t.getData());
+                              sb.append(t.getTacContent());
                           });
                         });
                     });

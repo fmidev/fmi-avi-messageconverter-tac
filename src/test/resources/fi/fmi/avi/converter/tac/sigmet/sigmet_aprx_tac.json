@@ -23,7 +23,7 @@
       "partialTime": "--11T15:30Z"
     }
   },
-  "sigmetPhenomenon": "SEV_ICE_FZRA",
+  "phenomenon": "SEV_ICE_FZRA",
   "sequenceNumber": "M01",
   "analysisGeometries": [
     {
@@ -31,7 +31,7 @@
       "analysisType": "OBSERVATION",
       "geometry":{
         "tacGeometry":{
-          "data":"APRX 50KM WID LINE BTN N5200 E00520 - N5400 E00540 - N5500 E00712"
+          "tacContent":"APRX 50KM WID LINE BTN N5200 E00520 - N5400 E00540 - N5500 E00712"
         },
         "geoGeometry": {
           "type" : "Polygon",

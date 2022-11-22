@@ -23,12 +23,12 @@
       "partialTime": "--11T15:30Z"
     }
   },
-  "airmetPhenomenon": "SFC_VIS",
+  "phenomenon": "SFC_VIS",
   "sequenceNumber": "1",
   "analysisGeometries": [{
     "geometry":{
       "tacGeometry":{
-        "data":"ENTIRE FIR"
+        "tacContent":"ENTIRE FIR"
       },
     "entireArea": true
     },

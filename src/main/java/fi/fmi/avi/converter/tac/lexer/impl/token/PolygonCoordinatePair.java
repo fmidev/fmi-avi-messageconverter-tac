@@ -68,8 +68,8 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             ConversionHints hints = ctx.getHints();
-            Boolean specifyZeros = (hints!=null)&&hints.containsKey(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES)&&
-                ConversionHints.VALUE_SPECIFY_ZERO_MINUTES.equals(hints.get(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES));
+            Boolean specifyZeros = (hints!=null)&&hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES)&&
+                ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
             final List<Lexeme> retval = new ArrayList<>();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);

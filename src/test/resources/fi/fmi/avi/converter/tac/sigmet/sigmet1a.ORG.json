@@ -23,7 +23,7 @@
       "partialTime": "--11T15:30Z"
     }
   },
-  "sigmetPhenomenon": "SEV_ICE_FZRA",
+  "phenomenon": "SEV_ICE_FZRA",
   "analysisType": "OBSERVATION",
   "sequenceNumber": "M01",
   "intensityChange": "NO_CHANGE",

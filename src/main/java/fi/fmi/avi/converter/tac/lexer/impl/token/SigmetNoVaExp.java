@@ -38,8 +38,8 @@ public class SigmetNoVaExp extends RegexMatchingLexemeVisitor {
                 final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
                 if (forecastIndex.isPresent()) {
 
-                    if (sigmet.getForecastGeometries().get().get(forecastIndex.get()).getNoVaExpected().isPresent()&&
-                        sigmet.getForecastGeometries().get().get(forecastIndex.get()).getNoVaExpected().get()) {
+                    if (sigmet.getForecastGeometries().get().get(forecastIndex.get()).getNoVolcanicAshExpected().isPresent()&&
+                        sigmet.getForecastGeometries().get().get(forecastIndex.get()).getNoVolcanicAshExpected().get()) {
                         return Optional.of(createLexeme("NO VA EXP", SIGMET_NO_VA_EXP));
                     }
                 }

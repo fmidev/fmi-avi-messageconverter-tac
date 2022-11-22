@@ -39,11 +39,11 @@ public class SigmetVaPosition extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             ConversionHints hints = ctx.getHints();
-            Boolean specifyZeros = hints.containsKey(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES)&&
-                ConversionHints.VALUE_SPECIFY_ZERO_MINUTES.equals(hints.get(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES));
+            Boolean specifyZeros = hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES)&&
+                ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET) msg;
-                if (sigmet.getSigmetPhenomenon().get().equals(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA)) {
+                if (sigmet.getPhenomenon().get().equals(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA)) {
                     if (sigmet.getVAInfo().isPresent()) {
                         if (sigmet.getVAInfo().get().getVolcano().isPresent()&&
                             sigmet.getVAInfo().get().getVolcano().get().getVolcanoPosition().isPresent()) {

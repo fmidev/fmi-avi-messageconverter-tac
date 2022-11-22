@@ -112,7 +112,7 @@ public class PolygonCoordinatePairTest {
         assertEquals("S52 W005", lexemes.get(0).getTACToken());
 
         // Hint to specify zeros for minutes in coordinates: S5200 W00500
-        hints.put(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES, ConversionHints.VALUE_SPECIFY_ZERO_MINUTES);
+        hints.put(ConversionHints.KEY_COORDINATE_MINUTES, ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO);
         ctx = new ReconstructorContext<>(msg, hints);
         ctx.setParameter("analysisIndex", Integer.valueOf(0));
 
@@ -121,7 +121,7 @@ public class PolygonCoordinatePairTest {
         assertEquals("S5200 W00500", lexemes2.get(0).getTACToken());
 
         // Hint to drop zeros for minutes in coordinates: S52 W005
-        hints.put(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES, ConversionHints.VALUE_DROP_ZERO_MINUTES);
+        hints.put(ConversionHints.KEY_COORDINATE_MINUTES, ConversionHints.VALUE_COORDINATE_MINUTES_OMIT_ZERO);
         ctx = new ReconstructorContext<>(msg, hints);
         ctx.setParameter("analysisIndex", Integer.valueOf(0));
 

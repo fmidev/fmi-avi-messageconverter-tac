@@ -10,7 +10,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.sigmet.AIRMET;
-import fi.fmi.avi.model.sigmet.AirmetReference;
+import fi.fmi.avi.model.sigmet.Reference;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -47,19 +47,14 @@ public class AirmetCancel extends RegexMatchingLexemeVisitor {
                 AIRMET airmet = (AIRMET)msg;
                 if (airmet.isCancelMessage()) {
                     StringBuilder sb = new StringBuilder();
-                    AirmetReference ref = airmet.getCancelledReference().get();
-                    // sb.append(ref.getIssuingAirTrafficServicesUnit().getDesignator());
-                    // sb.append(" ");
-                    // sb.append(ref.getIssuingAirTrafficServicesUnit().getName());
-                    // sb.append(" ");
                     sb.append("CNL");
                     sb.append(" ");
                     sb.append("AIRMET");
                     sb.append(" ");
-                    sb.append(ref.getSequenceNumber());
+                    sb.append(airmet.getCancelledReference().get().getSequenceNumber());
                     sb.append(" ");
-                    PartialOrCompleteTimeInstant start = ref.getValidityPeriod().getStartTime().get();
-                    PartialOrCompleteTimeInstant end = ref.getValidityPeriod().getEndTime().get();
+                    PartialOrCompleteTimeInstant start = airmet.getCancelledReference().get().getValidityPeriod().getStartTime().get();
+                    PartialOrCompleteTimeInstant end = airmet.getCancelledReference().get().getValidityPeriod().getEndTime().get();
 
 
                     sb.append(String.format("%02d%02d%02d",

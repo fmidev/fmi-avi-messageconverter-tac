@@ -106,14 +106,14 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         }
         if (LexemeIdentity.SIGMET_ENTIRE_AREA.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
-            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setEntireArea(true);
 
             //TODO geomBuilder.setGeoGeometry(getFirGeometry());
         } else if (LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
-            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             Double lat = firstLexeme.getParsedValue(VALUE, Double.class);
             Double lon = firstLexeme.getParsedValue(VALUE2, Double.class);
@@ -140,30 +140,30 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             }
             geomBuilder.setGeoGeometry(polygonBuilder.build());
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
-            tacGeometryBuilder.setData(sb.toString());
+            tacGeometryBuilder.setTacContent(sb.toString());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
         } else if (LexemeIdentity.SIGMET_BETWEEN_LATLON.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
-            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
         } else if (LexemeIdentity.SIGMET_OUTSIDE_LATLON.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
-            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setGeoGeometry(GeoUtilsTac.getPolygonOutside(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_APRX_LINE.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
-            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setGeoGeometry(GeoUtilsTac.getPolygonAprxWidth(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_LINE.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
-            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setGeoGeometry(GeoUtilsTac.getRelativeToLine(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_2_LINES.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
-            tacGeometryBuilder.setData(firstLexeme.getTACToken());
+            tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setGeoGeometry(GeoUtilsTac.getRelativeTo2Lines(firstLexeme, firName, firInfo));
         }
@@ -476,7 +476,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                     phen="VA";
                     builder.setVAInfo(vaInfoBuilder.build());
                 }
-                builder.setSigmetPhenomenon(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.valueOf(phen));
+                builder.setPhenomenon(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.valueOf(phen));
             }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET phenomenon not given in " + input)));
 
             PhenomenonGeometryWithHeightImpl.Builder phenBuilder = new PhenomenonGeometryWithHeightImpl.Builder();
@@ -505,7 +505,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                     parseForecastTime(seq, firstFcstBuilder, result, input);
                     forecastGeometries.add(parseGeometry(l.getTailSequence(), builder));
                     if (sequenceContains(seq, noVaExpLexemes)){
-                        firstFcstBuilder.setNoVaExpected(true);
+                        firstFcstBuilder.setNoVolcanicAshExpected(true);
                     }
                 }
             }
@@ -517,7 +517,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             PhenomenonGeometryWithHeight phenGeom = phenBuilder.build();
 
             builder.setAnalysisGeometries(Arrays.asList(phenGeom));
-            if (firstFcstBuilder.getNoVaExpected().isPresent()&&firstFcstBuilder.getNoVaExpected().get()) {
+            if (firstFcstBuilder.getNoVolcanicAshExpected().isPresent()&&firstFcstBuilder.getNoVolcanicAshExpected().get()) {
                 firstFcstBuilder.clearApproximateLocation();
                 PhenomenonGeometry fcstGeom = firstFcstBuilder.build();
                 builder.setForecastGeometries(Arrays.asList(fcstGeom));

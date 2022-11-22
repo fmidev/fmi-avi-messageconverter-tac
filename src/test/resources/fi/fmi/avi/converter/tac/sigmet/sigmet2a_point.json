@@ -23,11 +23,11 @@
       "partialTime": "--11T15:30Z"
     }
   },
-  "sigmetPhenomenon": "OBSC_TSGR",
+  "phenomenon": "OBSC_TSGR",
   "sequenceNumber": "1",
   "analysisGeometries": [{
     "geometry": {
-      "tacGeometry": {"data":"N5200 E00536"},
+      "tacGeometry": {"tacContent":"N5200 E00536"},
       "geoGeometry" : {
         "type" : "Point",
         "crs" : {

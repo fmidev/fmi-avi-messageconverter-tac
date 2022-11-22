@@ -51,6 +51,7 @@ import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.SPECIImpl;
 import fi.fmi.avi.model.sigmet.SIGMET;
+import fi.fmi.avi.util.JtsToolsException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -165,11 +166,21 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
                 PolygonGeometry leftGeometry=(PolygonGeometry)left;
                 PolygonGeometry rightGeometry=(PolygonGeometry)right;
 
-                org.locationtech.jts.geom.Geometry leftJtsGeom = GeoUtilsTac.PolygonGeometry2jtsGeometry(leftGeometry);
-                org.locationtech.jts.geom.Geometry rightJtsGeom = GeoUtilsTac.PolygonGeometry2jtsGeometry(rightGeometry);
+                org.locationtech.jts.geom.Geometry leftJtsGeom = null;
+                try {
+                    leftJtsGeom =GeoUtilsTac.PolygonGeometry2jtsGeometry(leftGeometry);
+                } catch (JtsToolsException e) {
+                }
+                org.locationtech.jts.geom.Geometry rightJtsGeom = null;
+                try {
+                    rightJtsGeom = GeoUtilsTac.PolygonGeometry2jtsGeometry(rightGeometry);
+                } catch (JtsToolsException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 
-                if (!leftJtsGeom.equalsTopo(rightJtsGeom)) {
-                    return new Difference("geometries differ", left, right);
+                if (!leftJtsGeom.equalsTopo(rightJtsGeom)||(leftJtsGeom==null&&rightJtsGeom==null)) {
+                    return new Difference("geometries differ or incorrect", left, right);
                 }
                 return null;
             }

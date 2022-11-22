@@ -11,7 +11,6 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon;
 import fi.fmi.avi.model.sigmet.SIGMET;
-import fi.fmi.avi.model.sigmet.SigmetReference;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -49,19 +48,14 @@ public class SigmetCancel extends RegexMatchingLexemeVisitor {
                 SIGMET sigmet = (SIGMET)msg;
                 if (sigmet.isCancelMessage()) {
                     StringBuilder sb = new StringBuilder();
-                    SigmetReference ref = sigmet.getCancelledReference().get();
-                    // sb.append(ref.getIssuingAirTrafficServicesUnit().getDesignator());
-                    // sb.append(" ");
-                    // sb.append(ref.getIssuingAirTrafficServicesUnit().getName());
-                    // sb.append(" ");
                     sb.append("CNL");
                     sb.append(" ");
                     sb.append("SIGMET");
                     sb.append(" ");
-                    sb.append(ref.getSequenceNumber());
+                    sb.append(sigmet.getCancelledReference().get().getSequenceNumber());
                     sb.append(" ");
-                    PartialOrCompleteTimeInstant start = ref.getValidityPeriod().getStartTime().get();
-                    PartialOrCompleteTimeInstant end = ref.getValidityPeriod().getEndTime().get();
+                    PartialOrCompleteTimeInstant start = sigmet.getCancelledReference().get().getValidityPeriod().getStartTime().get();
+                    PartialOrCompleteTimeInstant end = sigmet.getCancelledReference().get().getValidityPeriod().getEndTime().get();
 
 
                     sb.append(String.format("%02d%02d%02d",

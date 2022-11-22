@@ -23,12 +23,12 @@
         "partialTime": "--17T22:10Z"
       }
     },
-    "sigmetPhenomenon": "VA",
+    "phenomenon": "VA",
     "sequenceNumber": "4",
     "analysisGeometries": [{
       "geometry":{
         "tacGeometry":{
-          "data":"WI S1534 W07117 - S1554 W07101 - S1618 W07151 - S1558 W07158 - S1546 W07150 - S1534 W07117"
+          "tacContent":"WI S1534 W07117 - S1554 W07101 - S1618 W07151 - S1558 W07158 - S1546 W07150 - S1534 W07117"
         },
         "geoGeometry": {
             "type": "Polygon",
@@ -58,7 +58,7 @@
     "forecastGeometries": [{
       "geometry":{
         "tacGeometry":{
-          "data":"WI S1533 W07059 - S1605 W07101 - S1601 W07144 - S1546 W07152 - S1539 W07143 - S1533 W07059"
+          "tacContent":"WI S1533 W07059 - S1605 W07101 - S1601 W07144 - S1546 W07152 - S1539 W07143 - S1533 W07059"
         },
         "geoGeometry": {
             "type": "Polygon",

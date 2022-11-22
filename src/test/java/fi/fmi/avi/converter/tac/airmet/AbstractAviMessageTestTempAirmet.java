@@ -50,6 +50,7 @@ import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.SPECIImpl;
+import fi.fmi.avi.util.JtsToolsException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -158,11 +159,19 @@ public abstract class AbstractAviMessageTestTempAirmet<S, T> {
                 PolygonGeometry leftGeometry=(PolygonGeometry)left;
                 PolygonGeometry rightGeometry=(PolygonGeometry)right;
 
-                org.locationtech.jts.geom.Geometry leftJtsGeom = GeoUtilsTac.PolygonGeometry2jtsGeometry(leftGeometry);
-                org.locationtech.jts.geom.Geometry rightJtsGeom = GeoUtilsTac.PolygonGeometry2jtsGeometry(rightGeometry);
+                org.locationtech.jts.geom.Geometry leftJtsGeom = null;
+                try {
+                    leftJtsGeom = GeoUtilsTac.PolygonGeometry2jtsGeometry(leftGeometry);
+                } catch (JtsToolsException e) {
+                }
+                org.locationtech.jts.geom.Geometry rightJtsGeom = null;
+                try {
+                    rightJtsGeom = GeoUtilsTac.PolygonGeometry2jtsGeometry(rightGeometry);
+                } catch (JtsToolsException e) {
+                }
 
-                if (!leftJtsGeom.equalsTopo(rightJtsGeom)) {
-                    return new Difference("geometries differ", left, right);
+                if (!leftJtsGeom.equalsTopo(rightJtsGeom)||(leftJtsGeom==null&&rightJtsGeom==null)) {
+                    return new Difference("geometries differ or are incorrect", left, right);
                 }
                 return null;
             }

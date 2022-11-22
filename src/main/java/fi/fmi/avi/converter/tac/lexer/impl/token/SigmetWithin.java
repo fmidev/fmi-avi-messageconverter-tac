@@ -41,8 +41,8 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             List<Lexeme> lexemes = new ArrayList<>();
             ConversionHints hints = ctx.getHints();
-            Boolean specifyZeros = hints.containsKey(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES)&&
-                ConversionHints.VALUE_SPECIFY_ZERO_MINUTES.equals(hints.get(ConversionHints.KEY_SPECIFY_ZERO_MINUTES_IN_COORDINATES));
+            Boolean specifyZeros = hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES)&&
+                ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
             if (SIGMET.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {

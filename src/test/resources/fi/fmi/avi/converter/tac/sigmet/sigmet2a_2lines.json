@@ -23,12 +23,12 @@
       "partialTime": "--22T16:10Z"
     }
   },
-  "sigmetPhenomenon": "VA",
+  "phenomenon": "VA",
   "sequenceNumber": "2",
   "analysisGeometries": [{
     "geometry":{
       "tacGeometry":{
-        "data":"S OF LINE N5400 E00100 - N5400 E00300 - N5400 E00600 - N5400 E01000 AND N OF LINE N5100 E00100 - N5100 E01000"
+        "tacContent":"S OF LINE N5400 E00100 - N5400 E00300 - N5400 E00600 - N5400 E01000 AND N OF LINE N5100 E00100 - N5100 E01000"
       },
       "geoGeometry" : {
         "type" : "Polygon",

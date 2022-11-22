@@ -29,7 +29,8 @@ import org.springframework.core.io.ClassPathResource;
 
 import fi.fmi.avi.converter.tac.geoinfo.FirInfo;
 import fi.fmi.avi.converter.tac.geoinfo.GeoUtilsTac;
-import fi.fmi.avi.util.geoutil.GeoUtils;
+import fi.fmi.avi.util.JtsTools;
+import fi.fmi.avi.util.JtsToolsException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +129,11 @@ public class FirInfoImpl implements FirInfo {
           if (delegatedAirspaces.containsKey(name)) {
             for (final Feature f : delegatedAirspaces.get(name)) {
               // Merge f with feature
-              feature = GeoUtils.merge(feature, f);
+              try {
+                feature = JtsTools.merge(feature, f);
+              } catch (JtsToolsException e) {
+                // Do not add delegated airspace
+              }
             }
           }
         }
@@ -168,7 +173,11 @@ public class FirInfoImpl implements FirInfo {
     public Geometry getFir(String firName, boolean addDelegate) {
         Feature f = lookup(firName, addDelegate);
         if (f!=null) {
-            return GeoUtils.jsonFeature2jtsGeometry(f);
+            try {
+                return JtsTools.jsonFeature2jtsGeometry(f);
+            } catch (JtsToolsException e) {
+                return null;
+            }
         }
         return null;
     }

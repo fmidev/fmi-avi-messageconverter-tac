@@ -137,8 +137,8 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
             if (AIRMET.class.isAssignableFrom(clz)) {
                 AIRMET airmet = (AIRMET)msg;
-                if (airmet.getAirmetPhenomenon().isPresent()) {
-                    AviationCodeListUser.AeronauticalAirmetWeatherPhenomenon phen=airmet.getAirmetPhenomenon().get();
+                if (airmet.getPhenomenon().isPresent()) {
+                    AviationCodeListUser.AeronauticalAirmetWeatherPhenomenon phen=airmet.getPhenomenon().get();
                     String text;
                     text = phen.getText().replaceAll("_", " ");
                     StringBuilder sb = new StringBuilder(text);

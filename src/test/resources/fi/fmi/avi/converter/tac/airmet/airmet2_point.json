@@ -23,11 +23,11 @@
       "partialTime": "--11T15:30Z"
     }
   },
-  "airmetPhenomenon": "ISOL_TSGR",
+  "phenomenon": "ISOL_TSGR",
   "sequenceNumber": "1",
   "analysisGeometries": [{
     "geometry":{
-      "tacGeometry": { "data": "N5345 E00515"},
+      "tacGeometry": { "tacContent": "N5345 E00515"},
       "geoGeometry" : {
         "type" : "Point",
         "crs" : {

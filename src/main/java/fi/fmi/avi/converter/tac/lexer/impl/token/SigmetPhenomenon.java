@@ -76,8 +76,8 @@ public class SigmetPhenomenon extends RegexMatchingLexemeVisitor {
 
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET)msg;
-                if (sigmet.getSigmetPhenomenon().isPresent()) {
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon phen=sigmet.getSigmetPhenomenon().get();
+                if (sigmet.getPhenomenon().isPresent()) {
+                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon phen=sigmet.getPhenomenon().get();
                     String text;
                     if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE_FZRA.equals(phen)){
                         text = "SEV ICE (FZRA)";
