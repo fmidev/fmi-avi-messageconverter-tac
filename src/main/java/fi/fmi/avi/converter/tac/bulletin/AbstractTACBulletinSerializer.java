@@ -1,22 +1,18 @@
 package fi.fmi.avi.converter.tac.bulletin;
 
-import java.util.List;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.*;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
+
+import java.util.List;
 
 public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMessage, T extends MeteorologicalBulletin<S>> extends AbstractTACSerializer<T> {
 
@@ -65,6 +61,8 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
 
         final boolean whitespacePassthrough = hints != null && ConversionHints.VALUE_WHITESPACE_SERIALIZATION_MODE_PASSTHROUGH.equals(
                 hints.getOrDefault(ConversionHints.KEY_WHITESPACE_SERIALIZATION_MODE, null));
+        final boolean disableLineWrap = hints != null && ConversionHints.VALUE_DISABLE_LINEWRAP_SERIALIZATION_MODE.equals(
+                hints.getOrDefault(ConversionHints.KEY_DISABLE_LINEWRAP_SERIALIZATION_MODE, null));
 
         final List<S> messages = input.getMessages();
         LexemeSequence messageSequence;
@@ -97,7 +95,7 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                                     appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
                                 }
                                 charsOnRow = 0;
-                            } else if (charsOnRow + tokenLength > MAX_ROW_LENGTH) {
+                            } else if (!disableLineWrap && charsOnRow + tokenLength > MAX_ROW_LENGTH) {
                                 while (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                                     retval.removeLast();
                                 }
@@ -110,7 +108,7 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
                         }
                     } else {
                         if (!LexemeIdentity.WHITE_SPACE.equals(lexeme.getIdentity()) && !LexemeIdentity.END_TOKEN.equals(lexeme.getIdentity())) {
-                            if (charsOnRow + tokenLength > MAX_ROW_LENGTH) {
+                            if (!disableLineWrap && charsOnRow + tokenLength > MAX_ROW_LENGTH) {
                                 if (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                                     retval.removeLast();
                                 }
