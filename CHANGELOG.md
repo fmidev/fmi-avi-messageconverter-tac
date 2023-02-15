@@ -31,6 +31,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v5.3.0] - 2023-02-15
+
+### Added
+
+- ConversionHint for disabling line wrapping in TAC serialization [#120]
+
+### Changed
+
+- Depend on fmi-avi-messageconverter:6.3.0
+
 ## [v5.2.0] - 2022-08-24
 
 ### Changed
@@ -74,7 +84,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Previous changelog entries are available
 on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
 
-[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.2.0...HEAD
+[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.3.0...HEAD
+
+[v5.3.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.3.0
 
 [v5.2.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.2.0
 
@@ -101,3 +113,5 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 [#114]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/114
 
 [#118]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/118
+
+[#120]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/120
