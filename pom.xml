@@ -24,7 +24,7 @@
     <dependency>
       <groupId>fi.fmi.avi.converter</groupId>
       <artifactId>fmi-avi-messageconverter</artifactId>
-      <version>6.3.1.KNMI-SNAPSHOT</version>
+      <version>6.3.1.KNMI-merge_fmi_for_merge-SNAPSHOT</version>
     </dependency>
 
     <!-- For JUnit tests -->
