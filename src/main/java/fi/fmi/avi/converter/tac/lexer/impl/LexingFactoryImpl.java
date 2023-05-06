@@ -98,7 +98,8 @@ public class LexingFactoryImpl implements LexingFactory {
         if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
             final Lexeme artificialStartToken = this.startTokens.get(toMessageType(hints.get(ConversionHints.KEY_MESSAGE_TYPE)));
             if (artificialStartToken != null) {
-                if (!input.startsWith(artificialStartToken.getTACToken() + " ") && !input.startsWith(artificialStartToken.getTACToken() + "\n")) {
+                String compoundMatch = "(?s)(\\w{4})\\s"+artificialStartToken.getTACToken()+"(.*)";
+                if (!input.startsWith(artificialStartToken.getTACToken() + " ") && !input.startsWith(artificialStartToken.getTACToken() + "\n") && !input.matches(compoundMatch)) {
                     result.addAsFirst(new LexemeImpl(this, MeteorologicalBulletinSpecialCharacter.SPACE));
                     result.addAsFirst(artificialStartToken);
                 }

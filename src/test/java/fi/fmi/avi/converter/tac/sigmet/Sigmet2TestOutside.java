@@ -42,7 +42,7 @@ public class Sigmet2TestOutside extends AbstractAviMessageTestTempSigmet<String,
 
 	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-        return spacify(new LexemeIdentity[] { SIGMET_START, REAL_SIGMET_START,
+        return spacify(new LexemeIdentity[] { SIGMET_START,
 				SEQUENCE_DESCRIPTOR, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME,
 				SIGMET_PHENOMENON, OBS_OR_FORECAST, SIGMET_OUTSIDE_LATLON,
 				SIGMET_MOVING, SIGMET_INTENSITY,

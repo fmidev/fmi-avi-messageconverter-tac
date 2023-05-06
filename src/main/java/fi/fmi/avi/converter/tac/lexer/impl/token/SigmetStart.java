@@ -1,11 +1,12 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REAL_SIGMET_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
 
 import java.util.Optional;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
@@ -27,8 +28,8 @@ public class SigmetStart extends PrioritizedLexemeVisitor {
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
         String[] words=token.getTACToken().split(" ");
-        if ((words.length==2)&&"SIGMET".equals(words[1])){
-            token.identify(REAL_SIGMET_START);
+        if (token.getTACToken().equals("SIGMET")||((words.length==2)&&"SIGMET".equals(words[1]))){
+            token.identify(SIGMET_START);
             token.setParsedValue(LOCATION_INDICATOR, words[0]);
         }
     }
@@ -43,7 +44,7 @@ public class SigmetStart extends PrioritizedLexemeVisitor {
                 sb.append(sigmet.getAirspace().getDesignator());
                 sb.append(" ");
                 sb.append("SIGMET");
-                return Optional.of(createLexeme(sb.toString(), REAL_SIGMET_START));
+                return Optional.of(createLexeme(sb.toString(), SIGMET_START));
             }
             return Optional.empty();
         }

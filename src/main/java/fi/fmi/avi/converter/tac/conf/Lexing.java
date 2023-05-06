@@ -1935,24 +1935,17 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                /* 2021-03-30 You can not call the getIdentity in some cases (for Sigmet lexing) */
-                if (sequence.
-                  getFirstLexeme().
-                    getIdentity() == null) {
-                        return false;
-                    }
-                return "SIGMET".equals(sequence.
-                getFirstLexeme().getTACToken());
+                Lexeme firstLexeme = sequence.getFirstLexeme();
+                return (firstLexeme!=null)&&((firstLexeme.getTACToken().matches("(\\w{4})\\sSIGMET.*")||firstLexeme.getTACToken().equals("SIGMET")));
             }
-
             @Override
             public MessageType getMessageType() {
                 return MessageType.SIGMET;
             }
         });
-        l.teach(new SigmetStart(OccurrenceFrequency.RARE));
+        l.teach(new SigmetStart(OccurrenceFrequency.FREQUENT));
         l.teach(new SigmetSequenceDescriptor(OccurrenceFrequency.AVERAGE));
-        l.teach(new AirspaceDesignator(OccurrenceFrequency.RARE));
+        l.teach(new AirspaceDesignator(OccurrenceFrequency.RARE)); //TODO: really needed?
         l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));
         l.teach(new MWODesignator(OccurrenceFrequency.RARE));
         l.teach(new EndToken(OccurrenceFrequency.RARE));
@@ -2015,14 +2008,8 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                /* 2021-03-30 You can not call the getIdentity in some cases (for Airmet lexing) */
-                if (sequence.
-                  getFirstLexeme().
-                    getIdentity() == null) {
-                        return false;
-                    }
-                return "AIRMET".equals(sequence.
-                getFirstLexeme().getTACToken());
+                Lexeme firstLexeme = sequence.getFirstLexeme();
+                return (firstLexeme!=null)&&((firstLexeme.getTACToken().matches("(\\w{4})\\sAIRMET.*")||firstLexeme.getTACToken().equals("AIRMET")));
             }
 
             @Override

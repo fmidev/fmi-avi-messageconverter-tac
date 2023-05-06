@@ -147,7 +147,6 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setGeoGeometry(GeoUtilsTac.getPolygonOutside(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_APRX_LINE.equals(firstLexeme.getIdentity())){
-            System.err.println("APRX!");
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
@@ -303,11 +302,11 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
 
         final Lexeme firstLexeme = lexed.getFirstLexeme();
         if (!(LexemeIdentity.AIRMET_START.equals(firstLexeme.getIdentity()))) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as SIGMET"));
+            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as AIRMET"));
             return result;
         } else if (firstLexeme.isSynthetic()) {
-           // result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
-           //         "Message does not start with a start token: " + firstLexeme.getTACToken()));
+           result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
+                   "Message does not start with a start token: " + firstLexeme.getTACToken()));
         }
 
         if (!endsInEndToken(lexed, hints)) {
@@ -326,10 +325,8 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             builder.setMeteorologicalWatchOffice(getMWOInfo("De Bilt", match.getParsedValue(VALUE, String.class)));
         });
 
-        lexed.getFirstLexeme().findNext(LexemeIdentity.REAL_AIRMET_START, (match) -> {
-            String atsu = match.getParsedValue(LOCATION_INDICATOR, String.class);
-            builder.setIssuingAirTrafficServicesUnit(getFicInfo("AMSTERDAM", atsu));
-        });
+        String atsu = lexed.getFirstLexeme().getParsedValue(LOCATION_INDICATOR, String.class);
+        builder.setIssuingAirTrafficServicesUnit(getFicInfo("AMSTERDAM", atsu));
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.ISSUE_TIME, (match) -> {
             String iss = match.getParsedValue(VALUE, String.class);

@@ -23,8 +23,8 @@ public class SigmetSequenceDescriptor extends TimeHandlingRegex {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (LexemeIdentity.REAL_SIGMET_START.equals(token.getPrevious().getIdentity())||
-                LexemeIdentity.REAL_AIRMET_START.equals(token.getPrevious().getIdentity())) {
+        if (LexemeIdentity.SIGMET_START.equals(token.getPrevious().getIdentity())||
+                LexemeIdentity.AIRMET_START.equals(token.getPrevious().getIdentity())) {
             final String id = match.group(0);
 
             token.identify(LexemeIdentity.SEQUENCE_DESCRIPTOR);
