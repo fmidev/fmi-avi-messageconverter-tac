@@ -31,6 +31,29 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v5.3.0] - 2023-02-15
+
+### Added
+
+- ConversionHint for disabling line wrapping in TAC serialization [#120]
+
+### Changed
+
+- Depend on fmi-avi-messageconverter:6.3.0
+
+## [v5.2.0] - 2022-08-24
+
+### Changed
+
+- Remove ICAO code to country mapping in ICAOCode lexeme [#118]
+- Depend on fmi-avi-messageconverter:6.2.0
+
+## [v5.1.0] - 2022-06-06
+
+### Changed
+
+- Depend on fmi-avi-messageconverter:6.1.0
+
 ## [v5.0.0] - 2022-02-22
 
 ### Changed
@@ -42,7 +65,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
--  Fixed NullPointerException in Lexing. [#114]
+- Fixed NullPointerException in Lexing. [#114]
 
 ## [v4.0.0] - 2021-04-13
 
@@ -58,26 +81,37 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Past Changelog
 
-Previous changelog entries are available on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
+Previous changelog entries are available
+on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
 
-[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.0.0...HEAD
+[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.3.0...HEAD
+
+[v5.3.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.3.0
+
+[v5.2.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.2.0
+
+[v5.1.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.1.0
 
 [v5.0.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.0.0
 
 [v4.0.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-4.0.0
 
-[#90]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/90
+[#90]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/90
 
-[#95]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/95
+[#95]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/95
 
-[#97]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/97
+[#97]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/97
 
-[#101]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/101
+[#101]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/101
 
-[#102]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/102
+[#102]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/102
 
-[#106]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/106
+[#106]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/106
 
-[#107]:https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/107
+[#107]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/107
 
-[#114]:https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/114
+[#114]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/114
+
+[#118]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/118
+
+[#120]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/120
