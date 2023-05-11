@@ -9,6 +9,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TENDENCY_OPE
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.RUNWAY_VISUAL_RANGE;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -163,7 +164,7 @@ public class RunwayVisualRange extends RegexMatchingLexemeVisitor {
             if (value == null) {
                 throw new SerializingException("Missing value for RunwayVisualRange.meanRVR");
             }
-            builder.append(String.format("%04d", value.intValue()));
+            builder.append(String.format(Locale.US, "%04d", value.intValue()));
             if (!"[ft_i]".equals(measure.getUom()) && !"m".equals(measure.getUom())) {
                 throw new SerializingException("Unknown unit of measure '" + measure.getUom() + "' for RunwayVisualRange, allowed are 'm' and '[ft_i]'");
             }

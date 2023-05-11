@@ -15,7 +15,8 @@ import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.airmet.AIRMETBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.airmet.AIRMETTACSerializer;
 import fi.fmi.avi.converter.tac.bulletin.GenericMeteorologicalBulletinTACSerializer;
-import fi.fmi.avi.converter.tac.bulletin.SIGMETBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -90,7 +91,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetLevel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetMoving;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetNoVaExp;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetSequenceDescriptor;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetTacElement;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetUsage;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaEruption;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaName;
@@ -169,6 +169,7 @@ public class Serializing {
     @Bean
     AviMessageSpecificConverter<SIGMETBulletin, String> sigmetBulletinTACSerializer() {
         final SIGMETBulletinTACSerializer s = new SIGMETBulletinTACSerializer();
+        s.setSigmetSerializer(spawnSIGMETTACSerializer());
         addCommonBulletinReconstructors(s);
         return s;
     }
@@ -184,6 +185,7 @@ public class Serializing {
     @Bean
     AviMessageSpecificConverter<AIRMETBulletin, String> airmetBulletinTACSerializer() {
         final AIRMETBulletinTACSerializer s = new AIRMETBulletinTACSerializer();
+        s.setAirmetSerializer(spawnAIRMETTACSerializer());
         addCommonBulletinReconstructors(s);
         return s;
     }
@@ -227,6 +229,7 @@ public class Serializing {
         tokenizer.setTAFSerializer((TAFTACSerializer) tafTACSerializer());
         tokenizer.setTAFBulletinSerializer((TAFBulletinTACSerializer) tafBulletinTACSerializer());
         tokenizer.setSIGMETBulletinSerializer((SIGMETBulletinTACSerializer) sigmetBulletinTACSerializer());
+        tokenizer.setAIRMETBulletinSerializer((AIRMETBulletinTACSerializer) airmetBulletinTACSerializer());
         tokenizer.setGenericBulletinSerializer((GenericMeteorologicalBulletinTACSerializer) genericBulletinTACSerializer());
         tokenizer.setSWXTacSerializer((SWXTACSerializer) swxTACSerializer());
         tokenizer.setSIGMETTacSerializer((SIGMETTACSerializer) sigmetTACSerializer());
@@ -357,10 +360,8 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SIGMET_FCST_AT, new SigmetForecastAt.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_INTENSITY, new SigmetIntensity.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_WITHIN, new SigmetWithin.Reconstructor());
         s.addReconstructor(LexemeIdentity.POLYGON_COORDINATE_PAIR, new PolygonCoordinatePair.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_LEVEL, new SigmetLevel.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_MOVING, new SigmetMoving.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_AND, new SigmetAnd.Reconstructor());
@@ -391,10 +392,8 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new AirSigmetObsOrForecast.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_INTENSITY, new SigmetIntensity.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_WITHIN, new SigmetWithin.Reconstructor());
         s.addReconstructor(LexemeIdentity.POLYGON_COORDINATE_PAIR, new PolygonCoordinatePair.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_LEVEL, new SigmetLevel.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_MOVING, new SigmetMoving.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_AND, new SigmetAnd.Reconstructor());

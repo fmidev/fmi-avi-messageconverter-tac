@@ -2,6 +2,7 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEA_STATE;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -116,7 +117,7 @@ public class SeaState extends RegexMatchingLexemeVisitor {
                                 builder.append("M");
                                 value *= -1;
                             }
-                            builder.append(String.format("%02d", value));
+                            builder.append(String.format(Locale.US, "%02d", value));
                         } else {
                             throw new SerializingException("Sea state temperature must be in degC, cannot serialize");
                         }
@@ -135,7 +136,6 @@ public class SeaState extends RegexMatchingLexemeVisitor {
 
                     if (state.get().getSeaSurfaceState().isPresent()) {
                         // Sea surface state
-                        //builder.append(String.format("S%c", state.getSeaSurfaceState().getCode()));
                         builder.append("S");
                         builder.append(state.get().getSeaSurfaceState().get().getCode());
 
@@ -151,7 +151,7 @@ public class SeaState extends RegexMatchingLexemeVisitor {
                             throw new SerializingException("Sea state wave height must be between 0 and 100 meters, it was " + waveHeight.get().getValue());
                         }
 
-                        builder.append(String.format("H%d", height));
+                        builder.append(String.format(Locale.US, "H%d", height));
                     }
 
                     return Optional.of(createLexeme(builder.toString(), SEA_STATE));

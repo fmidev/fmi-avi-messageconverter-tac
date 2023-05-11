@@ -8,6 +8,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TREND_TIME_GROUP;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -93,16 +94,16 @@ public class TrendTimeGroup extends TimeHandlingRegex {
             final List<Lexeme> retval = new ArrayList<>();
             if (time instanceof PartialOrCompleteTimeInstant) {
                 final PartialOrCompleteTimeInstant instant = (PartialOrCompleteTimeInstant) time;
-                retval.add(this.createLexeme(String.format("AT%02d%02d", instant.getHour().orElse(-1), instant.getMinute().orElse(-1)), TREND_TIME_GROUP));
+                retval.add(this.createLexeme(String.format(Locale.US, "AT%02d%02d", instant.getHour().orElse(-1), instant.getMinute().orElse(-1)), TREND_TIME_GROUP));
             } else if (time instanceof PartialOrCompleteTimePeriod) {
                 final PartialOrCompleteTimePeriod period = (PartialOrCompleteTimePeriod) time;
                 if (period.getStartTime().isPresent()) {
                     final PartialOrCompleteTimeInstant start = period.getStartTime().get();
-                    retval.add(this.createLexeme(String.format("FM%02d%02d", start.getHour().orElse(-1), start.getMinute().orElse(-1)), TREND_TIME_GROUP));
+                    retval.add(this.createLexeme(String.format(Locale.US, "FM%02d%02d", start.getHour().orElse(-1), start.getMinute().orElse(-1)), TREND_TIME_GROUP));
                 }
                 if (period.getEndTime().isPresent()) {
                     final PartialOrCompleteTimeInstant end = period.getEndTime().get();
-                    retval.add(this.createLexeme(String.format("TL%02d%02d", end.getHour().orElse(-1), end.getMinute().orElse(-1)), TREND_TIME_GROUP));
+                    retval.add(this.createLexeme(String.format(Locale.US, "TL%02d%02d", end.getHour().orElse(-1), end.getMinute().orElse(-1)), TREND_TIME_GROUP));
                 }
             }
             return retval;

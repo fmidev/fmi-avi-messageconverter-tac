@@ -4,6 +4,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIR_PRESSURE_QNH;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -88,7 +89,7 @@ public class AtmosphericPressureQNH extends RegexMatchingLexemeVisitor {
                         throw new SerializingException("Unknown unit of measure in AltimeterSettingQNH '" + altimeter.getUom() + "'");
                     }
 
-                    final String content = unit + String.format("%04d", altimeter.getValue().intValue());
+                    final String content = unit + String.format(Locale.US, "%04d", altimeter.getValue().intValue());
                     retval = Optional.of(this.createLexeme(content, LexemeIdentity.AIR_DEWPOINT_TEMPERATURE));
 
                 }

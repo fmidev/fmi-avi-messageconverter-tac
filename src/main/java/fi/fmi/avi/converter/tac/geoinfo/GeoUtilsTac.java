@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -78,7 +79,7 @@ public class GeoUtilsTac {
         return bldr.build();
     }
 
-    public static PolygonGeometry getPolygonOutside(Lexeme lexeme, String firName, FirInfo firInfo) {
+    public static PolygonGeometry getPolygonOutside(Lexeme lexeme, String firName, FirInfoStore firInfo) {
         org.locationtech.jts.geom.Geometry fir = firInfo.getFir(firName, true);
         org.locationtech.jts.geom.Geometry firEnvelope = fir.getEnvelope();
 
@@ -200,7 +201,7 @@ public class GeoUtilsTac {
                 if (i>0) {
                     polygonAsString=polygonAsString+",";
                 }
-                polygonAsString=polygonAsString+String.format("[%f, %f]",
+                polygonAsString=polygonAsString+String.format(Locale.US, "[%f, %f]",
                         exteriorRingPositions.get(i*2+1),
                         exteriorRingPositions.get(i*2));
             }
@@ -233,7 +234,7 @@ public class GeoUtilsTac {
         return featureCollectionAsString;
     }
 
-    public static PolygonGeometry getRelativeToLine(Lexeme lexeme, String firName, FirInfo firInfo) {
+    public static PolygonGeometry getRelativeToLine(Lexeme lexeme, String firName, FirInfoStore firInfo) {
         Geometry fir = firInfo.getFir(firName, true);
         GeometryFactory geomFact = new GeometryFactory();
         List<Coordinate> coordinateList = new ArrayList<>();
@@ -365,7 +366,7 @@ public class GeoUtilsTac {
         return poly.getFactory().createGeometryCollection(fixedGeoms);
     }
 
-    public static PolygonGeometry getRelativeTo2Lines(Lexeme lexeme, String firName, FirInfo firInfo) {
+    public static PolygonGeometry getRelativeTo2Lines(Lexeme lexeme, String firName, FirInfoStore firInfo) {
         //Construct a polygon by concatenating the 2 lines. If the polygon self intersects
         //reverse the coordinates of the second line.
         //intersect the resulting polygon with the fir to get the final Geometry
@@ -440,7 +441,7 @@ public class GeoUtilsTac {
         return jts2PolygonGeometry(intersected);
     }
 
-    public static PolygonGeometry getPolygonAprxWidth(Lexeme lexeme, String firName, FirInfo firInfo) {
+    public static PolygonGeometry getPolygonAprxWidth(Lexeme lexeme, String firName, FirInfoStore firInfo) {
 
         Geometry fir = firInfo.getFir(firName, true);
         GeometryFactory geomFact = new GeometryFactory();

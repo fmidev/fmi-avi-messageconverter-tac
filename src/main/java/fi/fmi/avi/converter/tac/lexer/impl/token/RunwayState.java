@@ -6,6 +6,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.RUNWAY_STATE;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -111,9 +112,9 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
             } else if (coded == 88) {
                 return RunwayStateReportType.ALL_RUNWAYS;
             } else if (coded > 50) {
-                return String.format("%02dR", coded - 50);
+                return String.format(Locale.US, "%02dR", coded - 50);
             } else {
-                return String.format("%02d", coded);
+                return String.format(Locale.US, "%02d", coded);
             }
         } catch (final NumberFormatException nfe) {
             return str;
@@ -399,7 +400,7 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
                 if (tmp == null) {
                     throw new SerializingException("RunwayState has unknown breaking action " + action);
                 }
-                return String.format("%02d", tmp.code);
+                return String.format(Locale.US, "%02d", tmp.code);
             }
 
             if (friction.isPresent()) {
@@ -407,7 +408,7 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
                 if (value < 0 || value >= 0.91) {
                     throw new SerializingException("RunwayState friction coefficient " + friction + " is out of bounds (should be between 0 and .91)");
                 }
-                return String.format("%02d", Math.round(value * 100));
+                return String.format(Locale.US, "%02d", Math.round(value * 100));
             } else {
                 throw new SerializingException("RunwayState estimated surface friction missing");
             }
@@ -446,7 +447,7 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
                     if (value < 0 || value > 90) {
                         throw new SerializingException("Depth of deposit mm depth " + value + " is out of bounds. It should be between 0 and 90");
                     }
-                    return String.format("%02d", value);
+                    return String.format(Locale.US, "%02d", value);
                 } else {
                     final String ret;
                     switch (value) {
@@ -521,7 +522,7 @@ public class RunwayState extends RegexMatchingLexemeVisitor {
                     if (rightSide) {
                         code += 50;
                     }
-                    runwayDesignator = String.format("%02d", code);
+                    runwayDesignator = String.format(Locale.US, "%02d", code);
                 } else {
                     runwayDesignator = "R" + rwd.get().getDesignator() + "/";
                 }

@@ -6,6 +6,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.MAX_TEMPERATURE;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.MIN_TEMPERATURE;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -36,10 +37,10 @@ public class ForecastMaxMinTemperature extends TimeHandlingRegex {
         if (temp.getValue() < 0.0 || 1.0d / temp.getValue() == Double.NEGATIVE_INFINITY) {
             sb.append('M');
         }
-        sb.append(String.format("%02d", Math.round(Math.abs(temp.getValue()))));
+        sb.append(String.format(Locale.US, "%02d", Math.round(Math.abs(temp.getValue()))));
         sb.append('/');
-        sb.append(String.format("%02d", time.getDay().orElse(-1)));
-        sb.append(String.format("%02d", time.getHour().orElse(-1)));
+        sb.append(String.format(Locale.US, "%02d", time.getDay().orElse(-1)));
+        sb.append(String.format(Locale.US, "%02d", time.getHour().orElse(-1)));
         sb.append('Z');
         return sb.toString();
     }

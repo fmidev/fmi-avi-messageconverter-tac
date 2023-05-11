@@ -27,16 +27,15 @@ import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.springframework.core.io.ClassPathResource;
 
-import fi.fmi.avi.converter.tac.geoinfo.FirInfo;
-import fi.fmi.avi.converter.tac.geoinfo.GeoUtilsTac;
+import fi.fmi.avi.converter.tac.geoinfo.FirInfoStore;
 import fi.fmi.avi.util.JtsTools;
 import fi.fmi.avi.util.JtsToolsException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FirInfoImpl implements FirInfo {
-    private static final Logger log = LoggerFactory.getLogger(FirInfoImpl.class);
+public class FirInfoStoreImpl implements FirInfoStore {
+    private static final Logger log = LoggerFactory.getLogger(FirInfoStoreImpl.class);
 
     private static GeometryFactory gf;
     private static ObjectMapper om;
@@ -49,7 +48,7 @@ public class FirInfoImpl implements FirInfo {
     private Map<String, Feature> simplifiedFIRInfos;
     private Map<String, List<Feature>> delegatedAirspaces;
 
-    public FirInfoImpl() {
+    public FirInfoStoreImpl() {
         this.worldFIRFile = "world_firs.json";
         this.delegatedFile = "delegated.json";
         this.simplifiedFIRFile = "simplified_firs.json";
@@ -109,7 +108,7 @@ public class FirInfoImpl implements FirInfo {
         return om;
     }
 
-    private Feature lookup(final String name, final boolean addDelegated) {
+    private Feature lookup(final String name, final boolean includeDelegatedAirspaces) {
         if (worldFIRInfos == null) {
           try {
             initStore();
@@ -125,7 +124,7 @@ public class FirInfoImpl implements FirInfo {
           feature = cloneThroughSerialize(worldFIRInfos.get(name));
         }
 
-        if (addDelegated) {
+        if (includeDelegatedAirspaces) {
           if (delegatedAirspaces.containsKey(name)) {
             for (final Feature f : delegatedAirspaces.get(name)) {
               // Merge f with feature
@@ -140,7 +139,8 @@ public class FirInfoImpl implements FirInfo {
 
         return feature;
       }
-      public static Feature cloneThroughSerialize(final Feature t) {
+
+      private static Feature cloneThroughSerialize(final Feature t) {
         try {
           final ByteArrayOutputStream bos = new ByteArrayOutputStream();
           serializeToOutputStream(t, bos);
@@ -182,13 +182,6 @@ public class FirInfoImpl implements FirInfo {
         return null;
     }
 
-    @Override
-    public Geometry getAirport(String firName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public void initStore() throws IOException {
         this.worldFIRInfos = new HashMap<String, Feature>();
         this.delegatedAirspaces = new HashMap<String, List<Feature>>();

@@ -10,10 +10,10 @@ import fi.fmi.avi.model.sigmet.AIRMETBulletin;
 
 public class AIRMETBulletinTACSerializer extends AbstractTACBulletinSerializer<AIRMET, AIRMETBulletin> {
 
-    private AIRMETTACSerializer sigmetSerializer;
+    private AIRMETTACSerializer airmetSerializer;
 
-    public void setSigmetSerializer(final AIRMETTACSerializer serializer) {
-        this.sigmetSerializer = serializer;
+    public void setAirmetSerializer(final AIRMETTACSerializer serializer) {
+        this.airmetSerializer = serializer;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class AIRMETBulletinTACSerializer extends AbstractTACBulletinSerializer<A
         if (message instanceof AIRMETBulletin) {
             return (AIRMETBulletin) message;
         } else {
-            throw new SerializingException("Can only serialize SIGMETBulletins");
+            throw new SerializingException("Can only serialize AIRMETBulletins");
         }
     }
 
@@ -33,11 +33,11 @@ public class AIRMETBulletinTACSerializer extends AbstractTACBulletinSerializer<A
     @Override
     protected LexemeSequence tokenizeSingleMessage(final AIRMET message, final ConversionHints hints) throws SerializingException {
         if (message != null) {
-            if (sigmetSerializer != null) {
-                return sigmetSerializer.tokenizeMessage(message, hints);
+            if (airmetSerializer != null) {
+                return airmetSerializer.tokenizeMessage(message, hints);
             }
         }
-        throw new SerializingException("Unable to serialize null SIGMET");
+        throw new SerializingException("Unable to serialize null AIRMET");
     }
 
 }

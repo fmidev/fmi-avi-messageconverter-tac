@@ -9,6 +9,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ISSUE_TIME;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REP;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -91,7 +92,7 @@ public class IssueTime extends TimeHandlingRegex {
                         .map(completeTime -> completeTime.format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
             } else {
                 final String format = MeteorologicalBulletin.class.isAssignableFrom(clz) ? "%02d%02d%02d" : "%02d%02d%02dZ";
-                formattedIssueTime = Optional.of(String.format(format, time.getDay().orElse(-1), time.getHour().orElse(-1), time.getMinute().orElse(-1)));
+                formattedIssueTime = Optional.of(String.format(Locale.US, format, time.getDay().orElse(-1), time.getHour().orElse(-1), time.getMinute().orElse(-1)));
             }
             return formattedIssueTime;
         }

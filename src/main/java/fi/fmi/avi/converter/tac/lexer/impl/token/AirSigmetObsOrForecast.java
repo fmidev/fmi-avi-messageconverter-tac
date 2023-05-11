@@ -12,6 +12,7 @@ import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -60,7 +61,7 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                     String tim="";
                     if (m.getAnalysisGeometries().get().get(analysisIndex.get()).getTime().isPresent()) {
                         PartialOrCompleteTimeInstant t = m.getAnalysisGeometries().get().get(0).getTime().get();
-                        tim=String.format(" AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
+                        tim=String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
                     if (SigmetAnalysisType.OBSERVATION.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
                         return Optional.of(this.createLexeme("OBS"+tim, LexemeIdentity.OBS_OR_FORECAST));
@@ -73,7 +74,7 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                     String tim="";
                     if (m.getForecastGeometries().get().get(forecastIndex.get()).getTime().isPresent()) {
                         PartialOrCompleteTimeInstant t = m.getForecastGeometries().get().get(0).getTime().get();
-                        tim=String.format(" AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
+                        tim=String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
                     return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
                 }
@@ -85,7 +86,7 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                     String tim="";
                     if (m.getAnalysisGeometries().get().get(analysisIndex.get()).getTime().isPresent()) {
                         PartialOrCompleteTimeInstant t = m.getAnalysisGeometries().get().get(0).getTime().get();
-                        tim=String.format(" AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
+                        tim=String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
                     if (SigmetAnalysisType.OBSERVATION.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
                         return Optional.of(this.createLexeme("OBS"+tim, LexemeIdentity.OBS_OR_FORECAST));

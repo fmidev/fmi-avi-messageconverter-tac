@@ -12,6 +12,7 @@ import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -58,12 +59,12 @@ public class SigmetCancel extends RegexMatchingLexemeVisitor {
                     PartialOrCompleteTimeInstant end = sigmet.getCancelledReference().get().getValidityPeriod().getEndTime().get();
 
 
-                    sb.append(String.format("%02d%02d%02d",
+                    sb.append(String.format(Locale.US, "%02d%02d%02d",
                             start.getDay().getAsInt(),
                             start.getHour().getAsInt(),
                             start.getMinute().getAsInt()));
                     sb.append("/");
-                    sb.append(String.format("%02d%02d%02d",
+                    sb.append(String.format(Locale.US, "%02d%02d%02d",
                             end.getDay().getAsInt(),
                             end.getHour().getAsInt(),
                             end.getMinute().getAsInt()));

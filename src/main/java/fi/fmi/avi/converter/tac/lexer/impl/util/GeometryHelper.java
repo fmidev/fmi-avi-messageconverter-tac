@@ -46,13 +46,13 @@ public class GeometryHelper {
             }
             final BigDecimal latDecimalPart = lat.subtract(BigDecimal.valueOf(lat.intValue()));
             final BigDecimal lonDecimalPart = lon.subtract(BigDecimal.valueOf(lon.intValue()));
-            latBuilder.append(String.format("%02d", lat.abs().intValue()));
-            lonBuilder.append(String.format("%03d", lon.abs().intValue()));
+            latBuilder.append(String.format(Locale.US, "%02d", lat.abs().intValue()));
+            lonBuilder.append(String.format(Locale.US, "%03d", lon.abs().intValue()));
             if (specifyZeros || (latDecimalPart.compareTo(BigDecimal.ZERO) != 0)) {
-                latBuilder.append(String.format("%02.0f", latDecimalPart.abs().multiply(BigDecimal.valueOf(60d)).round(mc)));
+                latBuilder.append(String.format(Locale.US, "%02.0f", latDecimalPart.abs().multiply(BigDecimal.valueOf(60d)).round(mc)));
             }
             if ((specifyZeros || lonDecimalPart.compareTo(BigDecimal.ZERO) != 0)) {
-                lonBuilder.append(String.format("%02.0f", lonDecimalPart.abs().multiply(BigDecimal.valueOf(60d)).round(mc)));
+                lonBuilder.append(String.format(Locale.US, "%02.0f", lonDecimalPart.abs().multiply(BigDecimal.valueOf(60d)).round(mc)));
             }
             lexemes.add(createLexeme.apply(
                     latBuilder.toString() + MeteorologicalBulletinSpecialCharacter.SPACE.getContent()
