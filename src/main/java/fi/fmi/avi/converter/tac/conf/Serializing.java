@@ -61,6 +61,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.AirmetPhenomenon;
 import fi.fmi.avi.converter.tac.lexer.impl.token.AirmetStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetPhenomenon;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetTacElement;
 import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePair;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
@@ -358,6 +359,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SIGMET_PHENOMENON, new SigmetPhenomenon.Reconstructor());
         s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new AirSigmetObsOrForecast.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_FCST_AT, new SigmetForecastAt.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_INTENSITY, new SigmetIntensity.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_WITHIN, new SigmetWithin.Reconstructor());
@@ -390,6 +392,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SIGMET_USAGE, new SigmetUsage.Reconstructor());
         s.addReconstructor(LexemeIdentity.AIRMET_PHENOMENON, new AirmetPhenomenon.Reconstructor());
         s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new AirSigmetObsOrForecast.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_INTENSITY, new SigmetIntensity.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_WITHIN, new SigmetWithin.Reconstructor());
