@@ -10,7 +10,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.sigmet.AIRMET;
-import fi.fmi.avi.model.sigmet.Reference;
 
 import java.util.Locale;
 import java.util.Optional;
