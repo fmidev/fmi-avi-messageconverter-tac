@@ -44,8 +44,7 @@ public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
                 if (analysisIndex.isPresent()) {
                     if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().isPresent()) {
                         TacOrGeoGeometry geom = sigmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().get();
-                        if (geom.getEntireArea().isPresent()
-                                && geom.getEntireArea().get()){
+                        if (geom.getEntireArea()){
                             return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
                         }
                     }
@@ -55,8 +54,7 @@ public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
                 if (forecastIndex.isPresent()) {
                     if (sigmet.getForecastGeometries().get().get(forecastIndex.get().intValue()).getGeometry().isPresent()) {
                         TacOrGeoGeometry geom = sigmet.getForecastGeometries().get().get(forecastIndex.get().intValue()).getGeometry().get();
-                        if (geom.getEntireArea().isPresent()
-                                && geom.getEntireArea().get()){
+                        if (geom.getEntireArea()){
                             return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
                         }
                     }
@@ -69,8 +67,7 @@ public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
                     if (airmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().isPresent()) {
                         TacOrGeoGeometry geom = airmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().get();
 
-                        if (geom.getEntireArea().isPresent()
-                                && geom.getEntireArea().get()){
+                        if (geom.getEntireArea()){
                             return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
                         }
                     }

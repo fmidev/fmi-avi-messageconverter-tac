@@ -20,17 +20,6 @@ import fi.fmi.avi.model.sigmet.SIGMET;
  * Created by rinne on 10/02/17.
  */
 public class AirspaceDesignator extends RegexMatchingLexemeVisitor {
-    /*
-        The code-to-country mapping is not really needed here in the lexer, but these could be useful in other classes.
-        Updating the list is also less error-prone with the name of the country attached to the code.
-
-        The list copied from https://en.wikipedia.org/wiki/International_Civil_Aviation_Organization_airport_code
-        on 11th Jan 2017.
-     */
-
-
-    private final static Map<String, ICAOCode.ICAOCodeCountryPrefix> codeToCountryMap = ICAOCode.ICAOCodeCountryPrefix.getCodeToCountryMap();
-
     public AirspaceDesignator(final OccurrenceFrequency prio) {
         super("^[A-Z]{4}$", prio);
     }
@@ -39,15 +28,8 @@ public class AirspaceDesignator extends RegexMatchingLexemeVisitor {
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         //Must be first token:
         if (token == token.getFirst()) {
-            for (String s : codeToCountryMap.keySet()) {
-                if (token.getTACToken().startsWith(s)) {
-                	token.identify(AIRSPACE_DESIGNATOR);
-                	token.setParsedValue(COUNTRY, codeToCountryMap.get(s));
-                    token.setParsedValue(VALUE,token.getTACToken());
-                    return;
-                }
-            }
-            token.identify(AIRSPACE_DESIGNATOR, Lexeme.Status.SYNTAX_ERROR, "Invalid ICAO code country prefix");
+            token.identify(AIRSPACE_DESIGNATOR);
+            token.setParsedValue(VALUE,token.getTACToken());
         }
     }
 

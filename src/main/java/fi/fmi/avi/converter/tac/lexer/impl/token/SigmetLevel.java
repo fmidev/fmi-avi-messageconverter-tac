@@ -14,6 +14,7 @@ import fi.fmi.avi.model.PhenomenonGeometryWithHeight;
 import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -157,11 +158,11 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
             sb.append("FL");
         }
         if ((measure.getValue()<1000)&&("FL".equals(measure.getUom()))) {
-            sb.append(String.format("%03.0f", measure.getValue()));
+            sb.append(String.format(Locale.US, "%03.0f", measure.getValue()));
         } else if (measure.getValue()<10000) {
-            sb.append(String.format("%04.0f", measure.getValue()));
+            sb.append(String.format(Locale.US, "%04.0f", measure.getValue()));
         } else {
-            sb.append(String.format("%05.0f", measure.getValue()));
+            sb.append(String.format(Locale.US, "%05.0f", measure.getValue()));
         }
         if (addUnit && ! "FL".equals(measure.getUom())) {
             sb.append(measure.getUom());

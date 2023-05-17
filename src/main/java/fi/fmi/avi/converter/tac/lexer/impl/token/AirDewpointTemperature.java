@@ -4,6 +4,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIR_DEWPOINT_TEMPERATURE;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -120,7 +121,7 @@ public class AirDewpointTemperature extends RegexMatchingLexemeVisitor {
             if (v < 0.0 || 1.0d / v == Double.NEGATIVE_INFINITY) {
                 builder.append("M");
             }
-            builder.append(String.format("%02d", Math.round(Math.abs(v))));
+            builder.append(String.format(Locale.US, "%02d", Math.round(Math.abs(v))));
         }
     }
 }

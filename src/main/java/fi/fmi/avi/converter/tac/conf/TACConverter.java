@@ -93,26 +93,6 @@ public class TACConverter {
             null, "WMO GTS TAF Bulletin");
 
     // ******************
-    // SIGMET messages
-    // ******************
-
-    /**
-     * Pre-configured spec for {@link SIGMETBulletin} to TAC encoded TAF bulletin
-     */
-    public static final ConversionSpecification<SIGMETBulletin, String> SIGMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(SIGMETBulletin.class,
-            String.class, null, "WMO GTS SIGMET Bulletin");
-
-    // ******************
-    // AIRMET messages
-    // ******************
-
-    /**
-     * Pre-configured spec for {@link AIRMETBulletin} to TAC encoded TAF bulletin
-     */
-    public static final ConversionSpecification<AIRMETBulletin, String> AIRMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(AIRMETBulletin.class,
-            String.class, null, "WMO GTS AIRMET Bulletin");
-
-    // ******************
     // Generic bulletins
     // ******************
 
@@ -172,15 +152,11 @@ public class TACConverter {
     public static final ConversionSpecification<SIGMET, String> SIGMET_POJO_TO_TAC = new ConversionSpecification<>(SIGMET.class,
             String.class, null, "ICAO Annex 3 TAC");
 
-/*
-    */
-/**
-     * Pre-configured spec for {@link SIGMET} POJO to WMO GTS text bulletin format.
-     *//*
-
-    public static final ConversionSpecification<SIGMETBulletin, String> SIGMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(
-            SIGMETBulletin.class, String.class, null, "WMO GTS bulletin");
-*/
+    /**
+     * Pre-configured spec for {@link SIGMETBulletin} to TAC encoded TAF bulletin
+     */
+    public static final ConversionSpecification<SIGMETBulletin, String> SIGMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(SIGMETBulletin.class,
+            String.class, null, "WMO GTS SIGMET Bulletin");
 
     // **********************
     // AIRMET messages
@@ -198,14 +174,10 @@ public class TACConverter {
     public static final ConversionSpecification<AIRMET, String> AIRMET_POJO_TO_TAC = new ConversionSpecification<>(AIRMET.class,
             String.class, null, "ICAO Annex 3 TAC");
 
-/*
-    */
-/**
-     * Pre-configured spec for {@link AIRMET} POJO to WMO GTS text bulletin format.
-     *//*
-
-    public static final ConversionSpecification<AIRMETBulletin, String> AIRMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(
-            AIRMETBulletin.class, String.class, null, "WMO GTS bulletin");
-*/
+            /**
+     * Pre-configured spec for {@link AIRMETBulletin} to TAC encoded TAF bulletin
+     */
+    public static final ConversionSpecification<AIRMETBulletin, String> AIRMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(AIRMETBulletin.class,
+            String.class, null, "WMO GTS AIRMET Bulletin");
 
 }

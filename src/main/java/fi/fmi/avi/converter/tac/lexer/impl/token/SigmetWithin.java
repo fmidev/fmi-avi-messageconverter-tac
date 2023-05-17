@@ -49,8 +49,7 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
                     final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getAnalysisGeometries().get().get(analysisIndex.get()).getGeometry().get();
                     if (tacOrGeoGeometry.getGeoGeometry().isPresent()
                             &&!tacOrGeoGeometry.getTacGeometry().isPresent()
-                            &&tacOrGeoGeometry.getEntireArea().isPresent()
-                            &&!tacOrGeoGeometry.getEntireArea().get()) {
+                            &&tacOrGeoGeometry.getEntireArea()) {
                         final Geometry geometry = tacOrGeoGeometry.getGeoGeometry().get();
                         if (geometry instanceof PolygonGeometry) {
                             lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));
@@ -67,8 +66,7 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
                     final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getForecastGeometries().get().get(forecastIndex.get()).getGeometry().get();
                     if (tacOrGeoGeometry.getGeoGeometry().isPresent()
                             &&!tacOrGeoGeometry.getTacGeometry().isPresent()
-                            &&tacOrGeoGeometry.getEntireArea().isPresent()
-                            &&!tacOrGeoGeometry.getEntireArea().get()) {
+                            &&tacOrGeoGeometry.getEntireArea()) {
                         final Geometry geometry = tacOrGeoGeometry.getGeoGeometry().get();
                         if (geometry instanceof PolygonGeometry) {
                             lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));

@@ -10,8 +10,8 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.sigmet.AIRMET;
-import fi.fmi.avi.model.sigmet.Reference;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -57,12 +57,12 @@ public class AirmetCancel extends RegexMatchingLexemeVisitor {
                     PartialOrCompleteTimeInstant end = airmet.getCancelledReference().get().getValidityPeriod().getEndTime().get();
 
 
-                    sb.append(String.format("%02d%02d%02d",
+                    sb.append(String.format(Locale.US, "%02d%02d%02d",
                             start.getDay().getAsInt(),
                             start.getHour().getAsInt(),
                             start.getMinute().getAsInt()));
                     sb.append("/");
-                    sb.append(String.format("%02d%02d%02d",
+                    sb.append(String.format(Locale.US, "%02d%02d%02d",
                             end.getDay().getAsInt(),
                             end.getHour().getAsInt(),
                             end.getMinute().getAsInt()));

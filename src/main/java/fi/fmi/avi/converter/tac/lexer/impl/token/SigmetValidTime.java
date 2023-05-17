@@ -7,6 +7,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE2;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -62,9 +63,9 @@ public class SigmetValidTime extends TimeHandlingRegex {
                     PartialOrCompleteTimeInstant end = sigmet.getValidityPeriod().getEndTime().get();
 
                     StringBuilder sb=new StringBuilder("VALID ");
-                    sb.append(String.format("%02d%02d%02d/", start.getDay().getAsInt(),
+                    sb.append(String.format(Locale.US, "%02d%02d%02d/", start.getDay().getAsInt(),
                               start.getHour().getAsInt(), start.getMinute().getAsInt()));
-                    sb.append(String.format("%02d%02d%02d", end.getDay().getAsInt(),
+                    sb.append(String.format(Locale.US, "%02d%02d%02d", end.getDay().getAsInt(),
                               end.getHour().getAsInt(), end.getMinute().getAsInt()));
                     return Optional.of(createLexeme(sb.toString(), LexemeIdentity.VALID_TIME));
                 }
@@ -77,9 +78,9 @@ public class SigmetValidTime extends TimeHandlingRegex {
                     PartialOrCompleteTimeInstant end = airmet.getValidityPeriod().getEndTime().get();
 
                     StringBuilder sb=new StringBuilder("VALID ");
-                    sb.append(String.format("%02d%02d%02d/", start.getDay().getAsInt(),
+                    sb.append(String.format(Locale.US, "%02d%02d%02d/", start.getDay().getAsInt(),
                               start.getHour().getAsInt(), start.getMinute().getAsInt()));
-                    sb.append(String.format("%02d%02d%02d", end.getDay().getAsInt(),
+                    sb.append(String.format(Locale.US, "%02d%02d%02d", end.getDay().getAsInt(),
                               end.getHour().getAsInt(), end.getMinute().getAsInt()));
                     return Optional.of(createLexeme(sb.toString(), LexemeIdentity.VALID_TIME));
                 }

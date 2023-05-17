@@ -177,7 +177,7 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
                 if (!wind.getMeanWindDirection().get().getUom().equals("deg")) {
                     throw new SerializingException("Mean wind direction unit is not 'deg': " + wind.getMeanWindDirection().get().getUom());
                 } else {
-                    builder.append(String.format("%03d", wind.getMeanWindDirection().get().getValue().intValue()));
+                    builder.append(String.format(Locale.US, "%03d", wind.getMeanWindDirection().get().getValue().intValue()));
                 }
             } else {
                 throw new SerializingException("Mean wind direction must be set if variable wind direction is false");
@@ -224,7 +224,7 @@ public class SurfaceWind extends RegexMatchingLexemeVisitor {
             if (speed < 0 || speed >= 1000) {
                 throw new SerializingException("Wind speed value " + speed + " is not withing acceptable range [0,1000]");
             }
-            builder.append(String.format("%02d", speed));
+            builder.append(String.format(Locale.US, "%02d", speed));
         }
     }
 }

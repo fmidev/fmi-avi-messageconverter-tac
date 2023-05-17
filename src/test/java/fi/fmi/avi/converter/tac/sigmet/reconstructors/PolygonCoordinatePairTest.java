@@ -35,7 +35,7 @@ public class PolygonCoordinatePairTest {
     private SIGMET initPoint(double lat, double lon){
         SIGMETImpl.Builder bldr = SIGMETImpl.builder();
         PhenomenonGeometryWithHeightImpl.Builder phenBuilder = new PhenomenonGeometryWithHeightImpl.Builder();
-        TacOrGeoGeometryImpl.Builder geometryBuilder = new TacOrGeoGeometryImpl.Builder();
+        TacOrGeoGeometryImpl.Builder geometryBuilder = TacOrGeoGeometryImpl.builder();
         PointGeometryImpl.Builder pointBuilder = PointGeometryImpl.builder();
         pointBuilder.addCoordinates(lat, lon);
         geometryBuilder.setGeoGeometry(pointBuilder.build());

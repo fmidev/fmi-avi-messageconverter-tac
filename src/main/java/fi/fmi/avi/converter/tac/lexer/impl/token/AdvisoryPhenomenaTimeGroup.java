@@ -4,6 +4,7 @@ import java.time.DateTimeException;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.regex.Matcher;
@@ -69,7 +70,7 @@ public class AdvisoryPhenomenaTimeGroup extends RegexMatchingLexemeVisitor {
                         final OptionalInt hour = timeInstant.getPartialTime().get().getHour();
                         final OptionalInt minute = timeInstant.getPartialTime().get().getMinute();
                         if (day.isPresent() && hour.isPresent() && minute.isPresent()) {
-                            builder.append(String.format("%02d/%02d%02dZ", day.getAsInt(), hour.getAsInt(), minute.getAsInt()));
+                            builder.append(String.format(Locale.US, "%02d/%02d%02dZ", day.getAsInt(), hour.getAsInt(), minute.getAsInt()));
                         } else {
                             throw new SerializingException("Insufficient partial analysis time, day:" + day + ", hour:" + hour + ", minute:" + minute);
                         }

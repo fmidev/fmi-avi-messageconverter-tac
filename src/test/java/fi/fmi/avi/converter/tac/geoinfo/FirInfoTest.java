@@ -5,13 +5,13 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 
-import fi.fmi.avi.converter.tac.geoinfo.impl.FirInfoImpl;
+import fi.fmi.avi.converter.tac.geoinfo.impl.FirInfoStoreImpl;
 
 public class FirInfoTest {
 
     @Test
     public void TestFirInfo() {
-        FirInfo fi = new FirInfoImpl();
+        FirInfoStore fi = new FirInfoStoreImpl();
         //18 points without delegated area
         Geometry geom = fi.getFir("EHAA", false);
         assertEquals(18, geom.getNumPoints());

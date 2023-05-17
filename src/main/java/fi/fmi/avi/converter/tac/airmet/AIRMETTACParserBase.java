@@ -31,7 +31,7 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACParser;
-import fi.fmi.avi.converter.tac.geoinfo.FirInfo;
+import fi.fmi.avi.converter.tac.geoinfo.FirInfoStore;
 import fi.fmi.avi.converter.tac.geoinfo.GeoUtilsTac;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -74,7 +74,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             LexemeIdentity.MAX_TEMPERATURE, LexemeIdentity.REMARKS_START };
     protected AviMessageLexer lexer;
 
-    protected FirInfo firInfo=null;
+    protected FirInfoStore firInfo=null;
 
     @Override
     public void setTACLexer(final AviMessageLexer lexer) {
@@ -147,7 +147,6 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setGeoGeometry(GeoUtilsTac.getPolygonOutside(firstLexeme, firName, firInfo));
         } else if (LexemeIdentity.SIGMET_APRX_LINE.equals(firstLexeme.getIdentity())){
-            System.err.println("APRX!");
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
@@ -166,10 +165,6 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
         return geomBuilder.build();
     }
 
-    protected String getLevelUnit(String level) {
-        return level;
-    }
-
     protected void parseAnalysisType(LexemeSequence seq,
             PhenomenonGeometryWithHeightImpl.Builder phenBuilder,
             ConversionResult<AIRMETImpl> result,
@@ -184,7 +179,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
 
         Integer analysisHour=first.getParsedValue(HOUR1, Integer.class);
         Integer analysisMinute=first.getParsedValue(MINUTE1, Integer.class);
-        if (analysisHour!=null) {
+        if ((analysisHour!=null)&&(analysisMinute!=null)) {
             PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
             PartialOrCompleteTimeInstant pi = timeBuilder.build();
             phenBuilder.setTime(pi);
@@ -207,32 +202,32 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
                     if ("SFC".equals(lowerLimit)) {
                         // BETW_SFC
                         phenBuilder.setLowerLimit(NumericMeasureImpl.of(0, "FT"));
-                        phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                        phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), upperUnit));
                     } else {
                         // BETW
-                        phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), getLevelUnit(lowerUnit)));
-                        phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                        phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), lowerUnit));
+                        phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), upperUnit));
                     }
                 } else if ("ABV".equals(modifier)) {
                     // ABV
-                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), getLevelUnit(lowerUnit)));
+                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), lowerUnit));
                     phenBuilder.setLowerLimitOperator(AviationCodeListUser.RelationalOperator.ABOVE);
                 } else {
                     // AT
-                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), getLevelUnit(lowerUnit)));
+                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), lowerUnit));
                 }
             } else if (upperLimit!=null) {
                 if ("TOP ABV".equals(modifier)) {
                     // TOP ABV
                     phenBuilder.setUpperLimitOperator(AviationCodeListUser.RelationalOperator.ABOVE);
-                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), upperUnit));
                 } else if ("TOP BLW".equals(modifier)) {
                     // TOP BLW
                     phenBuilder.setUpperLimitOperator(AviationCodeListUser.RelationalOperator.BELOW);
-                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), upperUnit));
                 } else if ("TOP".equals(modifier)){
                     //TOP
-                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), upperUnit));
                 } else {
                     //ERROR
                 }
@@ -303,11 +298,11 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
 
         final Lexeme firstLexeme = lexed.getFirstLexeme();
         if (!(LexemeIdentity.AIRMET_START.equals(firstLexeme.getIdentity()))) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as SIGMET"));
+            result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as AIRMET"));
             return result;
         } else if (firstLexeme.isSynthetic()) {
-           // result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
-           //         "Message does not start with a start token: " + firstLexeme.getTACToken()));
+           result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
+                   "Message does not start with a start token: " + firstLexeme.getTACToken()));
         }
 
         if (!endsInEndToken(lexed, hints)) {
@@ -326,10 +321,8 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             builder.setMeteorologicalWatchOffice(getMWOInfo("De Bilt", match.getParsedValue(VALUE, String.class)));
         });
 
-        lexed.getFirstLexeme().findNext(LexemeIdentity.REAL_AIRMET_START, (match) -> {
-            String atsu = match.getParsedValue(LOCATION_INDICATOR, String.class);
-            builder.setIssuingAirTrafficServicesUnit(getFicInfo("AMSTERDAM", atsu));
-        });
+        String atsu = lexed.getFirstLexeme().getParsedValue(LOCATION_INDICATOR, String.class);
+        builder.setIssuingAirTrafficServicesUnit(getFicInfo("AMSTERDAM", atsu));
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.ISSUE_TIME, (match) -> {
             String iss = match.getParsedValue(VALUE, String.class);
@@ -517,19 +510,17 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
     }
 
     private String getFirType(String firName) {
-        String firType=null;
         if (firName.endsWith("FIR")) {
-            firType = "FIR";
+            return "FIR";
+        } else if (firName.endsWith("FIR/UIR")) { //Order matters!
+            return "OTHER:FIR_UIR";
         } else if (firName.endsWith("UIR")) {
-            firType = "UIR";
+            return "UIR";
         } else if (firName.endsWith("CTA")) {
-            firType = "CTA";
-        } else if (firName.endsWith("FIR/UIR")) {
-            firType = "OTHER:FIR_UIR";
+            return "CTA";
         } else {
             return "OTHER:UNKNOWN";
         }
-        return firType;
     }
 
     String getFirName(String firFullName){
@@ -537,7 +528,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
     }
 
     private UnitPropertyGroup getFicInfo(String firFullName, String icao) {
-        String firName=firFullName.trim().replaceFirst("(\\w+)\\s((FIR|UIR|CTA|UIR/FIR)$)", "$1");
+        String firName=getFirName(firFullName);
         UnitPropertyGroupImpl.Builder unit = new UnitPropertyGroupImpl.Builder();
         unit.setPropertyGroup(firName, icao, "FIC");
         return unit.build();

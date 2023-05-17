@@ -12,6 +12,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_WIND
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.SURFACE_WIND_SPEED_UNIT;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_PHENOMENON;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -148,7 +149,7 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                             sb.append(" ");
                             NumericMeasure vis = airmet.getVisibility().get();
                             Double val = vis.getValue();
-                            sb.append(String.format("%04.0f", val));
+                            sb.append(String.format(Locale.US, "%04.0f", val));
                             sb.append("M");
 
                             if (airmet.getObscuration().isPresent()) {
@@ -165,14 +166,14 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                             AirmetCloudLevels levels = airmet.getCloudLevels().get();
                             NumericMeasure base = levels.getCloudBase();
                             if ("M".equals(base.getUom())) {
-                                sb.append(String.format("%03.0f", base.getValue()));
+                                sb.append(String.format(Locale.US, "%03.0f", base.getValue()));
                             } else if ("FT".equals(base.getUom())) {
                                 if (base.getValue()==0) {
                                     sb.append("SFC");
                                 } else if (base.getValue()<1000){
-                                    sb.append(String.format("%03.0f", base.getValue()));
+                                    sb.append(String.format(Locale.US, "%03.0f", base.getValue()));
                                 } else if (base.getValue()<10000) {
-                                    sb.append(String.format("%04.0f", base.getValue()));
+                                    sb.append(String.format(Locale.US, "%04.0f", base.getValue()));
                                 }
                             }
                             sb.append("/");
@@ -182,17 +183,17 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                             NumericMeasure top = levels.getCloudTop();
                             if ("M".equals(top.getUom())) {
                                 if (top.getValue()<1000) {
-                                    sb.append(String.format("%03.0f", top.getValue()));
+                                    sb.append(String.format(Locale.US, "%03.0f", top.getValue()));
                                 } else if (top.getValue()<10000) {
-                                    sb.append(String.format("%04.0f", top.getValue()));
+                                    sb.append(String.format(Locale.US, "%04.0f", top.getValue()));
                                 }
                             } else if ("FT".equals(top.getUom())) {
                                 if (top.getValue()==0) {
                                     sb.append("SFC");
                                 } else if (top.getValue()<10000){
-                                    sb.append(String.format("%04.0f", top.getValue()));
+                                    sb.append(String.format(Locale.US, "%04.0f", top.getValue()));
                                 } else if (top.getValue()<100000) {
-                                    sb.append(String.format("%05.0f", top.getValue()));
+                                    sb.append(String.format(Locale.US, "%05.0f", top.getValue()));
                                 }
                             }
                             sb.append(getUnit(top.getUom()));
@@ -202,12 +203,12 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                         if (airmet.getWind().isPresent()) {
                             sb.append(" ");
                             AirmetWind airmetWind = airmet.getWind().get();
-                            sb.append(String.format("%03.0f/", airmetWind.getDirection().getValue()));
+                            sb.append(String.format(Locale.US, "%03.0f/", airmetWind.getDirection().getValue()));
                             NumericMeasure wind = airmetWind.getSpeed();
                             if (wind.getValue()<100) {
-                                sb.append(String.format("%02.0f", wind.getValue()));
+                                sb.append(String.format(Locale.US, "%02.0f", wind.getValue()));
                             } else if (wind.getValue()<1000) {
-                                sb.append(String.format("%03.0f", wind.getValue()));
+                                sb.append(String.format(Locale.US, "%03.0f", wind.getValue()));
                             }
                             sb.append(getUnit(wind.getUom()));
                         }

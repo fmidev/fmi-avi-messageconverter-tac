@@ -12,6 +12,7 @@ import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -67,7 +68,7 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
                         }
                         sb.append(MeteorologicalBulletinSpecialCharacter.SPACE.getContent());
                         NumericMeasure spd = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingSpeed().get();
-                        sb.append(String.format("%02.0f", spd.getValue()));
+                        sb.append(String.format(Locale.US, "%02.0f", spd.getValue()));
                         sb.append(spd.getUom());
                         return Optional.of(createLexeme(sb.toString(), SIGMET_MOVING));
                     }
@@ -89,7 +90,7 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
                         }
                         sb.append(MeteorologicalBulletinSpecialCharacter.SPACE.getContent());
                         NumericMeasure spd = airmet.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingSpeed().get();
-                        sb.append(String.format("%02.0f", spd.getValue()));
+                        sb.append(String.format(Locale.US, "%02.0f", spd.getValue()));
                         sb.append(spd.getUom());
                         return Optional.of(createLexeme(sb.toString(), SIGMET_MOVING));
                     }

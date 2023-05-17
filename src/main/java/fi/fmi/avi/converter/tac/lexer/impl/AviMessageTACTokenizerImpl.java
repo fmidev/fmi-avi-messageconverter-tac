@@ -2,8 +2,8 @@ package fi.fmi.avi.converter.tac.lexer.impl;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.bulletin.GenericMeteorologicalBulletinTACSerializer;
-import fi.fmi.avi.converter.tac.bulletin.SIGMETBulletinTACSerializer;
-import fi.fmi.avi.converter.tac.bulletin.AIRMETBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.airmet.AIRMETBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;

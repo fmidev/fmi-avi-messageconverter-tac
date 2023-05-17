@@ -37,7 +37,7 @@ public class Airmet2Test_Point extends AbstractAviMessageTestTempAirmet<String, 
 
 	@Override
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
-        return spacify(new LexemeIdentity[] { AIRMET_START, REAL_AIRMET_START,
+        return spacify(new LexemeIdentity[] { AIRMET_START,
 				SEQUENCE_DESCRIPTOR, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME,
 				AIRMET_PHENOMENON, OBS_OR_FORECAST, POLYGON_COORDINATE_PAIR,
 				SIGMET_MOVING, SIGMET_INTENSITY,

@@ -29,9 +29,8 @@ public class LexemeIdentity {
     public static final LexemeIdentity TAF_START = new LexemeIdentity("TAF_START");
     public static final LexemeIdentity ARS_START = new LexemeIdentity("ARS_START");
     public static final LexemeIdentity AIREP_START = new LexemeIdentity("AIREP_START");
-    public static final LexemeIdentity SIGMET_START = new LexemeIdentity("SIGMET_START");
+
     public static final LexemeIdentity US_SIGMET_START = new LexemeIdentity("US_SIGMET_START");
-    public static final LexemeIdentity AIRMET_START = new LexemeIdentity("AIRMET_START");
     public static final LexemeIdentity REP = new LexemeIdentity("REP");
     public static final LexemeIdentity SPACE_WEATHER_ADVISORY_START = new LexemeIdentity("SPACE_WEATHER_ADVISORY_START");
     public static final LexemeIdentity ADVISORY_PHENOMENA_LABEL = new LexemeIdentity("ADVISORY_PHENOMENA_LABEL", EnumSet.of(TYPE, HOUR1),
@@ -148,8 +147,8 @@ public class LexemeIdentity {
     public static final LexemeIdentity SIGMET_AND = new LexemeIdentity("SIGMET_AND",EnumSet.of(VALUE) , Collections.emptySet());
     public static final LexemeIdentity SIGMET_OUTSIDE_LATLON = new LexemeIdentity("SIGMET_OUTSIDE_LATLON",EnumSet.of(RELATIONTYPE, RELATEDLINE, RELATIONTYPE2, RELATEDLINE2, TACGEOMETRY) , Collections.emptySet());
     public static final LexemeIdentity SIGMET_BETWEEN_LATLON = new LexemeIdentity("SIGMET_BETWEEN_LATLON",EnumSet.of(RELATIONTYPE, RELATEDLINE, RELATIONTYPE2, RELATEDLINE2, TACGEOMETRY) , Collections.emptySet());
-    public static final LexemeIdentity REAL_SIGMET_START = new LexemeIdentity("REAL_SIGMET_START", EnumSet.of(LOCATION_INDICATOR), Collections.emptySet());
-    public static final LexemeIdentity REAL_AIRMET_START = new LexemeIdentity("REAL_AIRMET_START", EnumSet.of(LOCATION_INDICATOR), Collections.emptySet());
+    public static final LexemeIdentity SIGMET_START = new LexemeIdentity("SIGMET_START", EnumSet.of(LOCATION_INDICATOR), Collections.emptySet());
+    public static final LexemeIdentity AIRMET_START = new LexemeIdentity("AIRMET_START", EnumSet.of(LOCATION_INDICATOR), Collections.emptySet());
     public static final LexemeIdentity SIGMET_VA_NAME = new LexemeIdentity("SIGMET_VA_NAME", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SIGMET_VA_ERUPTION = new LexemeIdentity("SIGMET_VA_ERUPTION");
     public static final LexemeIdentity SIGMET_VA_POSITION = new LexemeIdentity("SIGMET_VA_POSITION", EnumSet.of(VOLCANO_LATITUDE, VOLCANO_LONGITUDE),Collections.emptySet());

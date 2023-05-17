@@ -11,6 +11,7 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -64,7 +65,7 @@ public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
                     String tim="";
                     if (sigmet.getForecastGeometries().get().get(forecastIndex.get()).getTime().isPresent()) {
                         PartialOrCompleteTimeInstant t = sigmet.getForecastGeometries().get().get(0).getTime().get();
-                        tim=String.format(" AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
+                        tim=String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
                     return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
                 }

@@ -1,6 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REAL_AIRMET_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_START;
 
 import java.util.Optional;
 
@@ -27,8 +27,8 @@ public class AirmetStart extends PrioritizedLexemeVisitor {
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
         String[] words=token.getTACToken().split(" ");
-        if ((words.length==2)&&"AIRMET".equals(words[1])){
-            token.identify(REAL_AIRMET_START);
+        if (token.getTACToken().equals("AIRMET")||((words.length==2)&&"AIRMET".equals(words[1]))){
+            token.identify(AIRMET_START);
             token.setParsedValue(LOCATION_INDICATOR, words[0]);
         }
     }
@@ -43,7 +43,7 @@ public class AirmetStart extends PrioritizedLexemeVisitor {
                 sb.append(airmet.getIssuingAirTrafficServicesUnit().getDesignator());
                 sb.append(" ");
                 sb.append("AIRMET");
-                return Optional.of(createLexeme(sb.toString(), REAL_AIRMET_START));
+                return Optional.of(createLexeme(sb.toString(), AIRMET_START));
             }
             return Optional.empty();
         }

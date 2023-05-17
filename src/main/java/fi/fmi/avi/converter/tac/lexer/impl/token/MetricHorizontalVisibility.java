@@ -8,6 +8,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.HORIZONTAL_VISIBILIT
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
@@ -187,7 +188,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
                 }
             }
 
-            return String.format("%d/%d", currentBestNumerator, currentBestDenominator);
+            return String.format(Locale.US, "%d/%d", currentBestNumerator, currentBestDenominator);
         }
 
         @Override
@@ -300,7 +301,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
                         + " degrees of a cardinal or intercardinal direction");
             }
 
-            return String.format("%04d%s", meters, compass);
+            return String.format(Locale.US, "%04d%s", meters, compass);
         }
 
         private String createMetricIntegerVisibility(final NumericMeasure visibility, final RelationalOperator operator) throws SerializingException {
@@ -316,7 +317,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
             } else if (operator == RelationalOperator.ABOVE && meters >= 9999) {
                 str = "9999";
             } else {
-                str = String.format("%04d", meters);
+                str = String.format(Locale.US, "%04d", meters);
             }
 
             return str;
@@ -337,12 +338,12 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
             if (parts > 1.0 / (double) 16) {
                 if (integerPart > 0) {
-                    builder.append(String.format("%d ", integerPart));
+                    builder.append(String.format(Locale.US, "%d ", integerPart));
                 }
 
                 builder.append(findClosestFraction(parts, 16));
             } else {
-                builder.append(String.format("%d", integerPart));
+                builder.append(String.format(Locale.US, "%d", integerPart));
             }
 
             builder.append("SM");

@@ -17,6 +17,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.USAGEREASON;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE2;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.FIR_TYPE;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_NAME;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_FIR_NAME_WORD;
 
@@ -31,9 +32,9 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACParser;
-import fi.fmi.avi.converter.tac.geoinfo.FirInfo;
+import fi.fmi.avi.converter.tac.geoinfo.FirInfoStore;
 import fi.fmi.avi.converter.tac.geoinfo.GeoUtilsTac;
-import fi.fmi.avi.converter.tac.geoinfo.impl.FirInfoImpl;
+import fi.fmi.avi.converter.tac.geoinfo.impl.FirInfoStoreImpl;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
@@ -79,7 +80,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             LexemeIdentity.MAX_TEMPERATURE, LexemeIdentity.REMARKS_START };
     protected AviMessageLexer lexer;
 
-    protected FirInfo firInfo=null;
+    protected FirInfoStore firInfo=null;
 
     @Override
     public void setTACLexer(final AviMessageLexer lexer) {
@@ -170,10 +171,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         return geomBuilder.build();
     }
 
-    protected String getLevelUnit(String level) {
-        return level;
-    }
-
     protected void parseAnalysisType(LexemeSequence seq,
             PhenomenonGeometryWithHeightImpl.Builder phenBuilder,
             ConversionResult<SIGMETImpl> result,
@@ -188,7 +185,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
 
         Integer analysisHour=first.getParsedValue(HOUR1, Integer.class);
         Integer analysisMinute=first.getParsedValue(MINUTE1, Integer.class);
-        if (analysisHour!=null) {
+        if ((analysisHour!=null)&&(analysisMinute!=null)) {
             PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
             PartialOrCompleteTimeInstant pi = timeBuilder.build();
             phenBuilder.setTime(pi);
@@ -224,32 +221,32 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                     if ("SFC".equals(lowerLimit)) {
                         // BETW_SFC
                         phenBuilder.setLowerLimit(NumericMeasureImpl.of(0, "FT"));
-                        phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                        phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), upperUnit));
                     } else {
                         // BETW
-                        phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), getLevelUnit(lowerUnit)));
-                        phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                        phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), lowerUnit));
+                        phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), upperUnit));
                     }
                 } else if ("ABV".equals(modifier)) {
                     // ABV
-                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), getLevelUnit(lowerUnit)));
+                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), lowerUnit));
                     phenBuilder.setLowerLimitOperator(AviationCodeListUser.RelationalOperator.ABOVE);
                 } else {
                     // AT
-                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), getLevelUnit(lowerUnit)));
+                    phenBuilder.setLowerLimit(NumericMeasureImpl.of(Double.parseDouble(lowerLimit), lowerUnit));
                 }
             } else if (upperLimit!=null) {
                 if ("TOP ABV".equals(modifier)) {
                     // TOP ABV
                     phenBuilder.setUpperLimitOperator(AviationCodeListUser.RelationalOperator.ABOVE);
-                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), upperUnit));
                 } else if ("TOP BLW".equals(modifier)) {
                     // TOP BLW
                     phenBuilder.setUpperLimitOperator(AviationCodeListUser.RelationalOperator.BELOW);
-                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), upperUnit));
                 } else if ("TOP".equals(modifier)){
                     //TOP
-                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), getLevelUnit(upperUnit)));
+                    phenBuilder.setUpperLimit(NumericMeasureImpl.of(Double.parseDouble(upperLimit), upperUnit));
                 } else {
                     //ERROR
                 }
@@ -301,7 +298,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         final LexemeSequence lexed = this.lexer.lexMessage(input, hints);
 
         if (firInfo==null) {
-            firInfo = new FirInfoImpl();
+            firInfo = new FirInfoStoreImpl();
         }
         if (!checkAndReportLexingResult(lexed, hints, result)) {
             return result;
@@ -312,8 +309,8 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "The input message is not recognized as SIGMET"));
             return result;
         } else if (firstLexeme.isSynthetic()) {
-           // result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
-           //         "Message does not start with a start token: " + firstLexeme.getTACToken()));
+           result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
+                   "Message does not start with a start token: " + firstLexeme.getTACToken()));
         }
 
         if (!endsInEndToken(lexed, hints)) {
@@ -328,31 +325,18 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
 
         final SIGMETImpl.Builder builder = SIGMETImpl.builder();
 
-        lexed.getFirstLexeme().findNext(LexemeIdentity.MWO_DESIGNATOR, (match) -> {
-            builder.setMeteorologicalWatchOffice(getMWOInfo("De Bilt", match.getParsedValue(VALUE, String.class)));
-        });
+        String atsu = firstLexeme.getParsedValue(LOCATION_INDICATOR, String.class);
+        builder.setIssuingAirTrafficServicesUnit(getFicInfo("AMSTERDAM", atsu));
 
-        lexed.getFirstLexeme().findNext(LexemeIdentity.REAL_SIGMET_START, (match) -> {
-            String atsu = match.getParsedValue(LOCATION_INDICATOR, String.class);
-            builder.setIssuingAirTrafficServicesUnit(getFicInfo("AMSTERDAM", atsu));
-        });
-
-        lexed.getFirstLexeme().findNext(LexemeIdentity.ISSUE_TIME, (match) -> {
-            String iss = match.getParsedValue(VALUE, String.class);
-            System.err.println("iss:"+iss);
-           // builder.setIssueTime(null);
-        });
-
-        lexed.getFirstLexeme().findNext(LexemeIdentity.FIR_DESIGNATOR, (match) -> {
-            Lexeme l=match;
-            StringBuilder firName=new StringBuilder();
-            while (l.hasNext()&&SIGMET_FIR_NAME_WORD.equals(l.getNext().getIdentity())){
-                l=l.getNext();
+        lexed.getFirstLexeme().findNext(LexemeIdentity.SEQUENCE_DESCRIPTOR, (match) -> {
+            final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.VALID_TIME};
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setSequenceNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
             }
-            if (FIR_NAME.equals(l.getIdentity())){
-                firName.append(l.getParsedValue(VALUE, String.class));
-            }
-        });
+        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET sequence descriptor not given in " + input)));
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.VALID_TIME, (match) -> {
             final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.MWO_DESIGNATOR};
@@ -373,12 +357,33 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET validity time not given in " + input)));
 
+        lexed.getFirstLexeme().findNext(LexemeIdentity.MWO_DESIGNATOR, (match) -> {
+            builder.setMeteorologicalWatchOffice(getMWOInfo("De Bilt", match.getParsedValue(VALUE, String.class)));
+        });
 
-        AirspaceImpl.Builder airspaceBuilder=new AirspaceImpl.Builder()
-                .setDesignator("EHAA")
-                .setType(AirspaceType.FIR)
-                .setName("AMSTERDAM FIR");
-        builder.setAirspace(airspaceBuilder.build());
+        lexed.getFirstLexeme().findNext(LexemeIdentity.FIR_DESIGNATOR, (match) -> {
+            StringBuilder firName=new StringBuilder();
+            String firType;
+            Lexeme l=match;
+            String designator = l.getTACToken();
+
+            while (((l=l.getNext())!=null)&&SIGMET_FIR_NAME_WORD.equals(l.getIdentity())){
+                firName.append(l.getTACToken());
+                System.err.println("FW:"+l.getTACToken()+ " "+l.getNext());
+            }
+            if (FIR_NAME.equals(l.getIdentity())){
+                firName.append(" ");
+                firName.append(l.getTACToken());
+            }
+            System.err.println(firName+ " "+l);
+            firType = l.getParsedValue(FIR_TYPE, String.class);
+            System.err.println("AIRSPACE:"+firType+" "+firName);
+            AirspaceImpl.Builder airspaceBuilder=new AirspaceImpl.Builder()
+            .setDesignator(designator)
+            .setType(AirspaceType.valueOf(firType.replace("/", "_")))
+            .setName(firName.toString());
+            builder.setAirspace(airspaceBuilder.build());
+        });
 
         builder.setPermissibleUsage(PermissibleUsage.OPERATIONAL);
         lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_USAGE, (match) -> {
@@ -387,21 +392,12 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             } else {
                 builder.setPermissibleUsageReason(PermissibleUsageReason.EXERCISE);
             }
+            builder.setPermissibleUsage(PermissibleUsage.NON_OPERATIONAL);
             String supplement = match.getParsedValue(USAGEREASON, String.class);
             if (supplement!=null) {
                 builder.setPermissibleUsageSupplementary(supplement);
             }
         });
-
-        lexed.getFirstLexeme().findNext(LexemeIdentity.SEQUENCE_DESCRIPTOR, (match) -> {
-            final LexemeIdentity[] before = new LexemeIdentity[] { LexemeIdentity.VALID_TIME};
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
-            if (issue != null) {
-                result.addIssue(issue);
-            } else {
-                builder.setSequenceNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
-            }
-        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET sequence descriptor not given in " + input)));
 
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_CANCEL, (match) -> {
@@ -544,19 +540,17 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
     }
 
     private String getFirType(String firName) {
-        String firType=null;
         if (firName.endsWith("FIR")) {
-            firType = "FIR";
+            return "FIR";
+        } else if (firName.endsWith("FIR/UIR")) { //Order matters!
+            return "OTHER:FIR_UIR";
         } else if (firName.endsWith("UIR")) {
-            firType = "UIR";
+            return "UIR";
         } else if (firName.endsWith("CTA")) {
-            firType = "CTA";
-        } else if (firName.endsWith("FIR/UIR")) {
-            firType = "OTHER:FIR_UIR";
+            return "CTA";
         } else {
             return "OTHER:UNKNOWN";
         }
-        return firType;
     }
 
     String getBaseFirName(String firFullName){
@@ -564,7 +558,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
     }
 
     private UnitPropertyGroup getFicInfo(String firFullName, String icao) {
-        String firName=firFullName.trim().replaceFirst("(\\w+)\\s((FIR|UIR|CTA|UIR/FIR)$)", "$1");
+        String firName=getBaseFirName(firFullName);
         UnitPropertyGroupImpl.Builder unit = new UnitPropertyGroupImpl.Builder();
         unit.setPropertyGroup(firName, icao, "FIC");
         return unit.build();

@@ -175,8 +175,6 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
                 try {
                     rightJtsGeom = GeoUtilsTac.PolygonGeometry2jtsGeometry(rightGeometry);
                 } catch (JtsToolsException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
 
                 if (!leftJtsGeom.equalsTopo(rightJtsGeom)||(leftJtsGeom==null&&rightJtsGeom==null)) {
@@ -253,6 +251,7 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
         Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
 
         final LexemeSequence result = lexer.lexMessage((String) getMessage(), getLexerParsingHints());
+
         assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), getLexerTokenSequenceIdentity());
     }
 

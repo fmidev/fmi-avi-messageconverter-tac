@@ -2,9 +2,8 @@ package fi.fmi.avi.converter.tac.airmet;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_CANCEL;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_PHENOMENON;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_START;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.END_TOKEN;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REAL_AIRMET_START;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_START;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SEQUENCE_DESCRIPTOR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -33,9 +32,9 @@ public class TestAirmetLexing extends AbstractAirmetLexingTest{
     String tacString = "EHAA AIRMET 01=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { AIRMET_START, REAL_AIRMET_START, SEQUENCE_DESCRIPTOR, END_TOKEN }));
-    assertEquals("EHAA", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.LOCATION_INDICATOR, String.class));
-    assertEquals("01", trimWhitespaces(result.getLexemes()).get(4).getParsedValue(ParsedValueName.VALUE, String.class));
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] { AIRMET_START, SEQUENCE_DESCRIPTOR, END_TOKEN }));
+    assertEquals("EHAA", trimWhitespaces(result.getLexemes()).get(0).getParsedValue(ParsedValueName.LOCATION_INDICATOR, String.class));
+    assertEquals("01", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.VALUE, String.class));
   }
 
   @Test

@@ -25,14 +25,8 @@ public class FIRName extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token.hasPrevious() && LexemeIdentity.SIGMET_FIR_NAME_WORD.equals(token.getPrevious().getIdentity()) && !match.group(1).equals("ENTIRE")) {
+        if (token.hasPrevious() && LexemeIdentity.SIGMET_FIR_NAME_WORD.equals(token.getPrevious().getIdentity()) && !token.getPrevious().getTACToken().equals("ENTIRE")) {
             token.identify(LexemeIdentity.FIR_NAME);
-            String firName = token.getPrevious().getTACToken();
-            if (token.getPrevious().hasPrevious()&&LexemeIdentity.SIGMET_FIR_NAME_WORD.equals(token.getPrevious().getPrevious().getIdentity())) {
-                firName = token.getPrevious().getPrevious().getTACToken() + " " + firName;
-            }
-            firName = firName + " "+ match.group(1);
-            token.setParsedValue(Lexeme.ParsedValueName.VALUE, firName);
             token.setParsedValue(Lexeme.ParsedValueName.FIR_TYPE, match.group(1));
         }
     }

@@ -5,6 +5,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR2;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -84,9 +85,9 @@ public class TAFChangeForecastTimeGroup extends TimeHandlingRegex {
                     if (start.isPresent() && end.isPresent()) {
                         final String timeStr;
                         if (!start.get().getDay().isPresent() && !end.get().getDay().isPresent()) {
-                            timeStr = String.format("%02d%02d", start.get().getHour().orElse(-1), end.get().getHour().orElse(-1));
+                            timeStr = String.format(Locale.US, "%02d%02d", start.get().getHour().orElse(-1), end.get().getHour().orElse(-1));
                         } else {
-                            timeStr = String.format("%02d%02d/%02d%02d", start.get().getDay().orElse(-1), start.get().getHour().orElse(-1),
+                            timeStr = String.format(Locale.US, "%02d%02d/%02d%02d", start.get().getDay().orElse(-1), start.get().getHour().orElse(-1),
                                     end.get().getDay().orElse(-1), end.get().getHour().orElse(-1));
                         }
                         return Optional.of(this.createLexeme(timeStr, LexemeIdentity.TAF_CHANGE_FORECAST_TIME_GROUP));
