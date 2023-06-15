@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
-
 import fi.fmi.avi.converter.tac.geoinfo.impl.FirInfoStoreImpl;
 
 public class FirInfoTest {
@@ -13,13 +12,13 @@ public class FirInfoTest {
     public void TestFirInfo() {
         FirInfoStore fi = new FirInfoStoreImpl();
         //18 points without delegated area
-        Geometry geom = fi.getFir("EHAA", false);
+        Geometry geom = fi.getFirGeometry("EHAA", false);
         assertEquals(18, geom.getNumPoints());
 
         //28 points with delegated area
-        geom = fi.getFir("EHAA", true);
+        geom = fi.getFirGeometry("EHAA", true);
         assertEquals(28, geom.getNumPoints());
-        geom = fi.getFir("EFIN", true);
+        geom = fi.getFirGeometry("EFIN", true);
         assertEquals(68, geom.getNumPoints());
 
         String scottish = fi.getFirName("EGPX");

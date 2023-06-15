@@ -80,10 +80,10 @@ public class GeoUtilsTac {
     }
 
     public static PolygonGeometry getPolygonOutside(Lexeme lexeme, String firName, FirInfoStore firInfo) {
-        org.locationtech.jts.geom.Geometry fir = firInfo.getFir(firName, true);
+        org.locationtech.jts.geom.Geometry fir = firInfo.getFirGeometry(firName, true);
         org.locationtech.jts.geom.Geometry firEnvelope = fir.getEnvelope();
 
-        GeometryFactory fact = new GeometryFactory();
+        GeometryFactory fact = getGeometryFactory();
 
         String relationOperator = lexeme.getParsedValue(RELATIONTYPE, String.class);
         String relationValue = lexeme.getParsedValue(RELATEDLINE, String.class);
@@ -235,8 +235,8 @@ public class GeoUtilsTac {
     }
 
     public static PolygonGeometry getRelativeToLine(Lexeme lexeme, String firName, FirInfoStore firInfo) {
-        Geometry fir = firInfo.getFir(firName, true);
-        GeometryFactory geomFact = new GeometryFactory();
+        Geometry fir = firInfo.getFirGeometry(firName, true);
+        GeometryFactory geomFact = getGeometryFactory();
         List<Coordinate> coordinateList = new ArrayList<>();
         String coord1 = lexeme.getParsedValue(LINE_POINT1, String.class);
         if (coord1!=null) {
@@ -370,8 +370,8 @@ public class GeoUtilsTac {
         //Construct a polygon by concatenating the 2 lines. If the polygon self intersects
         //reverse the coordinates of the second line.
         //intersect the resulting polygon with the fir to get the final Geometry
-        Geometry fir = firInfo.getFir(firName, true);
-        GeometryFactory geomFact = new GeometryFactory();
+        Geometry fir = firInfo.getFirGeometry(firName, true);
+        GeometryFactory geomFact = getGeometryFactory();
         List<Coordinate> coordinateList = new ArrayList<>();
         String coord1 = lexeme.getParsedValue(LINE_POINT1, String.class);
         if (coord1!=null) {
@@ -443,8 +443,8 @@ public class GeoUtilsTac {
 
     public static PolygonGeometry getPolygonAprxWidth(Lexeme lexeme, String firName, FirInfoStore firInfo) {
 
-        Geometry fir = firInfo.getFir(firName, true);
-        GeometryFactory geomFact = new GeometryFactory();
+        Geometry fir = firInfo.getFirGeometry(firName, true);
+        GeometryFactory geomFact = getGeometryFactory();
         List<Coordinate> coordinateList = new ArrayList<>();
         String widthString = lexeme.getParsedValue(ParsedValueName.APRX_LINE_WIDTH, String.class);
         if (widthString!=null) {

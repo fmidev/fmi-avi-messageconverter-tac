@@ -26,7 +26,7 @@ import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 
 @Configuration
-@Import({TACConverter.class, JSONConverter.class })
+@Import({TACConverter.class, JSONConverter.class})
 public class TACTestConfiguration {
 
     @Autowired

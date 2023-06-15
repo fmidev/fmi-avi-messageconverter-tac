@@ -548,9 +548,8 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             return "UIR";
         } else if (firName.endsWith("CTA")) {
             return "CTA";
-        } else {
-            return "OTHER:UNKNOWN";
         }
+        return "OTHER:UNKNOWN";
     }
 
     String getBaseFirName(String firFullName){

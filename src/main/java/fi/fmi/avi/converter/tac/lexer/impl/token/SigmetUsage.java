@@ -12,6 +12,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
@@ -36,21 +37,11 @@ public class SigmetUsage extends RegexMatchingLexemeVisitor {
 
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
-            if (SIGMET.class.isAssignableFrom(clz)) {
-                if (((SIGMET) msg).getPermissibleUsageReason().isPresent()) {
-                    if (AviationCodeListUser.PermissibleUsageReason.EXERCISE == ((SIGMET) msg).getPermissibleUsageReason().get()) {
-                        return Optional.of(this.createLexeme("EXER", SIGMET_USAGE));
-                    } else if (AviationCodeListUser.PermissibleUsageReason.TEST == ((SIGMET) msg).getPermissibleUsageReason().get()) {
-                        return Optional.of(this.createLexeme("TEST", SIGMET_USAGE));
-                    }
-                }
-            } else if (AIRMET.class.isAssignableFrom(clz)) {
-                if (((AIRMET) msg).getPermissibleUsageReason().isPresent()) {
-                    if (AviationCodeListUser.PermissibleUsageReason.EXERCISE == ((AIRMET) msg).getPermissibleUsageReason().get()) {
-                        return Optional.of(this.createLexeme("EXER", SIGMET_USAGE));
-                    } else if (AviationCodeListUser.PermissibleUsageReason.TEST == ((AIRMET) msg).getPermissibleUsageReason().get()) {
-                        return Optional.of(this.createLexeme("TEST", SIGMET_USAGE));
-                    }
+            if (((AviationWeatherMessage)msg).getPermissibleUsageReason().isPresent()) {
+                if (AviationCodeListUser.PermissibleUsageReason.EXERCISE == ((AviationWeatherMessage) msg).getPermissibleUsageReason().get()) {
+                    return Optional.of(this.createLexeme("EXER", SIGMET_USAGE));
+                } else if (AviationCodeListUser.PermissibleUsageReason.TEST == ((AviationWeatherMessage) msg).getPermissibleUsageReason().get()) {
+                    return Optional.of(this.createLexeme("TEST", SIGMET_USAGE));
                 }
             }
             return Optional.empty();

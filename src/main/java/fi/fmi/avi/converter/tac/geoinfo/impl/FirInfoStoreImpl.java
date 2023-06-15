@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.geojson.Feature;
@@ -26,13 +27,13 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.springframework.core.io.ClassPathResource;
-
 import fi.fmi.avi.converter.tac.geoinfo.FirInfoStore;
 import fi.fmi.avi.util.JtsTools;
 import fi.fmi.avi.util.JtsToolsException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class FirInfoStoreImpl implements FirInfoStore {
     private static final Logger log = LoggerFactory.getLogger(FirInfoStoreImpl.class);
@@ -170,7 +171,7 @@ public class FirInfoStoreImpl implements FirInfoStore {
       }
 
     @Override
-    public Geometry getFir(String firName, boolean addDelegate) {
+    public Geometry getFirGeometry(String firName, boolean addDelegate) {
         Feature f = lookup(firName, addDelegate);
         if (f!=null) {
             try {
@@ -182,6 +183,7 @@ public class FirInfoStoreImpl implements FirInfoStore {
         return null;
     }
 
+    @PostConstruct
     public void initStore() throws IOException {
         this.worldFIRInfos = new HashMap<String, Feature>();
         this.delegatedAirspaces = new HashMap<String, List<Feature>>();

@@ -40,6 +40,13 @@ public class AirmetCancel extends RegexMatchingLexemeVisitor {
 
 	public static class Reconstructor extends FactoryBasedReconstructor {
 
+        private String getDateString(PartialOrCompleteTimeInstant instant) {
+            return String.format(Locale.US, "%02d%02d%02d",
+                instant.getDay().getAsInt(),
+                instant.getHour().getAsInt(),
+                instant.getMinute().getAsInt());
+        }
+
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
@@ -57,15 +64,9 @@ public class AirmetCancel extends RegexMatchingLexemeVisitor {
                     PartialOrCompleteTimeInstant end = airmet.getCancelledReference().get().getValidityPeriod().getEndTime().get();
 
 
-                    sb.append(String.format(Locale.US, "%02d%02d%02d",
-                            start.getDay().getAsInt(),
-                            start.getHour().getAsInt(),
-                            start.getMinute().getAsInt()));
+                    sb.append(getDateString(start));
                     sb.append("/");
-                    sb.append(String.format(Locale.US, "%02d%02d%02d",
-                            end.getDay().getAsInt(),
-                            end.getHour().getAsInt(),
-                            end.getMinute().getAsInt()));
+                    sb.append(getDateString(end));
                     return Optional.of(createLexeme(sb.toString(), AIRMET_CANCEL));
                 }
             }

@@ -19,8 +19,6 @@ import fi.fmi.avi.model.PointGeometry;
 import fi.fmi.avi.model.TacOrGeoGeometry;
 import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
-import fi.fmi.avi.model.PolygonGeometry;
-import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.swx.AirspaceVolume;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
@@ -39,8 +37,8 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         final String latStr = match.group("latitude");
         final String lonStr = match.group("longitude");
         if (latStr.length() > 3) {
-            double latitudeMinutes = Double.parseDouble(latStr.substring(3))/60.;
-            latitude = Double.parseDouble(latStr.substring(1, 3) + ".") + latitudeMinutes;
+            double latitudeMinutesAsDecimal =Integer.parseInt(latStr.substring(3))/60.;
+            latitude = Double.parseDouble(latStr.substring(1, 3) + ".") + latitudeMinutesAsDecimal;
         } else {
             latitude = Double.parseDouble(latStr.substring(1));
         }
@@ -48,8 +46,8 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
             latitude *= -1;
         }
         if (lonStr.length() > 4) {
-            double longitudeMinutes = Double.parseDouble(lonStr.substring(4))/60.;
-            longitude = Double.parseDouble(lonStr.substring(1, 4) + ".") + longitudeMinutes;
+            double longitudeMinutesAsDecimal = Integer.parseInt(lonStr.substring(4))/60.;
+            longitude = Double.parseDouble(lonStr.substring(1, 4) + ".") + longitudeMinutesAsDecimal;
         } else {
             longitude = Double.parseDouble(lonStr.substring(1));
         }

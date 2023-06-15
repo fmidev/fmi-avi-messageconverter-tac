@@ -518,9 +518,8 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             return "UIR";
         } else if (firName.endsWith("CTA")) {
             return "CTA";
-        } else {
-            return "OTHER:UNKNOWN";
         }
+        return "OTHER:UNKNOWN";
     }
 
     String getFirName(String firFullName){
