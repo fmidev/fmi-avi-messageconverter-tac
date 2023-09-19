@@ -31,6 +31,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_ERUPTION;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_NAME;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_POSITION;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_WITHIN;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_WITHIN_RADIUS_OF_POINT;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.VALID_TIME;
 import static org.junit.Assert.assertEquals;
 
@@ -44,6 +45,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 
@@ -526,4 +528,35 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     assertEquals(new Integer("00"), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MINUTE1, Integer.class));
     assertEquals("LFFF", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.MOVED_TO, String.class));
   }
+
+  @Test
+  public void shouldBeRdoactCld_Sigmet() {
+    String tacString = "EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\n"+
+            "EHAA AMSTERDAM FIR RDOACT CLD FCST AT 1200Z WI 25KM OF N5200 E00520 STNR NC=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    for (Lexeme l: result.getLexemes()) {
+        System.out.println(l);
+    }
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START,
+          SEQUENCE_DESCRIPTOR,
+          VALID_TIME,
+          MWO_DESIGNATOR,
+          FIR_DESIGNATOR,
+          SIGMET_FIR_NAME_WORD,
+          FIR_NAME,
+          SIGMET_PHENOMENON,
+          OBS_OR_FORECAST,
+          SIGMET_WITHIN_RADIUS_OF_POINT,
+          SIGMET_MOVING,
+          SIGMET_INTENSITY,
+          END_TOKEN}));
+
+    assertEquals("1", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.VALUE, String.class));
+    assertEquals(new Integer("11"), trimWhitespaces(result.getLexemes()).get(4).getParsedValue(ParsedValueName.DAY1, Integer.class));
+    assertEquals(new Integer("11"), trimWhitespaces(result.getLexemes()).get(4).getParsedValue(ParsedValueName.HOUR1, Integer.class));
+    assertEquals(new Integer("30"), trimWhitespaces(result.getLexemes()).get(4).getParsedValue(ParsedValueName.MINUTE1, Integer.class));
+  }
+
 }

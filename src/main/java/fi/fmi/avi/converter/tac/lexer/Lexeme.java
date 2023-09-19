@@ -657,7 +657,11 @@ public interface Lexeme {
         SURFACE_VISIBILITY_CAUSE,
         VOLCANO_LONGITUDE,
         VOLCANO_LATITUDE,
-        MOVED_TO
+        MOVED_TO,
+        RDOACT_LAT,
+        RDOACT_LON,
+        RDOACT_RADIUS,
+        RDOACT_RADIUS_UNIT
     }
 
     /**

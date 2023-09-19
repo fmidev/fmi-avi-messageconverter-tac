@@ -81,6 +81,7 @@ public class Lexing {
         f.addTokenCombiningRule(spaceWeatherAdvisoryNoExpectedCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryHorizontalLimitCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryVerticalLimitCombinationRule());
+        f.addTokenCombiningRule(intlSigmetRdoactiveCldCombinationRule());
         f.addTokenCombiningRule(latitudeLongitudePairCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffect());
         f.addTokenCombiningRule(spaceWeatherAdvisoryEffectType());
@@ -98,6 +99,7 @@ public class Lexing {
 //        f.addTokenCombiningRule(intlSigmetFirNameCombinationRule());
         f.addTokenCombiningRule(intlSigmetPhenomenonFZRACombinationRule());
         f.addTokenCombiningRule(intlSigmetEntireFirCombinationRule());
+
         f.addTokenCombiningRule(intlSigmetPhenomenonCombinationRule1());
         f.addTokenCombiningRule(intlSigmetPhenomenonCombinationRule2());
         f.addTokenCombiningRule(intlSigmetPhenomenonCombinationRule3());
@@ -1604,6 +1606,7 @@ public class Lexing {
         return retval;
     }
 
+
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule5() {
         List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -1637,6 +1640,46 @@ public class Lexing {
                 return s.matches("^(ERUPTION)$");
             }
         });
+        return retval;
+    }
+
+    private List<Predicate<String>> intlSigmetRdoactiveCldCombinationRule() {
+        List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(WI)$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(\\d{2})(KM|NM)$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^OF$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(N|S)(\\d{2,4})$");
+            }
+        });
+
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^(W|E)(\\d{3,5})$");
+            }
+        });
+
         return retval;
     }
 
@@ -1969,6 +2012,7 @@ public class Lexing {
         l.teach(new SigmetVaPosition(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetVaName(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetFirNameWord(OccurrenceFrequency.AVERAGE));
+        l.teach(new SigmetWithinRadius(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetAprx(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetLevel(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetMoving(OccurrenceFrequency.AVERAGE));

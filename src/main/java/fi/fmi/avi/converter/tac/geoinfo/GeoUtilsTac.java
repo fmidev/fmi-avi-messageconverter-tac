@@ -12,6 +12,10 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATEDLINE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATEDLINE2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONTYPE;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONTYPE2;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RDOACT_LAT;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RDOACT_LON;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RDOACT_RADIUS;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RDOACT_RADIUS_UNIT;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,9 +42,12 @@ import org.locationtech.jts.operation.polygonize.Polygonizer;
 
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
+import fi.fmi.avi.model.CircleByCenterPoint;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.Winding;
+import fi.fmi.avi.model.immutable.CircleByCenterPointImpl;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
+import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
 import fi.fmi.avi.util.JtsTools;
 import fi.fmi.avi.util.JtsToolsException;
@@ -50,8 +57,6 @@ public class GeoUtilsTac {
 
 	private static GeometryFactory gf;
 	private static ObjectMapper om;
-	private static GeoJsonReader reader;
-	private static GeoJsonWriter writer;
 
 	private static GeometryFactory getGeometryFactory() {
 		if (gf==null) {
@@ -491,7 +496,7 @@ public class GeoUtilsTac {
         return coord;
     }
 
-    protected static Double getLatLon(String l) {
+    public static Double getLatLon(String l) {
         if (l.startsWith("N")||l.startsWith("S")) {
             return getLat(l);
         }
@@ -548,5 +553,23 @@ public class GeoUtilsTac {
 			return reversed;
 		}
         return g;
+    }
+
+    public static CircleByCenterPoint getWithinRadius(Lexeme lexeme) {
+            CircleByCenterPointImpl.Builder circleBuilder = CircleByCenterPointImpl.builder();
+            NumericMeasureImpl.Builder radiusBuilder = NumericMeasureImpl.builder()
+                    .setValue(lexeme.getParsedValue(RDOACT_RADIUS, Integer.class).doubleValue())
+                    .setUom(lexeme.getParsedValue(RDOACT_RADIUS_UNIT, String.class));
+            circleBuilder.setRadius(radiusBuilder.build());
+            double []pts = {lexeme.getParsedValue(RDOACT_LAT, Double.class), lexeme.getParsedValue(RDOACT_LON, Double.class)};
+            circleBuilder.addCenterPointCoordinates(pts);
+            ObjectMapper om = new ObjectMapper();
+            try {
+                System.out.println("CIRCLE:"+om.writeValueAsString(circleBuilder.build()));
+            } catch (JsonProcessingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return circleBuilder.build();
     }
 }

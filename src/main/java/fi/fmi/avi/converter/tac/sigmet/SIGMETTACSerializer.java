@@ -96,6 +96,9 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
                         if (appendToken(retval,LexemeIdentity.SIGMET_ENTIRE_AREA, input, SIGMET.class, analysisCtx)>0) {
                             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                         }
+                        if (appendToken(retval,LexemeIdentity.SIGMET_WITHIN_RADIUS_OF_POINT, input, SIGMET.class, analysisCtx)>0) {
+                            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
+                        }
                     }
                     if (appendToken(retval,LexemeIdentity.SIGMET_LEVEL, input, SIGMET.class, analysisCtx)>0) {
                         appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);

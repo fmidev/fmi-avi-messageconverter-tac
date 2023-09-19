@@ -251,7 +251,9 @@ public abstract class AbstractAviMessageTestTempSigmet<S, T> {
         Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
 
         final LexemeSequence result = lexer.lexMessage((String) getMessage(), getLexerParsingHints());
-
+        for (Lexeme lex: result.getLexemes()) {
+            System.out.println("l:"+lex);
+        }
         assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), getLexerTokenSequenceIdentity());
     }
 

@@ -30,7 +30,7 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
 
     @Override
     public void visit(final Lexeme token, final ConversionHints hints) {
-        if ("WI".equalsIgnoreCase(token.getTACToken())) {
+        if ("WI".equalsIgnoreCase(token.getTACToken())&&!Character.isDigit(token.getNext().getTACToken().charAt(0))) {
             token.identify(SIGMET_WITHIN);
         }
     }

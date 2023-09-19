@@ -1,0 +1,49 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--11T11:30Z"
+    },
+    "endTime": {
+      "partialTime": "--11T15:30Z"
+    }
+  },
+  "phenomenon": "RDOACT_CLD",
+  "sequenceNumber": "1",
+  "analysisGeometries": [{
+    "geometry":{
+      "tacGeometry":{
+        "tacContent":"WI 25KM OF N5200 E00520"
+      },
+      "geoGeometry" : {
+        "type":"CircleByCenterPoint",
+        "centerPointCoordinates":[5.333333333333333,52.0],
+        "radius":{
+            "value":25.0,
+            "uom":"KM"
+        }
+      }
+    },
+    "analysisType": "FORECAST",
+    "intensityChange": "NO_CHANGE",
+    "approximateLocation":false,
+    "time": { "partialTime": "--T12:00Z"}}],
+  "translatedTAC":"EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR RDOACT CLD FCST AT 1200Z WI 25KM OF N5200 E00520 STNR NC=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
+}

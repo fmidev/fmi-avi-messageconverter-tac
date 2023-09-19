@@ -55,6 +55,7 @@ import fi.fmi.avi.model.PointGeometry;
 import fi.fmi.avi.model.TacOrGeoGeometry;
 import fi.fmi.avi.model.UnitPropertyGroup;
 import fi.fmi.avi.model.immutable.AirspaceImpl;
+import fi.fmi.avi.model.immutable.CircleByCenterPointImpl;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.ElevatedPointImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
@@ -110,8 +111,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setEntireArea(true);
-
-            //TODO geomBuilder.setGeoGeometry(getFirGeometry());
         } else if (LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(firstLexeme.getIdentity())){
             TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
             tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
@@ -167,6 +166,12 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
             geomBuilder.setTacGeometry(tacGeometryBuilder.build());
             geomBuilder.setGeoGeometry(GeoUtilsTac.getRelativeTo2Lines(firstLexeme, firName, firInfo));
+        } else if (LexemeIdentity.SIGMET_WITHIN_RADIUS_OF_POINT.equals(firstLexeme.getIdentity())){
+            System.out.println("WITHIN_RADIUS_OF!!!!! "+firstLexeme);
+            TacGeometryImpl.Builder tacGeometryBuilder = TacGeometryImpl.builder();
+            tacGeometryBuilder.setTacContent(firstLexeme.getTACToken());
+            geomBuilder.setTacGeometry(tacGeometryBuilder.build());
+            geomBuilder.setGeoGeometry(GeoUtilsTac.getWithinRadius(firstLexeme));
         }
         return geomBuilder.build();
     }

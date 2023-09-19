@@ -98,6 +98,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaName;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaPosition;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetWithin;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetWithinRadius;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
@@ -372,6 +373,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.SIGMET_VA_NAME, new SigmetVaName.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_VA_POSITION, new SigmetVaPosition.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_NO_VA_EXP, new SigmetNoVaExp.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_WITHIN_RADIUS_OF_POINT, new SigmetWithinRadius.Reconstructor());
 
         s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
         return s;
