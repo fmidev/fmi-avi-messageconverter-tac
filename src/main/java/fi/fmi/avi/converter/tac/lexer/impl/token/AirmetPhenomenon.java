@@ -35,9 +35,7 @@ import fi.fmi.avi.model.sigmet.AirmetWind;
  * Created by rinne on 10/02/17.
  */
 public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
-    // static String regex= "^(OBSC\\sTS|OBSC\\sTSGR|EMBD\\sTS|EMBD\\sTSGR|FRQ\\sTS|FRQ\\sTSGR|SQL\\sTS||SQL\\sTSGR"+
-    //             "|SEV\\sTURB|SEV\\sICE|SEV\\sICE\\s\\(FZRA\\)|SEV\\sMTW|HVY\\sDS|HVY\\sSS|RDOACT\\sCLD|VA\\sCLD)";
-    static String regex= "^(MT OBSC)|((ISOL|OCNL|FRQ)\\s(CB|TCU))|(MOD ICE)|(MOD TURB)|(MOD MTW)"+
+    private final static String REGEX = "^(MT OBSC)|((ISOL|OCNL|FRQ)\\s(CB|TCU))|(MOD ICE)|(MOD TURB)|(MOD MTW)"+
                 "|((ISOL|OCNL)\\s(TS(GR)?))"+
                 "|((BKN|OVC) CLD (((\\d{3,4})|SFC)/(ABV)?((\\d{3,4}M)|(\\d{4,5}FT))))"+
                 "|(SFC VIS (\\d{2,4})M) (\\((BR|DS|DU|DZ|FC|FG|FU|GR|GS|HZ|PL|PO|RA|SA|SG|SN|SQ|SS|VA)\\))"+
@@ -45,7 +43,7 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                 "$";
 //(BR|DS|DU|DZ|FC|FG|FU|GR|GS|HZ|PL|PO|RA|SA|SG|SN|SQ|SS|VA)
     public AirmetPhenomenon(final OccurrenceFrequency prio) {
-            super(regex, prio);
+            super(REGEX, prio);
     }
 
     @Override
@@ -88,7 +86,7 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                 }
             }
         } else if (m.startsWith("SFC VIS")) {
-            regex = "^SFC VIS (\\d{2,4})M (\\((BR|DS|DU|DZ|FC|FG|FU|GR|GS|HZ|PL|PO|RA|SA|SG|SN|SQ|SS|VA)\\))$";
+            String regex = "^SFC VIS (\\d{2,4})M (\\((BR|DS|DU|DZ|FC|FG|FU|GR|GS|HZ|PL|PO|RA|SA|SG|SN|SQ|SS|VA)\\))$";
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(m);
             if (matcher.matches()){
@@ -97,7 +95,7 @@ public class AirmetPhenomenon extends RegexMatchingLexemeVisitor {
                 token.setParsedValue(SURFACE_VISIBILITY_CAUSE, matcher.group(3));
             }
         } else if (m.startsWith("SFC WIND")) {
-            regex = "^SFC WIND (\\d{3})/(\\d{2,3})(MPS|KT)$";
+            String regex = "^SFC WIND (\\d{3})/(\\d{2,3})(MPS|KT)$";
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(m);
             if (matcher.matches()){

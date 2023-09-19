@@ -24,6 +24,7 @@ import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -63,7 +64,7 @@ public class SigmetWithinRadius extends RegexMatchingLexemeVisitor {
                             double radius = ((CircleByCenterPoint)geometry).getRadius().getValue();
                             String unit = ((CircleByCenterPoint)geometry).getRadius().getUom();
                             List<Double> coords = ((CircleByCenterPoint)geometry).getCenterPointCoordinates();
-                            String tac = String.format("WI %02.0f%s OF %s%04d %s%05d", radius, unit,
+                            String tac = String.format(Locale.US, "WI %02.0f%s OF %s%04d %s%05d", radius, unit,
                                     coords.get(0)<0?"S":"N", Math.round(coords.get(0)*100),
                                     coords.get(1)<0?"W":"E", Math.round(coords.get(1)*100));
                             lexemes.add(this.createLexeme(tac, LexemeIdentity.SIGMET_WITHIN_RADIUS_OF_POINT));

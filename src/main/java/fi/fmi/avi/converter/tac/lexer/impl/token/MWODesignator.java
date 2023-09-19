@@ -7,6 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.SIGMETAIRMET;
 import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
@@ -38,14 +39,8 @@ public class MWODesignator extends RegexMatchingLexemeVisitor {
 
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
-            if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET m = (SIGMET) msg;
-                if (m.getMeteorologicalWatchOffice().getDesignator() != null) {
-                    return Optional.of(this.createLexeme(m.getMeteorologicalWatchOffice().getDesignator()+"-", MWO_DESIGNATOR));
-                }
-            }
-            if (AIRMET.class.isAssignableFrom(clz)) {
-                AIRMET m = (AIRMET) msg;
+            if (SIGMETAIRMET.class.isAssignableFrom(clz)) {
+                SIGMETAIRMET m = (SIGMETAIRMET) msg;
                 if (m.getMeteorologicalWatchOffice().getDesignator() != null) {
                     return Optional.of(this.createLexeme(m.getMeteorologicalWatchOffice().getDesignator()+"-", MWO_DESIGNATOR));
                 }

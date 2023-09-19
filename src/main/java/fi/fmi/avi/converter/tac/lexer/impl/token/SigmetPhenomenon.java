@@ -22,10 +22,10 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_PHENOMENON;
  * Created by rinne on 10/02/17.
  */
 public class SigmetPhenomenon extends RegexMatchingLexemeVisitor {
-    static String regex= "(OBSC\\sTS|OBSC\\sTSGR|EMBD\\sTS|EMBD\\sTSGR|FRQ\\sTS|FRQ\\sTSGR|SQL\\sTS||SQL\\sTSGR"+
+    private static final String REGEX = "(OBSC\\sTS|OBSC\\sTSGR|EMBD\\sTS|EMBD\\sTSGR|FRQ\\sTS|FRQ\\sTSGR|SQL\\sTS||SQL\\sTSGR"+
                 "|SEV\\sTURB|SEV\\sICE|SEV\\sICE\\s\\(FZRA\\)|SEV\\sMTW|HVY\\sDS|HVY\\sSS|RDOACT\\sCLD|VA\\sCLD)";
     public SigmetPhenomenon(final OccurrenceFrequency prio) {
-            super(regex, prio);
+            super(REGEX, prio);
     }
 
     @Override

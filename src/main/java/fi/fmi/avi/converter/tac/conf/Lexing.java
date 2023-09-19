@@ -95,7 +95,6 @@ public class Lexing {
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryCombinationRules());
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules());
         f.addTokenCombiningRule(intlSigmetStartRule());
-//        f.addTokenCombiningRule(intlSigmetFirName3CombinationRule());
 //        f.addTokenCombiningRule(intlSigmetFirNameCombinationRule());
         f.addTokenCombiningRule(intlSigmetPhenomenonFZRACombinationRule());
         f.addTokenCombiningRule(intlSigmetEntireFirCombinationRule());
@@ -1988,7 +1987,6 @@ public class Lexing {
         });
         l.teach(new SigmetStart(OccurrenceFrequency.FREQUENT));
         l.teach(new SigmetSequenceDescriptor(OccurrenceFrequency.AVERAGE));
-        l.teach(new AirspaceDesignator(OccurrenceFrequency.RARE)); //TODO: really needed?
         l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));
         l.teach(new MWODesignator(OccurrenceFrequency.RARE));
         l.teach(new EndToken(OccurrenceFrequency.RARE));
@@ -2063,7 +2061,6 @@ public class Lexing {
         });
         l.teach(new AirmetStart(OccurrenceFrequency.RARE));
         l.teach(new SigmetSequenceDescriptor(OccurrenceFrequency.AVERAGE));
-        l.teach(new AirspaceDesignator(OccurrenceFrequency.RARE));
         l.teach(new SigmetValidTime(OccurrenceFrequency.AVERAGE));
         l.teach(new MWODesignator(OccurrenceFrequency.RARE));
         l.teach(new EndToken(OccurrenceFrequency.RARE));
