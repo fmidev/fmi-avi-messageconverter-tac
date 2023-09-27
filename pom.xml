@@ -1,140 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <groupId>fi.fmi</groupId>
-    <artifactId>fmi-os-parent-pom</artifactId>
-    <version>0.8.2</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>fi.fmi</groupId>
+        <artifactId>fmi-os-parent-pom</artifactId>
+        <version>0.8.2</version>
+    </parent>
 
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <description>Aviation weather message conversions - TAC module</description>
-  <groupId>fi.fmi.avi.converter</groupId>
-  <artifactId>fmi-avi-messageconverter-tac</artifactId>
-  <version>5.3.1-SNAPSHOT</version>
+    <description>Aviation weather message conversions - TAC module</description>
+    <groupId>fi.fmi.avi.converter</groupId>
+    <artifactId>fmi-avi-messageconverter-tac</artifactId>
+    <version>5.3.1-SNAPSHOT</version>
 
-  <scm>
-    <connection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</connection>
-    <developerConnection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</developerConnection>
-    <url>https://github.com/fmidev/fmi-avi-messageconverter-tac</url>
-    <tag>HEAD</tag>
-  </scm>
+    <scm>
+        <connection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</connection>
+        <developerConnection>scm:git:https://github.com/fmidev/fmi-avi-messageconverter-tac.git</developerConnection>
+        <url>https://github.com/fmidev/fmi-avi-messageconverter-tac</url>
+        <tag>HEAD</tag>
+    </scm>
 
-  <dependencies>
-    <dependency>
-      <groupId>fi.fmi.avi.converter</groupId>
-      <artifactId>fmi-avi-messageconverter</artifactId>
-      <version>6.3.1-SNAPSHOT</version>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>fi.fmi.avi.converter</groupId>
+            <artifactId>fmi-avi-messageconverter</artifactId>
+            <version>7.0.0-beta1</version>
+        </dependency>
 
-    <!-- For JUnit tests -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.unitils</groupId>
-      <artifactId>unitils-core</artifactId>
-      <version>3.4.6</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <version>3.13.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>4.5.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib</artifactId>
-      <version>3.1</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/org.locationtech.jts/jts-core -->
-    <dependency>
-        <groupId>org.locationtech.jts.io</groupId>
-        <artifactId>jts-io-common</artifactId>
-        <version>1.18.1</version>
-    </dependency>
-		<dependency>
-			<groupId>de.grundid.opendatalab</groupId>
-			<artifactId>geojson-jackson</artifactId>
-			<version>1.14</version>
-		</dependency>
-  </dependencies>
-
-  <build>
-    <!-- Overriding settings from parent pom: -->
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>${maven-deploy-plugin.version}</version>
-          <configuration>
-            <altDeploymentRepository>gitlab-maven::default::${env.CI_SERVER_URL}/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</altDeploymentRepository>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-
-  <repositories>
-     <!-- Needed to resolve parent pom during deploy -->
-    <repository>
-      <id>fmi-os-mvn-snapshot-repo</id>
-      <url>https://raw.githubusercontent.com/fmidev/fmi-os-mvn-snapshot-repo/master</url>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-
-    <repository>
-      <id>fmi-os-mvn-release-repo</id>
-      <url>https://raw.githubusercontent.com/fmidev/fmi-os-mvn-repo/master</url>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-   </repository>
-
-    <!-- fi/fmi/avi/converter/fmi-avi-messageconverter -->
-    <repository>
-        <id>fmi-avi-messageconverter</id>
-        <url>https://gitlab.com/api/v4/projects/22507877/packages/maven</url>
-    </repository>
-
-    <!-- fi/fmi/avi/converter/fmi-avi-messageconverter-tac-->
-    <repository>
-      <id>gitlab-maven</id>
-      <url>https://gitlab.com/api/v4/projects/22507780/packages/maven</url>
-    </repository>
-  </repositories>
-
-   <distributionManagement>
-    <repository>
-      <id>gitlab-maven</id>
-      <url>${env.CI_SERVER_URL}/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
-    </repository>
-    <snapshotRepository>
-      <id>gitlab-maven</id>
-      <url>${env.CI_SERVER_URL}/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
-    </snapshotRepository>
-  </distributionManagement>
+        <!-- For JUnit tests -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-core</artifactId>
+            <version>3.4.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>4.5.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.locationtech.jts/jts-core -->
+        <dependency>
+            <groupId>org.locationtech.jts.io</groupId>
+            <artifactId>jts-io-common</artifactId>
+            <version>1.18.1</version>
+        </dependency>
+        <dependency>
+            <groupId>de.grundid.opendatalab</groupId>
+            <artifactId>geojson-jackson</artifactId>
+            <version>1.14</version>
+        </dependency>
+    </dependencies>
 
 </project>
