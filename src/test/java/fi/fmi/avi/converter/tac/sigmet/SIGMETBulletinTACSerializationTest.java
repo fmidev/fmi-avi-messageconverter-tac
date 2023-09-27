@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Optional;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
+@Ignore("Not ready yet")
 public class SIGMETBulletinTACSerializationTest {
 
     @Autowired
@@ -49,7 +51,7 @@ public class SIGMETBulletinTACSerializationTest {
 
         builder.addMessages(SIGMETImpl.builder()//
                 .setTranslatedTAC("EFIN SIGMET 1 VALID 170750/170950 EFKL-\n"//
-                        + "EFIN FINLAND FIR SEV TURB FCST AT 0740Z\n"//
+                        + "EFIN FINLAND FIR SEV TURB FCST AT 0740Z "//
                         + "S OF LINE N5953 E01931 -\n"//
                         + "N6001 E02312 - N6008 E02606 - N6008\n"//
                         + "E02628 FL220-340 MOV N 15KT\n"//

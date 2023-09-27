@@ -1,0 +1,50 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--11T11:30Z"
+    },
+    "endTime": {
+      "partialTime": "--11T15:30Z"
+    }
+  },
+  "phenomenon": "OBSC_TSGR",
+  "sequenceNumber": "1",
+  "analysisGeometries": [{
+    "geometry":{
+      "tacGeometry":{
+        "tacContent":"WI N5200 E00524 - N5300 E00630 - N5100 E00718 - N5200 E00524"
+      },
+      "geoGeometry" : {
+        "type" : "Polygon",
+        "crs" : {
+          "name" : "http://www.opengis.net/def/crs/EPSG/0/4326",
+          "dimension" : 2,
+          "axisLabels" : [ "Lat", "Lon" ]
+        },
+        "exteriorRingPositions" : [ 52.0, 5.4, 53.0, 6.5, 51.0, 7.3, 52.0, 5.4 ]
+      }
+    },
+    "analysisType": "FORECAST",
+    "intensityChange": "INTENSIFYING",
+    "approximateLocation":false,
+    "time": { "partialTime": "--T12:00Z"}}],
+  "translatedTAC":"EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR OBSC TSGR FCST AT 1200Z WI N5200 E00524 - N5300 E00630 - N5100 E00718 - N5200 E00524 STNR INTSF=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
+}

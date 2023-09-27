@@ -6,6 +6,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.CLOUD;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -244,7 +245,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
             }
 
             if (base.isPresent()) {
-                sb.append(String.format("%03d", getAsHectoFeet(base.get())));
+                sb.append(String.format(Locale.US, "%03d", getAsHectoFeet(base.get())));
             } else if (!amount.isPresent() || CloudAmount.SKC != amount.get()) {
                 sb.append("///");
             }
@@ -257,7 +258,7 @@ public class CloudLayer extends RegexMatchingLexemeVisitor {
         }
 
         private String getVerticalVisibilityToken(final NumericMeasure verVis) throws SerializingException {
-            return String.format("VV%03d", getAsHectoFeet(verVis));
+            return String.format(Locale.US, "VV%03d", getAsHectoFeet(verVis));
         }
 
         private long getAsHectoFeet(final NumericMeasure value) throws SerializingException {

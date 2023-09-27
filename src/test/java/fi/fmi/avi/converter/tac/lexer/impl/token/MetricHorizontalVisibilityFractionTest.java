@@ -2,6 +2,8 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Locale;
+
 import org.junit.Test;
 
 public class MetricHorizontalVisibilityFractionTest {
@@ -40,7 +42,7 @@ public class MetricHorizontalVisibilityFractionTest {
                         break;
                     }
                 }
-                final String expected = String.format("%d/%d", actualNumerator, actualDenominator);
+                final String expected = String.format(Locale.US, "%d/%d", actualNumerator, actualDenominator);
                 final String actual = MetricHorizontalVisibility.Reconstructor.findClosestFraction(fraction, maxDenominator);
 
                 assertEquals(expected, actual);

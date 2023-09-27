@@ -5,6 +5,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MIN_DIRECTIO
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.VARIABLE_WIND_DIRECTION;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -49,8 +50,8 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
             token.identify(VARIABLE_WIND_DIRECTION, Lexeme.Status.SYNTAX_ERROR, "Wind directions invalid");
         }
     }
-    
-    
+
+
     public static class Reconstructor extends FactoryBasedReconstructor {
     	@Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
@@ -77,7 +78,7 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
 			if (clockwise == null || counter == null) {
         		throw new SerializingException("Only either extreme clockwise or counter-clocwise wind direction given. Unable to serialize token");
         	}
-			
+
 			if (!"deg".equals(counter.getUom())) {
 				throw new SerializingException("Counter-clockwise extreme wind direction is not in degress (but in '"+counter.getUom()+"'), unable to serialize");
 			}
@@ -94,8 +95,8 @@ public class VariableSurfaceWind extends RegexMatchingLexemeVisitor {
 				throw new SerializingException("Illegal clockwise extreme wind direction "+clockwise.getValue()+" "+clockwise.getUom());
 			}
 
-			
-			return String.format("%03dV%03d", counter.getValue().intValue(), clockwise.getValue().intValue());
+
+			return String.format(Locale.US, "%03dV%03d", counter.getValue().intValue(), clockwise.getValue().intValue());
 		}
     }
 }

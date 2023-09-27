@@ -1,5 +1,6 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -48,7 +49,7 @@ public class BulletinHeaderDataDesignators extends RegexMatchingLexemeVisitor {
                     if (heading.getBulletinNumber() < 0 || heading.getBulletinNumber() > 99) {
                         throw new SerializingException("Invalid bulletin number ('ii' part) '" + heading.getBulletinNumber() + "' in TAF bulletin");
                     }
-                    sb.append(String.format("%02d", heading.getBulletinNumber()));
+                    sb.append(String.format(Locale.US, "%02d", heading.getBulletinNumber()));
                     return Optional.of(createLexeme(sb.toString(), LexemeIdentity.BULLETIN_HEADING_DATA_DESIGNATORS));
                 } else {
                     throw new SerializingException("TAF bulletin heading is null");

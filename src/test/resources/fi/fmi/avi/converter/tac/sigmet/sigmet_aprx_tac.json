@@ -1,0 +1,53 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--11T11:30Z"
+    },
+    "endTime": {
+      "partialTime": "--11T15:30Z"
+    }
+  },
+  "phenomenon": "SEV_ICE_FZRA",
+  "sequenceNumber": "M01",
+  "analysisGeometries": [
+    {
+      "intensityChange": "NO_CHANGE",
+      "analysisType": "OBSERVATION",
+      "geometry":{
+        "tacGeometry":{
+          "tacContent":"APRX 50KM WID LINE BTN N5200 E00520 - N5400 E00540 - N5500 E00712"
+        },
+        "geoGeometry": {
+          "type" : "Polygon",
+          "crs" : {
+            "name" : "http://www.opengis.net/def/crs/EPSG/0/4326",
+            "dimension" : 2,
+            "axisLabels" : [ "Lat", "Lon" ]
+          },
+          "exteriorRingPositions" : [54.01201401722986, 5.594582563287529, 54.02656828914217, 5.598588912722874, 54.03998888981761, 5.605500145912837, 54.05170316104375, 5.615021359928708, 54.061211253836, 5.626746283730146, 54.63072454705547,  6.5, 54.45623197468366, 6.5, 53.95632351275541,  5.733473691710017, 51.98798598277014,  5.405417436712471, 51.974153917801964, 5.401688542388577, 51.96131510327801, 5.395332795714732, 51.949962927640335, 5.386594444471269, 51.94053364863233, 5.37580929859595, 51.93338962815828, 5.363391825196385, 51.92880540691857, 5.349819220811519, 51.926957153964594, 5.335613073016259, 51.92791589662086, 5.321319316103477, 51.93164479094476, 5.307487251135299, 51.9380005376186, 5.294648436611342, 51.946738888862065, 5.283296260973671, 51.95752403473738, 5.273866981965669, 51.96994150813695, 5.266722961491611, 51.98351411252182, 5.262138740251904, 51.997720260317074,  5.2602904872979295, 52.01201401722986, 5.261249229954195, 54.01201401722986, 5.594582563287529]
+
+        }
+      },
+      "approximateLocation":false
+    }
+  ],
+  "translatedTAC":"EHAA SIGMET M01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR SEV ICE (FZRA) OBS APRX 50KM WID LINE BTN N5200 E00520 - N5400 E00540 - N5500 E00712 STNR NC=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
+}

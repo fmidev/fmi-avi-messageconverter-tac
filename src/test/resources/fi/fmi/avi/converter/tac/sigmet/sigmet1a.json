@@ -1,0 +1,44 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--11T11:30Z"
+    },
+    "endTime": {
+      "partialTime": "--11T15:30Z"
+    }
+  },
+  "phenomenon": "SEV_ICE_FZRA",
+  "sequenceNumber": "M01",
+  "analysisGeometries": [
+    {
+      "intensityChange": "NO_CHANGE",
+      "analysisType": "OBSERVATION",
+      "geometry":{
+      "tacGeometry":{
+        "tacContent":"ENTIRE FIR"
+        },
+        "entireArea": true
+      },
+      "approximateLocation":false
+    }
+  ],
+  "translatedTAC":"EHAA SIGMET M01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR SEV ICE (FZRA) OBS ENTIRE FIR STNR NC=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
+}

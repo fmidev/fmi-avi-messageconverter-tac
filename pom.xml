@@ -24,7 +24,7 @@
     <dependency>
       <groupId>fi.fmi.avi.converter</groupId>
       <artifactId>fmi-avi-messageconverter</artifactId>
-      <version>6.3.0</version>
+      <version>6.3.1-SNAPSHOT</version>
     </dependency>
 
     <!-- For JUnit tests -->
@@ -49,7 +49,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>2.8.9</version>
+      <version>4.5.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -58,8 +58,83 @@
       <version>3.1</version>
       <scope>test</scope>
     </dependency>
-
+    <!-- https://mvnrepository.com/artifact/org.locationtech.jts/jts-core -->
+    <dependency>
+        <groupId>org.locationtech.jts.io</groupId>
+        <artifactId>jts-io-common</artifactId>
+        <version>1.18.1</version>
+    </dependency>
+		<dependency>
+			<groupId>de.grundid.opendatalab</groupId>
+			<artifactId>geojson-jackson</artifactId>
+			<version>1.14</version>
+		</dependency>
   </dependencies>
 
+  <build>
+    <!-- Overriding settings from parent pom: -->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven-deploy-plugin.version}</version>
+          <configuration>
+            <altDeploymentRepository>gitlab-maven::default::${env.CI_SERVER_URL}/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</altDeploymentRepository>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <repositories>
+     <!-- Needed to resolve parent pom during deploy -->
+    <repository>
+      <id>fmi-os-mvn-snapshot-repo</id>
+      <url>https://raw.githubusercontent.com/fmidev/fmi-os-mvn-snapshot-repo/master</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
+
+    <repository>
+      <id>fmi-os-mvn-release-repo</id>
+      <url>https://raw.githubusercontent.com/fmidev/fmi-os-mvn-repo/master</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+   </repository>
+
+    <!-- fi/fmi/avi/converter/fmi-avi-messageconverter -->
+    <repository>
+        <id>fmi-avi-messageconverter</id>
+        <url>https://gitlab.com/api/v4/projects/22507877/packages/maven</url>
+    </repository>
+
+    <!-- fi/fmi/avi/converter/fmi-avi-messageconverter-tac-->
+    <repository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.com/api/v4/projects/22507780/packages/maven</url>
+    </repository>
+  </repositories>
+
+   <distributionManagement>
+    <repository>
+      <id>gitlab-maven</id>
+      <url>${env.CI_SERVER_URL}/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
+    </repository>
+    <snapshotRepository>
+      <id>gitlab-maven</id>
+      <url>${env.CI_SERVER_URL}/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
+    </snapshotRepository>
+  </distributionManagement>
 
 </project>

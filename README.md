@@ -1,12 +1,14 @@
 # fmi-avi-messageconverter-tac
+
 fmi-avi-messageconverter module for TAC messages
 
 This project provides conversions between the aviation weather message Java domain model objects defined
-in [fmi-avi-messageconverter](https://github.com/fmidev/fmi-avi-messageconverter) and 
+in [fmi-avi-messageconverter](https://github.com/fmidev/fmi-avi-messageconverter) and
 the Traditional Alphanumeric Codes (TAC) encoded textual messages.
 
 ## Get started
-Release artifacts of project are available as maven dependencies in the FMI OS maven repository. To access them, 
+
+Release artifacts of project are available as maven dependencies in the FMI OS maven repository. To access them,
 add this repository to your project pom, or in your settings:
 
 ```xml
@@ -35,7 +37,7 @@ Maven dependency:
 </dependency>
 ```
 
-The recommended way to using the IWXXM message conversions provided by this project is to inject the conversion 
+The recommended way to using the IWXXM message conversions provided by this project is to inject the conversion
 functionality to the AviMessageParser instance using Spring:
 
 ```java
@@ -79,19 +81,18 @@ public class MyMessageConverterConfig {
 }
 ```
 
-If you want to be able to convert to/from other message encodings (such at IWXXM) too, include the conversion 
+If you want to be able to convert to/from other message encodings (such at IWXXM) too, include the conversion
 modules for them as maven dependencies and add the required converters to the AviMessageConverter configuration.
 See [fmi-avi-messageconverter](https://github.com/fmidev/fmi-avi-messageconverter) for more information.
 
-
 ##Supported message conversions
 
-Identifier                                                          | Input                             | Output
---------------------------------------------------------------------|-----------------------------------|-------
-fi.fmi.avi.converter.tac.TACConverter.TAC_TO_METAR_POJO | TAC-encoded METAR String | instance of fi.fmi.avi.model.metar.impl.METAR
-fi.fmi.avi.converter.tac.TACConverter.TAC_TO_TAF_POJO | TAC-encoded TAF String | instance of fi.fmi.avi.model.taf.TAF
-fi.fmi.avi.converter.tac.TACConverter.METAR_POJO_TO_TAC | instance of fi.fmi.avi.model.metar.impl.METAR | TAC-encoded METAR String
-fi.fmi.avi.converter.tac.TACConverter.TAF_POJO_TO_TAC | instance of fi.fmi.avi.model.taf.TAF | TAC-encoded TAF String
+| Identifier                                              | Input                                         | Output                                        |
+| ------------------------------------------------------- | --------------------------------------------- | --------------------------------------------- |
+| fi.fmi.avi.converter.tac.TACConverter.TAC_TO_METAR_POJO | TAC-encoded METAR String                      | instance of fi.fmi.avi.model.metar.impl.METAR |
+| fi.fmi.avi.converter.tac.TACConverter.TAC_TO_TAF_POJO   | TAC-encoded TAF String                        | instance of fi.fmi.avi.model.taf.TAF          |
+| fi.fmi.avi.converter.tac.TACConverter.METAR_POJO_TO_TAC | instance of fi.fmi.avi.model.metar.impl.METAR | TAC-encoded METAR String                      |
+| fi.fmi.avi.converter.tac.TACConverter.TAF_POJO_TO_TAC   | instance of fi.fmi.avi.model.taf.TAF          | TAC-encoded TAF String                        |
 
 METAR an TAF are supported but it's expected that the SPECI, SIGMET and AIRMET support will be added as the project becomes more mature.
 
@@ -111,7 +112,6 @@ if (ConversionResult.Status.SUCCESS == result.getStatus()) {
 }
 ```
 
-
 Converting TAC-encoded METAR to METAR object:
 
 ```java
@@ -127,4 +127,6 @@ if (ConversionResult.Status.SUCCESS == result.getStatus()) {
 }
 ```
 
+## KNMI version sync with FMI:
 
+`git pull https://github.com/fmidev/fmi-avi-messageconverter-tac.git master`

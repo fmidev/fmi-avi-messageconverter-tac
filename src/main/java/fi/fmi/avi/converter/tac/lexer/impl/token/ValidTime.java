@@ -6,6 +6,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR2;
 
 import java.time.Duration;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -62,7 +63,7 @@ public class ValidTime extends TimeHandlingRegex {
                 int endHour = end.getHour().orElse(-1);
 
                 // Store original parameters for exception texts
-                final String dateStr = String.format("%02d%02d/%02d%02d", startDay, startHour, endDay, endHour);
+                final String dateStr = String.format(Locale.US, "%02d%02d/%02d%02d", startDay, startHour, endDay, endHour);
 
                 if (endHour == 24) {
                     endHour = 0;
@@ -148,9 +149,9 @@ public class ValidTime extends TimeHandlingRegex {
                 final PartialOrCompleteTimeInstant start = period.getStartTime().get();
                 final PartialOrCompleteTimeInstant end = period.getEndTime().get();
                 if (!end.getDay().isPresent() || useShortFormat) {
-                    retval = String.format("%02d%02d%02d", start.getDay().orElse(-1), start.getHour().orElse(-1), end.getHour().orElse(-1));
+                    retval = String.format(Locale.US, "%02d%02d%02d", start.getDay().orElse(-1), start.getHour().orElse(-1), end.getHour().orElse(-1));
                 } else {
-                    retval = String.format("%02d%02d/%02d%02d", start.getDay().orElse(-1), start.getHour().orElse(-1), end.getDay().orElse(-1),
+                    retval = String.format(Locale.US, "%02d%02d/%02d%02d", start.getDay().orElse(-1), start.getHour().orElse(-1), end.getDay().orElse(-1),
                             end.getHour().orElse(-1));
                 }
             }

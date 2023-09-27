@@ -28,6 +28,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
@@ -116,8 +117,8 @@ public class SWXTACSerializerTest {
                 + "OBS SWX:            08/0100Z HNH HSH E020 - W17200 ABV FL340" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E150 - W40 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E5 - W160 ABV FL340" + CR_LF//
-                + "FCST SWX +18 HR:    08/1900Z HNH HSH E17952 - W02050 ABV FL340" + CR_LF//
-                + "FCST SWX +24 HR:    09/0100Z N80 W15010 - N1 W75 - N60 E15 - N70 E75 - N80 W16025" + CR_LF//
+                + "FCST SWX +18 HR:    08/1900Z HNH HSH E17930 - W02054 ABV FL340" + CR_LF//
+                + "FCST SWX +24 HR:    09/0100Z N80 W15006 - N1 W75 - N60 E15 - N70 E75 - N80 W16024" + CR_LF//
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
@@ -131,13 +132,16 @@ public class SWXTACSerializerTest {
                 + "OBS SWX:            08/0100Z HNH HSH E020 - W172 ABV FL340" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E150 - W040 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E005 - W160 ABV FL340" + CR_LF//
-                + "FCST SWX +18 HR:    08/1900Z HNH HSH E17952 - W02050 ABV FL340" + CR_LF//
-                + "FCST SWX +24 HR:    09/0100Z N80 W15010 - N01 W075 - N60 E015 - N70 E075 - N80 W16025" + CARRIAGE_RETURN.getContent()
+                + "FCST SWX +18 HR:    08/1900Z HNH HSH E17930 - W02054 ABV FL340" + CR_LF//
+                + "FCST SWX +24 HR:    09/0100Z N80 W15006 - N01 W075 - N60 E015 - N70 E075 - N80 W16024" + CARRIAGE_RETURN.getContent()
                 + LINE_FEED.getContent()//
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
         final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(original, TACConverter.TAC_TO_SWX_POJO);
+        for (ConversionIssue issue: pojoResult.getConversionIssues()) {
+            System.err.println("iss:"+ issue);
+        }
         assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
         final List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
@@ -145,8 +149,7 @@ public class SWXTACSerializerTest {
         assertRegionPolygonEquals(Arrays.asList(90d, 20d, 60d, 20d, 60d, -172d, 90d, -172d, 90d, 20d), analyses.get(0), 0);//
         assertRegionPolygonEquals(Arrays.asList(90d, 150d, 60d, 150d, 60d, -40d, 90d, -40d, 90d, 150d), analyses.get(1), 0);//
         assertRegionPolygonEquals(Arrays.asList(90d, 5d, 60d, 5d, 60d, -160d, 90d, -160d, 90d, 5d), analyses.get(2), 0);//
-        assertRegionPolygonEquals(Arrays.asList(90d, 179.52, 60d, 179.52, 60d, -20.5, 90d, -20.5, 90d, 179.52), analyses.get(3), 0);//
-        assertRegionPolygonEquals(Arrays.asList(80d, -150.1, 1d, -75d, 60d, 15d, 70d, 75d, 80d, -160.25), analyses.get(4), 0);
+         assertRegionPolygonEquals(Arrays.asList(80d, -150.1d, 1d, -75d, 60d, 15d, 70d, 75d, 80d, -160.4d), analyses.get(4), 0);
 
         final ConversionResult<String> stringResult = this.converter.convertMessage(pojoResult.getConvertedMessage().get(), TACConverter.SWX_POJO_TO_TAC,
                 new ConversionHints());

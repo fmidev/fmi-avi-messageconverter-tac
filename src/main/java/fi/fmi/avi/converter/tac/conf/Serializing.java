@@ -1,5 +1,9 @@
 package fi.fmi.avi.converter.tac.conf;
 
+import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
+import fi.fmi.avi.model.sigmet.AIRMET;
+import fi.fmi.avi.model.sigmet.AIRMETBulletin;
+import fi.fmi.avi.model.sigmet.SIGMET;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -8,8 +12,11 @@ import org.springframework.context.annotation.Import;
 
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
+import fi.fmi.avi.converter.tac.airmet.AIRMETBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.airmet.AIRMETTACSerializer;
 import fi.fmi.avi.converter.tac.bulletin.GenericMeteorologicalBulletinTACSerializer;
-import fi.fmi.avi.converter.tac.bulletin.SIGMETBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -35,9 +42,12 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.ColorCode;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Correction;
 import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTime;
 import fi.fmi.avi.converter.tac.lexer.impl.token.EndToken;
+import fi.fmi.avi.converter.tac.lexer.impl.token.FIRDesignator;
+import fi.fmi.avi.converter.tac.lexer.impl.token.FIRName;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ForecastMaxMinTemperature;
 import fi.fmi.avi.converter.tac.lexer.impl.token.ICAOCode;
 import fi.fmi.avi.converter.tac.lexer.impl.token.IssueTime;
+import fi.fmi.avi.converter.tac.lexer.impl.token.MWODesignator;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetarStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory;
@@ -45,6 +55,13 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisoryLabel;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
 import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AirSigmetObsOrForecast;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AirmetCancel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AirmetPhenomenon;
+import fi.fmi.avi.converter.tac.lexer.impl.token.AirmetStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetPhenomenon;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetTacElement;
 import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePair;
 import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
 import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
@@ -66,6 +83,22 @@ import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenonmenonLongitudeLimit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPresetLocation;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXVerticalLimit;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetAnd;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetCancel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetEntireFir;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetForecastAt;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetIntensity;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetLevel;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetMoving;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetNoVaExp;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetSequenceDescriptor;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetUsage;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaEruption;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaName;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaPosition;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetWithin;
+import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetWithinRadius;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
@@ -122,7 +155,7 @@ public class Serializing {
         return s;
     }
 
-    @Bean
+    @Bean(name = "tafTACSerializer")
     AviMessageSpecificConverter<TAF, String> tafTACSerializer() {
         return spawnTAFTACSerializer();
     }
@@ -138,6 +171,31 @@ public class Serializing {
     @Bean
     AviMessageSpecificConverter<SIGMETBulletin, String> sigmetBulletinTACSerializer() {
         final SIGMETBulletinTACSerializer s = new SIGMETBulletinTACSerializer();
+        s.setSigmetSerializer(spawnSIGMETTACSerializer());
+        addCommonBulletinReconstructors(s);
+        return s;
+    }
+
+    @Bean
+    @Qualifier("sigmetTACSerializer")
+    AviMessageSpecificConverter<SIGMET, String> sigmetTACSerializer() {
+        final SIGMETTACSerializer s = spawnSIGMETTACSerializer();
+        addCommonBulletinReconstructors(s);
+        return s;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<AIRMETBulletin, String> airmetBulletinTACSerializer() {
+        final AIRMETBulletinTACSerializer s = new AIRMETBulletinTACSerializer();
+        s.setAirmetSerializer(spawnAIRMETTACSerializer());
+        addCommonBulletinReconstructors(s);
+        return s;
+    }
+
+    @Bean
+    @Qualifier("airmetTACSerializer")
+    AviMessageSpecificConverter<AIRMET, String> airmetTACSerializer() {
+        final AIRMETTACSerializer s = spawnAIRMETTACSerializer();
         addCommonBulletinReconstructors(s);
         return s;
     }
@@ -164,6 +222,7 @@ public class Serializing {
         return s;
     }
 
+
     @Bean
     public AviMessageTACTokenizer tacTokenizer() {
         final AviMessageTACTokenizerImpl tokenizer = new AviMessageTACTokenizerImpl();
@@ -172,9 +231,11 @@ public class Serializing {
         tokenizer.setTAFSerializer((TAFTACSerializer) tafTACSerializer());
         tokenizer.setTAFBulletinSerializer((TAFBulletinTACSerializer) tafBulletinTACSerializer());
         tokenizer.setSIGMETBulletinSerializer((SIGMETBulletinTACSerializer) sigmetBulletinTACSerializer());
+        tokenizer.setAIRMETBulletinSerializer((AIRMETBulletinTACSerializer) airmetBulletinTACSerializer());
         tokenizer.setGenericBulletinSerializer((GenericMeteorologicalBulletinTACSerializer) genericBulletinTACSerializer());
         tokenizer.setSWXTacSerializer((SWXTACSerializer) swxTACSerializer());
-
+        tokenizer.setSIGMETTacSerializer((SIGMETTACSerializer) sigmetTACSerializer());
+        tokenizer.setAIRMETTacSerializer((AIRMETTACSerializer) airmetTACSerializer());
         return tokenizer;
     }
 
@@ -283,4 +344,66 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.BULLETIN_HEADING_BBB_INDICATOR, new BulletinHeadingBBBIndicator.Reconstructor());
     }
 
+    // Creates an instance of the SIGMETTACSerializer to be used for two separate bean instances
+    // (sigmetTACSerializer and sigmetBulletinTACSerializer):
+    private SIGMETTACSerializer spawnSIGMETTACSerializer() {
+        final SIGMETTACSerializer s = new SIGMETTACSerializer();
+        s.setLexingFactory(lexingFactory);
+        s.addReconstructor(LexemeIdentity.SIGMET_START, new SigmetStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SEQUENCE_DESCRIPTOR, new SigmetSequenceDescriptor.Reconstructor());
+        s.addReconstructor(LexemeIdentity.VALID_TIME, new SigmetValidTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.MWO_DESIGNATOR, new MWODesignator.Reconstructor());
+        s.addReconstructor(LexemeIdentity.FIR_DESIGNATOR, new FIRDesignator.Reconstructor());
+        s.addReconstructor(LexemeIdentity.FIR_NAME, new FIRName.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_USAGE, new SigmetUsage.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_PHENOMENON, new SigmetPhenomenon.Reconstructor());
+        s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new AirSigmetObsOrForecast.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_FCST_AT, new SigmetForecastAt.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_INTENSITY, new SigmetIntensity.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_WITHIN, new SigmetWithin.Reconstructor());
+        s.addReconstructor(LexemeIdentity.POLYGON_COORDINATE_PAIR, new PolygonCoordinatePair.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_LEVEL, new SigmetLevel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_MOVING, new SigmetMoving.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_AND, new SigmetAnd.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_CANCEL, new SigmetCancel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_VA_ERUPTION, new SigmetVaEruption.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_VA_NAME, new SigmetVaName.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_VA_POSITION, new SigmetVaPosition.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_NO_VA_EXP, new SigmetNoVaExp.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_WITHIN_RADIUS_OF_POINT, new SigmetWithinRadius.Reconstructor());
+
+        s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
+        return s;
+    }
+
+    // Creates an instance of the AIRMETTACSerializer to be used for two separate bean instances
+    // (airmetTACSerializer and airmetBulletinTACSerializer):
+    private AIRMETTACSerializer spawnAIRMETTACSerializer() {
+        final AIRMETTACSerializer s = new AIRMETTACSerializer();
+        s.setLexingFactory(lexingFactory);
+        s.addReconstructor(LexemeIdentity.AIRMET_START, new AirmetStart.Reconstructor());
+        s.addReconstructor(LexemeIdentity.ISSUE_TIME, new IssueTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SEQUENCE_DESCRIPTOR, new SigmetSequenceDescriptor.Reconstructor());
+        s.addReconstructor(LexemeIdentity.VALID_TIME, new SigmetValidTime.Reconstructor());
+        s.addReconstructor(LexemeIdentity.MWO_DESIGNATOR, new MWODesignator.Reconstructor());
+        s.addReconstructor(LexemeIdentity.FIR_DESIGNATOR, new FIRDesignator.Reconstructor());
+        s.addReconstructor(LexemeIdentity.FIR_NAME, new FIRName.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_USAGE, new SigmetUsage.Reconstructor());
+        s.addReconstructor(LexemeIdentity.AIRMET_PHENOMENON, new AirmetPhenomenon.Reconstructor());
+        s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new AirSigmetObsOrForecast.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_INTENSITY, new SigmetIntensity.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_WITHIN, new SigmetWithin.Reconstructor());
+        s.addReconstructor(LexemeIdentity.POLYGON_COORDINATE_PAIR, new PolygonCoordinatePair.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_LEVEL, new SigmetLevel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_MOVING, new SigmetMoving.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SIGMET_AND, new SigmetAnd.Reconstructor());
+        s.addReconstructor(LexemeIdentity.AIRMET_CANCEL, new AirmetCancel.Reconstructor());
+        s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
+        return s;
+    }
 }

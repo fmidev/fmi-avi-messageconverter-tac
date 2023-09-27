@@ -1,5 +1,8 @@
 package fi.fmi.avi.converter.tac.conf;
 
+import fi.fmi.avi.model.sigmet.AIRMET;
+import fi.fmi.avi.model.sigmet.AIRMETBulletin;
+import fi.fmi.avi.model.sigmet.SIGMET;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -90,16 +93,6 @@ public class TACConverter {
             null, "WMO GTS TAF Bulletin");
 
     // ******************
-    // SIGMET messages
-    // ******************
-
-    /**
-     * Pre-configured spec for {@link SIGMETBulletin} to TAC encoded TAF bulletin
-     */
-    public static final ConversionSpecification<SIGMETBulletin, String> SIGMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(SIGMETBulletin.class,
-            String.class, null, "WMO GTS SIGMET Bulletin");
-
-    // ******************
     // Generic bulletins
     // ******************
 
@@ -142,5 +135,49 @@ public class TACConverter {
      */
     public static final ConversionSpecification<SpaceWeatherBulletin, String> SWX_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(
             SpaceWeatherBulletin.class, String.class, null, "WMO GTS bulletin");
+
+    // **********************
+    // SIGMET messages
+    // **********************
+
+    /**
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link SIGMET} POJO.
+     */
+    public static final ConversionSpecification<String, SIGMET> TAC_TO_SIGMET_POJO = new ConversionSpecification<>(String.class,
+            SIGMET.class, "ICAO Annex 3 TAC", null);
+
+    /**
+     * Pre-configured spec for {@link SIGMET} to ICAO Annex 3 TAC String.
+     */
+    public static final ConversionSpecification<SIGMET, String> SIGMET_POJO_TO_TAC = new ConversionSpecification<>(SIGMET.class,
+            String.class, null, "ICAO Annex 3 TAC");
+
+    /**
+     * Pre-configured spec for {@link SIGMETBulletin} to TAC encoded TAF bulletin
+     */
+    public static final ConversionSpecification<SIGMETBulletin, String> SIGMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(SIGMETBulletin.class,
+            String.class, null, "WMO GTS SIGMET Bulletin");
+
+    // **********************
+    // AIRMET messages
+    // **********************
+
+    /**
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link AIRMET} POJO.
+     */
+    public static final ConversionSpecification<String, AIRMET> TAC_TO_AIRMET_POJO = new ConversionSpecification<>(String.class,
+            AIRMET.class, "ICAO Annex 3 TAC", null);
+
+    /**
+     * Pre-configured spec for {@link AIRMET} to ICAO Annex 3 TAC String.
+     */
+    public static final ConversionSpecification<AIRMET, String> AIRMET_POJO_TO_TAC = new ConversionSpecification<>(AIRMET.class,
+            String.class, null, "ICAO Annex 3 TAC");
+
+            /**
+     * Pre-configured spec for {@link AIRMETBulletin} to TAC encoded TAF bulletin
+     */
+    public static final ConversionSpecification<AIRMETBulletin, String> AIRMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(AIRMETBulletin.class,
+            String.class, null, "WMO GTS AIRMET Bulletin");
 
 }

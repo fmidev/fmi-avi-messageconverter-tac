@@ -1,0 +1,50 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--11T11:30Z"
+    },
+    "endTime": {
+      "partialTime": "--11T15:30Z"
+    }
+  },
+  "phenomenon": "SFC_VIS",
+  "sequenceNumber": "1",
+  "analysisGeometries": [{
+    "geometry":{
+      "tacGeometry":{
+        "tacContent":"ENTIRE FIR"
+      },
+    "entireArea": true
+    },
+    "analysisType": "OBSERVATION",
+    "intensityChange": "WEAKENING",
+    "approximateLocation":false,
+    "time": {
+        "partialTime": "--T12:00Z"
+    }
+  }],
+  "visibility": {
+    "value": 1000,
+    "uom": "M"
+  },
+  "obscuration": ["FG"],
+  "translatedTAC":"EHAA AIRMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR SFC VIS 1000M (FG) OBS AT 1200Z ENTIRE FIR STNR WKN=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
+ }

@@ -1,0 +1,90 @@
+{
+    "reportStatus": "NORMAL",
+    "issuingAirTrafficServicesUnit": {
+      "name": "AMSTERDAM",
+      "type": "FIC",
+      "designator": "EHAA"
+    },
+    "meteorologicalWatchOffice": {
+      "name": "De Bilt",
+      "type": "MWO",
+      "designator": "EHDB"
+    },
+    "airspace": {
+      "designator": "EHAA",
+      "name": "AMSTERDAM FIR",
+      "type": "FIR"
+    },
+    "validityPeriod": {
+      "startTime": {
+        "partialTime": "--17T16:10Z"
+      },
+      "endTime": {
+        "partialTime": "--17T22:10Z"
+      }
+    },
+    "phenomenon": "VA",
+    "sequenceNumber": "4",
+    "analysisGeometries": [{
+      "geometry":{
+        "tacGeometry":{
+          "tacContent":"WI S1534 W07117 - S1554 W07101 - S1618 W07151 - S1558 W07158 - S1546 W07150 - S1534 W07117"
+        },
+        "geoGeometry": {
+            "type": "Polygon",
+            "crs": {
+                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                "dimension": 2,
+                "axisLabels": ["Lat", "Lon"]
+            },
+            "exteriorRingPositions": [-15.566666666666666, -71.28333333333333, -15.9, -71.01666666666667, -16.3, -71.85, -15.966666666666667, -71.96666666666667, -15.766666666666667, -71.83333333333333, -15.566666666666666, -71.28333333333333]
+        }
+      },
+      "analysisType": "OBSERVATION",
+      "approximateLocation":false,
+      "time": {
+          "partialTime": "--T15:20Z"
+      },
+      "upperLimit": {
+          "value": 230,
+          "uom": "FL"
+      },
+      "lowerLimit": {
+        "value": 0,
+        "uom": "FT"
+      },
+      "intensityChange": "NO_CHANGE"
+    }],
+    "forecastGeometries": [{
+      "geometry":{
+        "tacGeometry":{
+          "tacContent":"WI S1533 W07059 - S1605 W07101 - S1601 W07144 - S1546 W07152 - S1539 W07143 - S1533 W07059"
+        },
+        "geoGeometry": {
+            "type": "Polygon",
+            "crs": {
+                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                "dimension": 2,
+                "axisLabels": ["Lat", "Lon"]
+            },
+            "exteriorRingPositions": [-15.55, -70.98333333333333, -16.08333333333333, -71.01666666666667, -16.016666666666666, -71.73333333333333, -15.766666666666667, -71.86666666666666, -15.65, -71.71666666666667, -15.55, -70.98333333333333]
+        }
+      },
+      "approximateLocation":false,
+      "time": {
+          "partialTime": "--T21:30Z"
+      }
+    }],
+    "VAInfo": {
+        "volcano": {
+            "volcanoName": "SABANCAYA",
+            "volcanoPosition": {
+                "type": "ElevatedPoint",
+                "coordinates": [-15.783333333333333, -71.83333333333333]
+            }
+        }
+    },
+    "translatedTAC":"EHAA SIGMET 4 VALID 171610/172210 EHDB-\r\nEHAA AMSTERDAM FIR VA ERUPTION MT SABANCAYA PSN S1547 W07150 VA CLD OBS AT 1520Z WI S1534 W07117 - S1554 W07101 - S1618 W07151 - S1558 W07158 - S1546 W07150 - S1534 W07117 SFC/FL230 NC FCST AT 2130Z WI S1533 W07059 - S1605 W07101 - S1601 W07144 - S1546 W07152 - S1539 W07143 - S1533 W07059=",
+    "translated": true,
+    "permissibleUsage": "OPERATIONAL"
+  }

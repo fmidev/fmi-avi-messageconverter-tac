@@ -24,6 +24,14 @@ import fi.fmi.avi.model.metar.immutable.METARImpl;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
+import fi.fmi.avi.converter.tac.sigmet.ImmutableSIGMETTACParser;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETTACParser;
+import fi.fmi.avi.model.sigmet.SIGMET;
+import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
+import fi.fmi.avi.converter.tac.airmet.ImmutableAIRMETTACParser;
+import fi.fmi.avi.converter.tac.airmet.AIRMETTACParser;
+import fi.fmi.avi.model.sigmet.AIRMET;
+import fi.fmi.avi.model.sigmet.immutable.AIRMETImpl;
 
 /**
  * TAC converter parsing Spring configuration
@@ -66,6 +74,34 @@ public class Parsing {
     @Bean
     AviMessageSpecificConverter<String, TAFImpl> immutableTafTACParser() {
         final TACParser<TAFImpl> p = new ImmutableTAFTACParser();
+        p.setTACLexer(aviMessageLexer);
+        return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<String, SIGMET> sigmetTACParser() {
+        final TACParser<SIGMET> p = new SIGMETTACParser();
+        p.setTACLexer(aviMessageLexer);
+        return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<String, SIGMETImpl> immutableSigmetTACParser() {
+        final TACParser<SIGMETImpl> p = new ImmutableSIGMETTACParser();
+        p.setTACLexer(aviMessageLexer);
+        return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<String, AIRMET> airmetTACParser() {
+        final TACParser<AIRMET> p = new AIRMETTACParser();
+        p.setTACLexer(aviMessageLexer);
+        return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<String, AIRMETImpl> immutableAirmetTACParser() {
+        final TACParser<AIRMETImpl> p = new ImmutableAIRMETTACParser();
         p.setTACLexer(aviMessageLexer);
         return p;
     }

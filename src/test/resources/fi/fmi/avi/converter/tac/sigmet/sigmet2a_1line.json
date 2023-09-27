@@ -1,0 +1,69 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--22T10:10Z"
+    },
+    "endTime": {
+      "partialTime": "--22T16:10Z"
+    }
+  },
+  "phenomenon": "VA",
+  "sequenceNumber": "2",
+  "analysisGeometries": [{
+    "geometry":{
+      "tacGeometry":{
+        "tacContent":"E OF LINE N49 E005 - N54 E005 - N60 E005"
+      },
+      "geoGeometry" : {
+        "type" : "Polygon",
+        "crs" : {
+          "name" : "http://www.opengis.net/def/crs/EPSG/0/4326",
+          "dimension" : 2,
+          "axisLabels" : [ "Lat", "Lon" ]
+        },
+        "exteriorRingPositions" : [ 51.28919447313125, 5.0, 51.10068034, 5.77839523, 50.87107536, 5.57449197, 50.72642628, 5.62534945, 50.74, 6.14, 51.37958259, 6.32737948, 51.79106877, 6.05437694, 51.84, 6.79267501, 52.21882119, 7.10288428, 53.25, 7.3, 53.66666667, 6.5, 55.0, 6.5, 55.0, 5.0, 54.0, 5.0, 51.28919447313125, 5.0]
+      }
+    },
+    "upperLimit": {
+      "value": 240.0,
+      "uom": "FL"
+    },
+    "lowerLimit": {
+      "value": 0.0,
+      "uom": "FT"
+    },
+
+    "analysisType": "OBSERVATION",
+    "intensityChange": "INTENSIFYING",
+    "approximateLocation":false,
+    "time": { "partialTime": "--T09:10Z"}}],
+  "VAInfo": {
+    "volcano": {
+        "volcanoName": "SABANCAYA",
+        "volcanoPosition": {
+            "type": "ElevatedPoint",
+            "coordinates": [-15.783333333333333, -71.83333333333333]
+        }
+    }
+  },
+
+  "translatedTAC":"EHAA SIGMET 2 VALID 221010/221610 EHDB-\r\nEHAA AMSTERDAM FIR VA ERUPTION MT SABANCAYA PSN S1547 W07150 VA CLD OBS AT 0910Z E OF LINE N49 E005 - N54 E005 - N60 E005 SFC/FL240 STNR INTSF=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
+}

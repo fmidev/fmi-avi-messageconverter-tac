@@ -7,11 +7,20 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR2;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE2;
 
+import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
+import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.sigmet.AIRMET;
+import fi.fmi.avi.model.sigmet.SIGMET;
 
 public class SigmetValidTime extends TimeHandlingRegex {
 
@@ -38,6 +47,45 @@ public class SigmetValidTime extends TimeHandlingRegex {
             token.setParsedValue(MINUTE2, toMinute);
         } else {
             token.identify(LexemeIdentity.VALID_TIME, Lexeme.Status.SYNTAX_ERROR, "Invalid date and/or time");
+        }
+    }
+
+    public static class Reconstructor extends FactoryBasedReconstructor {
+
+        @Override
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
+                throws SerializingException {
+            if (SIGMET.class.isAssignableFrom(clz)) {
+                SIGMET sigmet = (SIGMET)msg;
+                if (sigmet.getValidityPeriod().getStartTime().isPresent()&&
+                    sigmet.getValidityPeriod().getEndTime().isPresent()) {
+                    PartialOrCompleteTimeInstant start = sigmet.getValidityPeriod().getStartTime().get();
+                    PartialOrCompleteTimeInstant end = sigmet.getValidityPeriod().getEndTime().get();
+
+                    StringBuilder sb=new StringBuilder("VALID ");
+                    sb.append(String.format(Locale.US, "%02d%02d%02d/", start.getDay().getAsInt(),
+                              start.getHour().getAsInt(), start.getMinute().getAsInt()));
+                    sb.append(String.format(Locale.US, "%02d%02d%02d", end.getDay().getAsInt(),
+                              end.getHour().getAsInt(), end.getMinute().getAsInt()));
+                    return Optional.of(createLexeme(sb.toString(), LexemeIdentity.VALID_TIME));
+                }
+            }
+            if (AIRMET.class.isAssignableFrom(clz)) {
+                AIRMET airmet = (AIRMET)msg;
+                if (airmet.getValidityPeriod().getStartTime().isPresent()&&
+                    airmet.getValidityPeriod().getEndTime().isPresent()) {
+                    PartialOrCompleteTimeInstant start = airmet.getValidityPeriod().getStartTime().get();
+                    PartialOrCompleteTimeInstant end = airmet.getValidityPeriod().getEndTime().get();
+
+                    StringBuilder sb=new StringBuilder("VALID ");
+                    sb.append(String.format(Locale.US, "%02d%02d%02d/", start.getDay().getAsInt(),
+                              start.getHour().getAsInt(), start.getMinute().getAsInt()));
+                    sb.append(String.format(Locale.US, "%02d%02d%02d", end.getDay().getAsInt(),
+                              end.getHour().getAsInt(), end.getMinute().getAsInt()));
+                    return Optional.of(createLexeme(sb.toString(), LexemeIdentity.VALID_TIME));
+                }
+            }
+            return Optional.empty();
         }
     }
 }

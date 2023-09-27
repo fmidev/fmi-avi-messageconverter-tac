@@ -15,6 +15,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,10 +32,6 @@ import org.unitils.reflectionassert.ReflectionComparatorFactory;
 import org.unitils.reflectionassert.comparator.Comparator;
 import org.unitils.reflectionassert.difference.Difference;
 import org.unitils.reflectionassert.report.impl.DefaultDifferenceReport;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionHints;
@@ -255,6 +255,8 @@ public abstract class AbstractAviMessageTest<T extends AviationWeatherMessage> {
     }
 
     protected void assertTokenSequenceIdentityMatch(final List<Lexeme> lexemes, final LexemeIdentity... expectedIdentities) {
+        // System.err.print("lexemes: ");
+        // lexemes.forEach((l)->{ if (! LexemeIdentity.WHITE_SPACE.equals(l.getIdentity())) System.err.println(l);});
         assertEquals("Token sequence size does not match", expectedIdentities.length, lexemes.size());
         for (int i = 0; i < expectedIdentities.length; i++) {
             assertEquals("Mismatch at index " + i, expectedIdentities[i], lexemes.get(i).getIdentityIfAcceptable());
