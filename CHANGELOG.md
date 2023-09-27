@@ -31,6 +31,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v6.0.0-beta1] - 2023-09-27
+
+### Added
+
+- Experimental support for SIGMET/AIRMET parsing and serialization [#117]
+
 ## [v5.3.0] - 2023-02-15
 
 ### Added
@@ -86,6 +92,8 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 
 [Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.3.0...HEAD
 
+[v6.0.0-beta1]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta1
+
 [v5.3.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.3.0
 
 [v5.2.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.2.0
@@ -111,6 +119,8 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 [#107]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/107
 
 [#114]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/114
+
+[#117]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/117
 
 [#118]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/118
 
