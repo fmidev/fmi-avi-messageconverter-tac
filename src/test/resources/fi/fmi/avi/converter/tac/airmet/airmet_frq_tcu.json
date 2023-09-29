@@ -1,0 +1,52 @@
+{
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
+    "name": "AMSTERDAM",
+    "type": "FIC",
+    "designator": "EHAA"
+  },
+  "meteorologicalWatchOffice": {
+    "name": "De Bilt",
+    "type": "MWO",
+    "designator": "EHDB"
+  },
+  "airspace": {
+    "designator": "EHAA",
+    "name": "AMSTERDAM FIR",
+    "type": "FIR"
+  },
+  "validityPeriod": {
+    "startTime": {
+      "partialTime": "--28T14:30Z"
+    },
+    "endTime": {
+      "partialTime": "--28T15:30Z"
+    }
+  },
+  "phenomenon": "FRQ_TCU",
+  "sequenceNumber": "1",
+  "analysisGeometries": [
+    {
+      "geometry": {
+        "tacGeometry": {
+          "tacContent": "ENTIRE FIR"
+        },
+        "entireArea": true
+      },
+      "analysisType": "OBSERVATION",
+      "intensityChange": "NO_CHANGE",
+      "approximateLocation": false,
+      "lowerLimit": {
+        "value": 100,
+        "uom": "FL"
+      },
+      "upperLimit": {
+        "value": 150,
+        "uom": "FL"
+      }
+    }
+  ],
+  "translatedTAC": "EHAA AIRMET 1 VALID 281430/281530 EHDB-\r\nEHAA AMSTERDAM FIR FRQ TCU OBS ENTIRE FIR FL100/150 STNR NC=",
+  "translated": true,
+  "permissibleUsage": "OPERATIONAL"
+}
