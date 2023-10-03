@@ -1,11 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TESTOREXERCISE;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_USAGE;
-
-import java.util.Optional;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
@@ -14,8 +8,12 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.sigmet.AIRMET;
-import fi.fmi.avi.model.sigmet.SIGMET;
+
+import java.util.Optional;
+import java.util.regex.Matcher;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TESTOREXERCISE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_USAGE;
 
 /**
  * Created by rinne on 10/02/17.
@@ -23,14 +21,13 @@ import fi.fmi.avi.model.sigmet.SIGMET;
 public class SigmetUsage extends RegexMatchingLexemeVisitor {
 
     public SigmetUsage(final OccurrenceFrequency prio) {
-        super("^(TEST|EXER)$");
+        super("^(TEST|EXER)$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(SIGMET_USAGE);
         token.setParsedValue(TESTOREXERCISE, match.group(1));
-        return;
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {

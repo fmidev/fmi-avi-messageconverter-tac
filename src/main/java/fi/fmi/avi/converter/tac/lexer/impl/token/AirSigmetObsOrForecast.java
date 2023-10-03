@@ -16,13 +16,8 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.IS_FORECAST;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_START;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_START;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_PHENOMENON;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_PHENOMENON;
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 /**
  * Created by rinne on 10/02/17.
  */
@@ -46,7 +41,6 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                 token.setParsedValue(HOUR1, Integer.valueOf(match.group(3)));
                 token.setParsedValue(MINUTE1, Integer.valueOf(match.group(4)));
             }
-            return;
         }
     }
 
@@ -58,15 +52,15 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                 SIGMET m = (SIGMET) msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    String tim="";
+                    String tim = "";
                     if (m.getAnalysisGeometries().get().get(analysisIndex.get()).getTime().isPresent()) {
                         PartialOrCompleteTimeInstant t = m.getAnalysisGeometries().get().get(0).getTime().get();
-                        tim=String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
+                        tim = String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
-                    if (SigmetAnalysisType.OBSERVATION.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
-                        return Optional.of(this.createLexeme("OBS"+tim, LexemeIdentity.OBS_OR_FORECAST));
-                    } else if (SigmetAnalysisType.FORECAST.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
-                        return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
+                    if (SigmetAnalysisType.OBSERVATION.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType().orElse(null))) {
+                        return Optional.of(this.createLexeme("OBS" + tim, LexemeIdentity.OBS_OR_FORECAST));
+                    } else if (SigmetAnalysisType.FORECAST.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType().orElse(null))) {
+                        return Optional.of(this.createLexeme("FCST" + tim, LexemeIdentity.OBS_OR_FORECAST));
                     }
                 }
                 final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
@@ -83,15 +77,15 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                 AIRMET m = (AIRMET) msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    String tim="";
+                    String tim = "";
                     if (m.getAnalysisGeometries().get().get(analysisIndex.get()).getTime().isPresent()) {
                         PartialOrCompleteTimeInstant t = m.getAnalysisGeometries().get().get(0).getTime().get();
-                        tim=String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
+                        tim = String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
-                    if (SigmetAnalysisType.OBSERVATION.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
-                        return Optional.of(this.createLexeme("OBS"+tim, LexemeIdentity.OBS_OR_FORECAST));
-                    } else if (SigmetAnalysisType.FORECAST.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
-                        return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));
+                    if (SigmetAnalysisType.OBSERVATION.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType().orElse(null))) {
+                        return Optional.of(this.createLexeme("OBS" + tim, LexemeIdentity.OBS_OR_FORECAST));
+                    } else if (SigmetAnalysisType.FORECAST.equals(m.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType().orElse(null))) {
+                        return Optional.of(this.createLexeme("FCST" + tim, LexemeIdentity.OBS_OR_FORECAST));
                     }
                 }
             }
