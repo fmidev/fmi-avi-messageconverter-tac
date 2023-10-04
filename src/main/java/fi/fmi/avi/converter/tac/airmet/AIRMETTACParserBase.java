@@ -1,32 +1,5 @@
 package fi.fmi.avi.converter.tac.airmet;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.INTENSITY;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.IS_FORECAST;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.LEVEL_MODIFIER;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.LOCATION_INDICATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.STATIONARY;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TESTOREXERCISE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.USAGEREASON;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE2;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_NAME;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_FIR_NAME_WORD;
-
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
@@ -38,27 +11,12 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.model.Airspace;
-import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.AviationCodeListUser.PermissibleUsage;
 import fi.fmi.avi.model.AviationCodeListUser.PermissibleUsageReason;
 import fi.fmi.avi.model.AviationCodeListUser.WeatherCausingVisibilityReduction;
 import fi.fmi.avi.model.AviationWeatherMessage.ReportStatus;
-import fi.fmi.avi.model.PartialDateTime;
-import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
-import fi.fmi.avi.model.PhenomenonGeometryWithHeight;
-import fi.fmi.avi.model.TacOrGeoGeometry;
-import fi.fmi.avi.model.UnitPropertyGroup;
-import fi.fmi.avi.model.immutable.AirspaceImpl;
-import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
-import fi.fmi.avi.model.immutable.NumericMeasureImpl;
-import fi.fmi.avi.model.immutable.PhenomenonGeometryWithHeightImpl;
-import fi.fmi.avi.model.immutable.PointGeometryImpl;
-import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
-import fi.fmi.avi.model.immutable.TacGeometryImpl;
-import fi.fmi.avi.model.immutable.TacOrGeoGeometryImpl;
-import fi.fmi.avi.model.immutable.UnitPropertyGroupImpl;
+import fi.fmi.avi.model.immutable.*;
 import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 import fi.fmi.avi.model.sigmet.SigmetIntensityChange;
@@ -67,6 +25,17 @@ import fi.fmi.avi.model.sigmet.immutable.AirmetCloudLevelsImpl;
 import fi.fmi.avi.model.sigmet.immutable.AirmetReferenceImpl;
 import fi.fmi.avi.model.sigmet.immutable.AirmetReferenceImpl.Builder;
 import fi.fmi.avi.model.sigmet.immutable.AirmetWindImpl;
+
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.FIR_NAME;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_FIR_NAME_WORD;
 public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACParser<T> {
 
     protected static final LexemeIdentity[] zeroOrOneAllowed = {LexemeIdentity.AIRMET_START,  /* LexemeIdentity.AIRSPACE_DESIGNATOR, */ LexemeIdentity.SEQUENCE_DESCRIPTOR, LexemeIdentity.ISSUE_TIME, LexemeIdentity.VALID_TIME,
@@ -374,6 +343,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             } else {
                 builder.setPermissibleUsageReason(PermissibleUsageReason.EXERCISE);
             }
+            builder.setPermissibleUsage(PermissibleUsage.NON_OPERATIONAL);
             String supplement = match.getParsedValue(USAGEREASON, String.class);
             if (supplement!=null) {
                 builder.setPermissibleUsageSupplementary(supplement);
