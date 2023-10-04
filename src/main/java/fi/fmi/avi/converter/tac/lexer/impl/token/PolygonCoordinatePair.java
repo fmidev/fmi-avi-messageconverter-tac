@@ -1,10 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -13,16 +8,17 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.util.GeometryHelper;
-import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.Geometry;
-import fi.fmi.avi.model.PointGeometry;
-import fi.fmi.avi.model.TacOrGeoGeometry;
-import fi.fmi.avi.model.sigmet.AIRMET;
+import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.swx.AirspaceVolume;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
 import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
 import fi.fmi.avi.model.swx.SpaceWeatherRegion;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
 
 public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
 
@@ -37,7 +33,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         final String latStr = match.group("latitude");
         final String lonStr = match.group("longitude");
         if (latStr.length() > 3) {
-            double latitudeMinutesAsDecimal =Integer.parseInt(latStr.substring(3))/60.;
+            double latitudeMinutesAsDecimal = Integer.parseInt(latStr.substring(3)) / 60.;
             latitude = Double.parseDouble(latStr.substring(1, 3) + ".") + latitudeMinutesAsDecimal;
         } else {
             latitude = Double.parseDouble(latStr.substring(1));
@@ -46,7 +42,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
             latitude *= -1;
         }
         if (lonStr.length() > 4) {
-            double longitudeMinutesAsDecimal = Integer.parseInt(lonStr.substring(4))/60.;
+            double longitudeMinutesAsDecimal = Integer.parseInt(lonStr.substring(4)) / 60.;
             longitude = Double.parseDouble(lonStr.substring(1, 4) + ".") + longitudeMinutesAsDecimal;
         } else {
             longitude = Double.parseDouble(lonStr.substring(1));
@@ -66,8 +62,8 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             ConversionHints hints = ctx.getHints();
-            Boolean specifyZeros = (hints!=null)&&hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES)&&
-                ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
+            final boolean specifyZeros = (hints != null) && hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES) &&
+                    ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
             final List<Lexeme> retval = new ArrayList<>();
             if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
@@ -79,48 +75,36 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                             final AirspaceVolume volume = region.getAirSpaceVolume().get();
                             if (volume.getHorizontalProjection().isPresent()) {
                                 final Geometry geom = volume.getHorizontalProjection().get();
-                                retval.addAll(GeometryHelper.getGeoLexemes(geom, (s,id) -> this.createLexeme(s, id)));
+                                retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme));
                             }
                         }
                     }
                 }
-            } else if (SIGMET.class.isAssignableFrom(clz)) {
+            } else if (SIGMETAIRMET.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getAnalysisGeometries().get().get(analysisIndex.get()).getGeometry().get();
-                    if (tacOrGeoGeometry.getGeoGeometry().isPresent()&&!tacOrGeoGeometry.getTacGeometry().isPresent()) {
-                        final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
-                        if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
-                            PointGeometry pt = (PointGeometry)geoGeometry;
-                            retval.addAll(GeometryHelper.getGeoLexemes(pt, (s,id) -> this.createLexeme(s, id), specifyZeros));
-                        }
-                    }
+                    final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMETAIRMET) msg).getAnalysisGeometries().get().get(analysisIndex.get()).getGeometry().get();
+                    createGeometries(tacOrGeoGeometry, specifyZeros, retval);
                 }
-                final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
-                if (forecastIndex.isPresent()) {
-                    final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getForecastGeometries().get().get(forecastIndex.get()).getGeometry().get();
-                    if (tacOrGeoGeometry.getGeoGeometry().isPresent()&&!tacOrGeoGeometry.getTacGeometry().isPresent()) {
-                        final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
-                        if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
-                            PointGeometry pt = (PointGeometry)geoGeometry;
-                            retval.addAll(GeometryHelper.getGeoLexemes(pt, (s,id) -> this.createLexeme(s, id), specifyZeros));
-                        }
-                    }
-                }
-            } else if (AIRMET.class.isAssignableFrom(clz)) {
-                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
-                if (analysisIndex.isPresent()) {
-                    final TacOrGeoGeometry tacOrGeoGeometry = ((AIRMET) msg).getAnalysisGeometries().get().get(analysisIndex.get()).getGeometry().get();
-                    if (tacOrGeoGeometry.getGeoGeometry().isPresent()&&!tacOrGeoGeometry.getTacGeometry().isPresent()) {
-                        final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
-                        if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
-                            PointGeometry pt = (PointGeometry)geoGeometry;
-                            retval.addAll(GeometryHelper.getGeoLexemes(pt, (s,id) -> this.createLexeme(s, id), specifyZeros));
-                        }
+                if (SIGMET.class.isAssignableFrom(clz)) {
+                    final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
+                    if (forecastIndex.isPresent()) {
+                        final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getForecastGeometries().get().get(forecastIndex.get()).getGeometry().get();
+                        createGeometries(tacOrGeoGeometry, specifyZeros, retval);
                     }
                 }
             }
             return retval;
+        }
+
+        private void createGeometries(final TacOrGeoGeometry tacOrGeoGeometry, final boolean specifyZeros, final List<Lexeme> retval) {
+            if (tacOrGeoGeometry.getGeoGeometry().isPresent() && !tacOrGeoGeometry.getTacGeometry().isPresent()) {
+                final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
+                if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
+                    final PointGeometry pt = (PointGeometry) geoGeometry;
+                    retval.addAll(GeometryHelper.getGeoLexemes(pt, this::createLexeme, specifyZeros));
+                }
+            }
         }
     }
 }
