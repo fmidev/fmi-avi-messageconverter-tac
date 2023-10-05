@@ -7,15 +7,15 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.SIGMETAIRMET;
 import fi.fmi.avi.model.TacOrGeoGeometry;
-import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_ENTIRE_AREA;
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.AREA_TYPE;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_ENTIRE_AREA;
 
 /**
  * Created by rinne on 10/02/17.
@@ -32,43 +32,33 @@ public class SigmetEntireFir extends RegexMatchingLexemeVisitor {
         token.setParsedValue(AREA_TYPE, match.group(1));
     }
 
-	public static class Reconstructor extends FactoryBasedReconstructor {
+    public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             String firType = "FIR"; //TODO Adapt for ENTIRE FIR/UIR etc.
-            if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET sigmet = (SIGMET)msg;
+            if (SIGMETAIRMET.class.isAssignableFrom(clz)) {
+                SIGMETAIRMET message = (SIGMETAIRMET) msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    if (sigmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().isPresent()) {
-                        TacOrGeoGeometry geom = sigmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().get();
-                        if (geom.getEntireArea()){
-                            return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
+                    if (message.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().isPresent()) {
+                        TacOrGeoGeometry geom = message.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().get();
+                        if (geom.getEntireArea()) {
+                            return Optional.of(createLexeme("ENTIRE " + firType, SIGMET_ENTIRE_AREA));
                         }
                     }
                 }
 
-                final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
-                if (forecastIndex.isPresent()) {
-                    if (sigmet.getForecastGeometries().get().get(forecastIndex.get().intValue()).getGeometry().isPresent()) {
-                        TacOrGeoGeometry geom = sigmet.getForecastGeometries().get().get(forecastIndex.get().intValue()).getGeometry().get();
-                        if (geom.getEntireArea()){
-                            return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
-                        }
-                    }
-                }
-            }
-            if (AIRMET.class.isAssignableFrom(clz)) {
-                AIRMET airmet = (AIRMET)msg;
-                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
-                if (analysisIndex.isPresent()) {
-                    if (airmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().isPresent()) {
-                        TacOrGeoGeometry geom = airmet.getAnalysisGeometries().get().get(analysisIndex.get().intValue()).getGeometry().get();
-
-                        if (geom.getEntireArea()){
-                            return Optional.of(createLexeme("ENTIRE "+firType, SIGMET_ENTIRE_AREA));
+                if (SIGMET.class.isAssignableFrom(clz)) {
+                    final SIGMET sigmet = (SIGMET) message;
+                    final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
+                    if (forecastIndex.isPresent()) {
+                        if (sigmet.getForecastGeometries().get().get(forecastIndex.get().intValue()).getGeometry().isPresent()) {
+                            TacOrGeoGeometry geom = sigmet.getForecastGeometries().get().get(forecastIndex.get().intValue()).getGeometry().get();
+                            if (geom.getEntireArea()) {
+                                return Optional.of(createLexeme("ENTIRE " + firType, SIGMET_ENTIRE_AREA));
+                            }
                         }
                     }
                 }
