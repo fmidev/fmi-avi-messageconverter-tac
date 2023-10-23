@@ -31,6 +31,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v6.0.0-beta2] - 2023-10-23
+
+### Changed
+
+- Adapted to SIGMET and AIRMET interface changes in fmi-avi-messageconverter [#136]
+
+### Fixed
+
+- Fixed FRQ_TCU comparison in AirmetPhenomenon [#138]
+- Set PermissibleUsage correctly for AIRMET TAC parsing [#181]
+
 ## [v6.0.0-beta1] - 2023-09-27
 
 ### Added
@@ -92,6 +103,8 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 
 [Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.3.0...HEAD
 
+[v6.0.0-beta2]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta2
+
 [v6.0.0-beta1]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta1
 
 [v5.3.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-5.3.0
@@ -125,3 +138,11 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 [#118]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/118
 
 [#120]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/120
+
+[#136]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/136
+
+[#138]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/138
+
+[#181]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/181
+
+
