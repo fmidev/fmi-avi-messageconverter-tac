@@ -36,9 +36,9 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                 (AIRMET_START.equals(token.getFirst().getIdentity()) &&
                         AIRMET_PHENOMENON.equals(token.getPrevious().getIdentity()))) {
             token.identify(LexemeIdentity.OBS_OR_FORECAST);
-            token.setParsedValue(IS_FORECAST, !("OBS".equals(match.group(1))));
-            if ((match.group(3) != null) && (match.group(3).length() > 0) &&
-                    (match.group(4) != null) && (match.group(4).length() > 0)) {
+            token.setParsedValue(IS_FORECAST, !"OBS".equals(match.group(1)));
+            if (match.group(3) != null && !match.group(3).isEmpty() &&
+                    (match.group(4) != null) && !match.group(4).isEmpty()) {
                 token.setParsedValue(HOUR1, Integer.valueOf(match.group(3)));
                 token.setParsedValue(MINUTE1, Integer.valueOf(match.group(4)));
             }
@@ -58,9 +58,9 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                         PartialOrCompleteTimeInstant t = message.getAnalysisGeometries().get().get(0).getTime().get();
                         tim = String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
-                    if (SigmetAnalysisType.OBSERVATION.equals(message.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
+                    if (SigmetAnalysisType.OBSERVATION.equals(message.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType().orElse(null))) {
                         return Optional.of(this.createLexeme("OBS" + tim, LexemeIdentity.OBS_OR_FORECAST));
-                    } else if (SigmetAnalysisType.FORECAST.equals(message.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType())) {
+                    } else if (SigmetAnalysisType.FORECAST.equals(message.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType().orElse(null))) {
                         return Optional.of(this.createLexeme("FCST" + tim, LexemeIdentity.OBS_OR_FORECAST));
                     }
                 }
