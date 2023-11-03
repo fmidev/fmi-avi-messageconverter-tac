@@ -18,7 +18,7 @@ public class AirmetMinimalTest extends AbstractAviMessageTestTempAirmet<String, 
 
     @Override
     public String getMessage() {
-        return "EHAA AIRMET M01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR TEST=";
+        return "EHAA AIRMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR TEST=";
     }
 
     @Override

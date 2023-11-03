@@ -18,7 +18,7 @@ public class SigmetMinimalTest extends AbstractAviMessageTestTempSigmet<String, 
 
     @Override
     public String getMessage() {
-        return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR TEST=";
+        return "EHAA SIGMET Z01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR TEST=";
     }
 
     @Override
