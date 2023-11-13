@@ -1,12 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_POSITION;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
@@ -18,6 +11,13 @@ import fi.fmi.avi.converter.tac.lexer.impl.util.GeometryHelper;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.sigmet.SIGMET;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_POSITION;
 
 /**
  * Created by rinne on 10/02/17.
@@ -43,18 +43,18 @@ public class SigmetVaPosition extends RegexMatchingLexemeVisitor {
                 ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
             if (SIGMET.class.isAssignableFrom(clz)) {
                 SIGMET sigmet = (SIGMET) msg;
-                if (sigmet.getPhenomenon().get().equals(AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA)) {
+                if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA.equals(sigmet.getPhenomenon().orElse(null))) {
                     if (sigmet.getVAInfo().isPresent()) {
-                        if (sigmet.getVAInfo().get().getVolcano().isPresent()&&
-                            sigmet.getVAInfo().get().getVolcano().get().getVolcanoPosition().isPresent()) {
+                        if (sigmet.getVAInfo().get().getVolcano().isPresent() &&
+                                sigmet.getVAInfo().get().getVolcano().get().getVolcanoPosition().isPresent()) {
                             List<Double> coords = sigmet.getVAInfo().get().getVolcano().get().getVolcanoPosition().get().getCoordinates();
                             List<Lexeme> lexemes = GeometryHelper.getCoordinateString(BigDecimal.valueOf(coords.get(0)),
-                                                                    BigDecimal.valueOf(coords.get(1)),
-                                                                    true,
-                                                                    (s, id) -> this.createLexeme(s, id), specifyZeros);
-                            return Optional.of(this.createLexeme("PSN "+lexemes.get(0).getTACToken(), LexemeIdentity.SIGMET_VA_POSITION));
+                                    BigDecimal.valueOf(coords.get(1)),
+                                    true,
+                                    (s, id) -> this.createLexeme(s, id), specifyZeros);
+                            return Optional.of(this.createLexeme("PSN " + lexemes.get(0).getTACToken(), LexemeIdentity.SIGMET_VA_POSITION));
                         }
-                   }
+                    }
                    return Optional.empty();
                 }
             }
