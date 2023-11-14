@@ -23,6 +23,7 @@
       "partialTime": "--11T15:30Z"
     }
   },
+  "phenomenonType": "SIGMET",
   "phenomenon": "OBSC_TSGR",
   "sequenceNumber": "1",
   "analysisGeometries": [{

@@ -23,6 +23,7 @@
       "partialTime": "--11T15:30Z"
     }
   },
+  "phenomenonType": "SIGMET",
   "phenomenon": "SEV_ICE_FZRA",
   "sequenceNumber": "M01",
   "analysisGeometries": [

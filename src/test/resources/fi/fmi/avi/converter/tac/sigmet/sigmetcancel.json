@@ -45,6 +45,7 @@
       "designator": "EHDB"
     }
   },
+  "phenomenonType": "SIGMET",
   "permissibleUsage":"OPERATIONAL",
   "sequenceNumber": "M03",
   "translated": true,

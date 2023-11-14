@@ -52,6 +52,7 @@
       "name": "SCOTTISH FIR"
     }
   },
+  "phenomenonType": "VOLCANIC_ASH_SIGMET",
   "permissibleUsage":"OPERATIONAL",
   "sequenceNumber": "M03",
   "translated": true,
