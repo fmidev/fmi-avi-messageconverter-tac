@@ -31,6 +31,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v6.0.0-beta3] - 2023-11-14
+
+### Changed
+
+- Added partial support for minimal test SIGMET messages [#180], [#188]
+
+### Fixed
+
+- Fixed SigmetWithinRadius coordinate serialization [#186]
+
 ## [v6.0.0-beta2] - 2023-10-23
 
 ### Changed
@@ -103,6 +113,8 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 
 [Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.3.0...HEAD
 
+[v6.0.0-beta3]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta3
+
 [v6.0.0-beta2]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta2
 
 [v6.0.0-beta1]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta1
@@ -143,6 +155,12 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 
 [#138]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/138
 
+[#180]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/180
+
 [#181]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/181
+
+[#186]: https://github.com/fmidev/fmi-avi-messageconverter-tac/issues/186
+
+[#188]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/188
 
 
