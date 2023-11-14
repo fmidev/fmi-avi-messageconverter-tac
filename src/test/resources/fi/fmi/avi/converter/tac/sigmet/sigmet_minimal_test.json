@@ -23,6 +23,7 @@
       "partialTime": "--11T15:30Z"
     }
   },
+  "phenomenonType": "SIGMET",
   "sequenceNumber": "Z01",
   "translatedTAC": "EHAA SIGMET Z01 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR TEST=",
   "translated": true,

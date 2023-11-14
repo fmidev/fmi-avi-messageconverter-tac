@@ -504,6 +504,15 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             builder.setTranslatedTAC(lexed.getTAC());
         }
 
+
+        /* TODO Set phenomenon type based on the presence of VA info. Minimal test sigmets do not necessarily have
+           VA info, so they should parse the type based on the sequence descriptor */
+        if (builder.getVAInfo().isPresent()) {
+            builder.setPhenomenonType(AviationCodeListUser.SigmetPhenomenonType.VOLCANIC_ASH_SIGMET);
+        } else {
+            builder.setPhenomenonType(AviationCodeListUser.SigmetPhenomenonType.SIGMET);
+        }
+
         withTimeForTranslation(hints, builder::setTranslationTime);
         try {
             result.setConvertedMessage(builder.build());

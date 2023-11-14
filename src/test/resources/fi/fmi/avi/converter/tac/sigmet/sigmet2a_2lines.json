@@ -23,6 +23,7 @@
       "partialTime": "--22T16:10Z"
     }
   },
+  "phenomenonType": "VOLCANIC_ASH_SIGMET",
   "phenomenon": "VA",
   "sequenceNumber": "2",
   "analysisGeometries": [{
