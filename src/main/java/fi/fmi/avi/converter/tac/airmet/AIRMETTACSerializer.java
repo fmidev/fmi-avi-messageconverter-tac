@@ -4,11 +4,14 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
-import fi.fmi.avi.converter.tac.lexer.*;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
+import fi.fmi.avi.model.sigmet.AIRMET;
 
 public class AIRMETTACSerializer extends AbstractTACSerializer<AIRMET> {
     @Override
@@ -56,7 +59,8 @@ public class AIRMETTACSerializer extends AbstractTACSerializer<AIRMET> {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
         }
         if (appendToken(retval,LexemeIdentity.SIGMET_USAGE, input, AIRMET.class, baseCtx)>0) {
-            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
+            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
+            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
 
         if (appendToken(retval,LexemeIdentity.AIRMET_CANCEL, input, AIRMET.class, baseCtx)>0) {
@@ -112,7 +116,9 @@ public class AIRMETTACSerializer extends AbstractTACSerializer<AIRMET> {
         if (appendToken(retval, LexemeIdentity.CORRECTION, input, AIRMET.class, baseCtx) > 0) {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
         }
-        retval.removeLast();
+        while (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
+            retval.removeLast();
+        }
         appendToken(retval, LexemeIdentity.END_TOKEN, input, AIRMET.class, baseCtx);
         return retval.build();
     }

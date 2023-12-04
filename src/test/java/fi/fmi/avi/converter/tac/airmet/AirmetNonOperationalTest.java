@@ -18,7 +18,7 @@ public class AirmetNonOperationalTest extends AbstractAviMessageTestTempAirmet<S
 
     @Override
     public String getMessage() {
-        return "EHAA AIRMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR TEST ISOL TSGR FCST AT 1200Z ENTIRE FIR STNR INTSF=";
+        return "EHAA AIRMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR TEST\r\nISOL TSGR FCST AT 1200Z ENTIRE FIR STNR INTSF=";
     }
 
     @Override
