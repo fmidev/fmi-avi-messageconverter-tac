@@ -12,6 +12,7 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.BiFunction;
 
+
 public class GeometryHelper {
     private static final Set<String> LATITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lat", "latitude")));
     private static final Set<String> LONGITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lon", "long", "longitude")));
@@ -94,15 +95,26 @@ public class GeometryHelper {
             for (int coordPairIndex = 0; coordPairIndex < coords.size() - 1; coordPairIndex = coordPairIndex + 2) {
                 latIndex = coordPairIndex + latOffset;
                 lonIndex = coordPairIndex + lonOffset;
-                final BigDecimal lat = BigDecimal.valueOf(coords.get(latIndex)).setScale(2, RoundingMode.HALF_UP);
-                final BigDecimal lon = BigDecimal.valueOf(coords.get(lonIndex)).setScale(2, RoundingMode.HALF_UP);
+                final BigDecimal lat = round(coords.get(latIndex));
+                final BigDecimal lon = round(coords.get(lonIndex));
                 lexemes.addAll(getCoordinateString(lat, lon, (coordPairIndex >= coords.size() - 2), createLexeme, specifyZeros));
             }
         } else if (geom instanceof PointGeometry) {
             final List<Double> coords = ((PointGeometry) geom).getCoordinates();
-            final BigDecimal lat = BigDecimal.valueOf(coords.get(latOffset)).setScale(2, RoundingMode.HALF_UP);
-            final BigDecimal lon = BigDecimal.valueOf(coords.get(lonOffset)).setScale(2, RoundingMode.HALF_UP);
+            final BigDecimal lat = round(coords.get(latOffset));
+            final BigDecimal lon = round(coords.get(lonOffset));
             lexemes.addAll(getCoordinateString(lat, lon, true, createLexeme, specifyZeros));
+        } else if (geom instanceof CircleByCenterPoint) {
+            final CircleByCenterPoint circle = (CircleByCenterPoint) geom;
+            final double radius = circle.getRadius().getValue();
+            final String unit = circle.getRadius().getUom();
+            final List<Double> coords = circle.getCenterPointCoordinates();
+            final BigDecimal lat = round(coords.get(latOffset));
+            final BigDecimal lon = round(coords.get(lonOffset));
+            final List<Lexeme> coordinateLexemes = getCoordinateString(lat, lon, true, createLexeme, specifyZeros);
+            final Lexeme circleLexeme = createLexeme.apply(String.format(Locale.US, "WI %02.0f%s OF ", radius, unit) +
+                    coordinateLexemes.get(0).getTACToken(), LexemeIdentity.SIGMET_WITHIN_RADIUS_OF_POINT);
+            lexemes.add(circleLexeme);
         }
 
         return lexemes;
@@ -132,7 +144,10 @@ public class GeometryHelper {
         PointGeometryImpl.Builder pointBuilder = PointGeometryImpl.builder();
         pointBuilder.addCoordinates(latitude, longitude);
         return pointBuilder.build();
+    }
 
+    private static BigDecimal round(final double coordinate) {
+        return BigDecimal.valueOf(coordinate).setScale(2, RoundingMode.HALF_UP);
     }
 
 }
