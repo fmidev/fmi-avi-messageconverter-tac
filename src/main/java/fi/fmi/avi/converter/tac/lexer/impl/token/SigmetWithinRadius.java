@@ -8,15 +8,12 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.util.GeometryHelper;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.CircleByCenterPoint;
 import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.TacOrGeoGeometry;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -52,17 +49,7 @@ public class SigmetWithinRadius extends RegexMatchingLexemeVisitor {
                     final TacOrGeoGeometry geom = sigmet.getAnalysisGeometries().get().get(analysisIndex.get()).getGeometry().get();
                     if (geom.getGeoGeometry().isPresent() && !geom.getTacGeometry().isPresent() && !geom.getEntireArea()) {
                         final Geometry geoGeometry = geom.getGeoGeometry().get();
-                        if (geoGeometry instanceof CircleByCenterPoint) {
-                            final CircleByCenterPoint circle = (CircleByCenterPoint) geoGeometry;
-                            final double radius = circle.getRadius().getValue();
-                            final String unit = circle.getRadius().getUom();
-                            final List<Double> coords = circle.getCenterPointCoordinates();
-                            final List<Lexeme> coordinateLexemes = GeometryHelper.getCoordinateString(BigDecimal.valueOf(coords.get(0)),
-                                    BigDecimal.valueOf(coords.get(1)), true, this::createLexeme, specifyZeros);
-                            final Lexeme circleLexeme = this.createLexeme(String.format(Locale.US, "WI %02.0f%s OF ", radius, unit) +
-                                    coordinateLexemes.get(0).getTACToken(), SIGMET_WITHIN_RADIUS_OF_POINT);
-                            return Collections.singletonList(circleLexeme);
-                        }
+                        return GeometryHelper.getGeoLexemes(geoGeometry, this::createLexeme, specifyZeros);
                     }
                 }
             }

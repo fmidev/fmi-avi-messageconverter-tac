@@ -71,4 +71,12 @@ public class SigmetWithinRadiusTest {
         final List<Lexeme> lexemes = reconstructor.getAsLexemes(sigmet, SIGMET.class, ctx);
         assertEquals("WI 30KM OF N5230 E00548", lexemes.get(0).getTACToken());
     }
+
+    @Test
+    public void circle3() {
+        final SIGMET sigmet = initCircle(52.56863523779511, 5.694449728936808, 30);
+        final List<Lexeme> lexemes = reconstructor.getAsLexemes(sigmet, SIGMET.class, ctx);
+        assertEquals("WI 30KM OF N5234 E00541", lexemes.get(0).getTACToken());
+    }
+
 }
