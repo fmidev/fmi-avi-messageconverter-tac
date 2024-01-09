@@ -31,6 +31,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v6.0.0-beta5] - 2024-01-09
+
+### Fixed
+
+- Fixed a bug where SigmetWithinRadius was creating coordinate pairs in cases where there was no radius given.
+
 ## [v6.0.0-beta4] - 2024-01-08
 
 ### Changed
@@ -123,6 +129,8 @@ Previous changelog entries are available
 on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
 
 [Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.3.0...HEAD
+
+[v6.0.0-beta5]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta5
 
 [v6.0.0-beta4]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta4
 
