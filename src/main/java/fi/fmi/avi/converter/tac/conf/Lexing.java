@@ -1114,7 +1114,7 @@ public class Lexing {
             @Override
             public boolean test(final String s) {
     //                return s.matches("^(FL\\d{3}/\\d{3})|((SFC/)?(FL\\d{3}|\\d{4}M|\\d{4,5}FT))");
-                return s.matches("^([0-9]{2})(KT|KMH)$");
+                return s.matches("^([0-9]{1,3})(KT|KMH)$");
             }
         });
         return retval;

@@ -20,15 +20,16 @@ import fi.fmi.avi.model.AviationCodeListUser.PermissibleUsageReason;
 import fi.fmi.avi.model.AviationWeatherMessage.ReportStatus;
 import fi.fmi.avi.model.immutable.*;
 import fi.fmi.avi.model.sigmet.SIGMET;
+import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 import fi.fmi.avi.model.sigmet.SigmetIntensityChange;
-import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import fi.fmi.avi.model.sigmet.immutable.SigmetReferenceImpl;
 import fi.fmi.avi.model.sigmet.immutable.SigmetReferenceImpl.Builder;
 import fi.fmi.avi.model.sigmet.immutable.VAInfoImpl;
 
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -338,15 +339,12 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
 
             while (((l = l.getNext()) != null) && SIGMET_FIR_NAME_WORD.equals(l.getIdentity())) {
                 firName.append(l.getTACToken());
-                System.err.println("FW:" + l.getTACToken() + " " + l.getNext());
             }
             if (FIR_NAME.equals(l.getIdentity())) {
                 firName.append(" ");
                 firName.append(l.getTACToken());
             }
-            System.err.println(firName + " " + l);
             firType = l.getParsedValue(FIR_TYPE, String.class);
-            System.err.println("AIRSPACE:" + firType + " " + firName);
             AirspaceImpl.Builder airspaceBuilder = new AirspaceImpl.Builder()
                     .setDesignator(designator)
                     .setType(AirspaceType.valueOf(firType.replace("/", "_")))
@@ -471,6 +469,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                     }
                     parseAnalysisType(seq, phenBuilder, result, input);
                     analysisGeometries.add(parseGeometry(l.getTailSequence(), builder));
+                    System.err.println("Added:"+l.getTailSequence());
                 }
                 if (LexemeIdentity.SIGMET_FCST_AT.equals(seq.getFirstLexeme().getIdentity())) {
                     parseForecastTime(seq, firstFcstBuilder, result, input);
@@ -480,7 +479,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                     }
                 }
             }
-
+            System.out.println("analysisGeometries: "+analysisGeometries.get(0).getGeoGeometry()+ " "+analysisGeometries.get(0).getTacGeometry());
             if (!analysisGeometries.isEmpty()) {
                 phenBuilder.setGeometry(analysisGeometries.get(0)); //TODO list
                 phenBuilder.setApproximateLocation(false);
@@ -514,6 +513,8 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         }
 
         withTimeForTranslation(hints, builder::setTranslationTime);
+        // ZonedDateTime dt = ZonedDateTime.of(2017, 8, 27, 11, 0, 0, 0, ZoneId.of("Z"));
+        // FixSigmetTimes(builder, dt);
         try {
             result.setConvertedMessage(builder.build());
         } catch (final IllegalStateException ignored) {
@@ -559,5 +560,67 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         UnitPropertyGroupImpl.Builder mwo = new UnitPropertyGroupImpl.Builder();
         mwo.setPropertyGroup(mwoName, locationIndicator, "MWO");
         return mwo.build();
+    }
+
+    private void FixSigmetTimes(SIGMETImpl.Builder builder, ZonedDateTime reference_time) {
+
+        // //Fix issueTime
+        // PartialOrCompleteTimeInstant issueTime;
+        // if (builder.getIssueTime().isPresent()) {
+        //     issueTime = builder.getIssueTime().get();
+        // } else {
+        //     issueTime = PartialOrCompleteTimeInstant.of(reference_time);
+        // }
+
+        // PartialOrCompleteTimeInstant.Builder tb = PartialOrCompleteTimeInstant.builder().mergeFrom(issueTime);
+        // System.err.println("<<<>>>>>"+tb.build());
+        // tb.completePartialNear(reference_time);
+        // System.err.println(">>>>>>>>"+tb.build());
+        // builder.setIssueTime(tb.build());
+
+        //Fix validityPeriod
+        // PartialOrCompleteTimePeriod validityPeriod = builder.getValidityPeriodBuilder().getValidityPeriod();
+        // PartialOrCompleteTimePeriod.Builder validityPeriodBuilder = PartialOrCompleteTimePeriod.builder().mergeFrom(validityPeriod);
+        PartialOrCompleteTimePeriod.Builder validityPeriodBuilder = builder.getValidityPeriodBuilder();
+        validityPeriodBuilder.completePartialEndingNear(reference_time)
+        .completePartialStartingNear(reference_time);
+        PartialOrCompleteTimeInstant start = validityPeriodBuilder.getStartTime().get();
+        PartialOrCompleteTimeInstant end = validityPeriodBuilder.getEndTime().get();
+        System.out.println(">>>>>"+start);
+        PartialOrCompleteTimeInstant.Builder sb = PartialOrCompleteTimeInstant.builder().mergeFrom(start).clearPartialTime();
+        PartialOrCompleteTimeInstant.Builder eb = PartialOrCompleteTimeInstant.builder().mergeFrom(end).clearPartialTime();
+        validityPeriodBuilder.setEndTime(eb.build()).setStartTime(sb.build());
+        System.out.println(">>>>>"+sb.build());
+        builder.setValidityPeriod(validityPeriodBuilder.build());
+
+        //Fix analysisTimes
+        if (builder.getAnalysisGeometries().isPresent()) {
+            List<PhenomenonGeometryWithHeight>analysisGeometries = new ArrayList<>();
+            for (final PhenomenonGeometryWithHeight geometryWithHeight : builder.getAnalysisGeometries().get()) {
+                PhenomenonGeometryWithHeightImpl.Builder phenomenonGeometryWithHeightBuilder = PhenomenonGeometryWithHeightImpl.Builder.from(geometryWithHeight);
+                if (geometryWithHeight.getTime().isPresent()) {
+                    PartialOrCompleteTimeInstant.Builder tb1 = PartialOrCompleteTimeInstant.builder().mergeFrom(geometryWithHeight.getTime().get());
+                    tb1.completePartialNear(builder.getValidityPeriodBuilder().build().getStartTime().get().getCompleteTime().get()).clearPartialTime();
+                    phenomenonGeometryWithHeightBuilder.setTime(tb1.build());
+                }
+                analysisGeometries.add(phenomenonGeometryWithHeightBuilder.build());
+            }
+            builder.setAnalysisGeometries(analysisGeometries);
+        }
+
+        //Fix forecastTimes
+        if (builder.getForecastGeometries().isPresent()) {
+            List<PhenomenonGeometry>forecastGeometries = new ArrayList<>();
+            for (final PhenomenonGeometry geometry : builder.getForecastGeometries().get()) {
+                PhenomenonGeometryImpl.Builder phenomenonGeometryBuilder = PhenomenonGeometryImpl.Builder.from(geometry);
+                if (geometry.getTime().isPresent()) {
+                    PartialOrCompleteTimeInstant.Builder tb1 = PartialOrCompleteTimeInstant.builder().mergeFrom(geometry.getTime().get());
+                    tb1.completePartialNear(builder.getValidityPeriodBuilder().build().getStartTime().get().getCompleteTime().get());
+                    phenomenonGeometryBuilder.setTime(tb1.build());
+                }
+                forecastGeometries.add(phenomenonGeometryBuilder.build());
+            }
+            builder.setForecastGeometries(forecastGeometries);
+        }
     }
 }

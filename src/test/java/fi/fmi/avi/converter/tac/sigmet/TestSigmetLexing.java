@@ -434,7 +434,7 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
 
   @Test
   public void shouldBeMOV() {
-    String tacString = "MOV ENE 11KT=";
+    String tacString = "MOV ENE 10KT=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
@@ -442,10 +442,47 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
           SIGMET_MOVING,
           END_TOKEN }));
     assertEquals(false, trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.STATIONARY, Boolean.class));
-    assertEquals("11", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.VALUE, String.class));
+    assertEquals(new Double(10), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.VALUE, Double.class));
     assertEquals("KT", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.UNIT, String.class));
     assertEquals("ENE", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.DIRECTION, String.class));
   }
+
+  @Test
+  public void shouldBeMOV_5KT() {
+    String tacString = "MOV ENE 5KT=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    for (Lexeme l: result.getLexemes()) {
+        System.out.println(l);
+    }
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START,
+          SIGMET_MOVING,
+          END_TOKEN }));
+    assertEquals(false, trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.STATIONARY, Boolean.class));
+    assertEquals(new Double(5.0), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.VALUE, Double.class));
+    assertEquals("KT", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.UNIT, String.class));
+    assertEquals("ENE", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.DIRECTION, String.class));
+  }
+
+  @Test
+  public void shouldBeMOV_05KT() {
+    String tacString = "MOV ENE 05KT=";
+    Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
+    final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
+    for (Lexeme l: result.getLexemes()) {
+        System.out.println(l);
+    }
+    assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
+          SIGMET_START,
+          SIGMET_MOVING,
+          END_TOKEN }));
+    assertEquals(false, trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.STATIONARY, Boolean.class));
+    assertEquals(new Double(5.0), trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.VALUE, Double.class));
+    assertEquals("KT", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.UNIT, String.class));
+    assertEquals("ENE", trimWhitespaces(result.getLexemes()).get(2).getParsedValue(ParsedValueName.DIRECTION, String.class));
+  }
+
 
   @Test
   public void shouldBeSTNR() {
