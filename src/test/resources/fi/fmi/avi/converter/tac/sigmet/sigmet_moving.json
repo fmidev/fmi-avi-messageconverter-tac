@@ -33,7 +33,7 @@
   "analysisGeometries": [
     {
       "time": {
-        "partialTime": "--T12:00"
+        "partialTime": "--T12:00Z"
       },
       "lowerLimit": {
         "value": 10,

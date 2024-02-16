@@ -6,12 +6,14 @@ import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACParser;
 import fi.fmi.avi.converter.tac.geoinfo.FirInfoStore;
 import fi.fmi.avi.converter.tac.geoinfo.GeoUtilsTac;
+import fi.fmi.avi.converter.tac.geoinfo.impl.FirInfoStoreImpl;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.model.*;
+import fi.fmi.avi.model.Airspace.AirspaceType;
 import fi.fmi.avi.model.AviationCodeListUser.PermissibleUsage;
 import fi.fmi.avi.model.AviationCodeListUser.PermissibleUsageReason;
 import fi.fmi.avi.model.AviationCodeListUser.WeatherCausingVisibilityReduction;
@@ -27,6 +29,7 @@ import fi.fmi.avi.model.sigmet.immutable.AirmetReferenceImpl.Builder;
 import fi.fmi.avi.model.sigmet.immutable.AirmetWindImpl;
 
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -238,21 +241,6 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
                 }
             }
         });
-        Lexeme first = seq.getFirstLexeme();
-        Boolean isForecast = first.getParsedValue(IS_FORECAST, Boolean.class);
-        if (isForecast) {
-            phenBuilder.setAnalysisType(SigmetAnalysisType.FORECAST);
-        } else {
-            phenBuilder.setAnalysisType(SigmetAnalysisType.OBSERVATION);
-        }
-
-        Integer analysisHour = first.getParsedValue(HOUR1, Integer.class);
-        Integer analysisMinute = first.getParsedValue(MINUTE1, Integer.class);
-        if (analysisHour != null) {
-            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneId.of("Z")));
-            PartialOrCompleteTimeInstant pi = timeBuilder.build();
-            phenBuilder.setTime(pi);
-        }
     }
 
     protected ConversionResult<AIRMETImpl> convertMessageInternal(final String input, final ConversionHints hints) {
@@ -262,6 +250,9 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
         }
         final LexemeSequence lexed = this.lexer.lexMessage(input, hints);
 
+        if (firInfo == null) {
+            firInfo = new FirInfoStoreImpl();
+        }
         if (!checkAndReportLexingResult(lexed, hints, result)) {
             return result;
         }
@@ -287,29 +278,18 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
 
         final AIRMETImpl.Builder builder = AIRMETImpl.builder();
 
-        lexed.getFirstLexeme().findNext(LexemeIdentity.MWO_DESIGNATOR, (match) -> {
-            builder.setMeteorologicalWatchOffice(getMWOInfo("De Bilt", match.getParsedValue(VALUE, String.class)));
-        });
-
         String atsu = lexed.getFirstLexeme().getParsedValue(LOCATION_INDICATOR, String.class);
         builder.setIssuingAirTrafficServicesUnit(getFicInfo("AMSTERDAM", atsu));
 
-        lexed.getFirstLexeme().findNext(LexemeIdentity.ISSUE_TIME, (match) -> {
-            String iss = match.getParsedValue(VALUE, String.class);
-            System.err.println("iss:" + iss);
-            // builder.setIssueTime(null);
-        });
-
-        lexed.getFirstLexeme().findNext(LexemeIdentity.FIR_DESIGNATOR, (match) -> {
-            Lexeme l = match;
-            StringBuilder firName = new StringBuilder();
-            while (l.hasNext() && SIGMET_FIR_NAME_WORD.equals(l.getNext().getIdentity())) {
-                l = l.getNext();
+        lexed.getFirstLexeme().findNext(LexemeIdentity.SEQUENCE_DESCRIPTOR, (match) -> {
+            final LexemeIdentity[] before = new LexemeIdentity[]{LexemeIdentity.VALID_TIME};
+            final ConversionIssue issue = checkBeforeAnyOf(match, before);
+            if (issue != null) {
+                result.addIssue(issue);
+            } else {
+                builder.setSequenceNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
             }
-            if (FIR_NAME.equals(l.getIdentity())) {
-                firName.append(l.getParsedValue(VALUE, String.class));
-            }
-        });
+        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET sequence descriptor not given in " + input)));
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.VALID_TIME, (match) -> {
             final LexemeIdentity[] before = new LexemeIdentity[]{LexemeIdentity.MWO_DESIGNATOR};
@@ -327,15 +307,36 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
                 int mm2 = match.getParsedValue(MINUTE2, Integer.class);
                 validPeriod.setEndTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd2, hh2, mm2, ZoneId.of("Z"))).build());
                 builder.setValidityPeriod(validPeriod.build());
+
+                // Use start of validity as issue time for SIGMET
+                builder.setIssueTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd1, hh1, mm1, ZoneOffset.UTC)).build());
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET validity time not given in " + input)));
 
+        lexed.getFirstLexeme().findNext(LexemeIdentity.MWO_DESIGNATOR, (match) -> {
+            builder.setMeteorologicalWatchOffice(getMWOInfo("De Bilt", match.getParsedValue(VALUE, String.class)));
+        });
 
-        AirspaceImpl.Builder airspaceBuilder = new AirspaceImpl.Builder()
-                .setDesignator("EHAA")
-                .setType(Airspace.AirspaceType.FIR)
-                .setName("AMSTERDAM FIR");
-        builder.setAirspace(airspaceBuilder.build());
+        lexed.getFirstLexeme().findNext(LexemeIdentity.FIR_DESIGNATOR, (match) -> {
+            StringBuilder firName = new StringBuilder();
+            String firType;
+            Lexeme l = match;
+            String designator = l.getTACToken();
+
+            while (((l = l.getNext()) != null) && SIGMET_FIR_NAME_WORD.equals(l.getIdentity())) {
+                firName.append(l.getTACToken());
+            }
+            if (FIR_NAME.equals(l.getIdentity())) {
+                firName.append(" ");
+                firName.append(l.getTACToken());
+            }
+            firType = l.getParsedValue(FIR_TYPE, String.class);
+            AirspaceImpl.Builder airspaceBuilder = new AirspaceImpl.Builder()
+                    .setDesignator(designator)
+                    .setType(AirspaceType.valueOf(firType.replace("/", "_")))
+                    .setName(firName.toString());
+            builder.setAirspace(airspaceBuilder.build());
+        });
 
         builder.setPermissibleUsage(PermissibleUsage.OPERATIONAL);
         lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_USAGE, (match) -> {
@@ -350,17 +351,6 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
                 builder.setPermissibleUsageSupplementary(supplement);
             }
         });
-
-        lexed.getFirstLexeme().findNext(LexemeIdentity.SEQUENCE_DESCRIPTOR, (match) -> {
-            final LexemeIdentity[] before = new LexemeIdentity[]{LexemeIdentity.VALID_TIME};
-            final ConversionIssue issue = checkBeforeAnyOf(match, before);
-            if (issue != null) {
-                result.addIssue(issue);
-            } else {
-                builder.setSequenceNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
-            }
-        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET sequence descriptor not given in " + input)));
-
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.AIRMET_CANCEL, (match) -> {
             Builder ref = new AirmetReferenceImpl.Builder();
@@ -386,6 +376,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             builder.setCancelledReference(ref.build());
             builder.setCancelMessage(true);
         });
+
         if (!builder.isCancelMessage()) {
             builder.setReportStatus(ReportStatus.NORMAL);
 

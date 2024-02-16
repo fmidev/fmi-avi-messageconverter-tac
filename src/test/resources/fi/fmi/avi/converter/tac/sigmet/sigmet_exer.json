@@ -47,7 +47,7 @@
     "analysisType": "FORECAST",
     "intensityChange": "INTENSIFYING",
     "approximateLocation":false,
-    "time": { "partialTime": "--T12:00"}}],
+    "time": { "partialTime": "--T12:00Z"}}],
   "translatedTAC":"EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR EXER\r\nOBSC TSGR FCST AT 1200Z WI N5200 E00524 - N5300 E00630 - N5100 E00718 - N5200 E00524 STNR INTSF=",
   "translated": true,
   "permissibleUsage": "NON_OPERATIONAL",

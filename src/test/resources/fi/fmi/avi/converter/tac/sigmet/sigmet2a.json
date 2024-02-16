@@ -40,7 +40,7 @@
     "intensityChange": "INTENSIFYING",
     "approximateLocation":false,
     "time": {
-        "partialTime": "--T12:00"
+        "partialTime": "--T12:00Z"
     }
   }],
   "translatedTAC":"EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR OBSC TSGR FCST AT 1200Z ENTIRE FIR STNR INTSF=",

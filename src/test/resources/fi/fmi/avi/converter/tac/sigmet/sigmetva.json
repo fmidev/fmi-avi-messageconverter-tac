@@ -47,7 +47,7 @@
       "analysisType": "OBSERVATION",
       "approximateLocation":false,
       "time": {
-          "partialTime": "--T15:20"
+          "partialTime": "--T15:20Z"
       },
       "upperLimit": {
           "value": 230,
@@ -76,7 +76,7 @@
       },
       "approximateLocation":false,
       "time": {
-          "partialTime": "--T21:30"
+          "partialTime": "--T21:30Z"
       }
     }],
     "VAInfo": {

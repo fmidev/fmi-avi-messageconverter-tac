@@ -23,6 +23,9 @@
       "partialTime": "--11T15:30Z"
     }
   },
+  "issueTime": {
+    "partialTime": "--11T11:30Z"
+  },
   "phenomenon": "ISOL_TSGR",
   "sequenceNumber": "1",
   "analysisGeometries": [{

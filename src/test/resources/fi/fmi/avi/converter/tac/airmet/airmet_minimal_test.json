@@ -23,6 +23,9 @@
       "partialTime": "--11T15:30Z"
     }
   },
+  "issueTime": {
+    "partialTime": "--11T11:30Z"
+  },
   "sequenceNumber": "1",
   "translatedTAC": "EHAA AIRMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR TEST=",
   "translated": true,

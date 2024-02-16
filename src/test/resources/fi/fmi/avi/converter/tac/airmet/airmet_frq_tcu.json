@@ -23,6 +23,9 @@
       "partialTime": "--28T15:30Z"
     }
   },
+  "issueTime": {
+    "partialTime": "--28T14:30Z"
+  },
   "phenomenon": "FRQ_TCU",
   "sequenceNumber": "1",
   "analysisGeometries": [
