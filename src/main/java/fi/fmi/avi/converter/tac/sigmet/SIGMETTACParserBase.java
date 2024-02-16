@@ -29,6 +29,7 @@ import fi.fmi.avi.model.sigmet.immutable.VAInfoImpl;
 
 import java.io.IOException;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -161,7 +162,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         Integer analysisHour = first.getParsedValue(HOUR1, Integer.class);
         Integer analysisMinute = first.getParsedValue(MINUTE1, Integer.class);
         if ((analysisHour != null) && (analysisMinute != null)) {
-            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneId.of("Z")));
+            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
             PartialOrCompleteTimeInstant pi = timeBuilder.build();
             phenBuilder.setTime(pi);
         }
@@ -175,7 +176,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         Integer analysisHour = first.getParsedValue(HOUR1, Integer.class);
         Integer analysisMinute = first.getParsedValue(MINUTE1, Integer.class);
         if (analysisHour != null) {
-            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneId.of("Z")));
+            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
             PartialOrCompleteTimeInstant pi = timeBuilder.build();
             forecastBuilder.setTime(pi);
         }
@@ -324,13 +325,14 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                 final Integer hh1 = match.getParsedValue(HOUR1, Integer.class);
                 final Integer mm1 = match.getParsedValue(MINUTE1, Integer.class);
                 final PartialDateTime startTime = PartialDateTime.ofDayHourMinute(dd1, hh1, mm1);
-                validPeriod.setStartTime(PartialOrCompleteTimeInstant.of(startTime));
+                // validPeriod.setStartTime(PartialOrCompleteTimeInstant.of(startTime));
+                validPeriod.setStartTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd1, hh1, mm1, ZoneOffset.UTC)).build());
                 final Integer dd2 = match.getParsedValue(DAY2, Integer.class);
                 final Integer hh2 = match.getParsedValue(HOUR2, Integer.class);
                 final Integer mm2 = match.getParsedValue(MINUTE2, Integer.class);
                 final PartialDateTime endTime = PartialDateTime.ofDayHourMinute(dd2, hh2, mm2);
-                validPeriod.setEndTime(PartialOrCompleteTimeInstant.of(endTime));
-                builder.setValidityPeriod(validPeriod.build());
+                // validPeriod.setEndTime(PartialOrCompleteTimeInstant.of(endTime));
+                validPeriod.setEndTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd2, hh2, mm2, ZoneOffset.UTC)).build());                builder.setValidityPeriod(validPeriod.build());
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET validity time not given in " + input)));
 
