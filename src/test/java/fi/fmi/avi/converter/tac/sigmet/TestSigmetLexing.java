@@ -452,9 +452,6 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     String tacString = "MOV ENE 5KT=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    for (Lexeme l: result.getLexemes()) {
-        System.out.println(l);
-    }
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
           SIGMET_START,
           SIGMET_MOVING,
@@ -470,9 +467,6 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
     String tacString = "MOV ENE 05KT=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    for (Lexeme l: result.getLexemes()) {
-        System.out.println(l);
-    }
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
           SIGMET_START,
           SIGMET_MOVING,
@@ -572,9 +566,6 @@ public class TestSigmetLexing extends AbstractSigmetLexingTest{
             "EHAA AMSTERDAM FIR RDOACT CLD FCST AT 1200Z WI 25KM OF N5200 E00520 STNR NC=";
     Assume.assumeTrue(String.class.isAssignableFrom(getParsingSpecification().getInputClass()));
     final LexemeSequence result = lexer.lexMessage(tacString, getLexerParsingHints());
-    for (Lexeme l: result.getLexemes()) {
-        System.out.println(l);
-    }
     assertTokenSequenceIdentityMatch(trimWhitespaces(result.getLexemes()), spacify(new LexemeIdentity[] {
           SIGMET_START,
           SEQUENCE_DESCRIPTOR,
