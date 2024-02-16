@@ -289,7 +289,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
             } else {
                 builder.setSequenceNumber(match.getParsedValue(Lexeme.ParsedValueName.VALUE, String.class));
             }
-        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET sequence descriptor not given in " + input)));
+        }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "AIRMET sequence descriptor not given in " + input)));
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.VALID_TIME, (match) -> {
             final LexemeIdentity[] before = new LexemeIdentity[]{LexemeIdentity.MWO_DESIGNATOR};
@@ -308,7 +308,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
                 validPeriod.setEndTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd2, hh2, mm2, ZoneId.of("Z"))).build());
                 builder.setValidityPeriod(validPeriod.build());
 
-                // Use start of validity as issue time for SIGMET
+                // Use start of validity as issue time for AIRMET
                 builder.setIssueTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd1, hh1, mm1, ZoneOffset.UTC)).build());
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET validity time not given in " + input)));
