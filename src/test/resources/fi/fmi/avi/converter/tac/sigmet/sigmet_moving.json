@@ -21,10 +21,10 @@
   },
   "validityPeriod": {
     "startTime": {
-      "completeTime": "2017-08-27T11:30:00Z"
+        "completeTime": "2017-08-27T11:30:00Z"
     },
     "endTime": {
-      "completeTime": "2017-08-27T18:00:00Z"
+        "completeTime": "2017-08-27T18:00:00Z"
     }
   },
   "phenomenonType": "SIGMET",

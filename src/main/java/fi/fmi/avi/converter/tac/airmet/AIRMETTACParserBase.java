@@ -27,7 +27,6 @@ import fi.fmi.avi.model.sigmet.immutable.AirmetReferenceImpl.Builder;
 import fi.fmi.avi.model.sigmet.immutable.AirmetWindImpl;
 
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -151,7 +150,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
         Integer analysisHour = first.getParsedValue(HOUR1, Integer.class);
         Integer analysisMinute = first.getParsedValue(MINUTE1, Integer.class);
         if ((analysisHour != null) && (analysisMinute != null)) {
-            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
+            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneId.of("Z")));
             PartialOrCompleteTimeInstant pi = timeBuilder.build();
             phenBuilder.setTime(pi);
         }
@@ -250,7 +249,7 @@ public abstract class AIRMETTACParserBase<T extends AIRMET> extends AbstractTACP
         Integer analysisHour = first.getParsedValue(HOUR1, Integer.class);
         Integer analysisMinute = first.getParsedValue(MINUTE1, Integer.class);
         if (analysisHour != null) {
-            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
+            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneId.of("Z")));
             PartialOrCompleteTimeInstant pi = timeBuilder.build();
             phenBuilder.setTime(pi);
         }
