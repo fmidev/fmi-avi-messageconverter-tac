@@ -23,6 +23,9 @@
       "partialTime": "--11T15:30Z"
     }
   },
+  "issueTime": {
+    "partialTime": "--11T11:30Z"
+  },
   "phenomenonType": "SIGMET",
   "phenomenon": "OBSC_TSGR",
   "sequenceNumber": "1",
@@ -37,7 +40,7 @@
     "intensityChange": "INTENSIFYING",
     "approximateLocation":false,
     "time": {
-        "partialTime": "--T12:00Z"
+        "partialTime": "--T12:00"
     }
   }],
   "translatedTAC":"EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR OBSC TSGR FCST AT 1200Z ENTIRE FIR STNR INTSF=",

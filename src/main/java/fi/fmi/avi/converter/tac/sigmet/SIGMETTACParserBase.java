@@ -51,7 +51,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             LexemeIdentity.CORRECTION, LexemeIdentity.AMENDMENT, LexemeIdentity.CANCELLATION, LexemeIdentity.NIL, LexemeIdentity.MIN_TEMPERATURE,
             LexemeIdentity.MAX_TEMPERATURE, LexemeIdentity.REMARKS_START};
     protected AviMessageLexer lexer;
-
     protected FirInfoStore firInfo = null;
 
     @Override
@@ -162,7 +161,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         Integer analysisHour = first.getParsedValue(HOUR1, Integer.class);
         Integer analysisMinute = first.getParsedValue(MINUTE1, Integer.class);
         if ((analysisHour != null) && (analysisMinute != null)) {
-            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
+            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofHourMinute(analysisHour, analysisMinute));
             PartialOrCompleteTimeInstant pi = timeBuilder.build();
             phenBuilder.setTime(pi);
         }
@@ -173,10 +172,10 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                                      ConversionResult<SIGMETImpl> result,
                                      String input) {
         Lexeme first = seq.getFirstLexeme();
-        Integer analysisHour = first.getParsedValue(HOUR1, Integer.class);
-        Integer analysisMinute = first.getParsedValue(MINUTE1, Integer.class);
-        if (analysisHour != null) {
-            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
+        Integer forecastHour = first.getParsedValue(HOUR1, Integer.class);
+        Integer forecastMinute = first.getParsedValue(MINUTE1, Integer.class);
+        if (forecastHour != null) {
+            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofHourMinute(forecastHour, forecastMinute));
             PartialOrCompleteTimeInstant pi = timeBuilder.build();
             forecastBuilder.setTime(pi);
         }
@@ -332,7 +331,11 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                 final Integer mm2 = match.getParsedValue(MINUTE2, Integer.class);
                 final PartialDateTime endTime = PartialDateTime.ofDayHourMinute(dd2, hh2, mm2);
                 // validPeriod.setEndTime(PartialOrCompleteTimeInstant.of(endTime));
-                validPeriod.setEndTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd2, hh2, mm2, ZoneOffset.UTC)).build());                builder.setValidityPeriod(validPeriod.build());
+                validPeriod.setEndTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd2, hh2, mm2, ZoneOffset.UTC)).build());
+                builder.setValidityPeriod(validPeriod.build());
+
+                // Use start of validity as issue time for SIGMET
+                builder.setIssueTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd1, hh1, mm1, ZoneOffset.UTC)).build());
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET validity time not given in " + input)));
 

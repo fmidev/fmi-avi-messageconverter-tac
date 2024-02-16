@@ -23,6 +23,9 @@
       "partialTime": "--27T15:30Z"
     }
   },
+  "issueTime": {
+    "partialTime": "--27T13:30Z"
+  },
   "cancelMessage": true,
   "cancelledReference": {
     "sequenceNumber":"M01",

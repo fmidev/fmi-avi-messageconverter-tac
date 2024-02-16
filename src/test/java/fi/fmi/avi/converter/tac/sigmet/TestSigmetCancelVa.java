@@ -9,15 +9,6 @@ import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 
-/**
- *
- * TODO:
- * - OBS_OR_FORECAST is not detecting correctly
- * - FirType with three words fails (NEW AMSTERDAM FIR)
- * - Wrong phenomenon is returned (EMB_TS instead of SEV_ICE_FZRA)
- * - sigmet1a.json is not yet correct ()
- */
-
 public class TestSigmetCancelVa extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
 
 	@Override

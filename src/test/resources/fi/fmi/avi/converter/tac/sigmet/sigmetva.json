@@ -1,28 +1,31 @@
 {
-    "reportStatus": "NORMAL",
-    "issuingAirTrafficServicesUnit": {
+  "reportStatus": "NORMAL",
+  "issuingAirTrafficServicesUnit": {
       "name": "AMSTERDAM",
       "type": "FIC",
       "designator": "EHAA"
-    },
-    "meteorologicalWatchOffice": {
+  },
+  "meteorologicalWatchOffice": {
       "name": "De Bilt",
       "type": "MWO",
       "designator": "EHDB"
-    },
-    "airspace": {
+  },
+  "airspace": {
       "designator": "EHAA",
       "name": "AMSTERDAM FIR",
       "type": "FIR"
-    },
-    "validityPeriod": {
+  },
+  "validityPeriod": {
       "startTime": {
-        "partialTime": "--17T16:10Z"
+      "partialTime": "--17T16:10Z"
       },
       "endTime": {
-        "partialTime": "--17T22:10Z"
+      "partialTime": "--17T22:10Z"
       }
-    },
+  },
+  "issueTime": {
+    "partialTime": "--17T16:10Z"
+  },
   "phenomenonType": "VOLCANIC_ASH_SIGMET",
     "phenomenon": "VA",
     "sequenceNumber": "4",
@@ -44,7 +47,7 @@
       "analysisType": "OBSERVATION",
       "approximateLocation":false,
       "time": {
-          "partialTime": "--T15:20Z"
+          "partialTime": "--T15:20"
       },
       "upperLimit": {
           "value": 230,
@@ -73,7 +76,7 @@
       },
       "approximateLocation":false,
       "time": {
-          "partialTime": "--T21:30Z"
+          "partialTime": "--T21:30"
       }
     }],
     "VAInfo": {

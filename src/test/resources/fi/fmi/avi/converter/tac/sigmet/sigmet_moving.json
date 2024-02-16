@@ -12,7 +12,7 @@
   },
   "sequenceNumber": "1",
   "issueTime": {
-    "completeTime": "2017-08-27T11:30:00Z"
+    "partialTime": "--27T12:00Z"
   },
   "airspace": {
     "designator": "EHAA",
@@ -21,10 +21,10 @@
   },
   "validityPeriod": {
     "startTime": {
-        "completeTime": "2017-08-27T11:30:00Z"
+        "partialTime": "--27T12:00Z"
     },
     "endTime": {
-        "completeTime": "2017-08-27T18:00:00Z"
+        "partialTime": "--27T18:00Z"
     }
   },
   "phenomenonType": "SIGMET",
@@ -33,7 +33,7 @@
   "analysisGeometries": [
     {
       "time": {
-        "completeTime": "2017-08-27T12:00:00Z"
+        "partialTime": "--T12:00"
       },
       "lowerLimit": {
         "value": 10,
@@ -71,5 +71,5 @@
     }
   ],
   "translated": true,
-  "translatedTAC": "EHAA SIGMET 1 VALID 271130/271800 EHDB-\r\nEHAA AMSTERDAM FIR EMBD TS OBS AT 1200Z WI N5200 E00500 - N5300 E00600 - N5400 E00500 - N5200 E00500 FL010/035 MOV S 5KT NC="
+  "translatedTAC": "EHAA SIGMET 1 VALID 271200/271800 EHDB-\r\nEHAA AMSTERDAM FIR EMBD TS OBS AT 1200Z WI N5200 E00500 - N5300 E00600 - N5400 E00500 - N5200 E00500 FL010/035 MOV S 5KT NC="
 }

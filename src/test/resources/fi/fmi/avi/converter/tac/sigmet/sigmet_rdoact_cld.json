@@ -23,6 +23,9 @@
       "partialTime": "--11T15:30Z"
     }
   },
+  "issueTime": {
+    "partialTime": "--11T11:30Z"
+  },
   "phenomenonType": "SIGMET",
   "phenomenon": "RDOACT_CLD",
   "sequenceNumber": "1",
@@ -43,7 +46,7 @@
     "analysisType": "FORECAST",
     "intensityChange": "NO_CHANGE",
     "approximateLocation":false,
-    "time": { "partialTime": "--T12:00Z"}}],
+    "time": { "partialTime": "--T12:00"}}],
   "translatedTAC":"EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR RDOACT CLD FCST AT 1200Z WI 25KM OF N5200 E00520 STNR NC=",
   "translated": true,
   "permissibleUsage": "OPERATIONAL"

@@ -9,15 +9,6 @@ import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 
-/**
- *
- * TODO:
- * - OBS_OR_FORECAST is not detecting correctly
- * - FirType with three words fails (NEW AMSTERDAM FIR)
- * - Wrong phenomenon is returned (EMB_TS instead of SEV_ICE_FZRA)
- * - sigmet1a.json is not yet correct ()
- */
-
 public class TestSigmetMoving extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
 
 	@Override
@@ -27,7 +18,7 @@ public class TestSigmetMoving extends AbstractAviMessageTestTempSigmet<String, S
 
 	@Override
 	public String getMessage() {
-		return "EHAA SIGMET 1 VALID 271130/271800 EHDB-\r\nEHAA AMSTERDAM FIR EMBD TS OBS AT 1200Z WI N5200 E00500 - N5300 E00600 - N5400 E00500 - N5200 E00500 FL010/035 MOV S 5KT NC=";
+		return "EHAA SIGMET 1 VALID 271200/271800 EHDB-\r\nEHAA AMSTERDAM FIR EMBD TS OBS AT 1200Z WI N5200 E00500 - N5300 E00600 - N5400 E00500 - N5200 E00500 FL010/035 MOV S 5KT NC=";
 	}
 
 	@Override
