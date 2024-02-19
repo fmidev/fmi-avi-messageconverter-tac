@@ -563,7 +563,9 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
     }
 
     private void fixSigmetTimes(SIGMETImpl.Builder builder, ZonedDateTime reference_time) {
-
+        // Code to fix the SIGMET times.
+        // Currently not used, but kept here for reference
+        // TODO: implement this in fmi-avi-messageconverter/fmi-avi-message-converter-tac
         //Fix validityPeriod
         PartialOrCompleteTimePeriod.Builder validityPeriodBuilder = builder.getValidityPeriodBuilder();
         validityPeriodBuilder.completePartialEndingNear(reference_time)
