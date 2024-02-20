@@ -9,7 +9,7 @@ import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 
-public class Sigmet2Test1Line extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
+public class Sigmet2_1Line_Test extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
 
 	@Override
 	public String getJsonFilename() {

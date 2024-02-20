@@ -13,7 +13,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
  *
  */
 
-public class SigmetVaTest_NoName extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
+public class SigmetVa_NonameTest extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
 
 	@Override
 	public String getJsonFilename() {
