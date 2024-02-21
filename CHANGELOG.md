@@ -31,6 +31,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v6.0.0-beta6] - 2024-02-21
+
+### Fixed
+
+- Fixed a bug where SIGMET with a MOV element had its speed serialized with a leading zero [#191]
+- SIGMET/AIRMET TAC parsing fixes
+
 ## [v6.0.0-beta5] - 2024-01-09
 
 ### Fixed
@@ -130,6 +137,8 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 
 [Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.3.0...HEAD
 
+[v6.0.0-beta6]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta6
+
 [v6.0.0-beta5]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta5
 
 [v6.0.0-beta4]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta4
@@ -187,5 +196,7 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 [#189]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/189
 
 [#190]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/190
+
+[#191]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/191
 
 
