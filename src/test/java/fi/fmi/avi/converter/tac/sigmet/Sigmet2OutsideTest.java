@@ -9,25 +9,16 @@ import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 
-/**
- *
- * TODO:
- * - OBS_OR_FORECAST is not detecting correctly
- * - FirType with three words fails (NEW AMSTERDAM FIR)
- * - Wrong phenomenon is returned (EMB_TS instead of SEV_ICE_FZRA)
- * - sigmet1a.json is not yet correct ()
- */
-
-public class Sigmet2TestPolygon extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
+public class Sigmet2OutsideTest extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
 
 	@Override
 	public String getJsonFilename() {
-		return "../sigmet/sigmet2a_polygon.json";
+		return "../sigmet/sigmet2a_outside.json";
 	}
 
 	@Override
 	public String getMessage() {
-		return "EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR OBSC TSGR FCST AT 1200Z WI N5200 E00524 - N5300 E00630 - N5100 E00718 - N5200 E00524 STNR INTSF="; // FCST AT 1530Z ENTIRE FIR FCST AT 1530Z N52 E00520=";
+		return "EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR OBSC TSGR FCST AT 1200Z N OF N5200 STNR INTSF=";
 	}
 
 	@Override
@@ -44,11 +35,8 @@ public class Sigmet2TestPolygon extends AbstractAviMessageTestTempSigmet<String,
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(new LexemeIdentity[] { SIGMET_START,
 				SEQUENCE_DESCRIPTOR, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME,
-				SIGMET_PHENOMENON, OBS_OR_FORECAST, SIGMET_WITHIN,
-				POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR,
-				POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR,
-				POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR,
-				POLYGON_COORDINATE_PAIR, SIGMET_MOVING, SIGMET_INTENSITY,
+				SIGMET_PHENOMENON, OBS_OR_FORECAST, SIGMET_OUTSIDE_LATLON,
+				SIGMET_MOVING, SIGMET_INTENSITY,
 				END_TOKEN });
 	}
 

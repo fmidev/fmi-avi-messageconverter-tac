@@ -9,25 +9,16 @@ import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 
-/**
- *
- * TODO:
- * - OBS_OR_FORECAST is not detecting correctly
- * - FirType with three words fails (NEW AMSTERDAM FIR)
- * - Wrong phenomenon is returned (EMB_TS instead of SEV_ICE_FZRA)
- * - sigmet1a.json is not yet correct ()
- */
-
-public class Sigmet2Test2Lines extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
+public class Sigmet2PolygonTest extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
 
 	@Override
 	public String getJsonFilename() {
-		return "../sigmet/sigmet2a_2lines.json";
+		return "../sigmet/sigmet2a_polygon.json";
 	}
 
 	@Override
 	public String getMessage() {
-		return "EHAA SIGMET 2 VALID 221010/221610 EHDB-\r\nEHAA AMSTERDAM FIR VA ERUPTION MT SABANCAYA PSN S1547 W07150 VA CLD OBS AT 1000Z S OF LINE N5400 E00100 - N5400 E00300 - N5400 E00600 - N5400 E01000 AND N OF LINE N5100 E00100 - N5100 E01000 SFC/FL240 STNR INTSF="; // FCST AT 1530Z ENTIRE FIR FCST AT 1530Z N52 E00520=";
+		return "EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR OBSC TSGR FCST AT 1200Z WI N5200 E00524 - N5300 E00630 - N5100 E00718 - N5200 E00524 STNR INTSF="; // FCST AT 1530Z ENTIRE FIR FCST AT 1530Z N52 E00520=";
 	}
 
 	@Override
@@ -44,8 +35,11 @@ public class Sigmet2Test2Lines extends AbstractAviMessageTestTempSigmet<String, 
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(new LexemeIdentity[] { SIGMET_START,
 				SEQUENCE_DESCRIPTOR, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME,
-				SIGMET_VA_ERUPTION, SIGMET_VA_NAME, SIGMET_VA_POSITION, SIGMET_PHENOMENON, OBS_OR_FORECAST, SIGMET_2_LINES,
-				SIGMET_LEVEL, SIGMET_MOVING, SIGMET_INTENSITY,
+				SIGMET_PHENOMENON, OBS_OR_FORECAST, SIGMET_WITHIN,
+				POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR,
+				POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR,
+				POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR,
+				POLYGON_COORDINATE_PAIR, SIGMET_MOVING, SIGMET_INTENSITY,
 				END_TOKEN });
 	}
 

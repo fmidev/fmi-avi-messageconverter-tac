@@ -28,7 +28,7 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
             "WSW", "W", "WNW", "NW", "NNW"};
 
     public SigmetMoving(final OccurrenceFrequency prio) {
-        super("^STNR|(MOV)\\s(N|NNE|NE|ENE|E|ESE|SE|SSE|S|SSW|SW|WSW|W|WNW|NW|NNW)\\s([0-9]{2})(KT|KMH)$", prio);
+        super("^STNR|(MOV)\\s(N|NNE|NE|ENE|E|ESE|SE|SSE|S|SSW|SW|WSW|W|WNW|NW|NNW)\\s([0-9]{1,3})(KT|KMH)$", prio);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
             token.identify(SIGMET_MOVING);
             token.setParsedValue(STATIONARY, false);
             token.setParsedValue(DIRECTION, match.group(2));
-            token.setParsedValue(VALUE, match.group(3));
+            token.setParsedValue(VALUE, Double.parseDouble(match.group(3)));
             token.setParsedValue(UNIT, match.group(4));
         }
     }
@@ -72,7 +72,7 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
                         }
                         sb.append(MeteorologicalBulletinSpecialCharacter.SPACE.getContent());
                         NumericMeasure spd = message.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingSpeed().get();
-                        sb.append(String.format(Locale.US, "%02.0f", spd.getValue()));
+                        sb.append(String.format(Locale.US, "%1.0f", spd.getValue()));
                         sb.append(spd.getUom());
                         return Optional.of(createLexeme(sb.toString(), SIGMET_MOVING));
                     }

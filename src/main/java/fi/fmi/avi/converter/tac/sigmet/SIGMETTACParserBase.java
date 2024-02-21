@@ -20,15 +20,16 @@ import fi.fmi.avi.model.AviationCodeListUser.PermissibleUsageReason;
 import fi.fmi.avi.model.AviationWeatherMessage.ReportStatus;
 import fi.fmi.avi.model.immutable.*;
 import fi.fmi.avi.model.sigmet.SIGMET;
+import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import fi.fmi.avi.model.sigmet.SigmetAnalysisType;
 import fi.fmi.avi.model.sigmet.SigmetIntensityChange;
-import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import fi.fmi.avi.model.sigmet.immutable.SigmetReferenceImpl;
 import fi.fmi.avi.model.sigmet.immutable.SigmetReferenceImpl.Builder;
 import fi.fmi.avi.model.sigmet.immutable.VAInfoImpl;
 
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +45,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
             LexemeIdentity.CORRECTION, LexemeIdentity.AMENDMENT, LexemeIdentity.CANCELLATION, LexemeIdentity.NIL, LexemeIdentity.MIN_TEMPERATURE,
             LexemeIdentity.MAX_TEMPERATURE, LexemeIdentity.REMARKS_START};
     protected AviMessageLexer lexer;
-
     protected FirInfoStore firInfo = null;
 
     @Override
@@ -155,7 +155,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         Integer analysisHour = first.getParsedValue(HOUR1, Integer.class);
         Integer analysisMinute = first.getParsedValue(MINUTE1, Integer.class);
         if ((analysisHour != null) && (analysisMinute != null)) {
-            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
+            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneId.of("Z")));
             PartialOrCompleteTimeInstant pi = timeBuilder.build();
             phenBuilder.setTime(pi);
         }
@@ -166,10 +166,10 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                                      ConversionResult<SIGMETImpl> result,
                                      String input) {
         Lexeme first = seq.getFirstLexeme();
-        Integer analysisHour = first.getParsedValue(HOUR1, Integer.class);
-        Integer analysisMinute = first.getParsedValue(MINUTE1, Integer.class);
-        if (analysisHour != null) {
-            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, analysisHour, analysisMinute, ZoneOffset.UTC));
+        Integer forecastHour = first.getParsedValue(HOUR1, Integer.class);
+        Integer forecastMinute = first.getParsedValue(MINUTE1, Integer.class);
+        if (forecastHour != null) {
+            PartialOrCompleteTimeInstant.Builder timeBuilder = PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.of(-1, forecastHour, forecastMinute, ZoneId.of("Z")));
             PartialOrCompleteTimeInstant pi = timeBuilder.build();
             forecastBuilder.setTime(pi);
         }
@@ -314,15 +314,18 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                 result.addIssue(issue);
             } else {
                 PartialOrCompleteTimePeriod.Builder validPeriod = PartialOrCompleteTimePeriod.builder();
-                int dd1 = match.getParsedValue(DAY1, Integer.class);
-                int hh1 = match.getParsedValue(HOUR1, Integer.class);
-                int mm1 = match.getParsedValue(MINUTE1, Integer.class);
-                validPeriod.setStartTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd1, hh1, mm1, ZoneId.of("Z"))).build());
-                int dd2 = match.getParsedValue(DAY1, Integer.class);
-                int hh2 = match.getParsedValue(HOUR2, Integer.class);
-                int mm2 = match.getParsedValue(MINUTE2, Integer.class);
-                validPeriod.setEndTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd2, hh2, mm2, ZoneId.of("Z"))).build());
+                final Integer dd1 = match.getParsedValue(DAY1, Integer.class);
+                final Integer hh1 = match.getParsedValue(HOUR1, Integer.class);
+                final Integer mm1 = match.getParsedValue(MINUTE1, Integer.class);
+                validPeriod.setStartTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd1, hh1, mm1, ZoneOffset.UTC)).build());
+                final Integer dd2 = match.getParsedValue(DAY2, Integer.class);
+                final Integer hh2 = match.getParsedValue(HOUR2, Integer.class);
+                final Integer mm2 = match.getParsedValue(MINUTE2, Integer.class);
+                validPeriod.setEndTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd2, hh2, mm2, ZoneOffset.UTC)).build());
                 builder.setValidityPeriod(validPeriod.build());
+
+                // Use start of validity as issue time for SIGMET
+                builder.setIssueTime(PartialOrCompleteTimeInstant.builder().setPartialTime(PartialDateTime.ofDayHourMinuteZone(dd1, hh1, mm1, ZoneOffset.UTC)).build());
             }
         }, () -> result.addIssue(new ConversionIssue(ConversionIssue.Type.SYNTAX, "SIGMET validity time not given in " + input)));
 
@@ -338,15 +341,12 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
 
             while (((l = l.getNext()) != null) && SIGMET_FIR_NAME_WORD.equals(l.getIdentity())) {
                 firName.append(l.getTACToken());
-                System.err.println("FW:" + l.getTACToken() + " " + l.getNext());
             }
             if (FIR_NAME.equals(l.getIdentity())) {
                 firName.append(" ");
                 firName.append(l.getTACToken());
             }
-            System.err.println(firName + " " + l);
             firType = l.getParsedValue(FIR_TYPE, String.class);
-            System.err.println("AIRSPACE:" + firType + " " + firName);
             AirspaceImpl.Builder airspaceBuilder = new AirspaceImpl.Builder()
                     .setDesignator(designator)
                     .setType(AirspaceType.valueOf(firType.replace("/", "_")))
@@ -367,7 +367,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                 builder.setPermissibleUsageSupplementary(supplement);
             }
         });
-
 
         lexed.getFirstLexeme().findNext(LexemeIdentity.SIGMET_CANCEL, (match) -> {
             Builder ref = new SigmetReferenceImpl.Builder();
@@ -480,7 +479,6 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                     }
                 }
             }
-
             if (!analysisGeometries.isEmpty()) {
                 phenBuilder.setGeometry(analysisGeometries.get(0)); //TODO list
                 phenBuilder.setApproximateLocation(false);
@@ -499,6 +497,8 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
                 builder.setForecastGeometries(Arrays.asList(fcstGeom));
             }
         }
+        // fixSigmetTimes(builder, ZonedDateTime.parse("2017-08-27T11:30:00Z"));
+
         builder.setTranslated(true);
         if (lexed.getTAC() != null) {
             builder.setTranslatedTAC(lexed.getTAC());
@@ -514,6 +514,7 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         }
 
         withTimeForTranslation(hints, builder::setTranslationTime);
+
         try {
             result.setConvertedMessage(builder.build());
         } catch (final IllegalStateException ignored) {
@@ -559,5 +560,68 @@ public abstract class SIGMETTACParserBase<T extends SIGMET> extends AbstractTACP
         UnitPropertyGroupImpl.Builder mwo = new UnitPropertyGroupImpl.Builder();
         mwo.setPropertyGroup(mwoName, locationIndicator, "MWO");
         return mwo.build();
+    }
+
+    private void fixSigmetTimes(SIGMETImpl.Builder builder, ZonedDateTime reference_time) {
+        // Code to fix the SIGMET times.
+        // Currently not used, but kept here for reference
+        // TODO: implement this in fmi-avi-messageconverter/fmi-avi-message-converter-tac
+        //Fix validityPeriod
+        PartialOrCompleteTimePeriod.Builder validityPeriodBuilder = builder.getValidityPeriodBuilder();
+        validityPeriodBuilder.completePartialEndingNear(reference_time)
+        .completePartialStartingNear(reference_time);
+        PartialOrCompleteTimeInstant start = validityPeriodBuilder.getStartTime().get();
+        PartialOrCompleteTimeInstant end = validityPeriodBuilder.getEndTime().get();
+        System.out.println(">>>>>"+start);
+        PartialOrCompleteTimeInstant.Builder sb = PartialOrCompleteTimeInstant.builder().mergeFrom(start).clearPartialTime();
+        PartialOrCompleteTimeInstant.Builder eb = PartialOrCompleteTimeInstant.builder().mergeFrom(end).clearPartialTime();
+        validityPeriodBuilder.setEndTime(eb.build()).setStartTime(sb.build());
+        System.out.println(">>>>>"+sb.build());
+        builder.setValidityPeriod(validityPeriodBuilder.build());
+
+        //Fix issueTime
+        PartialOrCompleteTimeInstant issueTime;
+        if (builder.getIssueTime().isPresent()) {
+            issueTime = builder.getIssueTime().get();
+        } else {
+            issueTime = builder.getValidityPeriodBuilder().getStartTime().get();
+        }
+
+        PartialOrCompleteTimeInstant.Builder tb = PartialOrCompleteTimeInstant.builder().mergeFrom(issueTime);
+        System.err.println("<<<>>>>>"+tb.build());
+        tb.completePartialNear(reference_time);
+        System.err.println(">>>>>>>>"+tb.build());
+        builder.setIssueTime(tb.build());
+
+
+        //Fix analysisTimes
+        if (builder.getAnalysisGeometries().isPresent()) {
+            List<PhenomenonGeometryWithHeight>analysisGeometries = new ArrayList<>();
+            for (final PhenomenonGeometryWithHeight geometryWithHeight : builder.getAnalysisGeometries().get()) {
+                PhenomenonGeometryWithHeightImpl.Builder phenomenonGeometryWithHeightBuilder = PhenomenonGeometryWithHeightImpl.Builder.from(geometryWithHeight);
+                if (geometryWithHeight.getTime().isPresent()) {
+                    PartialOrCompleteTimeInstant.Builder tb1 = PartialOrCompleteTimeInstant.builder().mergeFrom(geometryWithHeight.getTime().get());
+                    tb1.completePartialNear(builder.getValidityPeriodBuilder().build().getStartTime().get().getCompleteTime().get()).clearPartialTime();
+                    phenomenonGeometryWithHeightBuilder.setTime(tb1.build());
+                }
+                analysisGeometries.add(phenomenonGeometryWithHeightBuilder.build());
+            }
+            builder.setAnalysisGeometries(analysisGeometries);
+        }
+
+        //Fix forecastTimes
+        if (builder.getForecastGeometries().isPresent()) {
+            List<PhenomenonGeometry>forecastGeometries = new ArrayList<>();
+            for (final PhenomenonGeometry geometry : builder.getForecastGeometries().get()) {
+                PhenomenonGeometryImpl.Builder phenomenonGeometryBuilder = PhenomenonGeometryImpl.Builder.from(geometry);
+                if (geometry.getTime().isPresent()) {
+                    PartialOrCompleteTimeInstant.Builder tb1 = PartialOrCompleteTimeInstant.builder().mergeFrom(geometry.getTime().get());
+                    tb1.completePartialNear(builder.getValidityPeriodBuilder().build().getStartTime().get().getCompleteTime().get());
+                    phenomenonGeometryBuilder.setTime(tb1.build());
+                }
+                forecastGeometries.add(phenomenonGeometryBuilder.build());
+            }
+            builder.setForecastGeometries(forecastGeometries);
+        }
     }
 }

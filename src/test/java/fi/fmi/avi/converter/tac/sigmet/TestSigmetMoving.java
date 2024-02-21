@@ -9,21 +9,16 @@ import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 
-public class Sigmet2Test extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
+public class TestSigmetMoving extends AbstractAviMessageTestTempSigmet<String, SIGMET> {
 
 	@Override
 	public String getJsonFilename() {
-		return "../sigmet/sigmet2a.json";
+		return "../sigmet/sigmet_moving.json";
 	}
 
 	@Override
 	public String getMessage() {
-		return "EHAA SIGMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR OBSC TSGR FCST AT 1200Z ENTIRE FIR STNR INTSF="; // FCST AT 1530Z ENTIRE FIR FCST AT 1530Z N52 E00520=";
-//		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA NEW AMSTERDAM FIR SEV ICE (FZRA) OBS N OF N20 AND S OF N30=";
-//		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA NEW AMSTERDAM FIR SEV ICE (FZRA) OBS N10=";
-//		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA NEW AMSTERDAM FIR SEV ICE (FZRA) OBS N OF LINE N10 E110 - N11 W111 - N12 E112 - N13 E113 - N14 E114=";
-//		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA NEW AMSTERDAM FIR SEV ICE (FZRA) OBS WI N10 E110 - N11 W111 - N12 E112 - N13 E113 - N14 E114=";
-//		return "EHAA SIGMET M01 VALID 111130/111530 EHDB-\nEHAA NEW AMSTERDAM FIR SEV ICE (FZRA) OBS ENTIRE FIR=";
+		return "EHAA SIGMET 1 VALID 271200/271800 EHDB-\r\nEHAA AMSTERDAM FIR EMBD TS OBS AT 1200Z WI N5200 E00500 - N5300 E00600 - N5400 E00500 - N5200 E00500 FL010/035 MOV S 5KT NC=";
 	}
 
 	@Override
@@ -40,12 +35,16 @@ public class Sigmet2Test extends AbstractAviMessageTestTempSigmet<String, SIGMET
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(new LexemeIdentity[] { SIGMET_START,
 				SEQUENCE_DESCRIPTOR, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME,
-				SIGMET_PHENOMENON, OBS_OR_FORECAST, SIGMET_ENTIRE_AREA,
-				SIGMET_MOVING, SIGMET_INTENSITY,
+				SIGMET_PHENOMENON, OBS_OR_FORECAST, SIGMET_WITHIN,
+                POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR,
+                POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR,
+                POLYGON_COORDINATE_PAIR, POLYGON_COORDINATE_PAIR_SEPARATOR,
+                POLYGON_COORDINATE_PAIR,
+                SIGMET_LEVEL, SIGMET_MOVING, SIGMET_INTENSITY,
 				END_TOKEN });
 	}
 
-	@Override
+    @Override
     public ConversionSpecification<String, SIGMET> getParsingSpecification() {
 		return TACConverter.TAC_TO_SIGMET_POJO;
     }

@@ -13,16 +13,16 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
  *
  */
 
-public class Airmet2Test_Point extends AbstractAviMessageTestTempAirmet<String, AIRMET> {
+public class Airmet2_sfcvisTest extends AbstractAviMessageTestTempAirmet<String, AIRMET> {
 
 	@Override
 	public String getJsonFilename() {
-		return "../airmet/airmet2_point.json";
+		return "../airmet/airmet2_sfcvis.json";
 	}
 
 	@Override
 	public String getMessage() {
-		return "EHAA AIRMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR ISOL TSGR FCST AT 1200Z N5345 E00515 STNR INTSF="; // FCST AT 1530Z ENTIRE FIR FCST AT 1530Z N52 E00520=";
+		return "EHAA AIRMET 1 VALID 111130/111530 EHDB-\r\nEHAA AMSTERDAM FIR SFC VIS 1000M (FG) OBS AT 1200Z ENTIRE FIR STNR WKN=";
 	}
 
 	@Override
@@ -39,7 +39,7 @@ public class Airmet2Test_Point extends AbstractAviMessageTestTempAirmet<String, 
 	public LexemeIdentity[] getLexerTokenSequenceIdentity() {
         return spacify(new LexemeIdentity[] { AIRMET_START,
 				SEQUENCE_DESCRIPTOR, VALID_TIME, MWO_DESIGNATOR, FIR_DESIGNATOR, SIGMET_FIR_NAME_WORD, FIR_NAME,
-				AIRMET_PHENOMENON, OBS_OR_FORECAST, POLYGON_COORDINATE_PAIR,
+				AIRMET_PHENOMENON, OBS_OR_FORECAST, SIGMET_ENTIRE_AREA,
 				SIGMET_MOVING, SIGMET_INTENSITY,
 				END_TOKEN });
 	}
