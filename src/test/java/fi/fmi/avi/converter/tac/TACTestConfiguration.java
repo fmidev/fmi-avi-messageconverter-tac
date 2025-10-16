@@ -1,13 +1,5 @@
 package fi.fmi.avi.converter.tac;
 
-import fi.fmi.avi.model.sigmet.SIGMET;
-import fi.fmi.avi.model.sigmet.AIRMET;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.json.conf.JSONConverter;
@@ -17,13 +9,20 @@ import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
-import fi.fmi.avi.model.sigmet.SIGMETBulletin;
+import fi.fmi.avi.model.sigmet.AIRMET;
 import fi.fmi.avi.model.sigmet.AIRMETBulletin;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherBulletin;
+import fi.fmi.avi.model.sigmet.SIGMET;
+import fi.fmi.avi.model.sigmet.SIGMETBulletin;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAmd79Bulletin;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import({TACConverter.class, JSONConverter.class})
@@ -73,14 +72,14 @@ public class TACTestConfiguration {
     private AviMessageSpecificConverter<GenericMeteorologicalBulletin, String> genericBulletinJSONSerializer;
 
     @Autowired
-    private AviMessageSpecificConverter<String, SpaceWeatherAdvisory> swxTACParser;
+    private AviMessageSpecificConverter<String, SpaceWeatherAdvisoryAmd79> swxTACParser;
 
     @Autowired
     @Qualifier("swxSerializer")
-    private AviMessageSpecificConverter<SpaceWeatherAdvisory, String> swxTACSerializer;
+    private AviMessageSpecificConverter<SpaceWeatherAdvisoryAmd79, String> swxTACSerializer;
 
     @Autowired
-    private AviMessageSpecificConverter<SpaceWeatherBulletin, String> swxBulletinTACSerializer;
+    private AviMessageSpecificConverter<SpaceWeatherAmd79Bulletin, String> swxBulletinTACSerializer;
 
     @Autowired
     private AviMessageSpecificConverter<String, SIGMET> sigmetTACParser;

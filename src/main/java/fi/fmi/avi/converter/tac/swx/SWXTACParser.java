@@ -1,19 +1,5 @@
 package fi.fmi.avi.converter.tac.swx;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-
-import javax.annotation.Nullable;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
@@ -23,30 +9,20 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
-import fi.fmi.avi.model.AviationCodeListUser;
-import fi.fmi.avi.model.Geometry;
-import fi.fmi.avi.model.NumericMeasure;
-import fi.fmi.avi.model.PartialDateTime;
-import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.PolygonGeometry;
+import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
-import fi.fmi.avi.model.swx.AdvisoryNumber;
-import fi.fmi.avi.model.swx.AirspaceVolume;
-import fi.fmi.avi.model.swx.NextAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
-import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
-import fi.fmi.avi.model.swx.SpaceWeatherRegion;
-import fi.fmi.avi.model.swx.immutable.AirspaceVolumeImpl;
-import fi.fmi.avi.model.swx.immutable.IssuingCenterImpl;
-import fi.fmi.avi.model.swx.immutable.NextAdvisoryImpl;
-import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryAnalysisImpl;
-import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryImpl;
-import fi.fmi.avi.model.swx.immutable.SpaceWeatherRegionImpl;
+import fi.fmi.avi.model.swx.amd79.*;
+import fi.fmi.avi.model.swx.amd79.immutable.*;
 
-public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
+import javax.annotation.Nullable;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.function.Consumer;
+
+public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd79> {
 
     /**
      * The vertical distance is measured with an altimeter set to the standard atmosphere.
@@ -89,20 +65,20 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
         return Optional.empty();
     }
 
-    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisory> result, final Lexeme previousLexeme,
-            final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity) {
+    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisoryAmd79> result, final Lexeme previousLexeme,
+                                      final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity) {
         processLexeme(result, previousLexeme, remainingLexemeIdentities, lexemeIdentity, lexeme -> {
         });
     }
 
-    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisory> result, final Lexeme previousLexeme,
-            final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity, final Consumer<Lexeme> lexemeHandler) {
+    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisoryAmd79> result, final Lexeme previousLexeme,
+                                      final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity, final Consumer<Lexeme> lexemeHandler) {
         processLexeme(result, previousLexeme, remainingLexemeIdentities, lexemeIdentity, lexemeHandler, null);
     }
 
-    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisory> result, final Lexeme previousLexeme,
-            final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity, final Consumer<Lexeme> lexemeHandler,
-            final Lexeme.LexemeParsingNotifyer notFound) {
+    private static void processLexeme(final ConversionResult<SpaceWeatherAdvisoryAmd79> result, final Lexeme previousLexeme,
+                                      final Set<LexemeIdentity> remainingLexemeIdentities, final LexemeIdentity lexemeIdentity, final Consumer<Lexeme> lexemeHandler,
+                                      final Lexeme.LexemeParsingNotifyer notFound) {
         previousLexeme.findNext(lexemeIdentity, (match) -> {
             remainingLexemeIdentities.remove(lexemeIdentity);
             final ConversionIssue issue = checkBeforeAnyOf(match, remainingLexemeIdentities);
@@ -126,8 +102,8 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
     }
 
     @Override
-    public ConversionResult<SpaceWeatherAdvisory> convertMessage(final String input, final ConversionHints hints) {
-        final ConversionResult<SpaceWeatherAdvisory> retval = new ConversionResult<>();
+    public ConversionResult<SpaceWeatherAdvisoryAmd79> convertMessage(final String input, final ConversionHints hints) {
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> retval = new ConversionResult<>();
 
         if (this.lexer == null) {
             throw new IllegalStateException("TAC lexer not set");
@@ -154,7 +130,7 @@ public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisory> {
 
         final List<ConversionIssue> conversionIssues = checkExactlyOne(firstLexeme.getTailSequence(), oneRequired);
 
-        final SpaceWeatherAdvisoryImpl.Builder builder = SpaceWeatherAdvisoryImpl.builder();
+        final SpaceWeatherAdvisoryAmd79Impl.Builder builder = SpaceWeatherAdvisoryAmd79Impl.builder();
 
         checkAndReportLexingResult(lexed, hints, retval);
 

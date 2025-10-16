@@ -5,10 +5,10 @@ import fi.fmi.avi.converter.tac.bulletin.AbstractTACBulletinSerializer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherBulletin;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAmd79Bulletin;
 
-public class SWXBulletinTACSerializer extends AbstractTACBulletinSerializer<SpaceWeatherAdvisory, SpaceWeatherBulletin> {
+public class SWXBulletinTACSerializer extends AbstractTACBulletinSerializer<SpaceWeatherAdvisoryAmd79, SpaceWeatherAmd79Bulletin> {
 
     private SWXTACSerializer swxSerializer;
 
@@ -17,21 +17,21 @@ public class SWXBulletinTACSerializer extends AbstractTACBulletinSerializer<Spac
     }
 
     @Override
-    protected SpaceWeatherBulletin accepts(final AviationWeatherMessageOrCollection message) throws SerializingException {
-        if (message instanceof SpaceWeatherBulletin) {
-            return (SpaceWeatherBulletin) message;
+    protected SpaceWeatherAmd79Bulletin accepts(final AviationWeatherMessageOrCollection message) throws SerializingException {
+        if (message instanceof SpaceWeatherAmd79Bulletin) {
+            return (SpaceWeatherAmd79Bulletin) message;
         } else {
             throw new SerializingException("Can only serialize SpaceWeatherBulletins");
         }
     }
 
     @Override
-    protected Class<SpaceWeatherBulletin> getBulletinClass() {
-        return SpaceWeatherBulletin.class;
+    protected Class<SpaceWeatherAmd79Bulletin> getBulletinClass() {
+        return SpaceWeatherAmd79Bulletin.class;
     }
 
     @Override
-    protected LexemeSequence tokenizeSingleMessage(final SpaceWeatherAdvisory message, final ConversionHints hints) throws SerializingException {
+    protected LexemeSequence tokenizeSingleMessage(final SpaceWeatherAdvisoryAmd79 message, final ConversionHints hints) throws SerializingException {
         if (message != null) {
             if (swxSerializer != null) {
                 return swxSerializer.tokenizeMessage(message, hints);

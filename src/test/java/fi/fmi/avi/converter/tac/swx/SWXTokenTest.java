@@ -1,30 +1,22 @@
 package fi.fmi.avi.converter.tac.swx;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.junit.Test;
-
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
 import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatus;
-import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumber;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenter;
+import fi.fmi.avi.converter.tac.lexer.impl.token.*;
 import fi.fmi.avi.model.AviationCodeListUser;
-import fi.fmi.avi.model.swx.immutable.AdvisoryNumberImpl;
+import fi.fmi.avi.model.swx.amd79.immutable.AdvisoryNumberImpl;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.*;
 
 public class SWXTokenTest {
 
@@ -92,8 +84,8 @@ public class SWXTokenTest {
         assertEquals(Integer.valueOf(7), result.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class));
         assertEquals(Integer.valueOf(0), result.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class));
 
-        assertEquals(fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_BY,
-                result.getParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.class));
+        assertEquals(fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.NEXT_ADVISORY_BY,
+                result.getParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.class));
     }
 
     @Test
@@ -107,8 +99,8 @@ public class SWXTokenTest {
         assertEquals(Integer.valueOf(8), result.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class));
         assertEquals(Integer.valueOf(7), result.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class));
         assertEquals(Integer.valueOf(0), result.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class));
-        assertEquals(fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_AT,
-                result.getParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.class));
+        assertEquals(fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.NEXT_ADVISORY_AT,
+                result.getParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.class));
     }
 
     @Test
@@ -116,8 +108,8 @@ public class SWXTokenTest {
         final String fieldValue = "NO FURTHER ADVISORIES";
         final Lexeme result = nextAdvisoryVisitIfMatchedTest(fieldValue);
 
-        assertEquals(fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES,
-                result.getParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.class));
+        assertEquals(fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.NO_FURTHER_ADVISORIES,
+                result.getParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.class));
     }
 
     public Lexeme nextAdvisoryVisitIfMatchedTest(final String FIELD_VALUE) {

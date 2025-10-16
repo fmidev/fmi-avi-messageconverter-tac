@@ -10,10 +10,10 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.util.GeometryHelper;
 import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.sigmet.SIGMET;
-import fi.fmi.avi.model.swx.AirspaceVolume;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
-import fi.fmi.avi.model.swx.SpaceWeatherRegion;
+import fi.fmi.avi.model.swx.amd79.AirspaceVolume;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         final String latStr = match.group("latitude");
         final String lonStr = match.group("longitude");
         if (latStr.length() > 3) {
-            double latitudeMinutesAsDecimal = Integer.parseInt(latStr.substring(3)) / 60.;
+            final double latitudeMinutesAsDecimal = Integer.parseInt(latStr.substring(3)) / 60.;
             latitude = Double.parseDouble(latStr.substring(1, 3) + ".") + latitudeMinutesAsDecimal;
         } else {
             latitude = Double.parseDouble(latStr.substring(1));
@@ -42,7 +42,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
             latitude *= -1;
         }
         if (lonStr.length() > 4) {
-            double longitudeMinutesAsDecimal = Integer.parseInt(lonStr.substring(4)) / 60.;
+            final double longitudeMinutesAsDecimal = Integer.parseInt(lonStr.substring(4)) / 60.;
             longitude = Double.parseDouble(lonStr.substring(1, 4) + ".") + longitudeMinutesAsDecimal;
         } else {
             longitude = Double.parseDouble(lonStr.substring(1));
@@ -61,14 +61,14 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
-            ConversionHints hints = ctx.getHints();
+            final ConversionHints hints = ctx.getHints();
             final boolean specifyZeros = (hints != null) && hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES) &&
                     ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
             final List<Lexeme> retval = new ArrayList<>();
-            if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
+            if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(analysisIndex.get());
+                    final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd79) msg).getAnalyses().get(analysisIndex.get());
                     if (analysis.getRegions() != null && analysis.getRegions().size() > 0) {
                         final SpaceWeatherRegion region = analysis.getRegions().get(0);
                         if (!region.getLocationIndicator().isPresent() && region.getAirSpaceVolume().isPresent()) {

@@ -1,17 +1,20 @@
 package fi.fmi.avi.converter.tac.swx;
 
-import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
-import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import fi.fmi.avi.converter.AviMessageConverter;
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.ConversionIssue;
+import fi.fmi.avi.converter.ConversionResult;
+import fi.fmi.avi.converter.tac.TACTestConfiguration;
+import fi.fmi.avi.converter.tac.conf.TACConverter;
+import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
+import fi.fmi.avi.model.Geometry;
+import fi.fmi.avi.model.PolygonGeometry;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis;
+import fi.fmi.avi.model.swx.amd79.immutable.SpaceWeatherAdvisoryAmd79Impl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,22 +25,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
-import fi.fmi.avi.converter.AviMessageConverter;
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionResult;
-import fi.fmi.avi.converter.tac.TACTestConfiguration;
-import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
-import fi.fmi.avi.model.Geometry;
-import fi.fmi.avi.model.PolygonGeometry;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
-import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryImpl;
+import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
+import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -51,7 +47,7 @@ public class SWXTACSerializerTest {
     @Autowired
     private AviMessageConverter converter;
 
-    private SpaceWeatherAdvisory msg;
+    private SpaceWeatherAdvisoryAmd79 msg;
 
     @Before
     public void setup() throws Exception {
@@ -59,11 +55,11 @@ public class SWXTACSerializerTest {
         om.registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
 
         final String input = getInput("spacewx-A2-3.json");
-        msg = om.readValue(input, SpaceWeatherAdvisoryImpl.class);
+        msg = om.readValue(input, SpaceWeatherAdvisoryAmd79Impl.class);
     }
 
     private String getInput(final String fileName) throws IOException {
-        try (InputStream is = SWXReconstructorTest.class.getResourceAsStream(fileName)) {
+        try (final InputStream is = SWXReconstructorTest.class.getResourceAsStream(fileName)) {
             Objects.requireNonNull(is);
             return IOUtils.toString(is, "UTF-8");
         }
@@ -93,7 +89,7 @@ public class SWXTACSerializerTest {
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
-        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(expected, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> pojoResult = this.converter.convertMessage(expected, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
         assertFalse(pojoResult.getConvertedMessage().get().getRemarks().isPresent());
@@ -138,8 +134,8 @@ public class SWXTACSerializerTest {
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
-        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(original, TACConverter.TAC_TO_SWX_POJO);
-        for (ConversionIssue issue: pojoResult.getConversionIssues()) {
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> pojoResult = this.converter.convertMessage(original, TACConverter.TAC_TO_SWX_POJO);
+        for (final ConversionIssue issue : pojoResult.getConversionIssues()) {
             System.err.println("iss:"+ issue);
         }
         assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
@@ -175,7 +171,7 @@ public class SWXTACSerializerTest {
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
-        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
         final List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
@@ -210,7 +206,7 @@ public class SWXTACSerializerTest {
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
-        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
         final List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
@@ -239,7 +235,7 @@ public class SWXTACSerializerTest {
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
-        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
         final List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
@@ -268,7 +264,7 @@ public class SWXTACSerializerTest {
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
-        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
         final List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
@@ -296,7 +292,7 @@ public class SWXTACSerializerTest {
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
-        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> pojoResult = this.converter.convertMessage(tacMessage, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
         final List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
@@ -324,7 +320,7 @@ public class SWXTACSerializerTest {
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
-        final ConversionResult<SpaceWeatherAdvisory> pojoResult = this.converter.convertMessage(expected, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> pojoResult = this.converter.convertMessage(expected, TACConverter.TAC_TO_SWX_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
         assertFalse(pojoResult.getConvertedMessage().get().getRemarks().isPresent());
