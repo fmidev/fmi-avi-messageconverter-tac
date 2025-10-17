@@ -72,14 +72,14 @@ public class TACTestConfiguration {
     private AviMessageSpecificConverter<GenericMeteorologicalBulletin, String> genericBulletinJSONSerializer;
 
     @Autowired
-    private AviMessageSpecificConverter<String, SpaceWeatherAdvisoryAmd79> swxTACParser;
+    private AviMessageSpecificConverter<String, SpaceWeatherAdvisoryAmd79> swxAmd79TACParser;
 
     @Autowired
-    @Qualifier("swxSerializer")
-    private AviMessageSpecificConverter<SpaceWeatherAdvisoryAmd79, String> swxTACSerializer;
+    @Qualifier("swxAmd79Serializer")
+    private AviMessageSpecificConverter<SpaceWeatherAdvisoryAmd79, String> swxAmd79TACSerializer;
 
     @Autowired
-    private AviMessageSpecificConverter<SpaceWeatherAmd79Bulletin, String> swxBulletinTACSerializer;
+    private AviMessageSpecificConverter<SpaceWeatherAmd79Bulletin, String> swxAmd79BulletinTACSerializer;
 
     @Autowired
     private AviMessageSpecificConverter<String, SIGMET> sigmetTACParser;
@@ -116,13 +116,13 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(TACConverter.TAF_BULLETIN_POJO_TO_TAC, tafBulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.SIGMET_BULLETIN_POJO_TO_TAC, sigmetBulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.AIRMET_BULLETIN_POJO_TO_TAC, airmetBulletinTACSerializer);
-        p.setMessageSpecificConverter(TACConverter.SWX_BULLETIN_POJO_TO_TAC, swxBulletinTACSerializer);
+        p.setMessageSpecificConverter(TACConverter.SWX_AMD79_BULLETIN_POJO_TO_TAC, swxAmd79BulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, genericBulletinTACSerializer);
 
         p.setMessageSpecificConverter(JSONConverter.GENERIC_METEOROLOGICAL_BULLETIN_POJO_TO_JSON_STRING, genericBulletinJSONSerializer);
 
-        p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_POJO, swxTACParser);
-        p.setMessageSpecificConverter(TACConverter.SWX_POJO_TO_TAC, swxTACSerializer);
+        p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_AMD79_POJO, swxAmd79TACParser);
+        p.setMessageSpecificConverter(TACConverter.SWX_AMD79_POJO_TO_TAC, swxAmd79TACSerializer);
 
         p.setMessageSpecificConverter(TACConverter.TAC_TO_SIGMET_POJO, sigmetTACParser);
         p.setMessageSpecificConverter(TACConverter.SIGMET_POJO_TO_TAC, sigmetTACSerializer);

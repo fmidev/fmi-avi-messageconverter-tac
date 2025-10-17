@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
-public class SWXReconstructorTest {
+public class SWXAmd79ReconstructorTest {
 
     @Autowired
     private LexingFactory lexingFactory;
@@ -56,7 +56,7 @@ public class SWXReconstructorTest {
     }
 
     private String getInput(final String fileName) throws IOException {
-        try (final InputStream is = SWXReconstructorTest.class.getResourceAsStream(fileName)) {
+        try (final InputStream is = SWXAmd79ReconstructorTest.class.getResourceAsStream(fileName)) {
             Objects.requireNonNull(is);
             return IOUtils.toString(is, "UTF-8");
         }

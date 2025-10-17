@@ -22,7 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class SWXTACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd79> {
+public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd79> {
 
     /**
      * The vertical distance is measured with an altimeter set to the standard atmosphere.

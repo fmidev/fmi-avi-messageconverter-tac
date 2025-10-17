@@ -13,7 +13,7 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 
-public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisoryAmd79> {
+public class SWXAmd79TACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisoryAmd79> {
 
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {

@@ -8,11 +8,11 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAmd79Bulletin;
 
-public class SWXBulletinTACSerializer extends AbstractTACBulletinSerializer<SpaceWeatherAdvisoryAmd79, SpaceWeatherAmd79Bulletin> {
+public class SWXAmd79BulletinTACSerializer extends AbstractTACBulletinSerializer<SpaceWeatherAdvisoryAmd79, SpaceWeatherAmd79Bulletin> {
 
-    private SWXTACSerializer swxSerializer;
+    private SWXAmd79TACSerializer swxSerializer;
 
-    public void setSWXSerializer(final SWXTACSerializer serializer) {
+    public void setSWXAmd79Serializer(final SWXAmd79TACSerializer serializer) {
         this.swxSerializer = serializer;
     }
 
@@ -21,7 +21,7 @@ public class SWXBulletinTACSerializer extends AbstractTACBulletinSerializer<Spac
         if (message instanceof SpaceWeatherAmd79Bulletin) {
             return (SpaceWeatherAmd79Bulletin) message;
         } else {
-            throw new SerializingException("Can only serialize SpaceWeatherBulletins");
+            throw new SerializingException("Can only serialize " + getBulletinClass().getSimpleName());
         }
     }
 

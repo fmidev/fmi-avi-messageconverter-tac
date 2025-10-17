@@ -11,7 +11,7 @@ import fi.fmi.avi.converter.tac.metar.METARTACSerializer;
 import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.sigmet.SIGMETBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
-import fi.fmi.avi.converter.tac.swx.SWXTACSerializer;
+import fi.fmi.avi.converter.tac.swx.SWXAmd79TACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
@@ -34,7 +34,7 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
     private SIGMETBulletinTACSerializer sigmetBulletinSerializer;
     private AIRMETBulletinTACSerializer airmetBulletinSerializer;
     private GenericMeteorologicalBulletinTACSerializer genericBulletinSerializer;
-    private SWXTACSerializer swxTACSerializer;
+    private SWXAmd79TACSerializer swxAmd79TACSerializer;
     private SIGMETTACSerializer sigmetTACSerializer;
     private AIRMETTACSerializer airmetTACSerializer;
 
@@ -70,8 +70,8 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
         this.genericBulletinSerializer = serializer;
     }
 
-    public void setSWXTacSerializer(final SWXTACSerializer serializer) {
-        this.swxTACSerializer = serializer;
+    public void setSWXAmd79TacSerializer(final SWXAmd79TACSerializer serializer) {
+        this.swxAmd79TACSerializer = serializer;
     }
 
     public void setSIGMETTacSerializer(final SIGMETTACSerializer serializer) {
@@ -103,8 +103,8 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
             return this.airmetBulletinSerializer.tokenizeMessage(msg, hints);
         } else if (msg instanceof GenericMeteorologicalBulletin && this.genericBulletinSerializer != null) {
             return this.genericBulletinSerializer.tokenizeMessage(msg, hints);
-        } else if (msg instanceof SpaceWeatherAdvisoryAmd79 && this.swxTACSerializer != null) {
-            return this.swxTACSerializer.tokenizeMessage(msg, hints);
+        } else if (msg instanceof SpaceWeatherAdvisoryAmd79 && this.swxAmd79TACSerializer != null) {
+            return this.swxAmd79TACSerializer.tokenizeMessage(msg, hints);
         } else if (msg instanceof SIGMET && this.sigmetTACSerializer != null) {
             return this.sigmetTACSerializer.tokenizeMessage(msg, hints);
         } else if (msg instanceof AIRMET && this.airmetTACSerializer != null) {

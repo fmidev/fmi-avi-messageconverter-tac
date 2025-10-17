@@ -27,7 +27,7 @@ import static junit.framework.TestCase.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
-public class SWXBulletinTACSerializationTest {
+public class SWXAmd79BulletinTACSerializationTest {
 
     @Autowired
     private AviMessageConverter converter;
@@ -49,7 +49,7 @@ public class SWXBulletinTACSerializationTest {
                 + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" //
                 + "SEE WWW.PECASUS.ORG \n" //
                 + "NXT ADVISORY: WILL BE ISSUED BY 20161108/0700Z=";
-        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final Optional<SpaceWeatherAdvisoryAmd79> pojo = result.getConvertedMessage();
         assertTrue(pojo.isPresent());
@@ -65,7 +65,7 @@ public class SWXBulletinTACSerializationTest {
                 .addMessages(pojo.get())//
                 .build();
 
-        final ConversionResult<String> stringResult = this.converter.convertMessage(bulletin, TACConverter.SWX_BULLETIN_POJO_TO_TAC);
+        final ConversionResult<String> stringResult = this.converter.convertMessage(bulletin, TACConverter.SWX_AMD79_BULLETIN_POJO_TO_TAC);
         assertTrue(stringResult.getConversionIssues().isEmpty());
         assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
