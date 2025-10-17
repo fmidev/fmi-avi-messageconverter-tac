@@ -4,7 +4,6 @@ import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
@@ -12,9 +11,9 @@ import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 
-public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory> {
+public class SWXAmd79TACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisoryAmd79> {
 
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {
@@ -22,7 +21,7 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
     }
 
     @Override
-    public ConversionResult<String> convertMessage(final SpaceWeatherAdvisory input, final ConversionHints hints) {
+    public ConversionResult<String> convertMessage(final SpaceWeatherAdvisoryAmd79 input, final ConversionHints hints) {
         final ConversionResult<String> result = new ConversionResult<>();
         try {
             final LexemeSequence seq = tokenizeMessage(input, hints);
@@ -35,7 +34,7 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
 
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException {
-        if (!(msg instanceof SpaceWeatherAdvisory)) {
+        if (!(msg instanceof SpaceWeatherAdvisoryAmd79)) {
             throw new SerializingException("I can only tokenize Space weather advisories!");
         }
         int labelColumnWidth = 20;
@@ -44,86 +43,86 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
                 labelColumnWidth = (Integer) hints.get(ConversionHints.KEY_ADVISORY_LABEL_WIDTH);
             }
         }
-        final SpaceWeatherAdvisory input = (SpaceWeatherAdvisory) msg;
+        final SpaceWeatherAdvisoryAmd79 input = (SpaceWeatherAdvisoryAmd79) msg;
         final LexemeSequenceBuilder retval = this.getLexingFactory().createLexemeSequenceBuilder();
-        final ReconstructorContext<SpaceWeatherAdvisory> baseCtx = new ReconstructorContext<>(input, hints);
+        final ReconstructorContext<SpaceWeatherAdvisoryAmd79> baseCtx = new ReconstructorContext<>(input, hints);
 
-        if (appendToken(retval, LexemeIdentity.SPACE_WEATHER_ADVISORY_START, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.SPACE_WEATHER_ADVISORY_START, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
-        if (appendToken(retval, LexemeIdentity.ADVISORY_STATUS_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.ADVISORY_STATUS_LABEL, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
-        if (appendToken(retval, LexemeIdentity.ADVISORY_STATUS, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.ADVISORY_STATUS, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
-        if (appendToken(retval, LexemeIdentity.DTG_ISSUE_TIME_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.DTG_ISSUE_TIME_LABEL, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
-        if (appendToken(retval, LexemeIdentity.ISSUE_TIME, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.ISSUE_TIME, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
-        if (appendToken(retval, LexemeIdentity.SWX_CENTRE_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.SWX_CENTRE_LABEL, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
-        if (appendToken(retval, LexemeIdentity.SWX_CENTRE, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.SWX_CENTRE, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
-        if (appendToken(retval, LexemeIdentity.ADVISORY_NUMBER_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.ADVISORY_NUMBER_LABEL, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
-        if (appendToken(retval, LexemeIdentity.ADVISORY_NUMBER, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.ADVISORY_NUMBER, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
-        if (appendToken(retval, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
-        if (appendToken(retval, LexemeIdentity.REPLACE_ADVISORY_NUMBER, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.REPLACE_ADVISORY_NUMBER, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
-        if (appendToken(retval, LexemeIdentity.SWX_EFFECT_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.SWX_EFFECT_LABEL, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
-        if (appendToken(retval, LexemeIdentity.SWX_EFFECT, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.SWX_EFFECT, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
         for (int i = 0; i < input.getAnalyses().size(); i++) {
-            final ReconstructorContext<SpaceWeatherAdvisory> analysisContext = baseCtx.copyWithParameter("analysisIndex", i);
+            final ReconstructorContext<SpaceWeatherAdvisoryAmd79> analysisContext = baseCtx.copyWithParameter("analysisIndex", i);
 
-            if (appendToken(retval, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+            if (appendToken(retval, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, input, SpaceWeatherAdvisoryAmd79.class, analysisContext) > 0) {
                 appendSpacePadding(retval, labelColumnWidth);
             }
 
-            if (appendToken(retval, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+            if (appendToken(retval, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, input, SpaceWeatherAdvisoryAmd79.class, analysisContext) > 0) {
                 appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
 
-            if (appendToken(retval, LexemeIdentity.SWX_NOT_EXPECTED, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+            if (appendToken(retval, LexemeIdentity.SWX_NOT_EXPECTED, input, SpaceWeatherAdvisoryAmd79.class, analysisContext) > 0) {
                 appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
-            if (appendToken(retval, LexemeIdentity.SWX_NOT_AVAILABLE, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+            if (appendToken(retval, LexemeIdentity.SWX_NOT_AVAILABLE, input, SpaceWeatherAdvisoryAmd79.class, analysisContext) > 0) {
                 appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
-            if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
-                appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
-            }
-
-            if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+            if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, input, SpaceWeatherAdvisoryAmd79.class, analysisContext) > 0) {
                 appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
 
-            if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+            if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, input, SpaceWeatherAdvisoryAmd79.class, analysisContext) > 0) {
                 appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
 
-            if (appendToken(retval, LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SpaceWeatherAdvisory.class, analysisContext) > 0) {
+            if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT, input, SpaceWeatherAdvisoryAmd79.class, analysisContext) > 0) {
+                appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
+            }
+
+            if (appendToken(retval, LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SpaceWeatherAdvisoryAmd79.class, analysisContext) > 0) {
                 appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
             if (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
@@ -132,25 +131,25 @@ public class SWXTACSerializer extends AbstractTACSerializer<SpaceWeatherAdvisory
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
-        appendToken(retval, LexemeIdentity.REMARKS_START, input, SpaceWeatherAdvisory.class, baseCtx);
+        appendToken(retval, LexemeIdentity.REMARKS_START, input, SpaceWeatherAdvisoryAmd79.class, baseCtx);
         appendSpacePadding(retval, labelColumnWidth);
         if (input.getRemarks().isPresent()) {
             for (final String remark : input.getRemarks().get()) {
-                this.appendToken(retval, LexemeIdentity.REMARK, input, SpaceWeatherAdvisory.class, baseCtx.copyWithParameter("remark", remark));
+                this.appendToken(retval, LexemeIdentity.REMARK, input, SpaceWeatherAdvisoryAmd79.class, baseCtx.copyWithParameter("remark", remark));
                 appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
             }
             if (retval.getLast().isPresent() && LexemeIdentity.WHITE_SPACE.equals(retval.getLast().get().getIdentity())) {
                 retval.removeLast(); // last whitespace removed
             }
         } else {
-            this.appendToken(retval, LexemeIdentity.REMARK, input, SpaceWeatherAdvisory.class, baseCtx.copyWithParameter("remark", "NIL"));
+            this.appendToken(retval, LexemeIdentity.REMARK, input, SpaceWeatherAdvisoryAmd79.class, baseCtx.copyWithParameter("remark", "NIL"));
         }
         appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
         appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
-        if (appendToken(retval, LexemeIdentity.NEXT_ADVISORY_LABEL, input, SpaceWeatherAdvisory.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.NEXT_ADVISORY_LABEL, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
-        appendToken(retval, LexemeIdentity.NEXT_ADVISORY, input, SpaceWeatherAdvisory.class, baseCtx);
+        appendToken(retval, LexemeIdentity.NEXT_ADVISORY, input, SpaceWeatherAdvisoryAmd79.class, baseCtx);
         retval.append(this.getLexingFactory().createLexeme("=", LexemeIdentity.END_TOKEN));
         return retval.build();
     }

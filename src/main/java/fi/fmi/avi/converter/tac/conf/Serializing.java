@@ -1,130 +1,40 @@
 package fi.fmi.avi.converter.tac.conf;
 
-import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
-import fi.fmi.avi.model.sigmet.AIRMET;
-import fi.fmi.avi.model.sigmet.AIRMETBulletin;
-import fi.fmi.avi.model.sigmet.SIGMET;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.airmet.AIRMETBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.airmet.AIRMETTACSerializer;
 import fi.fmi.avi.converter.tac.bulletin.GenericMeteorologicalBulletinTACSerializer;
-import fi.fmi.avi.converter.tac.sigmet.SIGMETBulletinTACSerializer;
-import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.AviMessageTACTokenizerImpl;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumber;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryNumberLabel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryPhenomenaTimeGroup;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryRemarkStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatus;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AdvisoryStatusLabel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AirDewpointTemperature;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Amendment;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AtmosphericPressureQNH;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AutoMetar;
-import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeaderDataDesignators;
-import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinHeadingBBBIndicator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.BulletinLocationIndicator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.CAVOK;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Cancellation;
-import fi.fmi.avi.converter.tac.lexer.impl.token.CloudLayer;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ColorCode;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Correction;
-import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTime;
-import fi.fmi.avi.converter.tac.lexer.impl.token.EndToken;
-import fi.fmi.avi.converter.tac.lexer.impl.token.FIRDesignator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.FIRName;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ForecastMaxMinTemperature;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ICAOCode;
-import fi.fmi.avi.converter.tac.lexer.impl.token.IssueTime;
-import fi.fmi.avi.converter.tac.lexer.impl.token.MWODesignator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.MetarStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.MetricHorizontalVisibility;
-import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory;
-import fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisoryLabel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Nil;
-import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantChanges;
-import fi.fmi.avi.converter.tac.lexer.impl.token.NoSignificantWeather;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AirSigmetObsOrForecast;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AirmetCancel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AirmetPhenomenon;
-import fi.fmi.avi.converter.tac.lexer.impl.token.AirmetStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetPhenomenon;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetTacElement;
-import fi.fmi.avi.converter.tac.lexer.impl.token.PolygonCoordinatePair;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Remark;
-import fi.fmi.avi.converter.tac.lexer.impl.token.RemarkStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumber;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ReplaceAdvisoryNumberLabel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.RoutineDelayedObservation;
-import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayState;
-import fi.fmi.avi.converter.tac.lexer.impl.token.RunwayVisualRange;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXAdvisoryStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenter;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXCenterLabel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffect;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXEffectLabel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.DTGIssueTimeLabel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotAvailable;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXNotExpected;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenonmenonLongitudeLimit;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPresetLocation;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SWXVerticalLimit;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SeaState;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetAnd;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetCancel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetEntireFir;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetForecastAt;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetIntensity;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetLevel;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetMoving;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetNoVaExp;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetSequenceDescriptor;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetUsage;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaEruption;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaName;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetVaPosition;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetValidTime;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetWithin;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SigmetWithinRadius;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SnowClosure;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SpeciStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.SurfaceWind;
-import fi.fmi.avi.converter.tac.lexer.impl.token.TAFChangeForecastTimeGroup;
-import fi.fmi.avi.converter.tac.lexer.impl.token.TAFForecastChangeIndicator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.TAFStart;
-import fi.fmi.avi.converter.tac.lexer.impl.token.TrendChangeIndicator;
-import fi.fmi.avi.converter.tac.lexer.impl.token.TrendTimeGroup;
-import fi.fmi.avi.converter.tac.lexer.impl.token.ValidTime;
-import fi.fmi.avi.converter.tac.lexer.impl.token.VariableSurfaceWind;
-import fi.fmi.avi.converter.tac.lexer.impl.token.Weather;
-import fi.fmi.avi.converter.tac.lexer.impl.token.WindShear;
+import fi.fmi.avi.converter.tac.lexer.impl.token.*;
 import fi.fmi.avi.converter.tac.metar.METARTACSerializer;
 import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
-import fi.fmi.avi.converter.tac.swx.SWXBulletinTACSerializer;
-import fi.fmi.avi.converter.tac.swx.SWXTACSerializer;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETBulletinTACSerializer;
+import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
+import fi.fmi.avi.converter.tac.swx.SWXAmd79BulletinTACSerializer;
+import fi.fmi.avi.converter.tac.swx.SWXAmd79TACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
+import fi.fmi.avi.model.sigmet.AIRMET;
+import fi.fmi.avi.model.sigmet.AIRMETBulletin;
+import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherBulletin;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAmd79Bulletin;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * TAC converter serializing Spring configuration.
@@ -209,16 +119,16 @@ public class Serializing {
     }
 
     @Bean
-    @Qualifier("swxSerializer")
-    AviMessageSpecificConverter<SpaceWeatherAdvisory, String> swxTACSerializer() {
-        return spawnSWXTACSerializer();
+    @Qualifier("swxAmd79Serializer")
+    AviMessageSpecificConverter<SpaceWeatherAdvisoryAmd79, String> swxAmd79TACSerializer() {
+        return spawnSWXAmd79TACSerializer();
     }
 
     @Bean
-    AviMessageSpecificConverter<SpaceWeatherBulletin, String> swxBulletinTACSerializer() {
-        final SWXBulletinTACSerializer s = new SWXBulletinTACSerializer();
+    AviMessageSpecificConverter<SpaceWeatherAmd79Bulletin, String> swxAmd79BulletinTACSerializer() {
+        final SWXAmd79BulletinTACSerializer s = new SWXAmd79BulletinTACSerializer();
         addCommonBulletinReconstructors(s);
-        s.setSWXSerializer(spawnSWXTACSerializer());
+        s.setSWXAmd79Serializer(spawnSWXAmd79TACSerializer());
         return s;
     }
 
@@ -233,7 +143,7 @@ public class Serializing {
         tokenizer.setSIGMETBulletinSerializer((SIGMETBulletinTACSerializer) sigmetBulletinTACSerializer());
         tokenizer.setAIRMETBulletinSerializer((AIRMETBulletinTACSerializer) airmetBulletinTACSerializer());
         tokenizer.setGenericBulletinSerializer((GenericMeteorologicalBulletinTACSerializer) genericBulletinTACSerializer());
-        tokenizer.setSWXTacSerializer((SWXTACSerializer) swxTACSerializer());
+        tokenizer.setSWXAmd79TacSerializer((SWXAmd79TACSerializer) swxAmd79TACSerializer());
         tokenizer.setSIGMETTacSerializer((SIGMETTACSerializer) sigmetTACSerializer());
         tokenizer.setAIRMETTacSerializer((AIRMETTACSerializer) airmetTACSerializer());
         return tokenizer;
@@ -302,10 +212,10 @@ public class Serializing {
         return s;
     }
 
-    // Creates an instance of the SWXTACSerializer to be used for two separate bean instances
-    // (swxTACSerializer and swxBulletinTACSerializer):
-    private SWXTACSerializer spawnSWXTACSerializer() {
-        final SWXTACSerializer s = new SWXTACSerializer();
+    // Creates an instance of the SWXAmd79TACSerializer to be used for two separate bean instances
+    // (swxAmd79TACSerializer and swxAmd79BulletinTACSerializer):
+    private SWXAmd79TACSerializer spawnSWXAmd79TACSerializer() {
+        final SWXAmd79TACSerializer s = new SWXAmd79TACSerializer();
         s.setLexingFactory(lexingFactory);
         s.addReconstructor(LexemeIdentity.SPACE_WEATHER_ADVISORY_START, new SWXAdvisoryStart.Reconstructor());
         s.addReconstructor(LexemeIdentity.DTG_ISSUE_TIME_LABEL, new DTGIssueTimeLabel.Reconstructor());

@@ -1,28 +1,5 @@
 package fi.fmi.avi.converter.tac.swx;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
-
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
@@ -31,18 +8,27 @@ import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
-import fi.fmi.avi.model.swx.AirspaceVolume;
-import fi.fmi.avi.model.swx.NextAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
-import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
-import fi.fmi.avi.model.swx.SpaceWeatherRegion;
-import fi.fmi.avi.model.swx.immutable.IssuingCenterImpl;
-import fi.fmi.avi.model.swx.immutable.SpaceWeatherAdvisoryImpl;
+import fi.fmi.avi.model.swx.amd79.*;
+import fi.fmi.avi.model.swx.amd79.immutable.IssuingCenterImpl;
+import fi.fmi.avi.model.swx.amd79.immutable.SpaceWeatherAdvisoryAmd79Impl;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
-public class SWXTACParserTest {
+public class SWXAmd79TACParserTest {
 
     @Autowired
     private AviMessageConverter converter;
@@ -71,13 +57,13 @@ public class SWXTACParserTest {
     public void testParser1() throws Exception {
         final String input = getInput("spacewx-A2-3.tac");
 
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
 
         assertEquals(0, result.getConversionIssues().size());
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         assertTrue(result.getConvertedMessage().isPresent());
 
-        final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        final SpaceWeatherAdvisoryAmd79 swx = result.getConvertedMessage().get();
         assertEquals(swx.getPermissibleUsageReason().get(), AviationCodeListUser.PermissibleUsageReason.EXERCISE);
         assertEquals(swx.getIssuingCenter().getName().get(), "DONLON");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 2);
@@ -121,13 +107,13 @@ public class SWXTACParserTest {
     public void testParser2() throws Exception {
         final String input = getInput("spacewx-A2-4.tac");
 
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
 
         assertEquals(0, result.getConversionIssues().size());
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         assertTrue(result.getConvertedMessage().isPresent());
 
-        final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        final SpaceWeatherAdvisoryAmd79 swx = result.getConvertedMessage().get();
         assertTrue(swx.getPermissibleUsage().isPresent());
         assertEquals(AviationCodeListUser.PermissibleUsage.NON_OPERATIONAL, swx.getPermissibleUsage().get());
         assertEquals(AviationCodeListUser.PermissibleUsageReason.TEST, swx.getPermissibleUsageReason().get());
@@ -187,11 +173,11 @@ public class SWXTACParserTest {
     @Test
     public void testAdvancedMessage() throws IOException {
         final String input = getInput("spacewx-advanced.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         assertTrue(result.getConvertedMessage().isPresent());
 
-        final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        final SpaceWeatherAdvisoryAmd79 swx = result.getConvertedMessage().get();
         assertTrue(swx.getIssuingCenter().getName().isPresent());
         assertEquals(swx.getIssuingCenter().getName().get(), "PECASUS");
         assertEquals(swx.getAdvisoryNumber().getSerialNumber(), 1);
@@ -298,7 +284,7 @@ public class SWXTACParserTest {
     @Test
     public void testBadMessage() throws IOException {
         final String input = getInput("spacewx-pecasus-notavbl.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(ConversionResult.Status.FAIL, result.getStatus());
         assertEquals(16, result.getConversionIssues().size());
         assertFalse(result.getConvertedMessage().isPresent());
@@ -308,14 +294,14 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidMinimalMessage() throws IOException {
         final String input = getInput("spacewx-invalid-minimal.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConversionIssues().size() > 0);
     }
 
     @Test
     public void testInvalidMissingEndToken() throws IOException {
         final String input = getInput("spacewx-invalid-missing-end-token.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(1, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
         assertEquals("Message does not end in end token", result.getConversionIssues().get(0).getMessage());
@@ -324,7 +310,7 @@ public class SWXTACParserTest {
     @Test
     public void testEndTokenAtEndAndRandomPlace() throws IOException {
         final String input = getInput("spacewx-invalid-end-token-at-end-and-elsewhere.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertFalse(result.getConvertedMessage().isPresent());
         assertEquals(1, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
@@ -334,7 +320,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidStatusLabel() throws IOException {
         final String input = getInput("spacewx-invalid-status-label.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(3, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
         assertTrue(result.getConversionIssues().get(0).getMessage().contains("Input message lexing was not fully successful"));
@@ -343,7 +329,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidEmptyStatus() throws IOException {
         final String input = getInput("spacewx-invalid-status-empty.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(12, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(3).getType());
         assertTrue(result.getConversionIssues()
@@ -355,7 +341,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidRemarkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-remark-label.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(36, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
         assertTrue(result.getConversionIssues().get(0).getMessage().contains("Input message lexing was not fully successful"));
@@ -364,7 +350,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidRmkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-rmk-label.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(6, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(1).getType());
         assertEquals("Lexing problem with 'RMK'", result.getConversionIssues().get(1).getMessage());
@@ -376,7 +362,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidReplaceNumberLabel() throws IOException {
         final String input = getInput("spacewx-invalid-replace-number-label.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(4, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
         assertTrue(result.getConversionIssues().get(0).getMessage().contains("Input message lexing was not fully successful"));
@@ -385,7 +371,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidNextAdvisoryLabelWithoutRemarks() throws IOException {
         final String input = getInput("spacewx-invalid-next-advisory-label.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(8, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
         assertTrue(result.getConversionIssues().get(0).getMessage().contains("Input message lexing was not fully successful"));
@@ -394,7 +380,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidAdvisoryNumber() throws IOException {
         final String input = getInput("spacewx-invalid-advisory-number.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(4, result.getConversionIssues().size());
         final ConversionIssue issue = result.getConversionIssues().get(2);
         assertEquals(ConversionIssue.Type.MISSING_DATA, issue.getType());
@@ -405,7 +391,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidReplaceNumber() throws IOException {
         final String input = getInput("spacewx-invalid-replace-number.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(3, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Type.MISSING_DATA, result.getConversionIssues().get(2).getType());
         assertTrue(result.getConversionIssues().get(2).getMessage().contains("Replace advisory number is missing"));
@@ -414,7 +400,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidEndTokenMisplaced() throws IOException {
         final String input = getInput("spacewx-invalid-misplaced-end-token.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(1, result.getConversionIssues().size());
         assertEquals(ConversionIssue.Severity.ERROR, result.getConversionIssues().get(0).getSeverity());
         assertEquals(ConversionIssue.Type.SYNTAX, result.getConversionIssues().get(0).getType());
@@ -424,7 +410,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidDuplicateSwxc() throws IOException {
         final String input = getInput("spacewx-invalid-duplicate-swxc.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(1, result.getConversionIssues().size());
         final ConversionIssue issue = result.getConversionIssues().get(0);
         assertEquals(ConversionIssue.Severity.ERROR, issue.getSeverity());
@@ -437,7 +423,7 @@ public class SWXTACParserTest {
         final String input = getInput("spacewx-invalid-missing-latitude-bands.tac");
         final List<Double> worldPolygonCoords = Arrays.asList(-90d, -180d, 90d, -180d, 90d, 180d, -90d, 180d, -90d, -180d);
 
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(4, result.getConversionIssues().size());
         assertTrue(result.getConversionIssues().stream()//
                 .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.WARNING && issue.getType() == ConversionIssue.Type.MISSING_DATA));
@@ -471,7 +457,7 @@ public class SWXTACParserTest {
         final String input = getInput("spacewx-invalid-missing-latitude-bands-longitudes.tac");
         final List<Double> worldPolygonCoords = Arrays.asList(-90d, -180d, 90d, -180d, 90d, 180d, -90d, 180d, -90d, -180d);
 
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(4, result.getConversionIssues().size());
         assertTrue(result.getConversionIssues().stream()//
                 .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.WARNING && issue.getType() == ConversionIssue.Type.MISSING_DATA));
@@ -521,7 +507,7 @@ public class SWXTACParserTest {
 
                 final String modifiedTac = String.join("\n", modifiedList) + "=";
                 if (!comparisonTac.equals(modifiedTac)) {
-                    final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(modifiedTac, TACConverter.TAC_TO_SWX_POJO);
+                    final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(modifiedTac, TACConverter.TAC_TO_SWX_AMD79_POJO);
                     if (result.getConversionIssues().isEmpty()) {
                         fail("Invalid token order not detected for TAC:\n" + modifiedTac);
                     }
@@ -533,7 +519,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidTokenOrder2() throws IOException {
         final String input = getInput("spacewx-invalid-token-order.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(10, result.getConversionIssues().size());
         assertTrue(result.getConversionIssues().stream()//
                 .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.ERROR && issue.getType() == ConversionIssue.Type.SYNTAX && issue.getMessage()
@@ -543,7 +529,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidTokenOrder3() throws IOException {
         final String input = getInput("spacewx-invalid-token-order-fcst.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(4, result.getConversionIssues().size());
         assertTrue(result.getConversionIssues().stream()//
                 .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.ERROR && issue.getType() == ConversionIssue.Type.SYNTAX && issue.getMessage()
@@ -553,7 +539,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidPhenomenonTokenOrder() throws IOException {
         final String input = getInput("spacewx-invalid-phenomenon-token-order.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(2, result.getConversionIssues().size());
 
         final ConversionIssue obsIssue = result.getConversionIssues().get(0);
@@ -572,7 +558,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidForecastHours() throws IOException {
         final String input = getInput("spacewx-invalid-forecast-hours.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertEquals(4, result.getConversionIssues().size());
         assertTrue(result.getConversionIssues().stream()//
                 .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.ERROR && issue.getType() == ConversionIssue.Type.SYNTAX));
@@ -586,7 +572,7 @@ public class SWXTACParserTest {
     public void testLatitudeBands() throws IOException {
         final String input = getInput("spacewx-latitude-bands.tac");
         final List<Double> expected = Arrays.asList(30.0, -150.0, 0.0, -150.0, 0.0, -30.0, 30.0, -30.0, 30.0, -150.0);
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
@@ -596,41 +582,41 @@ public class SWXTACParserTest {
     @Test
     public void testIssuingCenter() throws IOException {
         final String input = getInput("spacewx-nil-remark.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
 
         final IssuingCenterImpl expected = IssuingCenterImpl.builder()//
                 .setName("DONLON")//
                 .setType("OTHER:SWXC")//
                 .build();
         assertTrue(result.getConvertedMessage().isPresent());
-        final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        final SpaceWeatherAdvisoryAmd79 swx = result.getConvertedMessage().get();
         assertEquals(expected, swx.getIssuingCenter());
     }
 
     @Test
     public void testNilRemark() throws IOException {
         final String input = getInput("spacewx-nil-remark.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConvertedMessage().isPresent());
-        final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        final SpaceWeatherAdvisoryAmd79 swx = result.getConvertedMessage().get();
         assertFalse(swx.getRemarks().isPresent());
     }
 
     @Test
     public void testDoubleNilRemark() throws IOException {
         final String input = getInput("spacewx-double-nil-remark.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConvertedMessage().isPresent());
-        final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        final SpaceWeatherAdvisoryAmd79 swx = result.getConvertedMessage().get();
         assertTrue(swx.getRemarks().isPresent());
     }
 
     @Test
     public void testOperationalPermissibleUsage() throws IOException {
         final String input = getInput("spacewx-pecasus-noswx.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConvertedMessage().isPresent());
-        final SpaceWeatherAdvisory swx = result.getConvertedMessage().get();
+        final SpaceWeatherAdvisoryAmd79 swx = result.getConvertedMessage().get();
         assertFalse(swx.getPermissibleUsageReason().isPresent());
         assertTrue(swx.getPermissibleUsage().isPresent());
         assertEquals(AviationCodeListUser.PermissibleUsage.OPERATIONAL, swx.getPermissibleUsage().get());
@@ -640,7 +626,7 @@ public class SWXTACParserTest {
     public void testCoordinatePair() throws Exception {
         final String input = getInput("spacewx-coordinate-list.tac");
         final List<Double> expected = Arrays.asList(20.0, -105.0, 20.0, 30.0, -40.0, 30.0, -40.0, -105.0, 20.0, -105.0);
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         assertEquals(1, analysis.getRegions().size());
@@ -652,23 +638,23 @@ public class SWXTACParserTest {
     public void testLongitudesWithoutSpacesAroundDashes() throws Exception {
         final String spacedInput = getInput("spacewx-latitude-bands.tac");
         final String spacelessInput = getInput("spacewx-latitude-bands-longitudes-spaceless.tac");
-        final ConversionResult<SpaceWeatherAdvisory> spacedResult = this.converter.convertMessage(spacedInput, TACConverter.TAC_TO_SWX_POJO);
-        final ConversionResult<SpaceWeatherAdvisory> spacelessResult = this.converter.convertMessage(spacelessInput, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> spacedResult = this.converter.convertMessage(spacedInput, TACConverter.TAC_TO_SWX_AMD79_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> spacelessResult = this.converter.convertMessage(spacelessInput, TACConverter.TAC_TO_SWX_AMD79_POJO);
 
         assertTrue(spacedResult.getConversionIssues().isEmpty());
         assertTrue(spacelessResult.getConversionIssues().isEmpty());
         assertTrue(spacedResult.getConvertedMessage().isPresent());
         assertTrue(spacelessResult.getConvertedMessage().isPresent());
 
-        final SpaceWeatherAdvisory spaced = SpaceWeatherAdvisoryImpl.Builder.from(spacedResult.getConvertedMessage().get()).setTranslatedTAC("").build();
-        final SpaceWeatherAdvisory spaceless = SpaceWeatherAdvisoryImpl.Builder.from(spacelessResult.getConvertedMessage().get()).setTranslatedTAC("").build();
+        final SpaceWeatherAdvisoryAmd79 spaced = SpaceWeatherAdvisoryAmd79Impl.Builder.from(spacedResult.getConvertedMessage().get()).setTranslatedTAC("").build();
+        final SpaceWeatherAdvisoryAmd79 spaceless = SpaceWeatherAdvisoryAmd79Impl.Builder.from(spacelessResult.getConvertedMessage().get()).setTranslatedTAC("").build();
         assertEquals(spaced, spaceless);
     }
 
     @Test
     public void testDaylightSide() throws Exception {
         final String input = getInput("spacewx-daylight-side.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         assertEquals(1, analysis.getRegions().size());
@@ -683,7 +669,7 @@ public class SWXTACParserTest {
     public void testPrecisePolygonCoordinates() throws Exception {
         final String input = getInput("spacewx-precise-polygon-coordinates.tac");
         final List<Double> expected = Arrays.asList(-20.0, -170.0, -20.0, -130.0, -10.0, -130.0, -10.0, -170.0, -20.0, -170.0);
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         assertEquals(1, analysis.getRegions().size());
@@ -695,7 +681,7 @@ public class SWXTACParserTest {
     public void testPrecisePolygonCoordinates2() throws Exception {
         final String input = getInput("spacewx-precise-polygon-coordinates-2.tac");
         final List<Double> expected = Arrays.asList(-20.0, -170.4, -20.1, -130.9, -10.9, -130.1, -11.1, -170.9, -20.0, -170.0);
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         assertEquals(1, analysis.getRegions().size());
@@ -707,7 +693,7 @@ public class SWXTACParserTest {
     public void testPolygonCoordinateLeniency() throws Exception {
         final String input = getInput("spacewx-invalid-polygon-coordinates.tac");
         final List<Double> expected = Arrays.asList(-20.0, -170.0, -20.0, -130.0, -10.0, -130.0, -10.0, -170.0, -20.0, -170.0);
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         assertEquals(1, analysis.getRegions().size());
@@ -718,7 +704,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidIssueTimeDay() throws IOException {
         final String input = getInput("spacewx-invalid-issue-time-day.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertFalse(result.getConversionIssues().isEmpty());
         assertTrue(result.getConversionIssues().stream()//
                 .anyMatch(issue -> issue.getType() == ConversionIssue.Type.SYNTAX //
@@ -729,7 +715,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidIssueTimeHour() throws IOException {
         final String input = getInput("spacewx-invalid-issue-time-hour.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertFalse(result.getConversionIssues().isEmpty());
         assertTrue(result.getConversionIssues().stream()//
                 .anyMatch(issue -> issue.getType() == ConversionIssue.Type.SYNTAX //
@@ -740,7 +726,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidNextAdvisoryMonth() throws IOException {
         final String input = getInput("spacewx-invalid-nxt-advisory-month.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertFalse(result.getConversionIssues().isEmpty());
         assertTrue(result.getConversionIssues().stream()//
                 .anyMatch(issue -> issue.getType() == ConversionIssue.Type.MISSING_DATA//
@@ -751,7 +737,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidNextAdvisoryDayZero() throws IOException {
         final String input = getInput("spacewx-invalid-nxt-advisory-day-zero.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertFalse(result.getConversionIssues().isEmpty());
         assertTrue(result.getConversionIssues().stream()//
                 .anyMatch(issue -> issue.getType() == ConversionIssue.Type.MISSING_DATA//
@@ -762,7 +748,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidNextAdvisoryDay33() throws IOException {
         final String input = getInput("spacewx-invalid-nxt-advisory-day-33.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertFalse(result.getConversionIssues().isEmpty());
         assertTrue(result.getConversionIssues().stream()//
                 .anyMatch(issue -> issue.getType() == ConversionIssue.Type.MISSING_DATA//
@@ -773,7 +759,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidNextAdvisoryHour() throws IOException {
         final String input = getInput("spacewx-invalid-nxt-advisory-hour.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertFalse(result.getConversionIssues().isEmpty());
         assertTrue(result.getConversionIssues().stream()//
                 .anyMatch(issue -> issue.getType() == ConversionIssue.Type.MISSING_DATA//
@@ -784,7 +770,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidObservationDay() throws IOException {
         final String input = getInput("spacewx-invalid-obs-day.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertFalse(result.getConversionIssues().isEmpty());
         assertTrue(result.getConversionIssues().stream()//
                 .anyMatch(issue -> issue.getType() == ConversionIssue.Type.SYNTAX//
@@ -795,7 +781,7 @@ public class SWXTACParserTest {
     @Test
     public void testInvalidObservationTime() throws IOException {
         final String input = getInput("spacewx-invalid-obs-hour.tac");
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertFalse(result.getConversionIssues().isEmpty());
         assertTrue(result.getConversionIssues().stream()//
                 .anyMatch(issue -> issue.getType() == ConversionIssue.Type.SYNTAX//
@@ -804,7 +790,7 @@ public class SWXTACParserTest {
     }
 
     private String getInput(final String fileName) throws IOException {
-        try (InputStream is = SWXReconstructorTest.class.getResourceAsStream(fileName)) {
+        try (final InputStream is = SWXAmd79ReconstructorTest.class.getResourceAsStream(fileName)) {
             Objects.requireNonNull(is);
             return IOUtils.toString(is, "UTF-8");
         }

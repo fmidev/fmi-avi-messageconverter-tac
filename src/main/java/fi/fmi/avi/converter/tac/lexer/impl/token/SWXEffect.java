@@ -1,9 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -12,8 +8,12 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherPhenomenon;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherPhenomenon;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
 
 public class SWXEffect extends RegexMatchingLexemeVisitor {
     public SWXEffect(final OccurrenceFrequency prio) {
@@ -33,8 +33,8 @@ public class SWXEffect extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             final List<Lexeme> retval = new ArrayList<>();
 
-            if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                final List<SpaceWeatherPhenomenon> phenomena = ((SpaceWeatherAdvisory) msg).getPhenomena();
+            if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
+                final List<SpaceWeatherPhenomenon> phenomena = ((SpaceWeatherAdvisoryAmd79) msg).getPhenomena();
 
                 if (phenomena.size() < 1) {
                     throw new SerializingException("There are no space weather phenomena");

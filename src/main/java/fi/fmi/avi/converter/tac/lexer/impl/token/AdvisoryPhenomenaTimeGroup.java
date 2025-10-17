@@ -1,14 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import java.time.DateTimeException;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalAccessor;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -18,8 +9,17 @@ import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisoryAnalysis;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis;
+
+import java.time.DateTimeException;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.regex.Matcher;
 
 public class AdvisoryPhenomenaTimeGroup extends RegexMatchingLexemeVisitor {
 
@@ -57,10 +57,10 @@ public class AdvisoryPhenomenaTimeGroup extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
-            if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
+            if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
                 final Optional<Integer> index = ctx.getParameter("analysisIndex", Integer.class);
                 if (index.isPresent()) {
-                    final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisory) msg).getAnalyses().get(index.get());
+                    final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd79) msg).getAnalyses().get(index.get());
                     final StringBuilder builder = new StringBuilder();
                     final PartialOrCompleteTimeInstant timeInstant = analysis.getTime();
                     if (timeInstant.getCompleteTime().isPresent()) {

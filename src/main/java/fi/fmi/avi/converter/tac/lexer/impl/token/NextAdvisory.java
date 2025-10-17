@@ -1,12 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import java.time.DateTimeException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -15,7 +8,14 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+
+import java.time.DateTimeException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.regex.Matcher;
 
 public class NextAdvisory extends TimeHandlingRegex {
     public NextAdvisory(final OccurrenceFrequency prio) {
@@ -33,13 +33,13 @@ public class NextAdvisory extends TimeHandlingRegex {
                 type = type == null ? match.group("type") : type;
 
                 if (type == null) {
-                    token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_AT);
+                    token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.NEXT_ADVISORY_AT);
                     setParsedDateValues(token, match);
                 } else if (type.trim().equalsIgnoreCase("WILL BE ISSUED BY")) {
-                    token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_BY);
+                    token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.NEXT_ADVISORY_BY);
                     setParsedDateValues(token, match);
                 } else {
-                    token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES);
+                    token.setParsedValue(Lexeme.ParsedValueName.TYPE, fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.NO_FURTHER_ADVISORIES);
                 }
             }
         }
@@ -70,15 +70,15 @@ public class NextAdvisory extends TimeHandlingRegex {
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
-            if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                final fi.fmi.avi.model.swx.NextAdvisory nextAdvisory = ((SpaceWeatherAdvisory) msg).getNextAdvisory();
+            if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
+                final fi.fmi.avi.model.swx.amd79.NextAdvisory nextAdvisory = ((SpaceWeatherAdvisoryAmd79) msg).getNextAdvisory();
                 if (nextAdvisory == null) {
                     throw new SerializingException("Next advisory is missing");
                 }
                 final StringBuilder builder = new StringBuilder();
-                if (nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NEXT_ADVISORY_BY)) {
+                if (nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.NEXT_ADVISORY_BY)) {
                     builder.append("WILL BE ISSUED BY ");
-                } else if (nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.NextAdvisory.Type.NO_FURTHER_ADVISORIES)) {
+                } else if (nextAdvisory.getTimeSpecifier().equals(fi.fmi.avi.model.swx.amd79.NextAdvisory.Type.NO_FURTHER_ADVISORIES)) {
                     builder.append("NO FURTHER ADVISORIES");
                 }
                 nextAdvisory.getTime()//

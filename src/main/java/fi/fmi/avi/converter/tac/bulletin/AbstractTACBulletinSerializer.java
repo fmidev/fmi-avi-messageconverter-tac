@@ -10,7 +10,7 @@ import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 
 import java.util.List;
 
@@ -134,7 +134,7 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
     }
 
     private boolean isAdvisory(final S message) {
-        return SpaceWeatherAdvisory.class.isAssignableFrom(message.getClass());
+        return SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(message.getClass());
     }
 
     private boolean isSpecialCharacterLexeme(final Lexeme lexeme, final MeteorologicalBulletinSpecialCharacter specialCharacter) {

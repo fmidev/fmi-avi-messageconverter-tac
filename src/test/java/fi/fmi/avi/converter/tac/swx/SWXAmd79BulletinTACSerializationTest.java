@@ -1,19 +1,5 @@
 package fi.fmi.avi.converter.tac.swx;
 
-import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
-import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-
-import java.util.Optional;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
@@ -22,13 +8,26 @@ import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.bulletin.BulletinHeading;
 import fi.fmi.avi.model.bulletin.DataTypeDesignatorT2;
 import fi.fmi.avi.model.bulletin.immutable.BulletinHeadingImpl;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherBulletin;
-import fi.fmi.avi.model.swx.immutable.SpaceWeatherBulletinImpl;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAmd79Bulletin;
+import fi.fmi.avi.model.swx.amd79.immutable.SpaceWeatherAmd79BulletinImpl;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import java.util.Optional;
+
+import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
+import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
-public class SWXBulletinTACSerializationTest {
+public class SWXAmd79BulletinTACSerializationTest {
 
     @Autowired
     private AviMessageConverter converter;
@@ -50,11 +49,11 @@ public class SWXBulletinTACSerializationTest {
                 + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" //
                 + "SEE WWW.PECASUS.ORG \n" //
                 + "NXT ADVISORY: WILL BE ISSUED BY 20161108/0700Z=";
-        final ConversionResult<SpaceWeatherAdvisory> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_SWX_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
-        final Optional<SpaceWeatherAdvisory> pojo = result.getConvertedMessage();
+        final Optional<SpaceWeatherAdvisoryAmd79> pojo = result.getConvertedMessage();
         assertTrue(pojo.isPresent());
-        final SpaceWeatherBulletin bulletin = SpaceWeatherBulletinImpl.builder()//
+        final SpaceWeatherAmd79Bulletin bulletin = SpaceWeatherAmd79BulletinImpl.builder()//
                 .setHeading(BulletinHeadingImpl.builder()//
                         .setLocationIndicator("EFKL")//
                         .setBulletinNumber(1)//
@@ -66,7 +65,7 @@ public class SWXBulletinTACSerializationTest {
                 .addMessages(pojo.get())//
                 .build();
 
-        final ConversionResult<String> stringResult = this.converter.convertMessage(bulletin, TACConverter.SWX_BULLETIN_POJO_TO_TAC);
+        final ConversionResult<String> stringResult = this.converter.convertMessage(bulletin, TACConverter.SWX_AMD79_BULLETIN_POJO_TO_TAC);
         assertTrue(stringResult.getConversionIssues().isEmpty());
         assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(//
