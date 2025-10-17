@@ -1,4 +1,4 @@
-package fi.fmi.avi.converter.tac.swx;
+package fi.fmi.avi.converter.tac.swx.amd79;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionIssue;

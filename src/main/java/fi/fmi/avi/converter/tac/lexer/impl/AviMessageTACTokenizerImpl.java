@@ -11,7 +11,7 @@ import fi.fmi.avi.converter.tac.metar.METARTACSerializer;
 import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.sigmet.SIGMETBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
-import fi.fmi.avi.converter.tac.swx.SWXAmd79TACSerializer;
+import fi.fmi.avi.converter.tac.swx.amd79.SWXAmd79TACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;

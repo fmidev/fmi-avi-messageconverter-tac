@@ -12,7 +12,7 @@ import fi.fmi.avi.converter.tac.metar.METARTACParser;
 import fi.fmi.avi.converter.tac.metar.SPECITACParser;
 import fi.fmi.avi.converter.tac.sigmet.ImmutableSIGMETTACParser;
 import fi.fmi.avi.converter.tac.sigmet.SIGMETTACParser;
-import fi.fmi.avi.converter.tac.swx.SWXAmd79TACParser;
+import fi.fmi.avi.converter.tac.swx.amd79.SWXAmd79TACParser;
 import fi.fmi.avi.converter.tac.taf.ImmutableTAFTACParser;
 import fi.fmi.avi.converter.tac.taf.TAFTACParser;
 import fi.fmi.avi.model.GenericAviationWeatherMessage;
