@@ -8,7 +8,6 @@ import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.token.*;
 import fi.fmi.avi.model.AviationCodeListUser;
-import fi.fmi.avi.model.swx.amd79.immutable.AdvisoryNumberImpl;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -66,10 +65,11 @@ public class SWXTokenTest {
         assertNull(resultset.get(NULL_PREVIOUS).getIdentity());
         assertNull(resultset.get(WRONG_ID_PREVIOUS).getIdentity());
         assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER, resultset.get(CORRECT_PREVIOUS).getIdentity());
-        final AdvisoryNumberImpl advisoryNumber = resultset.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumberImpl.class);
+        final int advisoryYear = resultset.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
+        final int advisorySerialNumber = resultset.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.SEQUENCE_NUMBER, Integer.class);
 
-        assertEquals(15, advisoryNumber.getSerialNumber());
-        assertEquals(2020, advisoryNumber.getYear());
+        assertEquals(2020, advisoryYear);
+        assertEquals(15, advisorySerialNumber);
     }
 
     @Test
@@ -144,10 +144,11 @@ public class SWXTokenTest {
         final Map<String, Lexeme> resultset = visitIfMatchedTest(label, labelId, fieldValue, matcher, VISITOR);
 
         assertEquals(LexemeIdentity.ADVISORY_NUMBER, resultset.get(CORRECT_PREVIOUS).getIdentity());
-        final AdvisoryNumberImpl advisoryNumber = resultset.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.VALUE, AdvisoryNumberImpl.class);
+        final int advisoryYear = resultset.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class);
+        final int advisorySerialNumber = resultset.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.SEQUENCE_NUMBER, Integer.class);
 
-        assertEquals(30, advisoryNumber.getSerialNumber());
-        assertEquals(2020, advisoryNumber.getYear());
+        assertEquals(2020, advisoryYear);
+        assertEquals(30, advisorySerialNumber);
     }
 
     @Test
@@ -191,7 +192,8 @@ public class SWXTokenTest {
         //        resultset.get(CORRECT_PREVIOUS);
     }
 
-    public Map<String, Lexeme> visitIfMatchedTest(final String previousToken, final LexemeIdentity previousTokenId, final String fielValue,
+    public Map<String, Lexeme> visitIfMatchedTest(
+            final String previousToken, final LexemeIdentity previousTokenId, final String fielValue,
             final Matcher matcher, final RegexMatchingLexemeVisitor tokenVisitor) {
         final Map<String, Lexeme> resultset = new HashMap<>();
 
