@@ -19,7 +19,7 @@ public class SWXEffectConjuction extends RegexMatchingLexemeVisitor {
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (LexemeIdentity.SWX_EFFECT.equals(token.getPrevious().getIdentity())) {
+        if (LexemeIdentity.SWX_EFFECT_AND_INTENSITY.equals(token.getPrevious().getIdentity())) {
             token.identify(LexemeIdentity.SWX_EFFECT_CONJUCTION);
         }
     }

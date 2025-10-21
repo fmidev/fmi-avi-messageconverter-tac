@@ -99,7 +99,7 @@ public class LexemeIdentity {
     public static final LexemeIdentity SWX_CENTRE = new LexemeIdentity("SWX_CENTRE", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SWX_CENTRE_LABEL = new LexemeIdentity("SWX_CENTRE_LABEL", EnumSet.of(VALUE), EnumSet.of(IdentityProperty.LABEL));
     public static final LexemeIdentity SWX_EFFECT_LABEL = new LexemeIdentity("SWX_EFFECT_LABEL", EnumSet.of(VALUE), EnumSet.of(IdentityProperty.LABEL));
-    public static final LexemeIdentity SWX_EFFECT = new LexemeIdentity("SWX_EFFECT", EnumSet.of(VALUE), Collections.emptySet());
+    public static final LexemeIdentity SWX_EFFECT_AND_INTENSITY = new LexemeIdentity("SWX_EFFECT_AND_INTENSITY", EnumSet.of(PHENOMENON, INTENSITY), Collections.emptySet());
     public static final LexemeIdentity SWX_EFFECT_CONJUCTION = new LexemeIdentity("SWX_EFFECT_CONJUCTION", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SWX_EFFECT_CATENATION = new LexemeIdentity("SWX_EFFECT_CATENATION");
     public static final LexemeIdentity SWX_PHENOMENON_PRESET_LOCATION = new LexemeIdentity("SWX_PHENOMENON_PRESET_LOCATION", EnumSet.of(VALUE),

@@ -3,7 +3,6 @@ package fi.fmi.avi.converter.tac.swx.amd79;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
@@ -37,9 +36,6 @@ public class SWXAmd79ReconstructorTest {
 
     @Autowired
     private LexingFactory lexingFactory;
-
-    @Autowired
-    private AviMessageConverter converter;
 
     private SpaceWeatherAdvisoryAmd79 msg;
     private ReconstructorContext<SpaceWeatherAdvisoryAmd79> ctx;
@@ -80,7 +76,7 @@ public class SWXAmd79ReconstructorTest {
 
     @Test
     public void spaceWeatherEffectReconstructorTest() throws Exception {
-        final SWXEffect.Reconstructor reconstructor = new SWXEffect.Reconstructor();
+        final SWXEffectAndIntensity.Reconstructor reconstructor = new SWXEffectAndIntensity.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         final List<Lexeme> lexeme = reconstructor.getAsLexemes(msg, SpaceWeatherAdvisoryAmd79.class, ctx);
         assertEquals("HF COM MOD", lexeme.get(0).getTACToken());
@@ -111,7 +107,7 @@ public class SWXAmd79ReconstructorTest {
             ctx.setParameter("analysisIndex", i);
             final Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisoryAmd79.class, ctx);
 
-            assertEquals(lexeme.get().getIdentity(), LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
+            assertEquals(LexemeIdentity.ADVISORY_PHENOMENA_LABEL, lexeme.get().getIdentity());
             lexList.add(lexeme.get());
         }
 

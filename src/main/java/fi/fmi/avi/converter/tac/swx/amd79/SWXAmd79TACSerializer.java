@@ -89,7 +89,7 @@ public class SWXAmd79TACSerializer extends AbstractTACSerializer<SpaceWeatherAdv
         if (appendToken(retval, LexemeIdentity.SWX_EFFECT_LABEL, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
-        if (appendToken(retval, LexemeIdentity.SWX_EFFECT, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
+        if (appendToken(retval, LexemeIdentity.SWX_EFFECT_AND_INTENSITY, input, SpaceWeatherAdvisoryAmd79.class, baseCtx) > 0) {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }

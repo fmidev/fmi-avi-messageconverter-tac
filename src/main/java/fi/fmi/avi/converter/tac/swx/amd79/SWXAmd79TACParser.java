@@ -34,7 +34,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             Arrays.asList(LexemeIdentity.ADVISORY_STATUS_LABEL, LexemeIdentity.ADVISORY_STATUS, LexemeIdentity.DTG_ISSUE_TIME_LABEL, LexemeIdentity.ISSUE_TIME,
                     LexemeIdentity.SWX_CENTRE_LABEL, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER_LABEL, LexemeIdentity.ADVISORY_NUMBER,
                     LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
-                    LexemeIdentity.SWX_EFFECT, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
+                    LexemeIdentity.SWX_EFFECT_AND_INTENSITY, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
                     LexemeIdentity.NEXT_ADVISORY)));
 
     private final LexemeIdentity[] oneRequired = new LexemeIdentity[]{LexemeIdentity.ISSUE_TIME, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER,
@@ -193,12 +193,14 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_LABEL);
 
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT, (match) -> {
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_AND_INTENSITY, (match) -> {
             final List<SpaceWeatherPhenomenon> phenomena = new ArrayList<>();
             while (match != null) {
-                final SpaceWeatherPhenomenon phenomenon = match.getParsedValue(Lexeme.ParsedValueName.VALUE, SpaceWeatherPhenomenon.class);
+                final SpaceWeatherPhenomenon phenomenon = SpaceWeatherPhenomenon.from(
+                        SpaceWeatherPhenomenon.Type.fromString(match.getParsedValue(Lexeme.ParsedValueName.PHENOMENON, String.class)),
+                        SpaceWeatherPhenomenon.Severity.fromString(match.getParsedValue(Lexeme.ParsedValueName.INTENSITY, String.class)));
                 phenomena.add(phenomenon);
-                match = match.findNext(LexemeIdentity.SWX_EFFECT);
+                match = match.findNext(LexemeIdentity.SWX_EFFECT_AND_INTENSITY);
             }
             //TODO: add warning if multiple effects are found
             builder.addAllPhenomena(phenomena);
@@ -304,7 +306,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
     private SpaceWeatherAdvisoryAnalysis processAnalysis(final Lexeme lexeme, final List<ConversionIssue> issues) {
         final SpaceWeatherAdvisoryAnalysisImpl.Builder builder = SpaceWeatherAdvisoryAnalysisImpl.builder();
         final List<ConversionIssue> analysisLexemeCountIssues = checkAnalysisLexemes(lexeme);
-        if (analysisLexemeCountIssues.size() > 0) {
+        if (!analysisLexemeCountIssues.isEmpty()) {
             issues.addAll(analysisLexemeCountIssues);
         }
 
