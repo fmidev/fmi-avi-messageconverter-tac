@@ -10,7 +10,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
-import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 
 import java.time.DateTimeException;
 import java.time.format.DateTimeFormatter;
@@ -57,30 +57,41 @@ public class AdvisoryPhenomenaTimeGroup extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             Optional<Lexeme> retval = Optional.empty();
 
-            if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
+            if (SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz)) {
                 final Optional<Integer> index = ctx.getParameter("analysisIndex", Integer.class);
                 if (index.isPresent()) {
-                    final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd79) msg).getAnalyses().get(index.get());
-                    final StringBuilder builder = new StringBuilder();
-                    final PartialOrCompleteTimeInstant timeInstant = analysis.getTime();
-                    if (timeInstant.getCompleteTime().isPresent()) {
-                        builder.append(timeInstant.getCompleteTime().get().format(ADVISORY_PHENOMENA_TIME_FORMAT));
-                    } else if (timeInstant.getPartialTime().isPresent()) {
-                        final OptionalInt day = timeInstant.getPartialTime().get().getDay();
-                        final OptionalInt hour = timeInstant.getPartialTime().get().getHour();
-                        final OptionalInt minute = timeInstant.getPartialTime().get().getMinute();
-                        if (day.isPresent() && hour.isPresent() && minute.isPresent()) {
-                            builder.append(String.format(Locale.US, "%02d/%02d%02dZ", day.getAsInt(), hour.getAsInt(), minute.getAsInt()));
-                        } else {
-                            throw new SerializingException("Insufficient partial analysis time, day:" + day + ", hour:" + hour + ", minute:" + minute);
-                        }
-                    } else {
-                        throw new SerializingException("Analysis time is missing");
-                    }
-                    retval = Optional.of(this.createLexeme(builder.toString(), LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP));
+                    final fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd82) msg).getAnalyses().get(index.get());
+                    final String lexemeValue = getLexemeValue(analysis.getTime());
+                    retval = Optional.of(this.createLexeme(lexemeValue, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP));
+                }
+            } else if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
+                final Optional<Integer> index = ctx.getParameter("analysisIndex", Integer.class);
+                if (index.isPresent()) {
+                    final fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd79) msg).getAnalyses().get(index.get());
+                    final String lexemeValue = getLexemeValue(analysis.getTime());
+                    retval = Optional.of(this.createLexeme(lexemeValue, LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP));
                 }
             }
             return retval;
+        }
+
+        private String getLexemeValue(final PartialOrCompleteTimeInstant timeInstant) throws SerializingException {
+            final StringBuilder builder = new StringBuilder();
+            if (timeInstant.getCompleteTime().isPresent()) {
+                builder.append(timeInstant.getCompleteTime().get().format(ADVISORY_PHENOMENA_TIME_FORMAT));
+            } else if (timeInstant.getPartialTime().isPresent()) {
+                final OptionalInt day = timeInstant.getPartialTime().get().getDay();
+                final OptionalInt hour = timeInstant.getPartialTime().get().getHour();
+                final OptionalInt minute = timeInstant.getPartialTime().get().getMinute();
+                if (day.isPresent() && hour.isPresent() && minute.isPresent()) {
+                    builder.append(String.format(Locale.US, "%02d/%02d%02dZ", day.getAsInt(), hour.getAsInt(), minute.getAsInt()));
+                } else {
+                    throw new SerializingException("Insufficient partial analysis time, day:" + day + ", hour:" + hour + ", minute:" + minute);
+                }
+            } else {
+                throw new SerializingException("Analysis time is missing");
+            }
+            return builder.toString();
         }
 
     }

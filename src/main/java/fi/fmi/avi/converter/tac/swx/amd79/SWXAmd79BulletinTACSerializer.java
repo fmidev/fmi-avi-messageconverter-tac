@@ -12,7 +12,7 @@ public class SWXAmd79BulletinTACSerializer extends AbstractTACBulletinSerializer
 
     private SWXAmd79TACSerializer swxSerializer;
 
-    public void setSWXAmd79Serializer(final SWXAmd79TACSerializer serializer) {
+    public void setSWXSerializer(final SWXAmd79TACSerializer serializer) {
         this.swxSerializer = serializer;
     }
 

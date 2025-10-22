@@ -11,6 +11,7 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -81,17 +82,13 @@ public class IssueTime extends TimeHandlingRegex {
         }
 
         private <T extends AviationWeatherMessageOrCollection> Optional<String> formatIssueTime(final PartialOrCompleteTimeInstant time, final Class<T> clz) {
-            final Optional<String> formattedIssueTime;
-            if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
-                formattedIssueTime = time.getCompleteTime()//
+            if (SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz) || SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
+                return time.getCompleteTime()//
                         .map(completeTime -> completeTime.format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
             } else {
                 final String format = MeteorologicalBulletin.class.isAssignableFrom(clz) ? "%02d%02d%02d" : "%02d%02d%02dZ";
-                formattedIssueTime = Optional.of(String.format(Locale.US, format, time.getDay().orElse(-1), time.getHour().orElse(-1), time.getMinute().orElse(-1)));
+                return Optional.of(String.format(Locale.US, format, time.getDay().orElse(-1), time.getHour().orElse(-1), time.getMinute().orElse(-1)));
             }
-            return formattedIssueTime;
         }
-
     }
-
 }

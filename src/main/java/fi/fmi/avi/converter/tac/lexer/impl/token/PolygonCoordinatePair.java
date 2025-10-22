@@ -14,6 +14,7 @@ import fi.fmi.avi.model.swx.amd79.AirspaceVolume;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,11 +66,26 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
             final boolean specifyZeros = (hints != null) && hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES) &&
                     ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
             final List<Lexeme> retval = new ArrayList<>();
-            if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
+            if (SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz)) {
+                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+                if (analysisIndex.isPresent()) {
+                    final fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd82) msg).getAnalyses().get(analysisIndex.get());
+                    if (analysis.getRegions() != null && !analysis.getRegions().isEmpty()) {
+                        final fi.fmi.avi.model.swx.amd82.SpaceWeatherRegion region = analysis.getRegions().get(0);
+                        if (!region.getLocationIndicator().isPresent() && region.getAirSpaceVolume().isPresent()) {
+                            final fi.fmi.avi.model.swx.amd82.AirspaceVolume volume = region.getAirSpaceVolume().get();
+                            if (volume.getHorizontalProjection().isPresent()) {
+                                final Geometry geom = volume.getHorizontalProjection().get();
+                                retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme));
+                            }
+                        }
+                    }
+                }
+            } else if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
                     final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd79) msg).getAnalyses().get(analysisIndex.get());
-                    if (analysis.getRegions() != null && analysis.getRegions().size() > 0) {
+                    if (analysis.getRegions() != null && !analysis.getRegions().isEmpty()) {
                         final SpaceWeatherRegion region = analysis.getRegions().get(0);
                         if (!region.getLocationIndicator().isPresent() && region.getAirSpaceVolume().isPresent()) {
                             final AirspaceVolume volume = region.getAirSpaceVolume().get();

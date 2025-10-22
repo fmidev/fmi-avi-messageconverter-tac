@@ -236,7 +236,9 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
         firstLexeme.findNext(LexemeIdentity.NEXT_ADVISORY, (match) -> {
             final NextAdvisoryImpl.Builder nxt = NextAdvisoryImpl.builder();
-            nxt.setTimeSpecifier(match.getParsedValue(Lexeme.ParsedValueName.TYPE, NextAdvisory.Type.class));
+            nxt.setTimeSpecifier(match.getParsedValue(Lexeme.ParsedValueName.TYPE,
+                            fi.fmi.avi.converter.tac.lexer.impl.token.NextAdvisory.Type.class)
+                    .getAmd79Type());
 
             if (nxt.getTimeSpecifier() != NextAdvisory.Type.NO_FURTHER_ADVISORIES) {
                 final Optional<PartialOrCompleteTimeInstant> completeTimeInstant = createCompleteTimeInstant(match);
@@ -445,8 +447,10 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                 regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
             }
             while (l != null) {
-                final SpaceWeatherRegion.SpaceWeatherLocation location = l.getParsedValue(Lexeme.ParsedValueName.VALUE,
-                        SpaceWeatherRegion.SpaceWeatherLocation.class);
+                @Nullable final SpaceWeatherRegion.SpaceWeatherLocation location =
+                        Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.LOCATION_INDICATOR, String.class))
+                                .map(SpaceWeatherRegion.SpaceWeatherLocation::fromTacCode)
+                                .orElse(null);
                 if (location != null) {
                     checkLexemeOrder(issues, l, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
                     final SpaceWeatherRegionImpl.Builder regionBuilder = SpaceWeatherRegionImpl.builder()//

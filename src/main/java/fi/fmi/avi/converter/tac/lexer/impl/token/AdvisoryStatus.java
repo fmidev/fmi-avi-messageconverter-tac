@@ -9,6 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -35,21 +36,25 @@ public class AdvisoryStatus extends RegexMatchingLexemeVisitor {
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
+        private static String getLexemeValue(final AviationCodeListUser.PermissibleUsageReason permissibleUsageReason) {
+            final StringBuilder builder = new StringBuilder();
+            if (permissibleUsageReason == AviationCodeListUser.PermissibleUsageReason.EXERCISE) {
+                builder.append("EXER");
+            } else {
+                builder.append(permissibleUsageReason);
+            }
+            return builder.toString();
+        }
+
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             Optional<Lexeme> retval = Optional.empty();
-            if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
-                final SpaceWeatherAdvisoryAmd79 advisory = (SpaceWeatherAdvisoryAmd79) msg;
-
-                if (advisory.getPermissibleUsageReason().isPresent()) {
-                    final StringBuilder builder = new StringBuilder();
-                    if (advisory.getPermissibleUsageReason().get() == AviationCodeListUser.PermissibleUsageReason.EXERCISE) {
-                        builder.append("EXER");
-                    } else {
-                        builder.append(advisory.getPermissibleUsageReason().get());
-                    }
-                    retval = Optional.of(createLexeme(builder.toString(), LexemeIdentity.ADVISORY_STATUS));
-                }
+            if (SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz)) {
+                retval = ((SpaceWeatherAdvisoryAmd82) msg).getPermissibleUsageReason()
+                        .map(permissibleUsageReason -> createLexeme(getLexemeValue(permissibleUsageReason), LexemeIdentity.ADVISORY_STATUS));
+            } else if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
+                retval = ((SpaceWeatherAdvisoryAmd79) msg).getPermissibleUsageReason()
+                        .map(permissibleUsageReason -> createLexeme(getLexemeValue(permissibleUsageReason), LexemeIdentity.ADVISORY_STATUS));
             }
             return retval;
         }
