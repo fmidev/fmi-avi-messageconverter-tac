@@ -11,7 +11,8 @@ import fi.fmi.avi.converter.tac.metar.METARTACSerializer;
 import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.sigmet.SIGMETBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
-import fi.fmi.avi.converter.tac.swx.SWXAmd79TACSerializer;
+import fi.fmi.avi.converter.tac.swx.amd79.SWXAmd79TACSerializer;
+import fi.fmi.avi.converter.tac.swx.amd82.SWXAmd82TACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
@@ -23,6 +24,7 @@ import fi.fmi.avi.model.sigmet.AIRMETBulletin;
 import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 
@@ -34,6 +36,7 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
     private SIGMETBulletinTACSerializer sigmetBulletinSerializer;
     private AIRMETBulletinTACSerializer airmetBulletinSerializer;
     private GenericMeteorologicalBulletinTACSerializer genericBulletinSerializer;
+    private SWXAmd82TACSerializer swxAmd82TACSerializer;
     private SWXAmd79TACSerializer swxAmd79TACSerializer;
     private SIGMETTACSerializer sigmetTACSerializer;
     private AIRMETTACSerializer airmetTACSerializer;
@@ -70,6 +73,10 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
         this.genericBulletinSerializer = serializer;
     }
 
+    public void setSWXAmd82TacSerializer(final SWXAmd82TACSerializer serializer) {
+        this.swxAmd82TACSerializer = serializer;
+    }
+
     public void setSWXAmd79TacSerializer(final SWXAmd79TACSerializer serializer) {
         this.swxAmd79TACSerializer = serializer;
     }
@@ -103,6 +110,8 @@ public class AviMessageTACTokenizerImpl implements AviMessageTACTokenizer {
             return this.airmetBulletinSerializer.tokenizeMessage(msg, hints);
         } else if (msg instanceof GenericMeteorologicalBulletin && this.genericBulletinSerializer != null) {
             return this.genericBulletinSerializer.tokenizeMessage(msg, hints);
+        } else if (msg instanceof SpaceWeatherAdvisoryAmd82 && this.swxAmd82TACSerializer != null) {
+            return this.swxAmd82TACSerializer.tokenizeMessage(msg, hints);
         } else if (msg instanceof SpaceWeatherAdvisoryAmd79 && this.swxAmd79TACSerializer != null) {
             return this.swxAmd79TACSerializer.tokenizeMessage(msg, hints);
         } else if (msg instanceof SIGMET && this.sigmetTACSerializer != null) {

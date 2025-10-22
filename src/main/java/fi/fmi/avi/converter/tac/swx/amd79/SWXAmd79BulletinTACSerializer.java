@@ -1,4 +1,4 @@
-package fi.fmi.avi.converter.tac.swx;
+package fi.fmi.avi.converter.tac.swx.amd79;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.bulletin.AbstractTACBulletinSerializer;
@@ -12,7 +12,7 @@ public class SWXAmd79BulletinTACSerializer extends AbstractTACBulletinSerializer
 
     private SWXAmd79TACSerializer swxSerializer;
 
-    public void setSWXAmd79Serializer(final SWXAmd79TACSerializer serializer) {
+    public void setSWXSerializer(final SWXAmd79TACSerializer serializer) {
         this.swxSerializer = serializer;
     }
 

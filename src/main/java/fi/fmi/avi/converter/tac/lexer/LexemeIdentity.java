@@ -1,14 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
-import static java.util.Objects.requireNonNull;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -18,8 +9,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
+import static java.util.Objects.requireNonNull;
 
 @JsonDeserialize(using = LexemeIdentity.Deserializer.class)
 @JsonSerialize(using = LexemeIdentity.Serializer.class)
@@ -91,19 +90,19 @@ public class LexemeIdentity {
     public static final LexemeIdentity ADVISORY_STATUS = new LexemeIdentity("ADVISORY_STATUS", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity ADVISORY_STATUS_LABEL = new LexemeIdentity("ADVISORY_STATUS_LABEL", EnumSet.of(VALUE),
             EnumSet.of(IdentityProperty.LABEL));
-    public static final LexemeIdentity ADVISORY_NUMBER = new LexemeIdentity("ADVISORY_NUMBER", EnumSet.of(VALUE), Collections.emptySet());
+    public static final LexemeIdentity ADVISORY_NUMBER = new LexemeIdentity("ADVISORY_NUMBER", EnumSet.of(YEAR, SEQUENCE_NUMBER), Collections.emptySet());
     public static final LexemeIdentity ADVISORY_NUMBER_LABEL = new LexemeIdentity("ADVISORY_NUMBER_LABEL", EnumSet.of(VALUE),
             EnumSet.of(IdentityProperty.LABEL));
-    public static final LexemeIdentity REPLACE_ADVISORY_NUMBER = new LexemeIdentity("REPLACE_ADVISORY_NUMBER", EnumSet.of(VALUE), Collections.emptySet());
+    public static final LexemeIdentity REPLACE_ADVISORY_NUMBER = new LexemeIdentity("REPLACE_ADVISORY_NUMBER", EnumSet.of(YEAR, SEQUENCE_NUMBER), Collections.emptySet());
     public static final LexemeIdentity REPLACE_ADVISORY_NUMBER_LABEL = new LexemeIdentity("REPLACE_ADVISORY_NUMBER_LABEL", Collections.emptySet(),
             EnumSet.of(IdentityProperty.LABEL));
     public static final LexemeIdentity SWX_CENTRE = new LexemeIdentity("SWX_CENTRE", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SWX_CENTRE_LABEL = new LexemeIdentity("SWX_CENTRE_LABEL", EnumSet.of(VALUE), EnumSet.of(IdentityProperty.LABEL));
     public static final LexemeIdentity SWX_EFFECT_LABEL = new LexemeIdentity("SWX_EFFECT_LABEL", EnumSet.of(VALUE), EnumSet.of(IdentityProperty.LABEL));
-    public static final LexemeIdentity SWX_EFFECT = new LexemeIdentity("SWX_EFFECT", EnumSet.of(VALUE), Collections.emptySet());
+    public static final LexemeIdentity SWX_EFFECT_AND_INTENSITY = new LexemeIdentity("SWX_EFFECT_AND_INTENSITY", EnumSet.of(PHENOMENON, INTENSITY), Collections.emptySet());
     public static final LexemeIdentity SWX_EFFECT_CONJUCTION = new LexemeIdentity("SWX_EFFECT_CONJUCTION", EnumSet.of(VALUE), Collections.emptySet());
     public static final LexemeIdentity SWX_EFFECT_CATENATION = new LexemeIdentity("SWX_EFFECT_CATENATION");
-    public static final LexemeIdentity SWX_PHENOMENON_PRESET_LOCATION = new LexemeIdentity("SWX_PHENOMENON_PRESET_LOCATION", EnumSet.of(VALUE),
+    public static final LexemeIdentity SWX_PHENOMENON_PRESET_LOCATION = new LexemeIdentity("SWX_PHENOMENON_PRESET_LOCATION", EnumSet.of(LOCATION_INDICATOR),
             Collections.emptySet());
     public static final LexemeIdentity SWX_NOT_EXPECTED = new LexemeIdentity("SWX_NOT_EXPECTED");
     public static final LexemeIdentity SWX_NOT_AVAILABLE = new LexemeIdentity("SWX_NOT_AVAILABLE");

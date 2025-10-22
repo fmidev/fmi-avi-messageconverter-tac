@@ -15,6 +15,8 @@ import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAmd79Bulletin;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAmd82Bulletin;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
@@ -72,11 +74,21 @@ public class TACTestConfiguration {
     private AviMessageSpecificConverter<GenericMeteorologicalBulletin, String> genericBulletinJSONSerializer;
 
     @Autowired
+    private AviMessageSpecificConverter<String, SpaceWeatherAdvisoryAmd82> swxAmd82TACParser;
+
+    @Autowired
     private AviMessageSpecificConverter<String, SpaceWeatherAdvisoryAmd79> swxAmd79TACParser;
+
+    @Autowired
+    @Qualifier("swxAmd82Serializer")
+    private AviMessageSpecificConverter<SpaceWeatherAdvisoryAmd82, String> swxAmd82TACSerializer;
 
     @Autowired
     @Qualifier("swxAmd79Serializer")
     private AviMessageSpecificConverter<SpaceWeatherAdvisoryAmd79, String> swxAmd79TACSerializer;
+
+    @Autowired
+    private AviMessageSpecificConverter<SpaceWeatherAmd82Bulletin, String> swxAmd82BulletinTACSerializer;
 
     @Autowired
     private AviMessageSpecificConverter<SpaceWeatherAmd79Bulletin, String> swxAmd79BulletinTACSerializer;
@@ -116,12 +128,15 @@ public class TACTestConfiguration {
         p.setMessageSpecificConverter(TACConverter.TAF_BULLETIN_POJO_TO_TAC, tafBulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.SIGMET_BULLETIN_POJO_TO_TAC, sigmetBulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.AIRMET_BULLETIN_POJO_TO_TAC, airmetBulletinTACSerializer);
+        p.setMessageSpecificConverter(TACConverter.SWX_AMD82_BULLETIN_POJO_TO_TAC, swxAmd82BulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.SWX_AMD79_BULLETIN_POJO_TO_TAC, swxAmd79BulletinTACSerializer);
         p.setMessageSpecificConverter(TACConverter.GENERIC_BULLETIN_POJO_TO_TAC, genericBulletinTACSerializer);
 
         p.setMessageSpecificConverter(JSONConverter.GENERIC_METEOROLOGICAL_BULLETIN_POJO_TO_JSON_STRING, genericBulletinJSONSerializer);
 
+        p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_AMD82_POJO, swxAmd82TACParser);
         p.setMessageSpecificConverter(TACConverter.TAC_TO_SWX_AMD79_POJO, swxAmd79TACParser);
+        p.setMessageSpecificConverter(TACConverter.SWX_AMD82_POJO_TO_TAC, swxAmd82TACSerializer);
         p.setMessageSpecificConverter(TACConverter.SWX_AMD79_POJO_TO_TAC, swxAmd79TACSerializer);
 
         p.setMessageSpecificConverter(TACConverter.TAC_TO_SIGMET_POJO, sigmetTACParser);

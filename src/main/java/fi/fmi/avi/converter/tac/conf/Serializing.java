@@ -15,10 +15,13 @@ import fi.fmi.avi.converter.tac.metar.METARTACSerializer;
 import fi.fmi.avi.converter.tac.metar.SPECITACSerializer;
 import fi.fmi.avi.converter.tac.sigmet.SIGMETBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.sigmet.SIGMETTACSerializer;
-import fi.fmi.avi.converter.tac.swx.SWXAmd79BulletinTACSerializer;
-import fi.fmi.avi.converter.tac.swx.SWXAmd79TACSerializer;
+import fi.fmi.avi.converter.tac.swx.amd79.SWXAmd79BulletinTACSerializer;
+import fi.fmi.avi.converter.tac.swx.amd79.SWXAmd79TACSerializer;
+import fi.fmi.avi.converter.tac.swx.amd82.SWXAmd82BulletinTACSerializer;
+import fi.fmi.avi.converter.tac.swx.amd82.SWXAmd82TACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFBulletinTACSerializer;
 import fi.fmi.avi.converter.tac.taf.TAFTACSerializer;
+import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
@@ -28,6 +31,8 @@ import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAmd79Bulletin;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAmd82Bulletin;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,19 +124,32 @@ public class Serializing {
     }
 
     @Bean
+    @Qualifier("swxAmd82Serializer")
+    AviMessageSpecificConverter<SpaceWeatherAdvisoryAmd82, String> swxAmd82TACSerializer() {
+        return spawnSWXAmd82TACSerializer();
+    }
+
+    @Bean
     @Qualifier("swxAmd79Serializer")
     AviMessageSpecificConverter<SpaceWeatherAdvisoryAmd79, String> swxAmd79TACSerializer() {
         return spawnSWXAmd79TACSerializer();
     }
 
     @Bean
-    AviMessageSpecificConverter<SpaceWeatherAmd79Bulletin, String> swxAmd79BulletinTACSerializer() {
-        final SWXAmd79BulletinTACSerializer s = new SWXAmd79BulletinTACSerializer();
+    AviMessageSpecificConverter<SpaceWeatherAmd82Bulletin, String> swxAmd82BulletinTACSerializer() {
+        final SWXAmd82BulletinTACSerializer s = new SWXAmd82BulletinTACSerializer();
         addCommonBulletinReconstructors(s);
-        s.setSWXAmd79Serializer(spawnSWXAmd79TACSerializer());
+        s.setSWXSerializer(spawnSWXAmd82TACSerializer());
         return s;
     }
 
+    @Bean
+    AviMessageSpecificConverter<SpaceWeatherAmd79Bulletin, String> swxAmd79BulletinTACSerializer() {
+        final SWXAmd79BulletinTACSerializer s = new SWXAmd79BulletinTACSerializer();
+        addCommonBulletinReconstructors(s);
+        s.setSWXSerializer(spawnSWXAmd79TACSerializer());
+        return s;
+    }
 
     @Bean
     public AviMessageTACTokenizer tacTokenizer() {
@@ -143,13 +161,12 @@ public class Serializing {
         tokenizer.setSIGMETBulletinSerializer((SIGMETBulletinTACSerializer) sigmetBulletinTACSerializer());
         tokenizer.setAIRMETBulletinSerializer((AIRMETBulletinTACSerializer) airmetBulletinTACSerializer());
         tokenizer.setGenericBulletinSerializer((GenericMeteorologicalBulletinTACSerializer) genericBulletinTACSerializer());
+        tokenizer.setSWXAmd82TacSerializer((SWXAmd82TACSerializer) swxAmd82TACSerializer());
         tokenizer.setSWXAmd79TacSerializer((SWXAmd79TACSerializer) swxAmd79TACSerializer());
         tokenizer.setSIGMETTacSerializer((SIGMETTACSerializer) sigmetTACSerializer());
         tokenizer.setAIRMETTacSerializer((AIRMETTACSerializer) airmetTACSerializer());
         return tokenizer;
     }
-
-
 
     private void addMetarAndSpeciCommonReconstructors(final AbstractTACSerializer<?> s) {
         s.setLexingFactory(lexingFactory);
@@ -212,10 +229,23 @@ public class Serializing {
         return s;
     }
 
+    // Creates an instance of the SWXAmd82TACSerializer to be used for two separate bean instances
+    // (swxAmd82TACSerializer and swxAmd82BulletinTACSerializer):
+    private SWXAmd82TACSerializer spawnSWXAmd82TACSerializer() {
+        final SWXAmd82TACSerializer s = new SWXAmd82TACSerializer();
+        addSWXCommonReconstructors(s);
+        return s;
+    }
+
     // Creates an instance of the SWXAmd79TACSerializer to be used for two separate bean instances
     // (swxAmd79TACSerializer and swxAmd79BulletinTACSerializer):
     private SWXAmd79TACSerializer spawnSWXAmd79TACSerializer() {
         final SWXAmd79TACSerializer s = new SWXAmd79TACSerializer();
+        addSWXCommonReconstructors(s);
+        return s;
+    }
+
+    private void addSWXCommonReconstructors(final AbstractTACSerializer<? extends AviationWeatherMessage> s) {
         s.setLexingFactory(lexingFactory);
         s.addReconstructor(LexemeIdentity.SPACE_WEATHER_ADVISORY_START, new SWXAdvisoryStart.Reconstructor());
         s.addReconstructor(LexemeIdentity.DTG_ISSUE_TIME_LABEL, new DTGIssueTimeLabel.Reconstructor());
@@ -229,7 +259,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, new ReplaceAdvisoryNumberLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.REPLACE_ADVISORY_NUMBER, new ReplaceAdvisoryNumber.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_EFFECT_LABEL, new SWXEffectLabel.Reconstructor());
-        s.addReconstructor(LexemeIdentity.SWX_EFFECT, new SWXEffect.Reconstructor());
+        s.addReconstructor(LexemeIdentity.SWX_EFFECT_AND_INTENSITY, new SWXEffectAndIntensity.Reconstructor());
         s.addReconstructor(LexemeIdentity.ADVISORY_PHENOMENA_LABEL, new SWXPhenomena.Reconstructor());
         s.addReconstructor(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, new AdvisoryPhenomenaTimeGroup.Reconstructor());
         s.addReconstructor(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, new SWXPresetLocation.Reconstructor());
@@ -243,7 +273,6 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.NEXT_ADVISORY, new NextAdvisory.Reconstructor());
         s.addReconstructor(LexemeIdentity.NEXT_ADVISORY_LABEL, new NextAdvisoryLabel.Reconstructor());
         s.addReconstructor(LexemeIdentity.END_TOKEN, new EndToken.Reconstructor());
-        return s;
     }
 
     private void addCommonBulletinReconstructors(final AbstractTACSerializer<?> s) {

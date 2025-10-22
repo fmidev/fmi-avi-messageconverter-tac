@@ -1,30 +1,25 @@
 package fi.fmi.avi.converter.tac.conf;
 
-import static fi.fmi.avi.converter.tac.lexer.impl.token.LowWindStart.LOW_WIND_START;
-import static fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart.WXREP_START;
-import static fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart.WX_WARNING_START;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import fi.fmi.avi.converter.tac.lexer.*;
+import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
+import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
+import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.OccurrenceFrequency;
+import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
+import fi.fmi.avi.converter.tac.lexer.impl.token.*;
+import fi.fmi.avi.model.MessageType;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-import fi.fmi.avi.converter.tac.lexer.impl.token.*;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.converter.tac.lexer.LexingFactory;
-import fi.fmi.avi.converter.tac.lexer.impl.AviMessageLexerImpl;
-import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
-import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.OccurrenceFrequency;
-import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
-import fi.fmi.avi.model.MessageType;
+import static fi.fmi.avi.converter.tac.lexer.impl.token.LowWindStart.LOW_WIND_START;
+import static fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart.WXREP_START;
+import static fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart.WX_WARNING_START;
 
 /**
  * TAC converter Lexing Spring configuration
@@ -331,7 +326,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(?:SWX)|(?:VA)$");
+                return s.matches("^SWX|VA$");
             }
         });
         retval.add(new Predicate<String>() {
@@ -802,7 +797,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetFirNameCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -819,7 +814,7 @@ public class Lexing {
         return retval;
     }
     private List<Predicate<String>> intlSigmetEntireFirCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -836,7 +831,7 @@ public class Lexing {
         return retval;
     }
     private List<Predicate<String>> intlSigmetLineCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -860,7 +855,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetLineCombinationRule2() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -890,7 +885,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetLineCombinationRule3() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -914,7 +909,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetLineCombinationRule4() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -938,7 +933,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmet2LineCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -962,7 +957,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetOutsideLatLonCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -986,11 +981,11 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetOutsideLatLonCombinationRuleWithAnd() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(N|S|E|W)\\sOF\\s([NSEW]\\d+)$");
+                return s.matches("^([NSEW])\\sOF\\s([NSEW]\\d+)$");
             }
         });
 
@@ -1003,7 +998,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(N|S|E|W)\\sOF\\s([NSEW]\\d+)$");
+                return s.matches("^([NSEW])\\sOF\\s([NSEW]\\d+)$");
             }
         });
 
@@ -1011,7 +1006,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetStartRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1028,7 +1023,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetStartRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1045,7 +1040,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetLevelCombinationRule1() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1062,7 +1057,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetLevelCombinationRule2() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1079,7 +1074,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetLevelCombinationRule3() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1096,7 +1091,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetMovingCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1121,7 +1116,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetObsFcstAtCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1144,7 +1139,7 @@ public class Lexing {
 }
 
     private List<Predicate<String>> intlSigmetAprxCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1180,7 +1175,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetAprxCombinationRule2() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1209,7 +1204,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetAprxCombinationRule3() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1232,7 +1227,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetAprxCombinationRule4() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1255,7 +1250,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetCancelCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1285,7 +1280,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetVaCancelCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1327,7 +1322,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetNoVaExpCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1351,7 +1346,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule1() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1369,7 +1364,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule2() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1387,7 +1382,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule3() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1405,7 +1400,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule4() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1423,7 +1418,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule5() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1442,7 +1437,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule6() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1461,7 +1456,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule7() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1479,7 +1474,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule8() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1497,7 +1492,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule9() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1515,7 +1510,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule10() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1534,7 +1529,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule1() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1552,7 +1547,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule2() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1570,7 +1565,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule3() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1588,7 +1583,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule4() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1607,7 +1602,7 @@ public class Lexing {
 
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule5() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1625,7 +1620,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule6() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1643,7 +1638,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetRdoactiveCldCombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1668,14 +1663,14 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(N|S)(\\d{2,4})$");
+                return s.matches("^([NS])(\\d{2,4})$");
             }
         });
 
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(W|E)(\\d{3,5})$");
+                return s.matches("^([WE])(\\d{3,5})$");
             }
         });
 
@@ -1683,7 +1678,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetVolcanoName1() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1701,7 +1696,7 @@ public class Lexing {
     }
 
     private List<Predicate<String>> intlSigmetVolcanoPosition() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1712,14 +1707,14 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^(N|S)(\\d{2,4}) (E|W)(\\d{3,5})");
+                return s.matches("^([NS])(\\d{2,4}) ([EW])(\\d{3,5})");
             }
         });
         return retval;
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonFZRACombinationRule() {
-        List<Predicate<String>> retval = new ArrayList<>();
+        final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
@@ -1977,7 +1972,7 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                Lexeme firstLexeme = sequence.getFirstLexeme();
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
                 return (firstLexeme!=null)&&((firstLexeme.getTACToken().matches("(\\w{4})\\sSIGMET.*")||firstLexeme.getTACToken().equals("SIGMET")));
             }
             @Override
@@ -2050,7 +2045,7 @@ public class Lexing {
         l.setSuitabilityTester(new RecognizingAviMessageTokenLexer.SuitabilityTester() {
             @Override
             public boolean test(final LexemeSequence sequence) {
-                Lexeme firstLexeme = sequence.getFirstLexeme();
+                final Lexeme firstLexeme = sequence.getFirstLexeme();
                 return (firstLexeme!=null)&&((firstLexeme.getTACToken().matches("(\\w{4})\\sAIRMET.*")||firstLexeme.getTACToken().equals("AIRMET")));
             }
 
@@ -2125,7 +2120,7 @@ public class Lexing {
         l.teach(new AdvisoryNumberLabel(OccurrenceFrequency.RARE));
         l.teach(new AdvisoryNumber(OccurrenceFrequency.RARE));
         l.teach(new SWXEffectLabel(OccurrenceFrequency.AVERAGE));
-        l.teach(new SWXEffect(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXEffectAndIntensity(OccurrenceFrequency.AVERAGE));
         l.teach(new SWXEffectConjuction(OccurrenceFrequency.FREQUENT));
         l.teach(new SWXPresetLocation(OccurrenceFrequency.AVERAGE));
         l.teach(new NextAdvisory(OccurrenceFrequency.RARE));

@@ -1,56 +1,34 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
-import fi.fmi.avi.model.swx.amd79.immutable.AdvisoryNumberImpl;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 
 import java.util.Optional;
-import java.util.regex.Matcher;
 
-public class AdvisoryNumber extends RegexMatchingLexemeVisitor {
+public class AdvisoryNumber extends AbstractAdvisoryNumber {
     public AdvisoryNumber(final OccurrenceFrequency prio) {
-        super("^(?<advisoryNumber>[\\d]{4}/[0-9]+?)$", prio);
+        super(prio, LexemeIdentity.ADVISORY_NUMBER, LexemeIdentity.ADVISORY_NUMBER_LABEL);
     }
 
-    @Override
-    public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token != null && token.hasPrevious()) {
-            if (token.getPrevious().getIdentity() != null && token.getPrevious().getIdentity().equals(LexemeIdentity.ADVISORY_NUMBER_LABEL)) {
-                token.identify(LexemeIdentity.ADVISORY_NUMBER);
-
-                final AdvisoryNumberImpl advisoryNumber = AdvisoryNumberImpl.Builder.from(match.group("advisoryNumber")).build();
-                token.setParsedValue(Lexeme.ParsedValueName.VALUE, advisoryNumber);
-            }
+    public static class Reconstructor extends AbstractAdvisoryNumber.AbstractReconstructor {
+        public Reconstructor() {
+            super(LexemeIdentity.ADVISORY_NUMBER);
         }
-    }
 
-    public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
-                throws SerializingException {
-            Optional<Lexeme> retval = Optional.empty();
+        protected <T extends AviationWeatherMessageOrCollection> Optional<String> getAdvisoryNumberString(final T msg, final Class<T> clz) throws SerializingException {
+            String nullableAdvisoryNumberString = null;
             if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
                 final fi.fmi.avi.model.swx.amd79.AdvisoryNumber advisoryNumber = ((SpaceWeatherAdvisoryAmd79) msg).getAdvisoryNumber();
-
-                if (advisoryNumber.getSerialNumber() == 0) {
-                    throw new SerializingException("The advisory number is missing the serial number");
-                }
-
-                if (advisoryNumber.getYear() == 0) {
-                    throw new SerializingException(("The advisory number is missing the year"));
-                }
-
-                retval = Optional.of(this.createLexeme(advisoryNumber.asAdvisoryNumber(), LexemeIdentity.ADVISORY_NUMBER));
-
+                nullableAdvisoryNumberString = toAdvisoryNumberString(advisoryNumber.getYear(), advisoryNumber.getSerialNumber());
+            } else if (SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz)) {
+                final fi.fmi.avi.model.swx.amd82.AdvisoryNumber advisoryNumber = ((SpaceWeatherAdvisoryAmd82) msg).getAdvisoryNumber();
+                nullableAdvisoryNumberString = toAdvisoryNumberString(advisoryNumber.getYear(), advisoryNumber.getSerialNumber());
             }
-            return retval;
+            return Optional.ofNullable(nullableAdvisoryNumberString);
         }
     }
 }

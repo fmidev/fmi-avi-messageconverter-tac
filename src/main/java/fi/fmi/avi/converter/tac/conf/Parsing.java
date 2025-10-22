@@ -12,7 +12,8 @@ import fi.fmi.avi.converter.tac.metar.METARTACParser;
 import fi.fmi.avi.converter.tac.metar.SPECITACParser;
 import fi.fmi.avi.converter.tac.sigmet.ImmutableSIGMETTACParser;
 import fi.fmi.avi.converter.tac.sigmet.SIGMETTACParser;
-import fi.fmi.avi.converter.tac.swx.SWXAmd79TACParser;
+import fi.fmi.avi.converter.tac.swx.amd79.SWXAmd79TACParser;
+import fi.fmi.avi.converter.tac.swx.amd82.SWXAmd82TACParser;
 import fi.fmi.avi.converter.tac.taf.ImmutableTAFTACParser;
 import fi.fmi.avi.converter.tac.taf.TAFTACParser;
 import fi.fmi.avi.model.GenericAviationWeatherMessage;
@@ -25,6 +26,7 @@ import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.immutable.AIRMETImpl;
 import fi.fmi.avi.model.sigmet.immutable.SIGMETImpl;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +110,13 @@ public class Parsing {
     @Bean
     AviMessageSpecificConverter<String, GenericMeteorologicalBulletin> genericBulletinTACParser() {
         final TACParser<GenericMeteorologicalBulletin> p = new GenericMeteorologicalBulletinParser();
+        p.setTACLexer(aviMessageLexer);
+        return p;
+    }
+
+    @Bean
+    AviMessageSpecificConverter<String, SpaceWeatherAdvisoryAmd82> swxAmd82TACParser() {
+        final TACParser<SpaceWeatherAdvisoryAmd82> p = new SWXAmd82TACParser();
         p.setTACLexer(aviMessageLexer);
         return p;
     }
