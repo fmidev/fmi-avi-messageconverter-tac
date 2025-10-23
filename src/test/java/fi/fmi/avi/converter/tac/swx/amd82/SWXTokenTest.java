@@ -73,6 +73,28 @@ public class SWXTokenTest {
     }
 
     @Test
+    public void twoReplaceAdvisoryNumbersVisitIfMatchedTest() {
+        final String fieldValue1 = "2020/13";
+        final String fieldValue2 = "2020/14";
+        final ReplaceAdvisoryNumber visitor =
+                new ReplaceAdvisoryNumber(PrioritizedLexemeVisitor.OccurrenceFrequency.AVERAGE);
+        final Pattern pattern = visitor.getPattern();
+
+        final Matcher matcher = pattern.matcher("2020/14");
+        assertTrue(matcher.matches());
+        final Map<String, Lexeme> resultSet = visitIfMatchedTest(
+                fieldValue1,
+                LexemeIdentity.REPLACE_ADVISORY_NUMBER,
+                fieldValue2,
+                matcher,
+                visitor);
+
+        assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER, resultSet.get(CORRECT_PREVIOUS).getIdentity());
+        assertEquals(Integer.valueOf(2020), resultSet.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.YEAR, Integer.class));
+        assertEquals(Integer.valueOf(14), resultSet.get(CORRECT_PREVIOUS).getParsedValue(Lexeme.ParsedValueName.SEQUENCE_NUMBER, Integer.class));
+    }
+
+    @Test
     public void nextAdvisoryByVisitIfMatchedTest() {
         final String fieldValue = "WILL BE ISSUED BY 20161108/0700Z";
         final Lexeme result = nextAdvisoryVisitIfMatchedTest(fieldValue);

@@ -187,10 +187,35 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_NUMBER,
                 (match) -> builder.setAdvisoryNumber(newAdvisoryNumber(match)));
 
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL,
-                (match) -> processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER,
-                        (advisoryNumberMatch) -> builder.setReplaceAdvisoryNumber(newAdvisoryNumber(advisoryNumberMatch)),
-                        () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Replace advisory number is missing"))));
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, (label) -> {
+            final Lexeme firstNumber = label.findNext(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
+            if (firstNumber == null) {
+                conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "Replace advisory number is missing"));
+                return;
+            }
+
+            remainingLexemeIdentities.remove(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
+            final ConversionIssue orderIssue = checkBeforeAnyOf(firstNumber, remainingLexemeIdentities);
+            if (orderIssue != null) {
+                retval.addIssue(orderIssue);
+            }
+
+            int seen = 0;
+            for (Lexeme number = firstNumber;
+                 number != null && number.getIdentity() == LexemeIdentity.REPLACE_ADVISORY_NUMBER;
+                 number = number.getNext()) {
+
+                if (++seen <= 4) {
+                    builder.addReplaceAdvisoryNumber(newAdvisoryNumber(number));
+                }
+            }
+
+            if (seen > 4) {
+                conversionIssues.add(new ConversionIssue(
+                        ConversionIssue.Type.SYNTAX,
+                        "Too many replacement advisory numbers: " + seen + ", maximum is 4"));
+            }
+        });
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_LABEL);
 

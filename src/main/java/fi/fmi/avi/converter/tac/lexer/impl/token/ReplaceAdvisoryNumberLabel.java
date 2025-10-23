@@ -23,12 +23,12 @@ public class ReplaceAdvisoryNumberLabel extends RegexMatchingLexemeVisitor {
 
     public static class Reconstructor extends AbstractFixedContentReconstructor {
         public Reconstructor() {
-            super("NR RPLC:", LexemeIdentity.REPLACE_ADVISORY_NUMBER);
+            super("NR RPLC:", LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL);
         }
 
         @Override
         protected <T extends AviationWeatherMessageOrCollection> boolean isReconstructable(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
-            return SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz) && ((SpaceWeatherAdvisoryAmd82) msg).getReplaceAdvisoryNumber().isPresent()
+            return SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz) && !((SpaceWeatherAdvisoryAmd82) msg).getReplaceAdvisoryNumber().isEmpty()
                     || SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz) && ((SpaceWeatherAdvisoryAmd79) msg).getReplaceAdvisoryNumber().isPresent();
         }
     }
