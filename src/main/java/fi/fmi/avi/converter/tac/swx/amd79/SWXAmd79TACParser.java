@@ -447,9 +447,19 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                 regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
             }
             while (l != null) {
+                final boolean[] noLocationIndicator = {true};
                 @Nullable final SpaceWeatherRegion.SpaceWeatherLocation location =
                         Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.LOCATION_INDICATOR, String.class))
-                                .map(SpaceWeatherRegion.SpaceWeatherLocation::fromTacCode)
+                                .map(code -> {
+                                    noLocationIndicator[0] = false;
+                                    try {
+                                        return SpaceWeatherRegion.SpaceWeatherLocation.fromTacCode(code);
+                                    } catch (final IllegalArgumentException exception) {
+                                        issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR,
+                                                ConversionIssue.Type.SYNTAX, exception.getMessage(), exception));
+                                        return null;
+                                    }
+                                })
                                 .orElse(null);
                 if (location != null) {
                     checkLexemeOrder(issues, l, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
@@ -465,13 +475,22 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                         regionBuilder.setAirSpaceVolume(volume);
                     }
                     regionList.add(regionBuilder.build());
-                } else {
+                } else if (noLocationIndicator[0]) {
                     issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.OTHER,
                             "Location indicator not available in Lexeme " + l + ", strange"));
                 }
                 l = l.findNext(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
             }
         }
+        final boolean hasDaylightSide = regionList.stream()
+                .anyMatch(region -> region.getLocationIndicator()
+                        .filter(locationIndicator -> locationIndicator == SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE)
+                        .isPresent());
+        if (hasDaylightSide && regionList.size() > 1) {
+            issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX,
+                    SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE.getCode() + " is not allowed with other regions"));
+        }
+
         return regionList;
     }
 

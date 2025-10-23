@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 public class SWXPresetLocation extends RegexMatchingLexemeVisitor {
 
     public SWXPresetLocation(final OccurrenceFrequency prio) {
-        super("^(?<type>EQN|EQS|HSH|HNH|MSH|MNH|(DAYLIGHT SIDE))$", prio);
+        super("^(?<type>EQN|EQS|HSH|HNH|MSH|MNH|DAYLIGHT\\s+SIDE|DAYSIDE|NIGHTSIDE)$", prio);
     }
 
     @Override

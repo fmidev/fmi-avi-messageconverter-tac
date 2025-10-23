@@ -40,6 +40,8 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
     private final LexemeIdentity[] oneRequired = new LexemeIdentity[]{LexemeIdentity.ISSUE_TIME, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER,
             LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START};
+    private final Set<SpaceWeatherLocation> DAY_AND_NIGHTSIDE = Collections.unmodifiableSet(EnumSet.of(SpaceWeatherLocation.DAYSIDE, SpaceWeatherLocation.NIGHTSIDE));
+
     private AviMessageLexer lexer;
 
     private static Optional<PartialOrCompleteTimeInstant> createPartialTimeInstant(final Lexeme lexeme) {
@@ -448,9 +450,19 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                 regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
             }
             while (l != null) {
+                final boolean[] noLocationIndicator = {true};
                 @Nullable final SpaceWeatherLocation location =
                         Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.LOCATION_INDICATOR, String.class))
-                                .map(SpaceWeatherLocation::fromTacCode)
+                                .map(code -> {
+                                    noLocationIndicator[0] = false;
+                                    try {
+                                        return SpaceWeatherLocation.fromTacCode(code);
+                                    } catch (final IllegalArgumentException exception) {
+                                        issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR,
+                                                ConversionIssue.Type.SYNTAX, exception.getMessage(), exception));
+                                        return null;
+                                    }
+                                })
                                 .orElse(null);
                 if (location != null) {
                     checkLexemeOrder(issues, l, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
@@ -466,13 +478,19 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                         regionBuilder.setAirSpaceVolume(volume);
                     }
                     regionList.add(regionBuilder.build());
-                } else {
+                } else if (noLocationIndicator[0]) {
                     issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.OTHER,
-                            "Location indicator not available in Lexeme " + l + ", strange"));
+                            "No location indicator available in Lexeme " + l));
                 }
                 l = l.findNext(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
             }
         }
+        regionList.subList(0, Math.max(0, regionList.size() - 1)).stream()
+                .map(region -> region.getLocationIndicator().orElse(null))
+                .filter(DAY_AND_NIGHTSIDE::contains)
+                .findFirst()
+                .ifPresent(locationIndicator -> issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX,
+                        locationIndicator.getCode() + " is allowed only as last region")));
         return regionList;
     }
 
