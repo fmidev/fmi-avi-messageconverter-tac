@@ -458,7 +458,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                                     try {
                                         return SpaceWeatherLocation.fromTacCode(code);
                                     } catch (final IllegalArgumentException exception) {
-                                        issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR,
+                                        issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING,
                                                 ConversionIssue.Type.SYNTAX, exception.getMessage(), exception));
                                         return null;
                                     }
@@ -489,7 +489,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                 .map(region -> region.getLocationIndicator().orElse(null))
                 .filter(DAY_AND_NIGHTSIDE::contains)
                 .findFirst()
-                .ifPresent(locationIndicator -> issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX,
+                .ifPresent(locationIndicator -> issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
                         locationIndicator.getCode() + " is allowed only as last region")));
         return regionList;
     }

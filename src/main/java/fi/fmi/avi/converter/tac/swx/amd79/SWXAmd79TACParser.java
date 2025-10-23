@@ -455,7 +455,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                                     try {
                                         return SpaceWeatherRegion.SpaceWeatherLocation.fromTacCode(code);
                                     } catch (final IllegalArgumentException exception) {
-                                        issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR,
+                                        issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING,
                                                 ConversionIssue.Type.SYNTAX, exception.getMessage(), exception));
                                         return null;
                                     }
@@ -487,7 +487,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                         .filter(locationIndicator -> locationIndicator == SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE)
                         .isPresent());
         if (hasDaylightSide && regionList.size() > 1) {
-            issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.SYNTAX,
+            issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
                     SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE.getCode() + " is not allowed with other regions"));
         }
 

@@ -659,10 +659,10 @@ public class SWXAmd82TACParserTest {
         Assertions.assertThat(result.getConversionIssues())
                 .hasOnlyOneElementSatisfying(issue -> {
                     Assertions.assertThat(issue.getMessage()).contains("DAYLIGHT SIDE");
-                    Assertions.assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.ERROR);
+                    Assertions.assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
                     Assertions.assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
                 });
-        Assertions.assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_ERRORS);
+        Assertions.assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
     }
 
     @Test
@@ -686,10 +686,10 @@ public class SWXAmd82TACParserTest {
         Assertions.assertThat(result.getConversionIssues())
                 .hasOnlyOneElementSatisfying(issue -> {
                     Assertions.assertThat(issue.getMessage()).contains(SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE.getCode());
-                    Assertions.assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.ERROR);
+                    Assertions.assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
                     Assertions.assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
                 });
-        Assertions.assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_ERRORS);
+        Assertions.assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
     }
 
     @Test
