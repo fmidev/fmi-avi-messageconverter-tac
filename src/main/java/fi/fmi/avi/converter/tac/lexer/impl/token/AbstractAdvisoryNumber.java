@@ -5,11 +5,8 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
-import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
-import java.util.Optional;
 import java.util.regex.Matcher;
 
 import static java.util.Objects.requireNonNull;
@@ -26,14 +23,18 @@ public abstract class AbstractAdvisoryNumber extends RegexMatchingLexemeVisitor 
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        if (token != null && token.hasPrevious()) {
-            if (token.getPrevious().getIdentity() != null && token.getPrevious().getIdentity().equals(previousLexemeIdentity)) {
+        if (token != null && token.hasPrevious() && token.getPrevious().getIdentity() != null) {
+            if (previousLexemeIdentityMatches(token.getPrevious().getIdentity())) {
                 token.identify(lexemeIdentity);
 
                 token.setParsedValue(Lexeme.ParsedValueName.YEAR, Integer.parseInt(match.group("year")));
                 token.setParsedValue(Lexeme.ParsedValueName.SEQUENCE_NUMBER, Integer.parseInt(match.group("serialNo")));
             }
         }
+    }
+
+    protected boolean previousLexemeIdentityMatches(final LexemeIdentity previousIdentity) {
+        return previousIdentity.equals(this.previousLexemeIdentity);
     }
 
     public static abstract class AbstractReconstructor extends FactoryBasedReconstructor {
@@ -43,23 +44,19 @@ public abstract class AbstractAdvisoryNumber extends RegexMatchingLexemeVisitor 
             this.lexemeIdentity = requireNonNull(lexemeIdentity, "lexemeIdentity");
         }
 
-        protected static String toAdvisoryNumberString(final int year, final int serialNumber) throws SerializingException {
+        protected static String toAdvisoryNumberString(final int year, final int serialNumber)
+                throws SerializingException {
             if (serialNumber <= 0) {
                 throw new SerializingException("The advisory number is missing the serial number");
             }
             if (year <= 0) {
-                throw new SerializingException(("The advisory number is missing the year"));
+                throw new SerializingException("The advisory number is missing the year");
             }
             return year + "/" + serialNumber;
         }
 
-        @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
-                throws SerializingException {
-            return getAdvisoryNumberString(msg, clz)
-                    .map(lexemeContent -> this.createLexeme(lexemeContent, lexemeIdentity));
+        protected Lexeme createAdvisoryNumberLexeme(final int year, final int serial) throws SerializingException {
+            return this.createLexeme(toAdvisoryNumberString(year, serial), lexemeIdentity);
         }
-
-        protected abstract <T extends AviationWeatherMessageOrCollection> Optional<String> getAdvisoryNumberString(T msg, Class<T> clz) throws SerializingException;
     }
 }

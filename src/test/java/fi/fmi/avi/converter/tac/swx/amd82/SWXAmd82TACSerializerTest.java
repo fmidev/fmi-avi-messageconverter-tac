@@ -429,7 +429,7 @@ public class SWXAmd82TACSerializerTest {
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
         final ConversionResult<SpaceWeatherAdvisoryAmd82> pojoResult = this.converter.convertMessage(inputTac, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        assertEquals(ConversionResult.Status.WITH_ERRORS, pojoResult.getStatus());
+        assertEquals(ConversionResult.Status.WITH_WARNINGS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
 
         final ConversionResult<String> stringResult = this.converter.convertMessage(pojoResult.getConvertedMessage().get(), TACConverter.SWX_AMD82_POJO_TO_TAC,

@@ -28,7 +28,7 @@ public class ReplaceAdvisoryNumberLabel extends RegexMatchingLexemeVisitor {
 
         @Override
         protected <T extends AviationWeatherMessageOrCollection> boolean isReconstructable(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
-            return SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz) && !((SpaceWeatherAdvisoryAmd82) msg).getReplaceAdvisoryNumber().isEmpty()
+            return SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz) && !((SpaceWeatherAdvisoryAmd82) msg).getReplaceAdvisoryNumbers().isEmpty()
                     || SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz) && ((SpaceWeatherAdvisoryAmd79) msg).getReplaceAdvisoryNumber().isPresent();
         }
     }

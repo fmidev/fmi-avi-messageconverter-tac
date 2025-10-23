@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -154,8 +155,8 @@ public class SWXAmd82ReconstructorTest {
     @Test
     public void replaceNumberReconstructorTest() throws Exception {
         final SpaceWeatherAdvisoryAmd82 advisory = SpaceWeatherAdvisoryAmd82Impl.Builder.from(msg)
-                .clearReplaceAdvisoryNumber()
-                .addReplaceAdvisoryNumber(AdvisoryNumberImpl.builder().setYear(2020).setSerialNumber(13).build(),
+                .clearReplaceAdvisoryNumbers()
+                .addReplaceAdvisoryNumbers(AdvisoryNumberImpl.builder().setYear(2020).setSerialNumber(13).build(),
                         AdvisoryNumberImpl.builder().setYear(2020).setSerialNumber(14).build())
                 .build();
         final ReconstructorContext<SpaceWeatherAdvisoryAmd82> context = new ReconstructorContext<>(advisory, new ConversionHints());
@@ -163,17 +164,21 @@ public class SWXAmd82ReconstructorTest {
         final ReplaceAdvisoryNumber.Reconstructor reconstructor = new ReplaceAdvisoryNumber.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
 
-        final Optional<Lexeme> replaceNumbers = reconstructor.getAsLexeme(advisory, SpaceWeatherAdvisoryAmd82.class, context);
+        final List<Lexeme> replaceNumbers = reconstructor.getAsLexemes(advisory, SpaceWeatherAdvisoryAmd82.class, context);
 
-        assertTrue(replaceNumbers.isPresent());
-        assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER, replaceNumbers.get().getIdentity());
-        assertEquals("2020/13 2020/14", replaceNumbers.get().getTACToken());
+        assertFalse(replaceNumbers.isEmpty());
+        assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER, replaceNumbers.get(0).getIdentity());
+        assertEquals("2020/13", replaceNumbers.get(0).getTACToken());
+        assertEquals(LexemeIdentity.WHITE_SPACE, replaceNumbers.get(1).getIdentity());
+        assertEquals(" ", replaceNumbers.get(1).getTACToken());
+        assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER, replaceNumbers.get(2).getIdentity());
+        assertEquals("2020/14", replaceNumbers.get(2).getTACToken());
     }
 
     @Test
     public void noReplaceNumberReconstructorTest() {
         final SpaceWeatherAdvisoryAmd82 noReplaceNumbers = SpaceWeatherAdvisoryAmd82Impl.Builder.from(msg)
-                .clearReplaceAdvisoryNumber()
+                .clearReplaceAdvisoryNumbers()
                 .build();
         final ReconstructorContext<SpaceWeatherAdvisoryAmd82> context = new ReconstructorContext<>(noReplaceNumbers, new ConversionHints());
 

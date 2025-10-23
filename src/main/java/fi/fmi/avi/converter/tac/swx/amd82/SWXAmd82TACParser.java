@@ -201,20 +201,17 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                 retval.addIssue(orderIssue);
             }
 
-            int seen = 0;
+            int count = 0;
             for (Lexeme number = firstNumber;
                  number != null && number.getIdentity() == LexemeIdentity.REPLACE_ADVISORY_NUMBER;
                  number = number.getNext()) {
-
-                if (++seen <= MAX_ADVISORIES_TO_REPLACE) {
-                    builder.addReplaceAdvisoryNumber(newAdvisoryNumber(number));
-                }
+                builder.addReplaceAdvisoryNumbers(newAdvisoryNumber(number));
+                count++;
             }
 
-            if (seen > MAX_ADVISORIES_TO_REPLACE) {
-                conversionIssues.add(new ConversionIssue(
-                        ConversionIssue.Type.SYNTAX,
-                        "Too many replacement advisory numbers: " + seen + ", maximum is 4"));
+            if (count > MAX_ADVISORIES_TO_REPLACE) {
+                conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
+                        "Too many replacement advisory numbers: " + count + ", maximum is " + MAX_ADVISORIES_TO_REPLACE));
             }
         });
 

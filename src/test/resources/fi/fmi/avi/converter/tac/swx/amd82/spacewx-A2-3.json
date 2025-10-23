@@ -290,7 +290,7 @@
   },
   "permissibleUsage": "NON_OPERATIONAL",
   "permissibleUsageReason": "TEST",
-  "replaceAdvisoryNumber": [
+  "replaceAdvisoryNumbers": [
     {
       "year": 2016,
       "serialNumber": 1

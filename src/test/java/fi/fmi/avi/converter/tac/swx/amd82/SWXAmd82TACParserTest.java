@@ -109,9 +109,9 @@ public class SWXAmd82TACParserTest {
         assertTrue(analysis.getNilPhenomenonReason().isPresent());
         assertEquals(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_PHENOMENON_EXPECTED, analysis.getNilPhenomenonReason().get());
         assertEquals(NextAdvisory.Type.NO_FURTHER_ADVISORIES, swx.getNextAdvisory().getTimeSpecifier());
-        assertFalse(swx.getReplaceAdvisoryNumber().isEmpty());
-        assertEquals(1, swx.getReplaceAdvisoryNumber().get(0).getSerialNumber());
-        assertEquals(2016, swx.getReplaceAdvisoryNumber().get(0).getYear());
+        assertFalse(swx.getReplaceAdvisoryNumbers().isEmpty());
+        assertEquals(1, swx.getReplaceAdvisoryNumbers().get(0).getSerialNumber());
+        assertEquals(2016, swx.getReplaceAdvisoryNumbers().get(0).getYear());
     }
 
     @Test
@@ -812,28 +812,11 @@ public class SWXAmd82TACParserTest {
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         final SpaceWeatherAdvisoryAmd82 advisory = result.getConvertedMessage().get();
 
-        assertEquals(2, advisory.getReplaceAdvisoryNumber().size());
-        assertEquals(2016, advisory.getReplaceAdvisoryNumber().get(0).getYear());
-        assertEquals(1, advisory.getReplaceAdvisoryNumber().get(0).getSerialNumber());
-        assertEquals(2016, advisory.getReplaceAdvisoryNumber().get(1).getYear());
-        assertEquals(2, advisory.getReplaceAdvisoryNumber().get(1).getSerialNumber());
-    }
-
-    @Test
-    public void testFourReplaceNumbers() throws Exception {
-        final String base = getInput("spacewx-multiple-replace-numbers.tac");
-        final String input = withReplaceNumbers(base, "2016/1 2016/2 2016/3 2016/4");
-
-        final ConversionResult<SpaceWeatherAdvisoryAmd82> result =
-                this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
-
-        assertEquals(0, result.getConversionIssues().size());
-        final SpaceWeatherAdvisoryAmd82 advisory = result.getConvertedMessage().get();
-        assertEquals(4, advisory.getReplaceAdvisoryNumber().size());
-        for (int i = 0; i < 4; i++) {
-            assertEquals(2016, advisory.getReplaceAdvisoryNumber().get(i).getYear());
-            assertEquals(i + 1, advisory.getReplaceAdvisoryNumber().get(i).getSerialNumber());
-        }
+        assertEquals(2, advisory.getReplaceAdvisoryNumbers().size());
+        assertEquals(2016, advisory.getReplaceAdvisoryNumbers().get(0).getYear());
+        assertEquals(1, advisory.getReplaceAdvisoryNumbers().get(0).getSerialNumber());
+        assertEquals(2016, advisory.getReplaceAdvisoryNumbers().get(1).getYear());
+        assertEquals(2, advisory.getReplaceAdvisoryNumbers().get(1).getSerialNumber());
     }
 
     @Test
@@ -849,10 +832,10 @@ public class SWXAmd82TACParserTest {
                         issue.getMessage().contains("Too many replacement advisory numbers: 5, maximum is 4")));
 
         final SpaceWeatherAdvisoryAmd82 advisory = result.getConvertedMessage().get();
-        assertEquals(4, advisory.getReplaceAdvisoryNumber().size());
-        for (int i = 0; i < 4; i++) {
-            assertEquals(2016, advisory.getReplaceAdvisoryNumber().get(i).getYear());
-            assertEquals(i + 1, advisory.getReplaceAdvisoryNumber().get(i).getSerialNumber());
+        assertEquals(5, advisory.getReplaceAdvisoryNumbers().size());
+        for (int i = 0; i < 5; i++) {
+            assertEquals(2016, advisory.getReplaceAdvisoryNumbers().get(i).getYear());
+            assertEquals(i + 1, advisory.getReplaceAdvisoryNumbers().get(i).getSerialNumber());
         }
     }
 
