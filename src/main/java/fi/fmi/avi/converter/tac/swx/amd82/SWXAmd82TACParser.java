@@ -37,6 +37,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
                     LexemeIdentity.SWX_EFFECT_AND_INTENSITY, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
                     LexemeIdentity.NEXT_ADVISORY)));
+    private static final int MAX_ADVISORIES_TO_REPLACE = 4;
 
     private final LexemeIdentity[] oneRequired = new LexemeIdentity[]{LexemeIdentity.ISSUE_TIME, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER,
             LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START};
@@ -205,12 +206,12 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                  number != null && number.getIdentity() == LexemeIdentity.REPLACE_ADVISORY_NUMBER;
                  number = number.getNext()) {
 
-                if (++seen <= 4) {
+                if (++seen <= MAX_ADVISORIES_TO_REPLACE) {
                     builder.addReplaceAdvisoryNumber(newAdvisoryNumber(number));
                 }
             }
 
-            if (seen > 4) {
+            if (seen > MAX_ADVISORIES_TO_REPLACE) {
                 conversionIssues.add(new ConversionIssue(
                         ConversionIssue.Type.SYNTAX,
                         "Too many replacement advisory numbers: " + seen + ", maximum is 4"));
