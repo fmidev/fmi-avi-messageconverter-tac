@@ -14,8 +14,6 @@ import java.util.List;
 
 public class ReplaceAdvisoryNumber extends AbstractAdvisoryNumber {
 
-    private static final int MAX_ADVISORIES_TO_REPLACE = 4;
-
     public ReplaceAdvisoryNumber(final OccurrenceFrequency prio) {
         super(prio, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL);
     }
@@ -26,8 +24,20 @@ public class ReplaceAdvisoryNumber extends AbstractAdvisoryNumber {
     }
 
     public static class Reconstructor extends AbstractAdvisoryNumber.AbstractReconstructor {
+        private static final int MAX_ADVISORIES_TO_REPLACE = 4;
+
         public Reconstructor() {
             super(LexemeIdentity.REPLACE_ADVISORY_NUMBER);
+        }
+
+        private Lexeme createAdvisoryLexeme(final fi.fmi.avi.model.swx.amd82.AdvisoryNumber advisoryNumber, final int index) throws SerializingException {
+            final String token = toAdvisoryNumberString(advisoryNumber.getYear(), advisoryNumber.getSerialNumber());
+            if (index >= MAX_ADVISORIES_TO_REPLACE) {
+                final Lexeme lexeme = createLexeme(token, LexemeIdentity.REPLACE_ADVISORY_NUMBER, Lexeme.Status.WARNING);
+                lexeme.setLexerMessage("Exceeding maximum number of replace advisory numbers (" + MAX_ADVISORIES_TO_REPLACE + ")");
+                return lexeme;
+            }
+            return createLexeme(token, LexemeIdentity.REPLACE_ADVISORY_NUMBER);
         }
 
         @Override
@@ -50,16 +60,12 @@ public class ReplaceAdvisoryNumber extends AbstractAdvisoryNumber {
                     return Collections.emptyList();
                 }
 
-                // Note that this silently drops excess advisory numbers beyond the maximum allowed
                 final List<Lexeme> lexemes = new ArrayList<>();
-                final int count = Math.min(MAX_ADVISORIES_TO_REPLACE, advisoryNumbers.size());
-                for (int i = 0; i < count; i++) {
-                    final fi.fmi.avi.model.swx.amd82.AdvisoryNumber advisoryNumber = advisoryNumbers.get(i);
-                    final String token = toAdvisoryNumberString(advisoryNumber.getYear(), advisoryNumber.getSerialNumber());
-                    lexemes.add(createLexeme(token, LexemeIdentity.REPLACE_ADVISORY_NUMBER));
-                    if (i < count - 1) {
+                for (int i = 0; i < advisoryNumbers.size(); i++) {
+                    if (i > 0) {
                         lexemes.add(createLexeme(" ", LexemeIdentity.WHITE_SPACE));
                     }
+                    lexemes.add(createAdvisoryLexeme(advisoryNumbers.get(i), i));
                 }
                 return lexemes;
             }

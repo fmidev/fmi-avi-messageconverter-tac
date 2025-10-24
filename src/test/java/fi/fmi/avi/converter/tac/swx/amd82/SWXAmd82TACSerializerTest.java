@@ -9,7 +9,6 @@ import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
 import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
@@ -19,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -39,10 +37,6 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
 public class SWXAmd82TACSerializerTest {
     private static final String CR_LF = CARRIAGE_RETURN.getContent() + LINE_FEED.getContent();
-
-    @Autowired
-    @Qualifier("tacTokenizer")
-    private AviMessageTACTokenizer tokenizer;
 
     @Autowired
     private AviMessageConverter converter;
@@ -398,7 +392,7 @@ public class SWXAmd82TACSerializerTest {
 
     @Test
     public void testFiveAdvisoryReplaceNumbers() {
-        final String inputTac = "SWX ADVISORY" + CR_LF
+        final String expected = "SWX ADVISORY" + CR_LF
                 + "STATUS:             TEST" + CR_LF
                 + "DTG:                20161108/0000Z" + CR_LF
                 + "SWXC:               DONLON" + CR_LF
@@ -413,28 +407,13 @@ public class SWXAmd82TACSerializerTest {
                 + "RMK:                NIL" + CR_LF
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
-        final String expected = "SWX ADVISORY" + CR_LF
-                + "STATUS:             TEST" + CR_LF
-                + "DTG:                20161108/0000Z" + CR_LF
-                + "SWXC:               DONLON" + CR_LF
-                + "ADVISORY NR:        2016/2" + CR_LF
-                + "NR RPLC:            2020/11 2020/12 2020/13 2020/14" + CR_LF
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF
-                + "OBS SWX:            08/0100Z HNH HSH E180 - W180 ABV FL340" + CR_LF
-                + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF
-                + "FCST SWX +12 HR:    08/1300Z HNH HSH E180 - W180 ABV FL340" + CR_LF
-                + "FCST SWX +18 HR:    08/1900Z HNH HSH E180 - W180 ABV FL340" + CR_LF
-                + "FCST SWX +24 HR:    09/0100Z NO SWX EXP" + CR_LF
-                + "RMK:                NIL" + CR_LF
-                + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
-
-        final ConversionResult<SpaceWeatherAdvisoryAmd82> pojoResult = this.converter.convertMessage(inputTac, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> pojoResult = this.converter.convertMessage(expected, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertEquals(ConversionResult.Status.WITH_WARNINGS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
 
         final ConversionResult<String> stringResult = this.converter.convertMessage(pojoResult.getConvertedMessage().get(), TACConverter.SWX_AMD82_POJO_TO_TAC,
                 new ConversionHints());
-        assertEquals(ConversionResult.Status.SUCCESS, stringResult.getStatus());
+        assertEquals(ConversionResult.Status.WITH_WARNINGS, stringResult.getStatus());
         assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(expected, stringResult.getConvertedMessage().get());
     }
