@@ -1,6 +1,8 @@
 package fi.fmi.avi.converter.tac.bulletin;
 
 import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.ConversionIssue;
+import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
@@ -14,6 +16,18 @@ public class GenericMeteorologicalBulletinTACSerializer extends AbstractTACBulle
 
     public void setLexer(final AviMessageLexer lexer) {
         this.lexer = lexer;
+    }
+
+    @Override
+    public ConversionResult<String> convertMessage(final AviationWeatherMessageOrCollection input, final ConversionHints hints) {
+        final ConversionResult<String> result = new ConversionResult<>();
+        try {
+            final LexemeSequence seq = tokenizeMessage(input, hints);
+            result.setConvertedMessage(seq.getTAC());
+        } catch (final SerializingException se) {
+            result.addIssue(new ConversionIssue(ConversionIssue.Type.OTHER, se.getMessage()));
+        }
+        return result;
     }
 
     @Override
