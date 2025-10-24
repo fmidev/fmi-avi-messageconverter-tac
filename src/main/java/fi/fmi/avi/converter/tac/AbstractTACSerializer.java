@@ -1,24 +1,20 @@
 package fi.fmi.avi.converter.tac;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import fi.fmi.avi.converter.AviMessageSpecificConverter;
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
-import fi.fmi.avi.converter.tac.lexer.LexingFactory;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.converter.ConversionIssue;
+import fi.fmi.avi.converter.ConversionResult;
+import fi.fmi.avi.converter.tac.lexer.*;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.TACTokenReconstructor;
 import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CloudLayer;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by rinne on 07/06/17.
@@ -53,12 +49,32 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
     @Override
     public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException;
 
+    @Override
+    public ConversionResult<String> convertMessage(final AviationWeatherMessageOrCollection input, final ConversionHints hints) {
+        final ConversionResult<String> result = new ConversionResult<>();
+        try {
+            final LexemeSequence seq = tokenizeMessage(input, hints);
+            seq.getLexemes().stream()
+                    .filter(lexeme -> lexeme.getStatus() != Lexeme.Status.OK)
+                    .forEach(lexeme -> {
+                        final ConversionIssue.Type type = lexeme.getStatus() == Lexeme.Status.SYNTAX_ERROR
+                                ? ConversionIssue.Type.SYNTAX
+                                : ConversionIssue.Type.OTHER;
+                        result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, type, lexeme.getLexerMessage()));
+                    });
+            result.setConvertedMessage(seq.getTAC());
+        } catch (final SerializingException se) {
+            result.addIssue(new ConversionIssue(ConversionIssue.Type.OTHER, se.getMessage()));
+        }
+        return result;
+    }
+
     public TACTokenReconstructor getReconstructor(final LexemeIdentity id) {
         return this.reconstructors.get(id);
     }
 
     protected <V extends AviationWeatherMessage> int appendCloudLayers(final LexemeSequenceBuilder builder, final V msg, final Class<V> clz,
-            final List<? extends CloudLayer> layers, final ReconstructorContext<V> ctx) throws SerializingException {
+                                                                       final List<? extends CloudLayer> layers, final ReconstructorContext<V> ctx) throws SerializingException {
         int retval = 0;
         if (layers != null) {
             for (final CloudLayer layer : layers) {
@@ -71,7 +87,7 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
     }
 
     protected <V extends AviationWeatherMessageOrCollection> int appendToken(final LexemeSequenceBuilder builder, final LexemeIdentity id, final V msg,
-            final Class<V> clz, final ReconstructorContext<V> ctx) throws SerializingException {
+                                                                             final Class<V> clz, final ReconstructorContext<V> ctx) throws SerializingException {
         final TACTokenReconstructor rec = this.reconstructors.get(id);
         int retval = 0;
         if (rec != null) {

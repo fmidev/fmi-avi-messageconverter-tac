@@ -1,10 +1,11 @@
 package fi.fmi.avi.converter.tac.swx.amd82;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
-import fi.fmi.avi.converter.tac.lexer.*;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
@@ -15,24 +16,6 @@ public class SWXAmd82TACSerializer extends AbstractTACSerializer<SpaceWeatherAdv
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {
         return tokenizeMessage(msg, null);
-    }
-
-    @Override
-    public ConversionResult<String> convertMessage(final SpaceWeatherAdvisoryAmd82 input, final ConversionHints hints) {
-        final ConversionResult<String> result = new ConversionResult<>();
-        try {
-            final LexemeSequence seq = tokenizeMessage(input, hints);
-            seq.getLexemes().stream()
-                    .filter(lexeme -> lexeme.getStatus() == Lexeme.Status.WARNING)
-                    .forEach(lexeme -> result.addIssue(new ConversionIssue(
-                            ConversionIssue.Severity.WARNING,
-                            ConversionIssue.Type.OTHER,
-                            lexeme.getLexerMessage())));
-            result.setConvertedMessage(seq.getTAC());
-        } catch (final SerializingException se) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.OTHER, se.getMessage()));
-        }
-        return result;
     }
 
     @Override

@@ -1,13 +1,7 @@
 package fi.fmi.avi.converter.tac.taf;
 
-import java.util.Optional;
-
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionIssue.Type;
-import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
@@ -22,6 +16,8 @@ import fi.fmi.avi.model.taf.TAFAirTemperatureForecast;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 
+import java.util.Optional;
+
 /**
  * Serializes TAF POJO to TAC format
  */
@@ -30,18 +26,6 @@ public class TAFTACSerializer extends AbstractTACSerializer<TAF> {
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {
         return tokenizeMessage(msg, null);
-    }
-
-    @Override
-    public ConversionResult<String> convertMessage(final TAF input, final ConversionHints hints) {
-        final ConversionResult<String> result = new ConversionResult<>();
-        try {
-            final LexemeSequence seq = tokenizeMessage(input, hints);
-            result.setConvertedMessage(seq.getTAC());
-        } catch (final SerializingException se) {
-            result.addIssue(new ConversionIssue(Type.OTHER, se.getMessage()));
-        }
-        return result;
     }
 
     @Override
