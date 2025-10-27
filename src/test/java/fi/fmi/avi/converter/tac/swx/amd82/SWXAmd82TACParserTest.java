@@ -11,6 +11,7 @@ import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.swx.amd82.*;
 import fi.fmi.avi.model.swx.amd82.immutable.IssuingCenterImpl;
 import fi.fmi.avi.model.swx.amd82.immutable.SpaceWeatherAdvisoryAmd82Impl;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class SWXAmd82TACParserTest {
                        + "OBS SWX: 08/1200Z HNH HSH E16000 - W2000 ABV FL340\n"//
                        + "FCST SWX +6 HR: 08/1800Z N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180 ABV FL370\n"//
                        + "FCST SWX +12 HR: 09/0000Z NO SWX EXP\n"//
-                       + "FCST SWX +18 HR: 09/0600Z DAYLIGHT SIDE\n"//
+                       + "FCST SWX +18 HR: 09/0600Z DAYSIDE\n"//
                        + "FCST SWX +24 HR: 09/1200Z NO SWX EXP\n"//
                        + "RMK: TEST TEST TEST TEST\n"
                        + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" //
@@ -266,7 +267,7 @@ public class SWXAmd82TACParserTest {
         assertEquals(SpaceWeatherAdvisoryAnalysis.Type.FORECAST, analysis.getAnalysisType());
         assertEquals(1, analysis.getRegions().size());
         assertTrue(analysis.getRegions().get(0).getLocationIndicator().isPresent());
-        assertEquals(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE, analysis.getRegions().get(0).getLocationIndicator().get());
+        assertEquals(SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE, analysis.getRegions().get(0).getLocationIndicator().get());
 
         analysis = analyses.get(4);
 
@@ -663,14 +664,54 @@ public class SWXAmd82TACParserTest {
     }
 
     @Test
-    public void testDaylightSide() throws Exception {
-        final String input = getInput("spacewx-daylight-side.tac");
+    public void testInvalidDaylightSide() throws Exception {
+        final String input = getInput("spacewx-invalid-daylight-side.tac");
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        Assertions.assertThat(result.getConversionIssues())
+                .hasOnlyOneElementSatisfying(issue -> {
+                    Assertions.assertThat(issue.getMessage()).contains("DAYLIGHT SIDE");
+                    Assertions.assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
+                    Assertions.assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                });
+        Assertions.assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
+    }
+
+    @Test
+    public void testDayside() throws Exception {
+        final String input = getInput("spacewx-dayside.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        assertEquals(1, analysis.getRegions().size());
-        final SpaceWeatherRegion region = analysis.getRegions().get(0);
-        assertEquals(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE, region.getLocationIndicator().get());
+        assertEquals(3, analysis.getRegions().size());
+        final SpaceWeatherRegion region = analysis.getRegions().get(2);
+        assertEquals(SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE, region.getLocationIndicator().get());
+        assertFalse(region.getAirSpaceVolume().isPresent());
+        assertFalse(region.getLongitudeLimitMinimum().isPresent());
+        assertFalse(region.getLongitudeLimitMaximum().isPresent());
+    }
+
+    @Test
+    public void testInvalidDayside() throws Exception {
+        final String input = getInput("spacewx-invalid-dayside.tac");
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        Assertions.assertThat(result.getConversionIssues())
+                .hasOnlyOneElementSatisfying(issue -> {
+                    Assertions.assertThat(issue.getMessage()).contains(SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE.getCode());
+                    Assertions.assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
+                    Assertions.assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                });
+        Assertions.assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
+    }
+
+    @Test
+    public void testNightside() throws Exception {
+        final String input = getInput("spacewx-nightside.tac");
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        assertTrue(result.getConversionIssues().isEmpty());
+        final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
+        assertEquals(5, analysis.getRegions().size());
+        final SpaceWeatherRegion region = analysis.getRegions().get(4);
+        assertEquals(SpaceWeatherRegion.SpaceWeatherLocation.NIGHTSIDE, region.getLocationIndicator().get());
         assertFalse(region.getAirSpaceVolume().isPresent());
         assertFalse(region.getLongitudeLimitMinimum().isPresent());
         assertFalse(region.getLongitudeLimitMaximum().isPresent());
