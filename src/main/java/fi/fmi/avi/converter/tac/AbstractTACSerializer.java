@@ -50,7 +50,7 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
     public abstract LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException;
 
     @Override
-    public ConversionResult<String> convertMessage(final AviationWeatherMessageOrCollection input, final ConversionHints hints) {
+    public ConversionResult<String> convertMessage(final S input, final ConversionHints hints) {
         final ConversionResult<String> result = new ConversionResult<>();
         try {
             final LexemeSequence seq = tokenizeMessage(input, hints);
@@ -60,7 +60,10 @@ public abstract class AbstractTACSerializer<S extends AviationWeatherMessageOrCo
                         final ConversionIssue.Type type = lexeme.getStatus() == Lexeme.Status.SYNTAX_ERROR
                                 ? ConversionIssue.Type.SYNTAX
                                 : ConversionIssue.Type.OTHER;
-                        result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, type, lexeme.getLexerMessage()));
+                        final String message = lexeme.getLexerMessage() != null
+                                ? lexeme.getLexerMessage()
+                                : "Issue with token '" + lexeme.getTACToken() + "' <" + lexeme.getIdentity() + ">";
+                        result.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING, type, message));
                     });
             result.setConvertedMessage(seq.getTAC());
         } catch (final SerializingException se) {

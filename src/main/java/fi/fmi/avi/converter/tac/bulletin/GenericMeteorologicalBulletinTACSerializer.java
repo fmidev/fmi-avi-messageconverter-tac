@@ -19,7 +19,7 @@ public class GenericMeteorologicalBulletinTACSerializer extends AbstractTACBulle
     }
 
     @Override
-    public ConversionResult<String> convertMessage(final AviationWeatherMessageOrCollection input, final ConversionHints hints) {
+    public ConversionResult<String> convertMessage(final GenericMeteorologicalBulletin input, final ConversionHints hints) {
         final ConversionResult<String> result = new ConversionResult<>();
         try {
             final LexemeSequence seq = tokenizeMessage(input, hints);
