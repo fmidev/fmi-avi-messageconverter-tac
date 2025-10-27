@@ -1,8 +1,6 @@
 package fi.fmi.avi.converter.tac.bulletin;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.*;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -21,18 +19,6 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
      * Maximum number of characters per line (inclusive).
      */
     public static final int MAX_ROW_LENGTH = 59;
-
-    @Override
-    public ConversionResult<String> convertMessage(final T input, final ConversionHints hints) {
-        final ConversionResult<String> result = new ConversionResult<>();
-        try {
-            final LexemeSequence seq = tokenizeMessage(input, hints);
-            result.setConvertedMessage(seq.getTAC());
-        } catch (final SerializingException se) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.OTHER, se.getMessage()));
-        }
-        return result;
-    }
 
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {

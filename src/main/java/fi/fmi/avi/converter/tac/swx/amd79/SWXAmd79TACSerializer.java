@@ -1,8 +1,6 @@
 package fi.fmi.avi.converter.tac.swx.amd79;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
@@ -18,18 +16,6 @@ public class SWXAmd79TACSerializer extends AbstractTACSerializer<SpaceWeatherAdv
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {
         return tokenizeMessage(msg, null);
-    }
-
-    @Override
-    public ConversionResult<String> convertMessage(final SpaceWeatherAdvisoryAmd79 input, final ConversionHints hints) {
-        final ConversionResult<String> result = new ConversionResult<>();
-        try {
-            final LexemeSequence seq = tokenizeMessage(input, hints);
-            result.setConvertedMessage(seq.getTAC());
-        } catch (final SerializingException se) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.OTHER, se.getMessage()));
-        }
-        return result;
     }
 
     @Override

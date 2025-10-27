@@ -1,8 +1,6 @@
 package fi.fmi.avi.converter.tac.sigmet;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
@@ -19,17 +17,6 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
         return tokenizeMessage(msg, null);
     }
 
-    @Override
-    public ConversionResult<String> convertMessage(final SIGMET input, final ConversionHints hints) {
-        final ConversionResult<String> result = new ConversionResult<>();
-        try {
-            final LexemeSequence seq = tokenizeMessage(input, hints);
-            result.setConvertedMessage(seq.getTAC());
-        } catch (final SerializingException se) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.OTHER, se.getMessage()));
-        }
-        return result;
-    }
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg, final ConversionHints hints) throws SerializingException {
         if (!(msg instanceof SIGMET)) {
@@ -113,7 +100,7 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
                     if (appendToken(retval, LexemeIdentity.SIGMET_INTENSITY, input, SIGMET.class, analysisCtx) > 0) {
                         appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                     }
-                } catch (SerializingException e) {
+                } catch (final SerializingException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -146,7 +133,7 @@ public class SIGMETTACSerializer extends AbstractTACSerializer<SIGMET> {
                             }
                         }
                 }
-                } catch (SerializingException e) {
+                } catch (final SerializingException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }

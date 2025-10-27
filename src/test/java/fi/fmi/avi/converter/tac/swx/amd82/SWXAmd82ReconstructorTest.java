@@ -11,6 +11,7 @@ import fi.fmi.avi.converter.tac.lexer.LexingFactory;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.token.*;
 import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
+import fi.fmi.avi.model.swx.amd82.immutable.AdvisoryNumberImpl;
 import fi.fmi.avi.model.swx.amd82.immutable.SpaceWeatherAdvisoryAmd82Impl;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -40,6 +42,13 @@ public class SWXAmd82ReconstructorTest {
     private SpaceWeatherAdvisoryAmd82 msg;
     private ReconstructorContext<SpaceWeatherAdvisoryAmd82> ctx;
 
+    private static String getInput(final String fileName) throws IOException {
+        try (final InputStream is = SWXAmd82ReconstructorTest.class.getResourceAsStream(fileName)) {
+            Objects.requireNonNull(is);
+            return IOUtils.toString(is, "UTF-8");
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
         final ObjectMapper objectMapper = new ObjectMapper();
@@ -49,13 +58,6 @@ public class SWXAmd82ReconstructorTest {
         msg = objectMapper.readValue(input, SpaceWeatherAdvisoryAmd82Impl.class);
         ctx = new ReconstructorContext<>(msg, new ConversionHints());
 
-    }
-
-    private String getInput(final String fileName) throws IOException {
-        try (final InputStream is = SWXAmd82ReconstructorTest.class.getResourceAsStream(fileName)) {
-            Objects.requireNonNull(is);
-            return IOUtils.toString(is, "UTF-8");
-        }
     }
 
     @Test
@@ -138,4 +140,53 @@ public class SWXAmd82ReconstructorTest {
         assertEquals("08/1900Z", lexList.get(3).getTACToken());
         assertEquals("09/0100Z", lexList.get(4).getTACToken());
     }
+
+    @Test
+    public void replaceNumberLabelReconstructorTest() {
+        final ReplaceAdvisoryNumberLabel.Reconstructor reconstructor = new ReplaceAdvisoryNumberLabel.Reconstructor();
+        reconstructor.setLexingFactory(this.lexingFactory);
+
+        final Optional<Lexeme> label = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
+
+        assertEquals("NR RPLC:", label.get().getTACToken());
+        assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, label.get().getIdentity());
+    }
+
+    @Test
+    public void replaceNumberReconstructorTest() throws Exception {
+        final SpaceWeatherAdvisoryAmd82 advisory = SpaceWeatherAdvisoryAmd82Impl.Builder.from(msg)
+                .clearReplaceAdvisoryNumbers()
+                .addReplaceAdvisoryNumbers(AdvisoryNumberImpl.builder().setYear(2020).setSerialNumber(13).build(),
+                        AdvisoryNumberImpl.builder().setYear(2020).setSerialNumber(14).build())
+                .build();
+        final ReconstructorContext<SpaceWeatherAdvisoryAmd82> context = new ReconstructorContext<>(advisory, new ConversionHints());
+
+        final ReplaceAdvisoryNumber.Reconstructor reconstructor = new ReplaceAdvisoryNumber.Reconstructor();
+        reconstructor.setLexingFactory(this.lexingFactory);
+
+        final List<Lexeme> replaceNumbers = reconstructor.getAsLexemes(advisory, SpaceWeatherAdvisoryAmd82.class, context);
+
+        assertFalse(replaceNumbers.isEmpty());
+        assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER, replaceNumbers.get(0).getIdentity());
+        assertEquals("2020/13", replaceNumbers.get(0).getTACToken());
+        assertEquals(LexemeIdentity.WHITE_SPACE, replaceNumbers.get(1).getIdentity());
+        assertEquals(" ", replaceNumbers.get(1).getTACToken());
+        assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER, replaceNumbers.get(2).getIdentity());
+        assertEquals("2020/14", replaceNumbers.get(2).getTACToken());
+    }
+
+    @Test
+    public void noReplaceNumberReconstructorTest() {
+        final SpaceWeatherAdvisoryAmd82 noReplaceNumbers = SpaceWeatherAdvisoryAmd82Impl.Builder.from(msg)
+                .clearReplaceAdvisoryNumbers()
+                .build();
+        final ReconstructorContext<SpaceWeatherAdvisoryAmd82> context = new ReconstructorContext<>(noReplaceNumbers, new ConversionHints());
+
+        final ReplaceAdvisoryNumberLabel.Reconstructor reconstructor = new ReplaceAdvisoryNumberLabel.Reconstructor();
+        reconstructor.setLexingFactory(this.lexingFactory);
+
+        final Optional<Lexeme> label = reconstructor.getAsLexeme(noReplaceNumbers, SpaceWeatherAdvisoryAmd82.class, context);
+        assertFalse(label.isPresent());
+    }
+
 }

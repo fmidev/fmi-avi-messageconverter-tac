@@ -30,6 +30,13 @@ public class SWXAmd82TACConversionTest {
     @Autowired
     private AviMessageConverter converter;
 
+    private static String getInput(final String fileName) throws IOException {
+        try (final InputStream is = SWXAmd82ReconstructorTest.class.getResourceAsStream(fileName)) {
+            Objects.requireNonNull(is);
+            return IOUtils.toString(is, "UTF-8");
+        }
+    }
+
     @Test
     public void parseAndSerialize() throws Exception {
         final String input = getInput("spacewx-A2-4.tac");
@@ -44,8 +51,8 @@ public class SWXAmd82TACConversionTest {
         assertEquals("DONLON", msg.getIssuingCenter().getName().get());
         assertEquals(2, msg.getAdvisoryNumber().getSerialNumber());
         assertEquals(2016, msg.getAdvisoryNumber().getYear());
-        assertEquals(1, msg.getReplaceAdvisoryNumber().get().getSerialNumber());
-        assertEquals(2016, msg.getReplaceAdvisoryNumber().get().getYear());
+        assertEquals(1, msg.getReplaceAdvisoryNumbers().get(0).getSerialNumber());
+        assertEquals(2016, msg.getReplaceAdvisoryNumbers().get(0).getYear());
         assertEquals("RADIATION MOD", msg.getPhenomena().get(0).asCombinedCode());
 
         assertEquals(5, msg.getAnalyses().size());
@@ -73,8 +80,8 @@ public class SWXAmd82TACConversionTest {
         assertEquals("PECASUS", msg.getIssuingCenter().getName().get());
         assertEquals(9, msg.getAdvisoryNumber().getSerialNumber());
         assertEquals(2020, msg.getAdvisoryNumber().getYear());
-        assertEquals(8, msg.getReplaceAdvisoryNumber().get().getSerialNumber());
-        assertEquals(2020, msg.getReplaceAdvisoryNumber().get().getYear());
+        assertEquals(8, msg.getReplaceAdvisoryNumbers().get(0).getSerialNumber());
+        assertEquals(2020, msg.getReplaceAdvisoryNumbers().get(0).getYear());
         assertEquals("HF COM MOD", msg.getPhenomena().get(0).asCombinedCode());
         assertEquals(5, msg.getAnalyses().size());
         SpaceWeatherAdvisoryAnalysis analysis = msg.getAnalyses().get(0);
@@ -97,8 +104,8 @@ public class SWXAmd82TACConversionTest {
 
         assertEquals(adv1.getIssuingCenter().getName(), adv2.getIssuingCenter().getName());
         assertEquals(adv1.getRemarks().get(), adv2.getRemarks().get());
-        assertEquals(adv1.getReplaceAdvisoryNumber().get().getSerialNumber(), adv2.getReplaceAdvisoryNumber().get().getSerialNumber());
-        assertEquals(adv1.getReplaceAdvisoryNumber().get().getYear(), adv2.getReplaceAdvisoryNumber().get().getYear());
+        assertEquals(adv1.getReplaceAdvisoryNumbers().get(0).getSerialNumber(), adv2.getReplaceAdvisoryNumbers().get(0).getSerialNumber());
+        assertEquals(adv1.getReplaceAdvisoryNumbers().get(0).getYear(), adv2.getReplaceAdvisoryNumbers().get(0).getYear());
 
         assertEquals(adv1.getNextAdvisory().getTimeSpecifier(), adv2.getNextAdvisory().getTimeSpecifier());
         assertEquals(adv1.getNextAdvisory().getTime().get(), adv2.getNextAdvisory().getTime().get());
@@ -133,11 +140,57 @@ public class SWXAmd82TACConversionTest {
         }
     }
 
-    private String getInput(final String fileName) throws IOException {
-        try (final InputStream is = SWXAmd82ReconstructorTest.class.getResourceAsStream(fileName)) {
-            Objects.requireNonNull(is);
-            return IOUtils.toString(is, "UTF-8");
+    @Test
+    public void parseAndSerializeMultipleReplaceNumbers() throws Exception {
+        final String input = getInput("spacewx-multiple-replace-numbers.tac");
+
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> pojoResult =
+                this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        assertEquals(0, pojoResult.getConversionIssues().size());
+        assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
+        assertTrue(pojoResult.getConvertedMessage().isPresent());
+
+        final SpaceWeatherAdvisoryAmd82 advisory = pojoResult.getConvertedMessage().get();
+
+        assertEquals("DONLON", advisory.getIssuingCenter().getName().get());
+        assertEquals(8, advisory.getAdvisoryNumber().getSerialNumber());
+        assertEquals(2016, advisory.getAdvisoryNumber().getYear());
+
+        assertEquals(4, advisory.getReplaceAdvisoryNumbers().size());
+        assertEquals(7, advisory.getReplaceAdvisoryNumbers().get(0).getSerialNumber());
+        assertEquals(6, advisory.getReplaceAdvisoryNumbers().get(1).getSerialNumber());
+        assertEquals(5, advisory.getReplaceAdvisoryNumbers().get(2).getSerialNumber());
+        assertEquals(4, advisory.getReplaceAdvisoryNumbers().get(3).getSerialNumber());
+        for (int i = 0; i < advisory.getReplaceAdvisoryNumbers().size(); i++) {
+            assertEquals(2016, advisory.getReplaceAdvisoryNumbers().get(i).getYear());
+        }
+
+        final ConversionResult<String> tacResult =
+                this.converter.convertMessage(advisory, TACConverter.SWX_AMD82_POJO_TO_TAC, new ConversionHints());
+        assertEquals(ConversionResult.Status.SUCCESS, tacResult.getStatus());
+        assertTrue(tacResult.getConvertedMessage().isPresent());
+        final String tac = tacResult.getConvertedMessage().get();
+
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> reserialized =
+                this.converter.convertMessage(tac, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        assertEquals(0, reserialized.getConversionIssues().size());
+        assertEquals(ConversionResult.Status.SUCCESS, reserialized.getStatus());
+        assertTrue(reserialized.getConvertedMessage().isPresent());
+
+        final SpaceWeatherAdvisoryAmd82 roundTripped = reserialized.getConvertedMessage().get();
+
+        assertEquals(advisory.getIssuingCenter().getName(), roundTripped.getIssuingCenter().getName());
+        assertEquals(advisory.getAdvisoryNumber().getYear(), roundTripped.getAdvisoryNumber().getYear());
+        assertEquals(advisory.getAdvisoryNumber().getSerialNumber(), roundTripped.getAdvisoryNumber().getSerialNumber());
+
+        assertEquals(advisory.getReplaceAdvisoryNumbers().size(), roundTripped.getReplaceAdvisoryNumbers().size());
+        for (int i = 0; i < advisory.getReplaceAdvisoryNumbers().size(); i++) {
+            assertEquals(advisory.getReplaceAdvisoryNumbers().get(i).getYear(),
+                    roundTripped.getReplaceAdvisoryNumbers().get(i).getYear());
+            assertEquals(advisory.getReplaceAdvisoryNumbers().get(i).getSerialNumber(),
+                    roundTripped.getReplaceAdvisoryNumbers().get(i).getSerialNumber());
         }
     }
+
 
 }
