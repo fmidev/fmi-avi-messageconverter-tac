@@ -2117,10 +2117,10 @@ public class Lexing {
         l.teach(new AdvisoryStatusLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new SWXCenter(OccurrenceFrequency.AVERAGE));
         l.teach(new SWXCenterLabel(OccurrenceFrequency.AVERAGE));
-        l.teach(new AdvisoryNumberLabel(OccurrenceFrequency.RARE));
-        l.teach(new AdvisoryNumber(OccurrenceFrequency.RARE));
         l.teach(new SWXEffectLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new SWXEffectAndIntensity(OccurrenceFrequency.AVERAGE));
+        l.teach(new AdvisoryNumberLabel(OccurrenceFrequency.RARE));
+        l.teach(new AdvisoryNumber(OccurrenceFrequency.RARE));
         l.teach(new SWXEffectConjuction(OccurrenceFrequency.FREQUENT));
         l.teach(new SWXPresetLocation(OccurrenceFrequency.AVERAGE));
         l.teach(new NextAdvisory(OccurrenceFrequency.RARE));

@@ -532,7 +532,7 @@ public class SWXAmd82TACParserTest {
     public void testInvalidTokenOrder2() throws IOException {
         final String input = getInput("spacewx-invalid-token-order.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        assertEquals(10, result.getConversionIssues().size());
+        assertEquals(8, result.getConversionIssues().size());
         assertTrue(result.getConversionIssues().stream()//
                 .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.ERROR && issue.getType() == ConversionIssue.Type.SYNTAX && issue.getMessage()
                         .contains("Invalid token order")));
@@ -543,6 +543,16 @@ public class SWXAmd82TACParserTest {
         final String input = getInput("spacewx-invalid-token-order-fcst.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertEquals(4, result.getConversionIssues().size());
+        assertTrue(result.getConversionIssues().stream()//
+                .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.ERROR && issue.getType() == ConversionIssue.Type.SYNTAX && issue.getMessage()
+                        .contains("Invalid token order")));
+    }
+
+    @Test
+    public void testInvalidTokenOrderEffect() throws IOException {
+        final String input = getInput("spacewx-invalid-token-order-effect.tac");
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        assertEquals(2, result.getConversionIssues().size());
         assertTrue(result.getConversionIssues().stream()//
                 .allMatch(issue -> issue.getSeverity() == ConversionIssue.Severity.ERROR && issue.getType() == ConversionIssue.Type.SYNTAX && issue.getMessage()
                         .contains("Invalid token order")));

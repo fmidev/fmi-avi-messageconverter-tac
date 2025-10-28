@@ -2,9 +2,9 @@ SWX ADVISORY
 STATUS:             TEST
 DTG:                202327/0008Z
 SWXC:               SWC
+SWX EFFECT:         GNS MOD
 ADVISORY NR:        200/13
 NR RPLC:            200/11
-SWX EFFECT:         GNS MOD
 OBS SWX:            27/008Z HNG HSH E180 - W180
 FCST SWX +6 HR:     27/0700Z NOT AVBL
 FCST SWX +12 HR:    27/1300Z NOT AVBL

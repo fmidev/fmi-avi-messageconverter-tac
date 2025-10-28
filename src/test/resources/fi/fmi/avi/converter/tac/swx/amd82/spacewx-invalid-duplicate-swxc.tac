@@ -2,8 +2,8 @@ SWX ADVISORY
 STATUS:             TEST
 DTG:                20161108/0100Z
 SWXC:               DONLON
-ADVISORY NR:        2016/1
 SWX EFFECT:         HF COM SEV
+ADVISORY NR:        2016/1
 SWXC:               DONLON
 OBS SWX:            08/0100Z DAYSIDE
 FCST SWX +6 HR:     08/0700Z DAYSIDE

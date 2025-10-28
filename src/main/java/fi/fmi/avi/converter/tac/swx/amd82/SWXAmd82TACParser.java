@@ -31,16 +31,35 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
      * <a href="http://aixm.aero/sites/aixm.aero/files/imce/AIXM511HTML/AIXM/DataType_CodeVerticalReferenceType.html">AIXM 5.1.1 CodeVerticalReferenceType</a>.
      */
     private static final String STANDARD_ATMOSPHERE = "STD";
-    private static final Set<LexemeIdentity> SWX_LEXEME_IDENTITIES = Collections.unmodifiableSet(new HashSet<>(
-            Arrays.asList(LexemeIdentity.ADVISORY_STATUS_LABEL, LexemeIdentity.ADVISORY_STATUS, LexemeIdentity.DTG_ISSUE_TIME_LABEL, LexemeIdentity.ISSUE_TIME,
-                    LexemeIdentity.SWX_CENTRE_LABEL, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER_LABEL, LexemeIdentity.ADVISORY_NUMBER,
-                    LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, LexemeIdentity.REPLACE_ADVISORY_NUMBER, LexemeIdentity.SWX_EFFECT_LABEL,
-                    LexemeIdentity.SWX_EFFECT_AND_INTENSITY, LexemeIdentity.ADVISORY_PHENOMENA_LABEL, LexemeIdentity.REMARKS_START, LexemeIdentity.NEXT_ADVISORY_LABEL,
-                    LexemeIdentity.NEXT_ADVISORY)));
+    private static final Set<LexemeIdentity> SWX_LEXEME_IDENTITIES = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList(
+                    LexemeIdentity.ADVISORY_STATUS_LABEL,
+                    LexemeIdentity.ADVISORY_STATUS,
+                    LexemeIdentity.DTG_ISSUE_TIME_LABEL,
+                    LexemeIdentity.ISSUE_TIME,
+                    LexemeIdentity.SWX_CENTRE_LABEL,
+                    LexemeIdentity.SWX_CENTRE,
+                    LexemeIdentity.SWX_EFFECT_LABEL,
+                    LexemeIdentity.SWX_EFFECT_AND_INTENSITY,
+                    LexemeIdentity.ADVISORY_NUMBER_LABEL,
+                    LexemeIdentity.ADVISORY_NUMBER,
+                    LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL,
+                    LexemeIdentity.REPLACE_ADVISORY_NUMBER,
+                    LexemeIdentity.ADVISORY_PHENOMENA_LABEL,
+                    LexemeIdentity.REMARKS_START,
+                    LexemeIdentity.NEXT_ADVISORY_LABEL,
+                    LexemeIdentity.NEXT_ADVISORY
+            )));
     private static final int MAX_ADVISORIES_TO_REPLACE = 4;
 
-    private final LexemeIdentity[] oneRequired = new LexemeIdentity[]{LexemeIdentity.ISSUE_TIME, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER,
-            LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START};
+    private final LexemeIdentity[] oneRequired = new LexemeIdentity[]{
+            LexemeIdentity.ISSUE_TIME,
+            LexemeIdentity.SWX_CENTRE,
+            LexemeIdentity.ADVISORY_NUMBER,
+            LexemeIdentity.SWX_EFFECT_LABEL,
+            LexemeIdentity.NEXT_ADVISORY,
+            LexemeIdentity.REMARKS_START
+    };
     private final Set<SpaceWeatherLocation> DAY_AND_NIGHTSIDE = Collections.unmodifiableSet(EnumSet.of(SpaceWeatherLocation.DAYSIDE, SpaceWeatherLocation.NIGHTSIDE));
 
     private AviMessageLexer lexer;
@@ -185,6 +204,22 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             builder.setIssuingCenter(issuingCenter.build());
         }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA, "The name of the issuing space weather center is missing")));
 
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_LABEL);
+
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_AND_INTENSITY, (match) -> {
+            final List<SpaceWeatherPhenomenon> phenomena = new ArrayList<>();
+            while (match != null) {
+                final SpaceWeatherPhenomenon phenomenon = SpaceWeatherPhenomenon.from(
+                        SpaceWeatherPhenomenon.Type.fromString(match.getParsedValue(Lexeme.ParsedValueName.PHENOMENON, String.class)),
+                        SpaceWeatherPhenomenon.Severity.fromString(match.getParsedValue(Lexeme.ParsedValueName.INTENSITY, String.class)));
+                phenomena.add(phenomenon);
+                match = match.findNext(LexemeIdentity.SWX_EFFECT_AND_INTENSITY);
+            }
+            //TODO: add warning if multiple effects are found
+            builder.addAllPhenomena(phenomena);
+        }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                "At least 1 valid space weather effect is required.")));
+
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_NUMBER_LABEL);
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_NUMBER,
@@ -216,22 +251,6 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                         "Too many replacement advisory numbers: " + count + ", maximum is " + MAX_ADVISORIES_TO_REPLACE));
             }
         });
-
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_LABEL);
-
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_AND_INTENSITY, (match) -> {
-            final List<SpaceWeatherPhenomenon> phenomena = new ArrayList<>();
-            while (match != null) {
-                final SpaceWeatherPhenomenon phenomenon = SpaceWeatherPhenomenon.from(
-                        SpaceWeatherPhenomenon.Type.fromString(match.getParsedValue(Lexeme.ParsedValueName.PHENOMENON, String.class)),
-                        SpaceWeatherPhenomenon.Severity.fromString(match.getParsedValue(Lexeme.ParsedValueName.INTENSITY, String.class)));
-                phenomena.add(phenomenon);
-                match = match.findNext(LexemeIdentity.SWX_EFFECT_AND_INTENSITY);
-            }
-            //TODO: add warning if multiple effects are found
-            builder.addAllPhenomena(phenomena);
-        }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
-                "At least 1 valid space weather effect is required.")));
 
         conversionIssues.addAll(checkPhenomenaLabelOrder(firstLexeme, remainingLexemeIdentities));
         final List<LexemeSequence> analysisList = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
