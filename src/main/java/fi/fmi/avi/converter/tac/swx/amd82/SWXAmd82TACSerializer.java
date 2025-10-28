@@ -58,6 +58,13 @@ public class SWXAmd82TACSerializer extends AbstractTACSerializer<SpaceWeatherAdv
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }
+        if (appendToken(retval, LexemeIdentity.SWX_EFFECT_LABEL, input, SpaceWeatherAdvisoryAmd82.class, baseCtx) > 0) {
+            appendSpacePadding(retval, labelColumnWidth);
+        }
+        if (appendToken(retval, LexemeIdentity.SWX_EFFECT_AND_INTENSITY, input, SpaceWeatherAdvisoryAmd82.class, baseCtx) > 0) {
+            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
+            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
+        }
         if (appendToken(retval, LexemeIdentity.ADVISORY_NUMBER_LABEL, input, SpaceWeatherAdvisoryAmd82.class, baseCtx) > 0) {
             appendSpacePadding(retval, labelColumnWidth);
         }
@@ -69,13 +76,6 @@ public class SWXAmd82TACSerializer extends AbstractTACSerializer<SpaceWeatherAdv
             appendSpacePadding(retval, labelColumnWidth);
         }
         if (appendToken(retval, LexemeIdentity.REPLACE_ADVISORY_NUMBER, input, SpaceWeatherAdvisoryAmd82.class, baseCtx) > 0) {
-            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
-            appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
-        }
-        if (appendToken(retval, LexemeIdentity.SWX_EFFECT_LABEL, input, SpaceWeatherAdvisoryAmd82.class, baseCtx) > 0) {
-            appendSpacePadding(retval, labelColumnWidth);
-        }
-        if (appendToken(retval, LexemeIdentity.SWX_EFFECT_AND_INTENSITY, input, SpaceWeatherAdvisoryAmd82.class, baseCtx) > 0) {
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN);
             appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.LINE_FEED);
         }

@@ -80,9 +80,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF//
                 + "DTG:                20161108/0000Z" + CR_LF//
                 + "SWXC:               DONLON" + CR_LF//
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "ADVISORY NR:        2016/2" + CR_LF//
                 + "NR RPLC:            2016/1" + CR_LF//
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "OBS SWX:            08/0100Z HNH HSH E180 - W180 ABV FL340" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E180 - W180 ABV FL340" + CR_LF//
@@ -109,9 +109,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF//
                 + "DTG:                20161108/0000Z" + CR_LF//
                 + "SWXC:               DONLON" + CR_LF//
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "ADVISORY NR:        2016/2" + CR_LF//
                 + "NR RPLC:            2016/1" + CR_LF//
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "OBS SWX:            08/0100Z HNH HSH E020 - W17200 ABV FL340" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E150 - W40 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E5 - W160 ABV FL340" + CR_LF//
@@ -124,9 +124,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF//
                 + "DTG:                20161108/0000Z" + CR_LF//
                 + "SWXC:               DONLON" + CR_LF//
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "ADVISORY NR:        2016/2" + CR_LF//
                 + "NR RPLC:            2016/1" + CR_LF//
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "OBS SWX:            08/0100Z HNH HSH E020 - W172 ABV FL340" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E150 - W040 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E005 - W160 ABV FL340" + CR_LF//
@@ -162,9 +162,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF//
                 + "DTG:                20161108/0000Z" + CR_LF//
                 + "SWXC:               DONLON" + CR_LF//
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "ADVISORY NR:        2016/2" + CR_LF//
                 + "NR RPLC:            2016/1" + CR_LF//
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "OBS SWX:            08/0100Z HNH W180 - E120" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH W020 - W100 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z EQS E180 - E090 ABV FL340" + CR_LF//
@@ -197,9 +197,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF//
                 + "DTG:                20161108/0000Z" + CR_LF//
                 + "SWXC:               DONLON" + CR_LF//
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "ADVISORY NR:        2016/2" + CR_LF//
                 + "NR RPLC:            2016/1" + CR_LF//
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "OBS SWX:            08/0100Z HNH W180 - E180" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH E180 - W100 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z EQS E000 - W180 ABV FL340" + CR_LF//
@@ -226,9 +226,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF//
                 + "DTG:                20161108/0000Z" + CR_LF//
                 + "SWXC:               DONLON" + CR_LF//
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "ADVISORY NR:        2016/2" + CR_LF//
                 + "NR RPLC:            2016/1" + CR_LF//
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "OBS SWX:            08/0100Z HNH W180 - E180" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH E180 - W180 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH E000 - W000 ABV FL340" + CR_LF//
@@ -255,9 +255,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF//
                 + "DTG:                20161108/0000Z" + CR_LF//
                 + "SWXC:               DONLON" + CR_LF//
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "ADVISORY NR:        2016/2" + CR_LF//
                 + "NR RPLC:            2016/1" + CR_LF//
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "OBS SWX:            08/0100Z NOT AVBL" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH E180 - W000 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH E180 - E000 ABV FL340" + CR_LF//
@@ -283,9 +283,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF//
                 + "DTG:                20161108/0000Z" + CR_LF//
                 + "SWXC:               DONLON" + CR_LF//
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "ADVISORY NR:        2016/2" + CR_LF//
                 + "NR RPLC:            2016/1" + CR_LF//
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "OBS SWX:            08/0100Z NOT AVBL" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH E000 - W180 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH E000 - E180 ABV FL340" + CR_LF//
@@ -311,9 +311,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             EXER" + CR_LF//
                 + "DTG:                20161108/0000Z" + CR_LF//
                 + "SWXC:               DONLON" + CR_LF//
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "ADVISORY NR:        2016/2" + CR_LF//
                 + "NR RPLC:            2016/1" + CR_LF//
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF//
                 + "OBS SWX:            08/0100Z HNH HSH E180 - W180 ABV FL340" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E180 - W180 ABV FL340" + CR_LF//
@@ -340,9 +340,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF
                 + "DTG:                20161108/0000Z" + CR_LF
                 + "SWXC:               DONLON" + CR_LF
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF
                 + "ADVISORY NR:        2016/2" + CR_LF
                 + "NR RPLC:            2020/11 2020/12" + CR_LF
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF
                 + "OBS SWX:            08/0100Z HNH HSH E180 - W180 ABV FL340" + CR_LF
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E180 - W180 ABV FL340" + CR_LF
@@ -368,9 +368,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF
                 + "DTG:                20161108/0000Z" + CR_LF
                 + "SWXC:               DONLON" + CR_LF
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF
                 + "ADVISORY NR:        2016/2" + CR_LF
                 + "NR RPLC:            2020/11 2020/12 2020/13 2020/14" + CR_LF
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF
                 + "OBS SWX:            08/0100Z HNH HSH E180 - W180 ABV FL340" + CR_LF
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E180 - W180 ABV FL340" + CR_LF
@@ -396,9 +396,9 @@ public class SWXAmd82TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF
                 + "DTG:                20161108/0000Z" + CR_LF
                 + "SWXC:               DONLON" + CR_LF
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF
                 + "ADVISORY NR:        2016/2" + CR_LF
                 + "NR RPLC:            2020/11 2020/12 2020/13 2020/14 2020/15" + CR_LF
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF
                 + "OBS SWX:            08/0100Z HNH HSH E180 - W180 ABV FL340" + CR_LF
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E180 - W180 ABV FL340" + CR_LF
