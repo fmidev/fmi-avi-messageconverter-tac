@@ -7,8 +7,11 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.PolygonGeometry;
+import fi.fmi.avi.model.immutable.CircleByCenterPointImpl;
+import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.swx.amd79.*;
+import fi.fmi.avi.model.swx.amd79.immutable.AirspaceVolumeImpl;
 import fi.fmi.avi.model.swx.amd79.immutable.IssuingCenterImpl;
 import fi.fmi.avi.model.swx.amd79.immutable.SpaceWeatherAdvisoryAmd79Impl;
 import org.assertj.core.api.Assertions;
@@ -22,6 +25,7 @@ import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,6 +70,7 @@ public class SWXAmd79TACParserTest {
 
         final SpaceWeatherAdvisoryAmd79 swx = result.getConvertedMessage().get();
         assertEquals(AviationCodeListUser.PermissibleUsageReason.EXERCISE, swx.getPermissibleUsageReason().get());
+        assertEquals(ZonedDateTime.parse("2016-11-08T01:00Z"), swx.getIssueTime().get().getCompleteTime().get());
         assertEquals("DONLON", swx.getIssuingCenter().getName().get());
         assertEquals(2, swx.getAdvisoryNumber().getSerialNumber());
         assertEquals(2016, swx.getAdvisoryNumber().getYear());
@@ -81,6 +86,13 @@ public class SWXAmd79TACParserTest {
 
         final List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
         assertEquals(5, analyses.size());
+
+        for (int i = 0; i < 5; i++) {
+            final ZonedDateTime expectedTime = ZonedDateTime.parse("2016-11-08T01:00Z").plusHours(i * 6);
+            assertEquals(expectedTime, analyses.get(i).getTime().getCompleteTime().get());
+        }
+
+
         SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
         assertEquals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION, analysis.getAnalysisType());
         assertEquals(2, analysis.getRegions().size());
@@ -118,6 +130,7 @@ public class SWXAmd79TACParserTest {
         assertTrue(swx.getPermissibleUsage().isPresent());
         assertEquals(AviationCodeListUser.PermissibleUsage.NON_OPERATIONAL, swx.getPermissibleUsage().get());
         assertEquals(AviationCodeListUser.PermissibleUsageReason.TEST, swx.getPermissibleUsageReason().get());
+        assertEquals(ZonedDateTime.parse("2016-11-08T00:00Z"), swx.getIssueTime().get().getCompleteTime().get());
         assertEquals("DONLON", swx.getIssuingCenter().getName().get());
         assertEquals(2, swx.getAdvisoryNumber().getSerialNumber());
         assertEquals(2016, swx.getAdvisoryNumber().getYear());
@@ -130,6 +143,13 @@ public class SWXAmd79TACParserTest {
 
         final List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
         assertEquals(5, analyses.size());
+
+        for (int i = 0; i < 5; i++) {
+            final ZonedDateTime expectedTime = ZonedDateTime.parse("2016-11-08T01:00Z").plusHours(i * 6);
+            assertEquals(expectedTime, analyses.get(i).getTime().getCompleteTime().get());
+        }
+
+
         final SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
         assertEquals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION, analysis.getAnalysisType());
         assertEquals(2, analysis.getRegions().size());
@@ -655,13 +675,28 @@ public class SWXAmd79TACParserTest {
     @Test
     public void testDaylightSide() throws Exception {
         final String input = getInput("spacewx-daylight-side.tac");
+        final AirspaceVolume expected = AirspaceVolumeImpl.builder()
+                .setHorizontalProjection(
+                        CircleByCenterPointImpl.builder()
+                                .setCrs(CoordinateReferenceSystemImpl.wgs84())
+                                .setCenterPointCoordinates(Arrays.asList(-16.64, 160.94))
+                                .setRadius(NumericMeasureImpl.builder()
+                                        .setValue(10100.0)
+                                        .setUom("km")
+                                        .build())
+                                .build()
+                ).build();
+
         final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertTrue(result.getConversionIssues().isEmpty());
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         assertEquals(1, analysis.getRegions().size());
+
         final SpaceWeatherRegion region = analysis.getRegions().get(0);
         assertEquals(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE, region.getLocationIndicator().get());
-        assertFalse(region.getAirSpaceVolume().isPresent());
+        assertEquals(region.getAirSpaceVolume().get(), expected);
+
+
         assertFalse(region.getLongitudeLimitMinimum().isPresent());
         assertFalse(region.getLongitudeLimitMaximum().isPresent());
     }

@@ -9,7 +9,10 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
-import fi.fmi.avi.model.*;
+import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.PartialDateTime;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
+import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
@@ -17,6 +20,7 @@ import fi.fmi.avi.model.swx.amd79.*;
 import fi.fmi.avi.model.swx.amd79.immutable.*;
 
 import javax.annotation.Nullable;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -24,12 +28,6 @@ import java.util.function.Consumer;
 
 public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd79> {
 
-    /**
-     * The vertical distance is measured with an altimeter set to the standard atmosphere.
-     * See
-     * <a href="http://aixm.aero/sites/aixm.aero/files/imce/AIXM511HTML/AIXM/DataType_CodeVerticalReferenceType.html">AIXM 5.1.1 CodeVerticalReferenceType</a>.
-     */
-    private static final String STANDARD_ATMOSPHERE = "STD";
     private static final Set<LexemeIdentity> SWX_LEXEME_IDENTITIES = Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(LexemeIdentity.ADVISORY_STATUS_LABEL, LexemeIdentity.ADVISORY_STATUS, LexemeIdentity.DTG_ISSUE_TIME_LABEL, LexemeIdentity.ISSUE_TIME,
                     LexemeIdentity.SWX_CENTRE_LABEL, LexemeIdentity.SWX_CENTRE, LexemeIdentity.ADVISORY_NUMBER_LABEL, LexemeIdentity.ADVISORY_NUMBER,
@@ -41,15 +39,20 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             LexemeIdentity.SWX_EFFECT_LABEL, LexemeIdentity.NEXT_ADVISORY, LexemeIdentity.REMARKS_START};
     private AviMessageLexer lexer;
 
-    private static Optional<PartialOrCompleteTimeInstant> createPartialTimeInstant(final Lexeme lexeme) {
+    private static Optional<PartialOrCompleteTimeInstant> createAnalysisTimeInstant(final Lexeme lexeme, @Nullable final PartialOrCompleteTimeInstant issueTime) {
         final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
         final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
         final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
 
-        if (day != null && minute != null && hour != null) {
-            return Optional.of(PartialOrCompleteTimeInstant.of(PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"))));
+        if (day == null || minute == null || hour == null) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        final PartialDateTime time = PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"));
+        final PartialOrCompleteTimeInstant instant = issueTime != null && issueTime.getCompleteTime().isPresent()
+                ? PartialOrCompleteTimeInstant.of(time.toZonedDateTimeNear(issueTime.getCompleteTime().get()))
+                : PartialOrCompleteTimeInstant.of(time);
+        return Optional.of(instant);
     }
 
     private static Optional<PartialOrCompleteTimeInstant> createCompleteTimeInstant(final Lexeme lexeme) {
@@ -215,7 +218,8 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         analysisList.forEach(analysisSequence -> {
             final Lexeme analysis = analysisSequence.getFirstLexeme();
             if (LexemeIdentity.ADVISORY_PHENOMENA_LABEL.equals(analysis.getIdentity())) {
-                final SpaceWeatherAdvisoryAnalysis processedAnalysis = processAnalysis(analysisSequence.getFirstLexeme(), conversionIssues);
+                final SpaceWeatherAdvisoryAnalysis processedAnalysis = processAnalysis(analysisSequence.getFirstLexeme(),
+                        builder.getIssueTime().orElse(null), conversionIssues);
                 if (processedAnalysis != null) {
                     analyses.add(processedAnalysis);
                 }
@@ -305,7 +309,8 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         return issues;
     }
 
-    private SpaceWeatherAdvisoryAnalysis processAnalysis(final Lexeme lexeme, final List<ConversionIssue> issues) {
+    private SpaceWeatherAdvisoryAnalysis processAnalysis(final Lexeme lexeme, @Nullable final PartialOrCompleteTimeInstant issueTime,
+                                                         final List<ConversionIssue> issues) {
         final SpaceWeatherAdvisoryAnalysisImpl.Builder builder = SpaceWeatherAdvisoryAnalysisImpl.builder();
         final List<ConversionIssue> analysisLexemeCountIssues = checkAnalysisLexemes(lexeme);
         if (!analysisLexemeCountIssues.isEmpty()) {
@@ -320,7 +325,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
         Lexeme analysisLexeme = lexeme.findNext(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP);
         if (analysisLexeme != null) {
-            final Optional<PartialOrCompleteTimeInstant> analysisTime = createPartialTimeInstant(analysisLexeme);
+            final Optional<PartialOrCompleteTimeInstant> analysisTime = createAnalysisTimeInstant(analysisLexeme, issueTime);
             if (analysisTime.isPresent()) {
                 builder.setTime(analysisTime.get());
             } else {
@@ -343,7 +348,8 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             return builder.build();
         }
 
-        final List<SpaceWeatherRegion> regionList = handleRegion(lexeme, issues);
+        final List<SpaceWeatherRegion> regionList = handleRegion(lexeme, builder.getTimeBuilder().getCompleteTime()
+                .map(ZonedDateTime::toInstant).orElse(null), issues);
         builder.addAllRegions(regionList);
         return builder.build();
     }
@@ -365,14 +371,13 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         return conversionIssues;
     }
 
-    protected List<SpaceWeatherRegion> handleRegion(final Lexeme lexeme, final List<ConversionIssue> issues) {
-        //1. Discover limits
+    protected List<SpaceWeatherRegion> handleRegion(final Lexeme lexeme, @Nullable final Instant analysisTime,
+                                                    final List<ConversionIssue> issues) {
+        // 1. Discover limits
         Optional<PolygonGeometry> polygonLimit = Optional.empty();
         Optional<Double> minLongitude = Optional.empty();
         Optional<Double> maxLongitude = Optional.empty();
-        Optional<NumericMeasure> lowerLimit = Optional.empty();
-        Optional<NumericMeasure> upperLimit = Optional.empty();
-        Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator = Optional.empty();
+        final VerticalLimitsImpl.Builder verticalLimitsBuilder = VerticalLimitsImpl.builder();
 
         Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
         if (l != null) {
@@ -380,6 +385,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             minLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Double.class));
             maxLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Double.class));
         }
+
 
         l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
         if (l != null) {
@@ -389,18 +395,23 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             final String unit = l.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
             if (unit != null) {
                 if (minValue != null) {
-                    lowerLimit = Optional.of(NumericMeasureImpl.builder().setValue(minValue.doubleValue()).setUom(unit).build());
+                    verticalLimitsBuilder.setLowerLimit(NumericMeasureImpl.builder().setValue(minValue.doubleValue()).setUom(unit).build());
                 }
                 if (maxValue != null) {
-                    upperLimit = Optional.of(NumericMeasureImpl.builder().setValue(maxValue.doubleValue()).setUom(unit).build());
+                    verticalLimitsBuilder.setUpperLimit(NumericMeasureImpl.builder().setValue(maxValue.doubleValue()).setUom(unit).build());
                 }
             } else {
                 issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.MISSING_DATA,
                         "Missing vertical limit unit for airspace volume"));
             }
-            verticalLimitOperator = Optional.ofNullable(
-                    l.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR, AviationCodeListUser.RelationalOperator.class));
+            final AviationCodeListUser.RelationalOperator operator = l.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR,
+                    AviationCodeListUser.RelationalOperator.class);
+            if (operator != null) {
+                verticalLimitsBuilder.setOperator(operator);
+            }
         }
+
+        final VerticalLimits verticalLimits = verticalLimitsBuilder.build();
 
         l = lexeme.findNext(LexemeIdentity.POLYGON_COORDINATE_PAIR);
         if (l != null) {
@@ -426,11 +437,22 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         final List<SpaceWeatherRegion> regionList = new ArrayList<>();
 
         if (polygonLimit.isPresent()) {
-            //Explicit polygon limit provided, create a single airspace volume with no location indicator:
-            final AirspaceVolume volume = buildAirspaceVolume(polygonLimit.get(), lowerLimit, upperLimit, verticalLimitOperator, issues);
-            regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
+            // Explicit polygon limit provided, create a single airspace volume with no location indicator:
+            if (verticalLimits.getLowerLimit().isPresent()
+                    && !verticalLimits.getOperator().filter(op -> op == AviationCodeListUser.RelationalOperator.ABOVE).isPresent()) {
+                issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                        "Airspace lower limit given, but missing the relational operator " + AviationCodeListUser.RelationalOperator.ABOVE));
+            }
+            if (verticalLimits.getUpperLimit().isPresent()
+                    && !verticalLimits.getOperator().filter(op -> op == AviationCodeListUser.RelationalOperator.BELOW).isPresent()) {
+                issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                        "Airspace upper limit given, but missing the relational operator " + AviationCodeListUser.RelationalOperator.BELOW));
+            }
+            regionList.add(SpaceWeatherRegionImpl.builder()
+                    .withAirspaceVolumeFromPolygon(polygonLimit.get(), verticalLimits)
+                    .build());
         } else {
-            //Create regions from each preset location (if any)
+            // Create regions from each preset location (if any)
             l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
             if (l == null) {
                 if (minLongitude.isPresent() && maxLongitude.isPresent()) {
@@ -442,9 +464,9 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
                             "Missing effect extent in " + lexeme.getFirst().getTACToken()));
                 }
-                final Geometry geometry = buildGeometry(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d));
-                final AirspaceVolume volume = buildAirspaceVolume(geometry, lowerLimit, upperLimit, verticalLimitOperator, issues);
-                regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(volume).build());
+                regionList.add(SpaceWeatherRegionImpl.builder()
+                        .withAirspaceVolumeFromBounds(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d), verticalLimits)
+                        .build());
             }
             while (l != null) {
                 final boolean[] noLocationIndicator = {true};
@@ -462,18 +484,22 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                                 })
                                 .orElse(null);
                 if (location != null) {
-                    checkLexemeOrder(issues, l, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
-                    final SpaceWeatherRegionImpl.Builder regionBuilder = SpaceWeatherRegionImpl.builder()//
+                    final SpaceWeatherRegionImpl.Builder regionBuilder = SpaceWeatherRegionImpl.builder()
                             .setLocationIndicator(location);
+
+                    if (location == SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE && analysisTime == null) {
+                        issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                                "Analysis instant is not available for computing DAYLIGHT_SIDE region"));
+                    }
+
+                    checkLexemeOrder(issues, l, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
+
                     minLongitude.ifPresent(regionBuilder::setLongitudeLimitMinimum);
                     maxLongitude.ifPresent(regionBuilder::setLongitudeLimitMaximum);
 
-                    if (location.getLatitudeBandMinCoordinate().isPresent() && location.getLatitudeBandMaxCoordinate().isPresent()) {
-                        final Geometry geometry = buildGeometry(location.getLatitudeBandMinCoordinate().get(), minLongitude.orElse(-180d),
-                                location.getLatitudeBandMaxCoordinate().get(), maxLongitude.orElse(180d));
-                        final AirspaceVolume volume = buildAirspaceVolume(geometry, lowerLimit, upperLimit, verticalLimitOperator, issues);
-                        regionBuilder.setAirSpaceVolume(volume);
-                    }
+                    regionBuilder.withComputedAirspaceVolume(location, analysisTime,
+                            minLongitude.orElse(null), maxLongitude.orElse(null), verticalLimits);
+
                     regionList.add(regionBuilder.build());
                 } else if (noLocationIndicator[0]) {
                     issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.OTHER,
@@ -494,76 +520,4 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         return regionList;
     }
 
-    private Geometry buildGeometry(final double minLatitude, final double minLongitude, final double maxLatitude, final double maxLongitude) {
-        final double absMinLongitude = Math.abs(minLongitude);
-        final double absMaxLongitude = Math.abs(maxLongitude);
-        return PolygonGeometryImpl.builder()//
-                .setCrs(CoordinateReferenceSystemImpl.wgs84())//
-                .mutateExteriorRingPositions(coordinates -> {
-                    if (absMinLongitude == 180d && absMaxLongitude == 180d) {
-                        addExteriorRingPositions(coordinates, minLatitude, -180d, maxLatitude, 180d);
-                    } else if (absMinLongitude == 180d) {
-                        addExteriorRingPositions(coordinates, minLatitude, -180d, maxLatitude, maxLongitude);
-                    } else if (absMaxLongitude == 180d) {
-                        addExteriorRingPositions(coordinates, minLatitude, minLongitude, maxLatitude, 180d);
-                    } else {
-                        addExteriorRingPositions(coordinates, minLatitude, minLongitude, maxLatitude, maxLongitude);
-                    }
-                })//
-                .build();
-    }
-
-    private void addExteriorRingPositions(final List<Double> coordinates, final double minLat, final double minLon, final double maxLat, final double maxLon) {
-        //Upper left corner:
-        coordinates.add(minLat);
-        coordinates.add(minLon);
-
-        //Lower left corner:
-        coordinates.add(maxLat);
-        coordinates.add(minLon);
-
-        //lower right corner:
-        coordinates.add(maxLat);
-        coordinates.add(maxLon);
-
-        //Upper right corner:
-        coordinates.add(minLat);
-        coordinates.add(maxLon);
-
-        //Upper left corner (again, to close the ring):
-        coordinates.add(minLat);
-        coordinates.add(minLon);
-    }
-
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private AirspaceVolume buildAirspaceVolume(
-            final Geometry geometry, final Optional<NumericMeasure> lowerLimit, final Optional<NumericMeasure> upperLimit,
-            final Optional<AviationCodeListUser.RelationalOperator> verticalLimitOperator, final List<ConversionIssue> issues) {
-        final AirspaceVolumeImpl.Builder volumeBuilder = AirspaceVolumeImpl.builder()//
-                .setHorizontalProjection(geometry);
-        if (lowerLimit.isPresent()) {
-            volumeBuilder.setLowerLimitReference(STANDARD_ATMOSPHERE);
-            if (upperLimit.isPresent()) {
-                volumeBuilder.setUpperLimitReference(STANDARD_ATMOSPHERE);
-                volumeBuilder.setLowerLimit(lowerLimit);
-                volumeBuilder.setUpperLimit(upperLimit);
-            } else if (verticalLimitOperator.isPresent() && AviationCodeListUser.RelationalOperator.ABOVE == verticalLimitOperator.get()) {
-                volumeBuilder.setLowerLimit(lowerLimit);
-            } else {
-                issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
-                        "Airspace lower limit given, but missing the relational operator " + AviationCodeListUser.RelationalOperator.ABOVE));
-            }
-        } else {
-            if (upperLimit.isPresent()) {
-                if (verticalLimitOperator.isPresent() && AviationCodeListUser.RelationalOperator.BELOW == verticalLimitOperator.get()) {
-                    volumeBuilder.setUpperLimitReference(STANDARD_ATMOSPHERE);
-                    volumeBuilder.setUpperLimit(upperLimit);
-                } else {
-                    issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
-                            "Airspace upper limit given, but missing the relational operator " + AviationCodeListUser.RelationalOperator.BELOW));
-                }
-            }
-        }
-        return volumeBuilder.build();
-    }
 }
