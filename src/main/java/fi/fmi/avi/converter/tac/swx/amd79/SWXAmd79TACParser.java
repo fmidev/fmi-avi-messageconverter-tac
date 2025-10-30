@@ -16,6 +16,8 @@ import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
 import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
+import fi.fmi.avi.model.swx.VerticalLimits;
+import fi.fmi.avi.model.swx.VerticalLimitsImpl;
 import fi.fmi.avi.model.swx.amd79.*;
 import fi.fmi.avi.model.swx.amd79.immutable.*;
 
