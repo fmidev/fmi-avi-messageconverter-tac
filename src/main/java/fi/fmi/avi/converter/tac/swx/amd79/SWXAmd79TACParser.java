@@ -451,8 +451,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                         "Airspace upper limit given, but missing the relational operator " + AviationCodeListUser.RelationalOperator.BELOW));
             }
             regionList.add(SpaceWeatherRegionImpl.builder()
-                    .withAirspaceVolumeFromPolygon(polygonLimit.get(), verticalLimits)
-                    .build());
+                    .setAirSpaceVolume(AirspaceVolumeImpl.Builder.fromPolygon(polygonLimit.get(), verticalLimits)).build());
         } else {
             // Create regions from each preset location (if any)
             l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
@@ -466,8 +465,8 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
                             "Missing effect extent in " + lexeme.getFirst().getTACToken()));
                 }
-                regionList.add(SpaceWeatherRegionImpl.builder()
-                        .withAirspaceVolumeFromBounds(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d), verticalLimits)
+                regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(AirspaceVolumeImpl.Builder
+                                .fromBounds(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d), verticalLimits))
                         .build());
             }
             while (l != null) {
