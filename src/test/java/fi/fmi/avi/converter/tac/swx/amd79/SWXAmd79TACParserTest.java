@@ -102,10 +102,9 @@ public class SWXAmd79TACParserTest {
         assertThat(analysis.getRegions().get(0).getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
         assertThat(analysis.getRegions().get(0).getAirSpaceVolume())
-                .hasValueSatisfying(volume -> {
-                    assertThat(volume.getHorizontalProjection()).isPresent();
-                    assertThat(volume.getHorizontalProjection().get()).isInstanceOf(PolygonGeometry.class);
-                });
+                .hasValueSatisfying(volume ->
+                        assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
+                                assertThat(projection).isInstanceOf(PolygonGeometry.class)));
         final PolygonGeometry poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         final Double[] expected = {90d, -180d, 60d, -180d, 60d, 180d, 90d, 180d, 90d, -180d};
         final Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
@@ -150,9 +149,9 @@ public class SWXAmd79TACParserTest {
         final List<SpaceWeatherAdvisoryAnalysis> analyses = swx.getAnalyses();
         assertThat(analyses).hasSize(5);
 
+        final ZonedDateTime observationTime = ZonedDateTime.parse("2016-11-08T01:00Z");
         for (int i = 0; i < 5; i++) {
-            final ZonedDateTime expectedTime = ZonedDateTime.parse("2016-11-08T01:00Z").plusHours(i * 6);
-            assertThat(analyses.get(i).getTime().getCompleteTime()).hasValue(expectedTime);
+            assertThat(analyses.get(i).getTime().getCompleteTime()).hasValue(observationTime.plusHours(i * 6));
         }
 
 
@@ -166,10 +165,9 @@ public class SWXAmd79TACParserTest {
         assertThat(r.getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
         assertThat(r.getAirSpaceVolume())
-                .hasValueSatisfying(volume -> {
-                    assertThat(volume.getHorizontalProjection()).isPresent();
-                    assertThat(volume.getHorizontalProjection().get()).isInstanceOf(PolygonGeometry.class);
-                });
+                .hasValueSatisfying(volume ->
+                        assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
+                                assertThat(projection).isInstanceOf(PolygonGeometry.class)));
         PolygonGeometry poly = (PolygonGeometry) r.getAirSpaceVolume().get().getHorizontalProjection().get();
 
         Double[] expected = {90d, -180d, 60d, -180d, 60d, 180d, 90d, 180d, 90d, -180d};
@@ -188,10 +186,9 @@ public class SWXAmd79TACParserTest {
         assertThat(r.getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
         assertThat(r.getAirSpaceVolume())
-                .hasValueSatisfying(volume -> {
-                    assertThat(volume.getHorizontalProjection()).isPresent();
-                    assertThat(volume.getHorizontalProjection().get()).isInstanceOf(PolygonGeometry.class);
-                });
+                .hasValueSatisfying(volume ->
+                        assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
+                                assertThat(projection).isInstanceOf(PolygonGeometry.class)));
         poly = (PolygonGeometry) r.getAirSpaceVolume().get().getHorizontalProjection().get();
 
         expected = new Double[]{-60d, -180d, -90d, -180d, -90d, 180d, -60d, 180d, -60d, -180d};
@@ -239,10 +236,9 @@ public class SWXAmd79TACParserTest {
         assertThat(analysis.getRegions().get(0).getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
         assertThat(analysis.getRegions().get(0).getAirSpaceVolume())
-                .hasValueSatisfying(volume -> {
-                    assertThat(volume.getHorizontalProjection()).isPresent();
-                    assertThat(volume.getHorizontalProjection().get()).isInstanceOf(PolygonGeometry.class);
-                });
+                .hasValueSatisfying(volume ->
+                        assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
+                                assertThat(projection).isInstanceOf(PolygonGeometry.class)));
         PolygonGeometry geometry = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         List<Double> expectedExteriorRingPositions = Arrays.asList(90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d);
         //Double[] expected = { 90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d };
@@ -252,16 +248,14 @@ public class SWXAmd79TACParserTest {
         assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit())
                 .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build()));
         assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimitReference()).isPresent();
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit()).isNotPresent();
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimitReference()).isNotPresent();
+        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit()).isEmpty();
+        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimitReference()).isEmpty();
 
         assertThat(analysis.getRegions().get(1).getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
         assertThat(analysis.getRegions().get(1).getAirSpaceVolume())
-                .hasValueSatisfying(volume -> {
-                    assertThat(volume.getHorizontalProjection()).isPresent();
-                    assertThat(volume.getHorizontalProjection().get()).isInstanceOf(PolygonGeometry.class);
-                });
+                .hasValueSatisfying(volume -> assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
+                        assertThat(projection).isInstanceOf(PolygonGeometry.class)));
         geometry = (PolygonGeometry) analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
         expectedExteriorRingPositions = Arrays.asList(-60d, 160d, -90d, 160d, -90d, -20d, -60d, -20d, -60d, 160d);
         actualExteriorRingPositions = geometry.getExteriorRingPositions();
@@ -270,12 +264,10 @@ public class SWXAmd79TACParserTest {
         analysis = analyses.get(1);
         assertThat(analysis.getAnalysisType()).isEqualTo(SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
         assertThat(analysis.getRegions()).hasSize(1);
-        assertThat(analysis.getRegions().get(0).getLocationIndicator()).isNotPresent();
+        assertThat(analysis.getRegions().get(0).getLocationIndicator()).isEmpty();
         assertThat(analysis.getRegions().get(0).getAirSpaceVolume())
-                .hasValueSatisfying(volume -> {
-                    assertThat(volume.getHorizontalProjection()).isPresent();
-                    assertThat(volume.getHorizontalProjection().get()).isInstanceOf(PolygonGeometry.class);
-                });
+                .hasValueSatisfying(volume -> assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
+                        assertThat(projection).isInstanceOf(PolygonGeometry.class)));
         final PolygonGeometry poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         final Double[] expected = new Double[]{80d, -180d, 70d, -75d, 60d, 15d, 70d, 75d, 80d, -180d};
         final Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
@@ -283,8 +275,8 @@ public class SWXAmd79TACParserTest {
         assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit())
                 .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(370d).setUom("FL").build()));
         assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimitReference()).isPresent();
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit()).isNotPresent();
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimitReference()).isNotPresent();
+        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit()).isEmpty();
+        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimitReference()).isEmpty();
 
         analysis = analyses.get(2);
 
@@ -305,10 +297,8 @@ public class SWXAmd79TACParserTest {
         assertThat(analysis.getRegions()).hasSize(1);
         assertThat(analysis.getRegions().get(0).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
         assertThat(analysis.getRegions().get(0).getAirSpaceVolume())
-                .hasValueSatisfying(volume -> {
-                    assertThat(volume.getHorizontalProjection()).isPresent();
-                    assertThat(volume.getHorizontalProjection().get()).isInstanceOf(PolygonGeometry.class);
-                });
+                .hasValueSatisfying(volume -> assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
+                        assertThat(projection).isInstanceOf(PolygonGeometry.class)));
         geometry = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         expectedExteriorRingPositions = Arrays.asList(90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d);
         actualExteriorRingPositions = geometry.getExteriorRingPositions();
@@ -328,7 +318,7 @@ public class SWXAmd79TACParserTest {
         final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.FAIL);
         assertThat(result.getConversionIssues()).hasSize(16);
-        assertThat(result.getConvertedMessage()).isNotPresent();
+        assertThat(result.getConvertedMessage()).isEmpty();
     }
 
     @Test
@@ -351,7 +341,7 @@ public class SWXAmd79TACParserTest {
     public void testEndTokenAtEndAndRandomPlace() throws IOException {
         final String input = getInput("spacewx-invalid-end-token-at-end-and-elsewhere.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
-        assertThat(result.getConvertedMessage()).isNotPresent();
+        assertThat(result.getConvertedMessage()).isEmpty();
         assertThat(result.getConversionIssues()).hasSize(1);
         assertThat(result.getConversionIssues().get(0).getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
         assertThat(result.getConversionIssues().get(0).getMessage()).startsWith("Message has an extra end token");
@@ -475,20 +465,17 @@ public class SWXAmd79TACParserTest {
         final AirspaceVolume obsVolume = airspaceVolumes.get(0);
         assertThat(obsVolume.getUpperLimitReference()).hasValue("STD");
         assertThat(obsVolume.getLowerLimitReference()).hasValue("STD");
-        assertThat(obsVolume.getLowerLimit())
-                .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(250d).setUom("FL").build()));
-        assertThat(obsVolume.getUpperLimit())
-                .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(350d).setUom("FL").build()));
+        assertThat(obsVolume.getLowerLimit()).hasValue(NumericMeasureImpl.builder().setValue(250d).setUom("FL").build());
+        assertThat(obsVolume.getUpperLimit()).hasValue(NumericMeasureImpl.builder().setValue(350d).setUom("FL").build());
         assertThat(((PolygonGeometry) obsVolume.getHorizontalProjection().get()).getExteriorRingPositions())
                 .isEqualTo(Arrays.asList(-90d, -150d, 90d, -150d, 90d, -30d, -90d, -30d, -90d, -150d));
 
         for (int i = 1; i < 4; i++) {
             final AirspaceVolume forecastVolume = airspaceVolumes.get(i);
-            assertThat(forecastVolume.getUpperLimitReference()).isNotPresent();
-            assertThat(forecastVolume.getUpperLimit()).isNotPresent();
+            assertThat(forecastVolume.getUpperLimitReference()).isEmpty();
+            assertThat(forecastVolume.getUpperLimit()).isEmpty();
             assertThat(forecastVolume.getLowerLimitReference()).hasValue("STD");
-            assertThat(forecastVolume.getLowerLimit())
-                    .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build()));
+            assertThat(forecastVolume.getLowerLimit()).hasValue(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build());
             assertThat(((PolygonGeometry) forecastVolume.getHorizontalProjection().get()).getExteriorRingPositions()).isEqualTo(worldPolygonCoords);
         }
     }
@@ -511,19 +498,16 @@ public class SWXAmd79TACParserTest {
         final AirspaceVolume obsVolume = airspaceVolumes.get(0);
         assertThat(obsVolume.getUpperLimitReference()).hasValue("STD");
         assertThat(obsVolume.getLowerLimitReference()).hasValue("STD");
-        assertThat(obsVolume.getLowerLimit())
-                .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(250d).setUom("FL").build()));
-        assertThat(obsVolume.getUpperLimit())
-                .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(350d).setUom("FL").build()));
+        assertThat(obsVolume.getLowerLimit()).hasValue(NumericMeasureImpl.builder().setValue(250d).setUom("FL").build());
+        assertThat(obsVolume.getUpperLimit()).hasValue(NumericMeasureImpl.builder().setValue(350d).setUom("FL").build());
         assertThat(((PolygonGeometry) obsVolume.getHorizontalProjection().get()).getExteriorRingPositions()).isEqualTo(worldPolygonCoords);
 
         for (int i = 1; i < 4; i++) {
             final AirspaceVolume forecastVolume = airspaceVolumes.get(i);
-            assertThat(forecastVolume.getUpperLimitReference()).isNotPresent();
-            assertThat(forecastVolume.getUpperLimit()).isNotPresent();
+            assertThat(forecastVolume.getUpperLimitReference()).isEmpty();
+            assertThat(forecastVolume.getUpperLimit()).isEmpty();
             assertThat(forecastVolume.getLowerLimitReference()).hasValue("STD");
-            assertThat(forecastVolume.getLowerLimit())
-                    .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build()));
+            assertThat(forecastVolume.getLowerLimit()).hasValue(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build());
             assertThat(((PolygonGeometry) forecastVolume.getHorizontalProjection().get()).getExteriorRingPositions()).isEqualTo(worldPolygonCoords);
         }
     }
@@ -641,7 +625,7 @@ public class SWXAmd79TACParserTest {
         final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertThat(result.getConvertedMessage()).isPresent();
         final SpaceWeatherAdvisoryAmd79 swx = result.getConvertedMessage().get();
-        assertThat(swx.getRemarks()).isNotPresent();
+        assertThat(swx.getRemarks()).isEmpty();
     }
 
     @Test
@@ -659,7 +643,7 @@ public class SWXAmd79TACParserTest {
         final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertThat(result.getConvertedMessage()).isPresent();
         final SpaceWeatherAdvisoryAmd79 swx = result.getConvertedMessage().get();
-        assertThat(swx.getPermissibleUsageReason()).isNotPresent();
+        assertThat(swx.getPermissibleUsageReason()).isEmpty();
         assertThat(swx.getPermissibleUsage())
                 .hasValue(AviationCodeListUser.PermissibleUsage.OPERATIONAL);
     }
@@ -717,8 +701,8 @@ public class SWXAmd79TACParserTest {
         assertThat(region.getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE);
         assertThat(region.getAirSpaceVolume())
                 .hasValue(expected);
-        assertThat(region.getLongitudeLimitMinimum()).isNotPresent();
-        assertThat(region.getLongitudeLimitMaximum()).isNotPresent();
+        assertThat(region.getLongitudeLimitMinimum()).isEmpty();
+        assertThat(region.getLongitudeLimitMaximum()).isEmpty();
     }
 
     @Test

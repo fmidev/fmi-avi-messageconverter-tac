@@ -19,6 +19,7 @@ import fi.fmi.avi.model.immutable.PolygonGeometryImpl;
 import fi.fmi.avi.model.swx.VerticalLimits;
 import fi.fmi.avi.model.swx.VerticalLimitsImpl;
 import fi.fmi.avi.model.swx.amd79.*;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion.SpaceWeatherLocation;
 import fi.fmi.avi.model.swx.amd79.immutable.*;
 
 import javax.annotation.Nullable;
@@ -388,7 +389,6 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             maxLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Double.class));
         }
 
-
         l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
         if (l != null) {
             checkLexemeOrder(issues, l, LexemeIdentity.POLYGON_COORDINATE_PAIR);
@@ -448,7 +448,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                         "Airspace upper limit given, but missing the relational operator " + AviationCodeListUser.RelationalOperator.BELOW));
             }
             regionList.add(SpaceWeatherRegionImpl.builder()
-                    .setAirSpaceVolume(AirspaceVolumeImpl.Builder.fromPolygon(polygonLimit.get(), verticalLimits)).build());
+                    .setAirSpaceVolume(AirspaceVolumeImpl.fromPolygon(polygonLimit.get(), verticalLimits)).build());
         } else {
             // Create regions from each preset location (if any)
             l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
@@ -462,18 +462,18 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
                             "Missing effect extent in " + lexeme.getFirst().getTACToken()));
                 }
-                regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(AirspaceVolumeImpl.Builder
+                regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(AirspaceVolumeImpl
                                 .fromBounds(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d), verticalLimits))
                         .build());
             }
             while (l != null) {
                 final boolean[] noLocationIndicator = {true};
-                @Nullable final SpaceWeatherRegion.SpaceWeatherLocation location =
+                @Nullable final SpaceWeatherLocation location =
                         Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.LOCATION_INDICATOR, String.class))
                                 .map(code -> {
                                     noLocationIndicator[0] = false;
                                     try {
-                                        return SpaceWeatherRegion.SpaceWeatherLocation.fromTacCode(code);
+                                        return SpaceWeatherLocation.fromTacCode(code);
                                     } catch (final IllegalArgumentException exception) {
                                         issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING,
                                                 ConversionIssue.Type.SYNTAX, exception.getMessage(), exception));
@@ -485,7 +485,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     final SpaceWeatherRegionImpl.Builder regionBuilder = SpaceWeatherRegionImpl.builder()
                             .setLocationIndicator(location);
 
-                    if (location == SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE && analysisTime == null) {
+                    if (location == SpaceWeatherLocation.DAYLIGHT_SIDE && analysisTime == null) {
                         issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
                                 "Analysis instant is not available for computing DAYLIGHT_SIDE region"));
                     }
@@ -495,8 +495,8 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     minLongitude.ifPresent(regionBuilder::setLongitudeLimitMinimum);
                     maxLongitude.ifPresent(regionBuilder::setLongitudeLimitMaximum);
 
-                    regionBuilder.withComputedAirspaceVolume(location, analysisTime,
-                            minLongitude.orElse(null), maxLongitude.orElse(null), verticalLimits);
+                    regionBuilder.setAirSpaceVolume(AirspaceVolumeImpl.fromLocationIndicator(location, analysisTime,
+                            minLongitude.orElse(null), maxLongitude.orElse(null), verticalLimits));
 
                     regionList.add(regionBuilder.build());
                 } else if (noLocationIndicator[0]) {
@@ -508,11 +508,11 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         }
         final boolean hasDaylightSide = regionList.stream()
                 .anyMatch(region -> region.getLocationIndicator()
-                        .filter(locationIndicator -> locationIndicator == SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE)
+                        .filter(locationIndicator -> locationIndicator == SpaceWeatherLocation.DAYLIGHT_SIDE)
                         .isPresent());
         if (hasDaylightSide && regionList.size() > 1) {
             issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
-                    SpaceWeatherRegion.SpaceWeatherLocation.DAYLIGHT_SIDE.getCode() + " is not allowed with other regions"));
+                    SpaceWeatherLocation.DAYLIGHT_SIDE.getCode() + " is not allowed with other regions"));
         }
 
         return regionList;
