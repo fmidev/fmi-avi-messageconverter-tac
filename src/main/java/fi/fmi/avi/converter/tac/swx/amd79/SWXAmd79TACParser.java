@@ -52,7 +52,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
         final PartialDateTime time = PartialDateTime.ofDayHourMinuteZone(day, hour, minute, ZoneId.of("Z"));
         final PartialOrCompleteTimeInstant instant = issueTime != null && issueTime.getCompleteTime().isPresent()
-                ? PartialOrCompleteTimeInstant.of(time.toZonedDateTimeNear(issueTime.getCompleteTime().get()))
+                ? PartialOrCompleteTimeInstant.of(time, time.toZonedDateTimeNear(issueTime.getCompleteTime().get()))
                 : PartialOrCompleteTimeInstant.of(time);
         return Optional.of(instant);
     }
@@ -406,11 +406,8 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                 issues.add(new ConversionIssue(ConversionIssue.Severity.ERROR, ConversionIssue.Type.MISSING_DATA,
                         "Missing vertical limit unit for airspace volume"));
             }
-            final AviationCodeListUser.RelationalOperator operator = l.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR,
-                    AviationCodeListUser.RelationalOperator.class);
-            if (operator != null) {
-                verticalLimitsBuilder.setOperator(operator);
-            }
+            verticalLimitsBuilder.setNullableOperator(l.getParsedValue(Lexeme.ParsedValueName.RELATIONAL_OPERATOR,
+                    AviationCodeListUser.RelationalOperator.class));
         }
 
         final VerticalLimits verticalLimits = verticalLimitsBuilder.build();
