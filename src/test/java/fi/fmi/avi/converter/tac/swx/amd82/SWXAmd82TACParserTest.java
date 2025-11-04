@@ -14,7 +14,6 @@ import fi.fmi.avi.model.swx.amd82.*;
 import fi.fmi.avi.model.swx.amd82.immutable.AirspaceVolumeImpl;
 import fi.fmi.avi.model.swx.amd82.immutable.IssuingCenterImpl;
 import fi.fmi.avi.model.swx.amd82.immutable.SpaceWeatherAdvisoryAmd82Impl;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -708,13 +707,13 @@ public class SWXAmd82TACParserTest {
     public void testInvalidDaylightSide() throws Exception {
         final String input = getInput("spacewx-invalid-daylight-side.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        Assertions.assertThat(result.getConversionIssues())
+        assertThat(result.getConversionIssues())
                 .hasOnlyOneElementSatisfying(issue -> {
-                    Assertions.assertThat(issue.getMessage()).contains("DAYLIGHT SIDE");
-                    Assertions.assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
-                    Assertions.assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                    assertThat(issue.getMessage()).contains("DAYLIGHT SIDE");
+                    assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
                 });
-        Assertions.assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
+        assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
     }
 
     @Test
@@ -752,13 +751,13 @@ public class SWXAmd82TACParserTest {
     public void testInvalidDayside() throws Exception {
         final String input = getInput("spacewx-invalid-dayside.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        Assertions.assertThat(result.getConversionIssues())
+        assertThat(result.getConversionIssues())
                 .hasOnlyOneElementSatisfying(issue -> {
-                    Assertions.assertThat(issue.getMessage()).contains(SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE.getCode());
-                    Assertions.assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
-                    Assertions.assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                    assertThat(issue.getMessage()).contains(SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE.getCode());
+                    assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
                 });
-        Assertions.assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
+        assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
     }
 
     @Test
@@ -789,11 +788,16 @@ public class SWXAmd82TACParserTest {
     }
 
     @Test
-    public void testPrecisePolygonCoordinates2() throws Exception {
-        final String input = getInput("spacewx-precise-polygon-coordinates-2.tac");
-        final List<Double> expected = Arrays.asList(-20.0, -170.4, -20.1, -130.9, -10.9, -130.1, -11.1, -170.9, -20.0, -170.0);
+    public void testPolygonCoordinateLeniency() throws Exception {
+        final String input = getInput("spacewx-invalid-polygon-coordinates.tac");
+        final List<Double> expected = Arrays.asList(-20.0, -170.0, -20.0, -130.0, -10.0, -130.0, -10.0, -170.0, -20.0, -170.0);
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        assertThat(result.getConversionIssues()).isEmpty();
+
+        assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
+        assertThat(result.getConversionIssues().stream()
+                .filter(issue -> issue.getMessage().contains("has invalid format"))
+                .count()).isEqualTo(7);
+
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         assertThat(analysis.getRegions()).hasSize(1);
         final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
@@ -801,11 +805,28 @@ public class SWXAmd82TACParserTest {
     }
 
     @Test
-    public void testPolygonCoordinateLeniency() throws Exception {
-        final String input = getInput("spacewx-invalid-polygon-coordinates.tac");
-        final List<Double> expected = Arrays.asList(-20.0, -170.0, -20.0, -130.0, -10.0, -130.0, -10.0, -170.0, -20.0, -170.0);
+    public void testInvalidFractionalPolygonCoordinates() throws Exception {
+        final String input = getInput("spacewx-invalid-fractional-coordinates.tac");
+        final List<Double> expected = Arrays.asList(-20.0, -170.0, -20.0, -131.0, -11.0, -130.0, -11.0, -171.0, -20.0, -170.0);
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        assertThat(result.getConversionIssues()).isEmpty();
+
+        assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
+        assertThat(result.getConversionIssues()).hasSize(15);
+
+        // 8 format issues
+        assertThat(result.getConversionIssues().stream()
+                .filter(issue -> issue.getMessage().contains("has invalid format"))
+                .count()).isEqualTo(8);
+
+        // 7 fractional degree warnings
+        assertThat(result.getConversionIssues().stream()
+                .filter(issue -> issue.getMessage().contains("contains fractional degrees"))
+                .count()).isEqualTo(7);
+
+        assertThat(result.getConversionIssues()).allMatch(issue ->
+                issue.getSeverity() == ConversionIssue.Severity.WARNING &&
+                        issue.getType() == ConversionIssue.Type.SYNTAX);
+
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         assertThat(analysis.getRegions()).hasSize(1);
         final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();

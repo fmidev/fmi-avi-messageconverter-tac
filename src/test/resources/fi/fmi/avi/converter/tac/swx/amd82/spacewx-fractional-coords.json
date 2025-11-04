@@ -1,0 +1,113 @@
+{
+  "issueTime": {
+    "completeTime": "2016-11-08T00:00:00Z"
+  },
+  "issuingCenter": {
+    "name": "DONLON",
+    "type": "OTHER:SWXC"
+  },
+  "advisoryNumber": {
+    "year": 2016,
+    "serialNumber": 2
+  },
+  "phenomena": [
+    "RADIATION_MOD"
+  ],
+  "analyses": [
+    {
+      "time": {
+        "completeTime": "2016-11-08T01:00:00Z"
+      },
+      "analysisType": "OBSERVATION",
+      "regions": [
+        {
+          "airSpaceVolume": {
+            "horizontalProjection": {
+              "type": "Polygon",
+              "crs": {
+                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                "dimension": 2,
+                "axisLabels": [
+                  "Lat",
+                  "Lon"
+                ]
+              },
+              "exteriorRingPositions": [
+                80.4,
+                -150.6,
+                1.2,
+                -75.2,
+                60.3,
+                15.7,
+                70.8,
+                75.3,
+                80.4,
+                -160.4
+              ]
+            },
+            "upperLimit": {
+              "value": 270.0,
+              "uom": "FL"
+            },
+            "upperLimitReference": "STD"
+          }
+        }
+      ]
+    },
+    {
+      "time": {
+        "completeTime": "2016-11-08T07:00:00Z"
+      },
+      "analysisType": "FORECAST",
+      "regions": [
+        {}
+      ],
+      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+    },
+    {
+      "time": {
+        "completeTime": "2016-11-08T13:00:00Z"
+      },
+      "analysisType": "FORECAST",
+      "regions": [
+        {}
+      ],
+      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+    },
+    {
+      "time": {
+        "completeTime": "2016-11-08T19:00:00Z"
+      },
+      "analysisType": "FORECAST",
+      "regions": [
+        {}
+      ],
+      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+    },
+    {
+      "time": {
+        "completeTime": "2016-11-09T01:00:00Z"
+      },
+      "analysisType": "FORECAST",
+      "regions": [
+        {}
+      ],
+      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+    }
+  ],
+  "remarks": [
+    "TEST FRACTIONAL COORDINATES ROUNDING"
+  ],
+  "nextAdvisory": {
+    "timeSpecifier": "NO_FURTHER_ADVISORIES"
+  },
+  "permissibleUsage": "NON_OPERATIONAL",
+  "permissibleUsageReason": "TEST",
+  "replaceAdvisoryNumbers": [
+    {
+      "year": 2016,
+      "serialNumber": 1
+    }
+  ],
+  "reportStatus": "NORMAL"
+}

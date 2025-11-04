@@ -41,7 +41,7 @@ public class SWXAmd82TACSerializerTest {
     @Autowired
     private AviMessageConverter converter;
 
-    private SpaceWeatherAdvisoryAmd82 msg;
+    private ObjectMapper objectMapper;
 
     private static String getInput(final String fileName) throws IOException {
         try (final InputStream is = SWXAmd82ReconstructorTest.class.getResourceAsStream(fileName)) {
@@ -58,18 +58,21 @@ public class SWXAmd82TACSerializerTest {
         assertEquals(expectedExteriorRingPositions, ((PolygonGeometry) geom).getExteriorRingPositions());
     }
 
+    private SpaceWeatherAdvisoryAmd82 loadAdvisory(final String fileName) throws IOException {
+        final String input = getInput(fileName);
+        return objectMapper.readValue(input, SpaceWeatherAdvisoryAmd82Impl.class);
+    }
+
     @Before
     public void setup() throws Exception {
-        final ObjectMapper om = new ObjectMapper();
-        om.registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
-
-        final String input = getInput("spacewx-A2-3.json");
-        msg = om.readValue(input, SpaceWeatherAdvisoryAmd82Impl.class);
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
     }
 
     @Test
-    public void swxSerializerTest() {
-        final ConversionResult<String> result = this.converter.convertMessage(msg, TACConverter.SWX_AMD82_POJO_TO_TAC, new ConversionHints());
+    public void swxSerializerTest() throws IOException {
+        final SpaceWeatherAdvisoryAmd82 advisory = loadAdvisory("spacewx-A2-3.json");
+        final ConversionResult<String> result = this.converter.convertMessage(advisory, TACConverter.SWX_AMD82_POJO_TO_TAC, new ConversionHints());
         assertTrue(result.getConvertedMessage().isPresent());
         System.out.println(result.getConvertedMessage().get());
     }
@@ -130,8 +133,8 @@ public class SWXAmd82TACSerializerTest {
                 + "OBS SWX:            08/0100Z HNH HSH E020 - W172 ABV FL340" + CR_LF//
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E150 - W040 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E005 - W160 ABV FL340" + CR_LF//
-                + "FCST SWX +18 HR:    08/1900Z HNH HSH E17930 - W02054 ABV FL340" + CR_LF//
-                + "FCST SWX +24 HR:    09/0100Z N80 W15006 - N01 W075 - N60 E015 - N70 E075 - N80 W16024" + CARRIAGE_RETURN.getContent()
+                + "FCST SWX +18 HR:    08/1900Z HNH HSH E179 - W021 ABV FL340" + CR_LF//
+                + "FCST SWX +24 HR:    09/0100Z N80 W150 - N01 W075 - N60 E015 - N70 E075 - N80 W160" + CARRIAGE_RETURN.getContent()
                 + LINE_FEED.getContent()//
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
@@ -140,14 +143,14 @@ public class SWXAmd82TACSerializerTest {
         for (final ConversionIssue issue : pojoResult.getConversionIssues()) {
             System.err.println("iss:" + issue);
         }
-        assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
+        assertEquals(ConversionResult.Status.WITH_WARNINGS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
         final List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage().get().getAnalyses();
 
         assertRegionPolygonEquals(Arrays.asList(90d, 20d, 60d, 20d, 60d, -172d, 90d, -172d, 90d, 20d), analyses.get(0), 0);//
         assertRegionPolygonEquals(Arrays.asList(90d, 150d, 60d, 150d, 60d, -40d, 90d, -40d, 90d, 150d), analyses.get(1), 0);//
         assertRegionPolygonEquals(Arrays.asList(90d, 5d, 60d, 5d, 60d, -160d, 90d, -160d, 90d, 5d), analyses.get(2), 0);//
-        assertRegionPolygonEquals(Arrays.asList(80d, -150.1d, 1d, -75d, 60d, 15d, 70d, 75d, 80d, -160.4d), analyses.get(4), 0);
+        assertRegionPolygonEquals(Arrays.asList(80d, -150.0d, 1d, -75d, 60d, 15d, 70d, 75d, 80d, -160d), analyses.get(4), 0);
 
         final ConversionResult<String> stringResult = this.converter.convertMessage(pojoResult.getConvertedMessage().get(), TACConverter.SWX_AMD82_POJO_TO_TAC,
                 new ConversionHints());
@@ -416,6 +419,34 @@ public class SWXAmd82TACSerializerTest {
         assertEquals(ConversionResult.Status.WITH_WARNINGS, stringResult.getStatus());
         assertTrue(stringResult.getConvertedMessage().isPresent());
         assertEquals(expected, stringResult.getConvertedMessage().get());
+    }
+
+    @Test
+    public void testFractionalCoordinatesRoundedInSerialization() throws IOException {
+        final String expected = "SWX ADVISORY" + CR_LF
+                + "STATUS:             TEST" + CR_LF
+                + "DTG:                20161108/0000Z" + CR_LF
+                + "SWXC:               DONLON" + CR_LF
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF
+                + "ADVISORY NR:        2016/2" + CR_LF
+                + "NR RPLC:            2016/1" + CR_LF
+                + "OBS SWX:            08/0100Z N80 W151 - N01 W075 - N60 E016 - N71 E075 - N80 W160" + CR_LF
+                + "FCST SWX +6 HR:     08/0700Z NO SWX EXP" + CR_LF
+                + "FCST SWX +12 HR:    08/1300Z NO SWX EXP" + CR_LF
+                + "FCST SWX +18 HR:    08/1900Z NO SWX EXP" + CR_LF
+                + "FCST SWX +24 HR:    09/0100Z NO SWX EXP" + CR_LF
+                + "RMK:                TEST FRACTIONAL COORDINATES ROUNDING" + CR_LF
+                + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
+
+        final SpaceWeatherAdvisoryAmd82 inputWithFractionals = loadAdvisory("spacewx-fractional-coords.json");
+
+        final ConversionResult<String> result = this.converter.convertMessage(
+                inputWithFractionals,
+                TACConverter.SWX_AMD82_POJO_TO_TAC,
+                new ConversionHints());
+        assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
+        assertTrue(result.getConvertedMessage().isPresent());
+        assertEquals(expected, result.getConvertedMessage().get());
     }
 
 
