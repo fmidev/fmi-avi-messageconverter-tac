@@ -813,12 +813,10 @@ public class SWXAmd82TACParserTest {
         assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
         assertThat(result.getConversionIssues()).hasSize(15);
 
-        // 8 format issues
         assertThat(result.getConversionIssues().stream()
                 .filter(issue -> issue.getMessage().contains("has invalid format"))
                 .count()).isEqualTo(8);
 
-        // 7 fractional degree warnings
         assertThat(result.getConversionIssues().stream()
                 .filter(issue -> issue.getMessage().contains("contains fractional degrees"))
                 .count()).isEqualTo(7);
