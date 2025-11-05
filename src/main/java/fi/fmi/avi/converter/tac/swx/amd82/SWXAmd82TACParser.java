@@ -131,13 +131,47 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                 .build();
     }
 
+    private static void checkCoordinateFormat(final Lexeme lexeme, final List<ConversionIssue> issues) {
+        final String coordinatePair = lexeme.getTACToken();
+        if (coordinatePair == null) {
+            return;
+        }
+
+        for (final String coordinate : coordinatePair.split("[\\s\\-]+")) {
+            if (coordinate.isEmpty()) {
+                continue;
+            }
+
+            final char prefix = coordinate.charAt(0);
+            final int expectedLength = (prefix == 'N' || prefix == 'S') ? 3 : 4;
+
+            if (coordinate.length() != expectedLength) {
+                issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
+                        "<" + coordinate + "> has invalid format"));
+            }
+        }
+    }
+
+    private static double processDegrees(final Double degrees, final String identifier, final Lexeme lexeme,
+                                         final List<ConversionIssue> issues) {
+        final double rounded = Math.round(degrees);
+        if (degrees != rounded) {
+            issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
+                    identifier + " in " + lexeme.getTACToken() + " contains fractional degrees parsed into <"
+                            + degrees + ">, rounded to <" + rounded + ">"));
+            return rounded;
+        }
+        return degrees;
+    }
+
     @Override
     public void setTACLexer(final AviMessageLexer lexer) {
         this.lexer = lexer;
     }
 
     @Override
-    public ConversionResult<SpaceWeatherAdvisoryAmd82> convertMessage(final String input, final ConversionHints hints) {
+    public ConversionResult<SpaceWeatherAdvisoryAmd82> convertMessage(final String input,
+                                                                      final ConversionHints hints) {
         final ConversionResult<SpaceWeatherAdvisoryAmd82> retval = new ConversionResult<>();
 
         if (this.lexer == null) {
@@ -314,7 +348,8 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         return retval;
     }
 
-    private Collection<ConversionIssue> checkPhenomenaLabelOrder(final Lexeme firstLexeme, final Set<LexemeIdentity> remainingLexemeIdentities) {
+    private Collection<ConversionIssue> checkPhenomenaLabelOrder(final Lexeme firstLexeme,
+                                                                 final Set<LexemeIdentity> remainingLexemeIdentities) {
         final List<ConversionIssue> issues = new ArrayList<>();
         remainingLexemeIdentities.remove(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
         Lexeme phenomenaLabel = firstLexeme.findNext(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
@@ -356,7 +391,8 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         return issues;
     }
 
-    private SpaceWeatherAdvisoryAnalysis processAnalysis(final Lexeme lexeme, @Nullable final PartialOrCompleteTimeInstant issueTime,
+    private SpaceWeatherAdvisoryAnalysis processAnalysis(final Lexeme lexeme,
+                                                         @Nullable final PartialOrCompleteTimeInstant issueTime,
                                                          final List<ConversionIssue> issues) {
         final SpaceWeatherAdvisoryAnalysisImpl.Builder builder = SpaceWeatherAdvisoryAnalysisImpl.builder();
         final List<ConversionIssue> analysisLexemeCountIssues = checkAnalysisLexemes(lexeme);
@@ -418,7 +454,8 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         return conversionIssues;
     }
 
-    protected List<SpaceWeatherRegion> handleRegion(final Lexeme lexeme, @Nullable final Instant analysisTime, final List<ConversionIssue> issues) {
+    protected List<SpaceWeatherRegion> handleRegion(final Lexeme lexeme, @Nullable final Instant analysisTime,
+                                                    final List<ConversionIssue> issues) {
         // 1. Discover limits
         Optional<PolygonGeometry> polygonLimit = Optional.empty();
         Optional<Double> minLongitude = Optional.empty();
@@ -428,8 +465,15 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
         if (l != null) {
             checkLexemeOrder(issues, l, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
-            minLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Double.class));
-            maxLongitude = Optional.ofNullable(l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Double.class));
+            checkCoordinateFormat(l, issues);
+            final Double minLon = l.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Double.class);
+            final Double maxLon = l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Double.class);
+            if (minLon != null) {
+                minLongitude = Optional.of(processDegrees(minLon, "Minimum longitude", l, issues));
+            }
+            if (maxLon != null) {
+                maxLongitude = Optional.of(processDegrees(maxLon, "Maximum longitude", l, issues));
+            }
         }
 
         l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
@@ -460,8 +504,12 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             final PolygonGeometryImpl.Builder polyBuilder = PolygonGeometryImpl.builder()//
                     .setCrs(CoordinateReferenceSystemImpl.wgs84());
             while (l != null) {
-                polyBuilder.addExteriorRingPositions(l.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class));
-                polyBuilder.addExteriorRingPositions(l.getParsedValue(Lexeme.ParsedValueName.VALUE2, Double.class));
+                checkCoordinateFormat(l, issues);
+                final Double lat = l.getParsedValue(Lexeme.ParsedValueName.VALUE, Double.class);
+                final Double lon = l.getParsedValue(Lexeme.ParsedValueName.VALUE2, Double.class);
+                polyBuilder.addExteriorRingPositions(processDegrees(lat, "Latitude", l, issues));
+                polyBuilder.addExteriorRingPositions(processDegrees(lon, "Longitude", l, issues));
+
                 if (l.hasNext() && LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR.equals(l.getNext().getIdentity())) {
                     if (l.getNext().hasNext() && LexemeIdentity.POLYGON_COORDINATE_PAIR.equals(l.getNext().getNext().getIdentity())) {
                         l = l.getNext().getNext();

@@ -17,12 +17,12 @@ public class GeometryHelper {
     private static final Set<String> LATITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lat", "latitude")));
     private static final Set<String> LONGITUDE_AXIS_LABELS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("lon", "long", "longitude")));
 
-    public static List<Lexeme> getCoordinateString(BigDecimal lat, BigDecimal lon, boolean lastPair, BiFunction<String, LexemeIdentity, Lexeme> createLexeme, boolean specifyZeros) {
-        List<Lexeme> lexemes = new ArrayList<>();
+    public static List<Lexeme> getCoordinateString(final BigDecimal lat, final BigDecimal lon, final boolean lastPair, final BiFunction<String, LexemeIdentity, Lexeme> createLexeme, final boolean specifyZeros) {
+        final List<Lexeme> lexemes = new ArrayList<>();
         final StringBuilder latBuilder = new StringBuilder();
         final StringBuilder lonBuilder = new StringBuilder();
 
-        MathContext mc = new MathContext(2, RoundingMode.HALF_UP);
+        final MathContext mc = new MathContext(2, RoundingMode.HALF_UP);
         if (lat.doubleValue() >= -90.0 && lat.doubleValue() <= 90.0 && lon.doubleValue() >= -180.0
                 && lon.doubleValue() <= 180.0) {
             if (lat.doubleValue() < 0) {
@@ -60,14 +60,17 @@ public class GeometryHelper {
         return lexemes;
     }
 
-    public static List<Lexeme> getGeoLexemes(Geometry geom, BiFunction<String, LexemeIdentity, Lexeme> createLexeme) {
-        return getGeoLexemes(geom, createLexeme, false);
+    public static List<Lexeme> getGeoLexemes(final Geometry geom, final BiFunction<String, LexemeIdentity, Lexeme> createLexeme) {
+        return getGeoLexemes(geom, createLexeme, false, 2);
     }
 
-    public static List<Lexeme> getGeoLexemes(Geometry geom, BiFunction<String, LexemeIdentity, Lexeme> createLexeme, boolean specifyZeros) {
+    public static List<Lexeme> getGeoLexemes(final Geometry geom, final BiFunction<String, LexemeIdentity, Lexeme> createLexeme, final boolean specifyZeros) {
+        return getGeoLexemes(geom, createLexeme, specifyZeros, 2);
+    }
+
+    public static List<Lexeme> getGeoLexemes(final Geometry geom, final BiFunction<String, LexemeIdentity, Lexeme> createLexeme, final boolean specifyZeros, final int decimalPlaces) {
         final List<Lexeme> lexemes = new ArrayList<>();
 
-        //Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
         int latOffset = -1;
         int lonOffset = -1;
         final List<String> axisLabels = geom.getCrs().map(CoordinateReferenceSystem::getAxisLabels).orElse(Collections.emptyList());
@@ -79,7 +82,6 @@ public class GeometryHelper {
                 lonOffset = i;
             }
         }
-        //defaults to EPSG:4326 (lat,lon) order:
         if (latOffset == -1) {
             latOffset = 0;
         }
@@ -95,22 +97,22 @@ public class GeometryHelper {
             for (int coordPairIndex = 0; coordPairIndex < coords.size() - 1; coordPairIndex = coordPairIndex + 2) {
                 latIndex = coordPairIndex + latOffset;
                 lonIndex = coordPairIndex + lonOffset;
-                final BigDecimal lat = round(coords.get(latIndex));
-                final BigDecimal lon = round(coords.get(lonIndex));
+                final BigDecimal lat = round(coords.get(latIndex), decimalPlaces);
+                final BigDecimal lon = round(coords.get(lonIndex), decimalPlaces);
                 lexemes.addAll(getCoordinateString(lat, lon, (coordPairIndex >= coords.size() - 2), createLexeme, specifyZeros));
             }
         } else if (geom instanceof PointGeometry) {
             final List<Double> coords = ((PointGeometry) geom).getCoordinates();
-            final BigDecimal lat = round(coords.get(latOffset));
-            final BigDecimal lon = round(coords.get(lonOffset));
+            final BigDecimal lat = round(coords.get(latOffset), decimalPlaces);
+            final BigDecimal lon = round(coords.get(lonOffset), decimalPlaces);
             lexemes.addAll(getCoordinateString(lat, lon, true, createLexeme, specifyZeros));
         } else if (geom instanceof CircleByCenterPoint) {
             final CircleByCenterPoint circle = (CircleByCenterPoint) geom;
             final double radius = circle.getRadius().getValue();
             final String unit = circle.getRadius().getUom();
             final List<Double> coords = circle.getCenterPointCoordinates();
-            final BigDecimal lat = round(coords.get(latOffset));
-            final BigDecimal lon = round(coords.get(lonOffset));
+            final BigDecimal lat = round(coords.get(latOffset), decimalPlaces);
+            final BigDecimal lon = round(coords.get(lonOffset), decimalPlaces);
             final List<Lexeme> coordinateLexemes = getCoordinateString(lat, lon, true, createLexeme, specifyZeros);
             final Lexeme circleLexeme = createLexeme.apply(String.format(Locale.US, "WI %02.0f%s OF ", radius, unit) +
                     coordinateLexemes.get(0).getTACToken(), LexemeIdentity.SIGMET_WITHIN_RADIUS_OF_POINT);
@@ -120,11 +122,11 @@ public class GeometryHelper {
         return lexemes;
     }
 
-    public static PointGeometry parsePoint(String latStr, String lonStr) {
+    public static PointGeometry parsePoint(final String latStr, final String lonStr) {
         double latitude;
         double longitude;
         if (latStr.length() > 3) {
-            double latitudeMinutes = Double.parseDouble(latStr.substring(3)) / 60.;
+            final double latitudeMinutes = Double.parseDouble(latStr.substring(3)) / 60.;
             latitude = Double.parseDouble(latStr.substring(1, 3) + ".") + latitudeMinutes;
         } else {
             latitude = Double.parseDouble(latStr.substring(1));
@@ -133,7 +135,7 @@ public class GeometryHelper {
             latitude *= -1;
         }
         if (lonStr.length() > 4) {
-            double longitudeMinutes = Double.parseDouble(lonStr.substring(4)) / 60.;
+            final double longitudeMinutes = Double.parseDouble(lonStr.substring(4)) / 60.;
             longitude = Double.parseDouble(lonStr.substring(1, 4) + ".") + longitudeMinutes;
         } else {
             longitude = Double.parseDouble(lonStr.substring(1));
@@ -141,13 +143,13 @@ public class GeometryHelper {
         if (lonStr.charAt(0) == 'W') {
             longitude *= -1;
         }
-        PointGeometryImpl.Builder pointBuilder = PointGeometryImpl.builder();
+        final PointGeometryImpl.Builder pointBuilder = PointGeometryImpl.builder();
         pointBuilder.addCoordinates(latitude, longitude);
         return pointBuilder.build();
     }
 
-    private static BigDecimal round(final double coordinate) {
-        return BigDecimal.valueOf(coordinate).setScale(2, RoundingMode.HALF_UP);
+    private static BigDecimal round(final double coordinate, final int decimalPlaces) {
+        return BigDecimal.valueOf(coordinate).setScale(decimalPlaces, RoundingMode.HALF_UP);
     }
 
 }

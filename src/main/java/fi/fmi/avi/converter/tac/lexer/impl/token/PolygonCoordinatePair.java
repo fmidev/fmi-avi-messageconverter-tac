@@ -76,7 +76,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                             final fi.fmi.avi.model.swx.amd82.AirspaceVolume volume = region.getAirSpaceVolume().get();
                             if (volume.getHorizontalProjection().isPresent()) {
                                 final Geometry geom = volume.getHorizontalProjection().get();
-                                retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme));
+                                retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme, false, 0));
                             }
                         }
                     }
