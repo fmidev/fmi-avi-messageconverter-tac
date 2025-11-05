@@ -11,8 +11,6 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -60,6 +58,21 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
+        private static String parseLimit(final double limit, final int decimalPlaces) {
+            final String prefix = limit < 0 ? "W" : "E";
+            final double absLimit = Math.abs(limit);
+
+            final boolean hasFraction = decimalPlaces > 0 && absLimit != Math.rint(absLimit);
+            final int decimals = hasFraction ? decimalPlaces : 0;
+            final double scale = Math.pow(10, decimals);
+            final long scaled = Math.round(absLimit * scale);
+
+            final int totalWidth = 3 + decimals;
+            final String body = String.format(Locale.US, "%0" + totalWidth + "d", scaled);
+
+            return prefix + body;
+        }
+
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             Optional<Lexeme> lexeme = Optional.empty();
@@ -70,7 +83,7 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
                     if (analysis.getRegions() != null && !analysis.getRegions().isEmpty()) {
                         final fi.fmi.avi.model.swx.amd82.SpaceWeatherRegion region = analysis.getRegions().get(0);
                         if (region.getLongitudeLimitMinimum().isPresent() && region.getLongitudeLimitMaximum().isPresent()) {
-                            lexeme = Optional.of(createLexeme(region.getLongitudeLimitMinimum().get(), region.getLongitudeLimitMaximum().get()));
+                            lexeme = Optional.of(createLexeme(region.getLongitudeLimitMinimum().get(), region.getLongitudeLimitMaximum().get(), 0));
                         }
                     }
                 }
@@ -81,7 +94,7 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
                     if (analysis.getRegions() != null && !analysis.getRegions().isEmpty()) {
                         final fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion region = analysis.getRegions().get(0);
                         if (region.getLongitudeLimitMinimum().isPresent() && region.getLongitudeLimitMaximum().isPresent()) {
-                            lexeme = Optional.of(createLexeme(region.getLongitudeLimitMinimum().get(), region.getLongitudeLimitMaximum().get()));
+                            lexeme = Optional.of(createLexeme(region.getLongitudeLimitMinimum().get(), region.getLongitudeLimitMaximum().get(), 2));
                         }
                     }
                 }
@@ -89,25 +102,9 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
             return lexeme;
         }
 
-        private Lexeme createLexeme(final double longitudeLimitMinimum, final double longitudeLimitMaximum) {
-            final String content = parseLimit(longitudeLimitMinimum) + " - " + parseLimit(longitudeLimitMaximum);
+        private Lexeme createLexeme(final double longitudeLimitMinimum, final double longitudeLimitMaximum, final int decimalPlaces) {
+            final String content = parseLimit(longitudeLimitMinimum, decimalPlaces) + " - " + parseLimit(longitudeLimitMaximum, decimalPlaces);
             return this.createLexeme(content, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
-        }
-
-        private String parseLimit(final double limit) {
-            final StringBuilder builder = new StringBuilder();
-            if (limit < 0) {
-                builder.append("W");
-            } else {
-                builder.append("E");
-            }
-            final double absLimit = Math.abs(limit);
-            final DecimalFormat formatter = (DecimalFormat) NumberFormat.getNumberInstance(Locale.US);
-            formatter.applyPattern(absLimit % 1.0 == 0.0 ? "000" : "000.00");
-            Arrays.stream(formatter.format(absLimit).split("\\."))//
-                    .filter(val -> !val.isEmpty())//
-                    .forEach(builder::append);
-            return builder.toString();
         }
     }
 }

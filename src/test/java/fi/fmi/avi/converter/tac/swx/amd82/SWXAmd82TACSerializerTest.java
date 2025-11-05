@@ -431,7 +431,7 @@ public class SWXAmd82TACSerializerTest {
                 + "ADVISORY NR:        2016/2" + CR_LF
                 + "NR RPLC:            2016/1" + CR_LF
                 + "OBS SWX:            08/0100Z N80 W151 - N01 W075 - N60 E016 - N71 E075 - N80 W160" + CR_LF
-                + "FCST SWX +6 HR:     08/0700Z NO SWX EXP" + CR_LF
+                + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF
                 + "FCST SWX +12 HR:    08/1300Z NO SWX EXP" + CR_LF
                 + "FCST SWX +18 HR:    08/1900Z NO SWX EXP" + CR_LF
                 + "FCST SWX +24 HR:    09/0100Z NO SWX EXP" + CR_LF

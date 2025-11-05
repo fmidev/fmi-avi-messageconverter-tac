@@ -44,12 +44,7 @@
                 80.4,
                 -160.4
               ]
-            },
-            "upperLimit": {
-              "value": 270.0,
-              "uom": "FL"
-            },
-            "upperLimitReference": "STD"
+            }
           }
         }
       ]
@@ -60,18 +55,77 @@
       },
       "analysisType": "FORECAST",
       "regions": [
-        {}
-      ],
-      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+        {
+          "airSpaceVolume": {
+            "horizontalProjection": {
+              "type": "Polygon",
+              "crs": {
+                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                "dimension": 2,
+                "axisLabels": [
+                  "Lat",
+                  "Lon"
+                ]
+              },
+              "exteriorRingPositions": [
+                -180.0,
+                90.0,
+                -180.0,
+                60.0,
+                180.0,
+                60.0,
+                180.0,
+                90.0,
+                -180.0,
+                90.0
+              ]
+            },
+            "lowerLimit": {
+              "value": 340,
+              "uom": "FL"
+            },
+            "lowerLimitReference": "STD"
+          },
+          "longitudeLimitMinimum": 179.9,
+          "longitudeLimitMaximum": -179.6,
+          "locationIndicator": "HIGH_NORTHERN_HEMISPHERE"
+        },
+        {
+          "airSpaceVolume": {
+            "horizontalProjection": {
+              "type": "Polygon",
+              "crs": {
+                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                "dimension": 2,
+                "axisLabels": [
+                  "Lat",
+                  "Lon"
+                ]
+              },
+              "exteriorRingPositions": [
+                -180.0,
+                -90.0,
+                -180.0,
+                -60.0,
+                180.0,
+                -60.0,
+                180.0,
+                -90.0,
+                -180.0,
+                -90.0
+              ]
+            }
+          },
+          "locationIndicator": "HIGH_LATITUDES_SOUTHERN_HEMISPHERE"
+        }
+      ]
     },
     {
       "time": {
         "completeTime": "2016-11-08T13:00:00Z"
       },
       "analysisType": "FORECAST",
-      "regions": [
-        {}
-      ],
+      "regions": [],
       "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
     },
     {
@@ -79,9 +133,7 @@
         "completeTime": "2016-11-08T19:00:00Z"
       },
       "analysisType": "FORECAST",
-      "regions": [
-        {}
-      ],
+      "regions": [],
       "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
     },
     {
@@ -89,9 +141,7 @@
         "completeTime": "2016-11-09T01:00:00Z"
       },
       "analysisType": "FORECAST",
-      "regions": [
-        {}
-      ],
+      "regions": [],
       "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
     }
   ],
