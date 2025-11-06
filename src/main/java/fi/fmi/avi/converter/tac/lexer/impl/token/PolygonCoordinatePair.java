@@ -10,10 +10,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.util.GeometryHelper;
 import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.sigmet.SIGMET;
-import fi.fmi.avi.model.swx.amd79.AirspaceVolume;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
-import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis;
-import fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion;
 import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 
 import java.util.ArrayList;
@@ -84,11 +81,11 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
             } else if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    final SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd79) msg).getAnalyses().get(analysisIndex.get());
+                    final fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd79) msg).getAnalyses().get(analysisIndex.get());
                     if (analysis.getRegions() != null && !analysis.getRegions().isEmpty()) {
-                        final SpaceWeatherRegion region = analysis.getRegions().get(0);
+                        final fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion region = analysis.getRegions().get(0);
                         if (!region.getLocationIndicator().isPresent() && region.getAirSpaceVolume().isPresent()) {
-                            final AirspaceVolume volume = region.getAirSpaceVolume().get();
+                            final fi.fmi.avi.model.swx.amd79.AirspaceVolume volume = region.getAirSpaceVolume().get();
                             if (volume.getHorizontalProjection().isPresent()) {
                                 final Geometry geom = volume.getHorizontalProjection().get();
                                 retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme, specifyZeros, 2, Winding.COUNTERCLOCKWISE));
