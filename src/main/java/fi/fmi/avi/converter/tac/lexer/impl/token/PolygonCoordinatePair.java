@@ -76,7 +76,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                             final fi.fmi.avi.model.swx.amd82.AirspaceVolume volume = region.getAirSpaceVolume().get();
                             if (volume.getHorizontalProjection().isPresent()) {
                                 final Geometry geom = volume.getHorizontalProjection().get();
-                                retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme, false, 0));
+                                retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme, false, 0, Winding.COUNTERCLOCKWISE));
                             }
                         }
                     }
@@ -91,7 +91,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                             final AirspaceVolume volume = region.getAirSpaceVolume().get();
                             if (volume.getHorizontalProjection().isPresent()) {
                                 final Geometry geom = volume.getHorizontalProjection().get();
-                                retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme));
+                                retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme, specifyZeros, 2, Winding.COUNTERCLOCKWISE));
                             }
                         }
                     }
@@ -100,25 +100,25 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
                     final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMETAIRMET) msg).getAnalysisGeometries().get().get(analysisIndex.get()).getGeometry().get();
-                    createGeometries(tacOrGeoGeometry, specifyZeros, retval);
+                    createSigmetAirmetGeometries(tacOrGeoGeometry, specifyZeros, retval);
                 }
                 if (SIGMET.class.isAssignableFrom(clz)) {
                     final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
                     if (forecastIndex.isPresent()) {
                         final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getForecastGeometries().get().get(forecastIndex.get()).getGeometry().get();
-                        createGeometries(tacOrGeoGeometry, specifyZeros, retval);
+                        createSigmetAirmetGeometries(tacOrGeoGeometry, specifyZeros, retval);
                     }
                 }
             }
             return retval;
         }
 
-        private void createGeometries(final TacOrGeoGeometry tacOrGeoGeometry, final boolean specifyZeros, final List<Lexeme> retval) {
+        private void createSigmetAirmetGeometries(final TacOrGeoGeometry tacOrGeoGeometry, final boolean specifyZeros, final List<Lexeme> retval) {
             if (tacOrGeoGeometry.getGeoGeometry().isPresent() && !tacOrGeoGeometry.getTacGeometry().isPresent()) {
                 final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
                 if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {
                     final PointGeometry pt = (PointGeometry) geoGeometry;
-                    retval.addAll(GeometryHelper.getGeoLexemes(pt, this::createLexeme, specifyZeros));
+                    retval.addAll(GeometryHelper.getGeoLexemes(pt, this::createLexeme, specifyZeros, 2, Winding.CLOCKWISE));
                 }
             }
         }
