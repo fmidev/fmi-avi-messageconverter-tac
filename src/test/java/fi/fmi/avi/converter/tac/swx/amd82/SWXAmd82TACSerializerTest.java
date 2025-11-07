@@ -74,7 +74,6 @@ public class SWXAmd82TACSerializerTest {
         final SpaceWeatherAdvisoryAmd82 advisory = loadAdvisory("spacewx-A2-3.json");
         final ConversionResult<String> result = this.converter.convertMessage(advisory, TACConverter.SWX_AMD82_POJO_TO_TAC, new ConversionHints());
         assertTrue(result.getConvertedMessage().isPresent());
-        System.out.println(result.getConvertedMessage().get());
     }
 
     @Test
@@ -119,7 +118,7 @@ public class SWXAmd82TACSerializerTest {
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E150 - W40 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E5 - W160 ABV FL340" + CR_LF//
                 + "FCST SWX +18 HR:    08/1900Z HNH HSH E17930 - W02054 ABV FL340" + CR_LF//
-                + "FCST SWX +24 HR:    09/0100Z N80 W15006 - N1 W75 - N60 E15 - N70 E75 - N80 W16024" + CR_LF//
+                + "FCST SWX +24 HR:    09/0100Z N80 W15006 - N1 W75 - N60 E15 - N70 E75 - N80 W15006" + CR_LF//
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
@@ -134,7 +133,7 @@ public class SWXAmd82TACSerializerTest {
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E150 - W040 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E005 - W160 ABV FL340" + CR_LF//
                 + "FCST SWX +18 HR:    08/1900Z HNH HSH E179 - W021 ABV FL340" + CR_LF//
-                + "FCST SWX +24 HR:    09/0100Z N80 W150 - N01 W075 - N60 E015 - N70 E075 - N80 W160" + CARRIAGE_RETURN.getContent()
+                + "FCST SWX +24 HR:    09/0100Z N80 W150 - N01 W075 - N60 E015 - N70 E075 - N80 W150" + CARRIAGE_RETURN.getContent()
                 + LINE_FEED.getContent()//
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
@@ -150,7 +149,7 @@ public class SWXAmd82TACSerializerTest {
         assertRegionPolygonEquals(Arrays.asList(90d, 20d, 60d, 20d, 60d, -172d, 90d, -172d, 90d, 20d), analyses.get(0), 0);//
         assertRegionPolygonEquals(Arrays.asList(90d, 150d, 60d, 150d, 60d, -40d, 90d, -40d, 90d, 150d), analyses.get(1), 0);//
         assertRegionPolygonEquals(Arrays.asList(90d, 5d, 60d, 5d, 60d, -160d, 90d, -160d, 90d, 5d), analyses.get(2), 0);//
-        assertRegionPolygonEquals(Arrays.asList(80d, -150.0d, 1d, -75d, 60d, 15d, 70d, 75d, 80d, -160d), analyses.get(4), 0);
+        assertRegionPolygonEquals(Arrays.asList(80d, -150.0d, 1d, -75d, 60d, 15d, 70d, 75d, 80d, -150d), analyses.get(4), 0);
 
         final ConversionResult<String> stringResult = this.converter.convertMessage(pojoResult.getConvertedMessage().get(), TACConverter.SWX_AMD82_POJO_TO_TAC,
                 new ConversionHints());
@@ -430,7 +429,7 @@ public class SWXAmd82TACSerializerTest {
                 + "SWX EFFECT:         RADIATION MOD" + CR_LF
                 + "ADVISORY NR:        2016/2" + CR_LF
                 + "NR RPLC:            2016/1" + CR_LF
-                + "OBS SWX:            08/0100Z N80 W151 - N01 W075 - N60 E016 - N71 E075 - N80 W160" + CR_LF
+                + "OBS SWX:            08/0100Z N80 W160 - N01 W075 - N60 E016 - N71 E075 - N80 W160" + CR_LF
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF
                 + "FCST SWX +12 HR:    08/1300Z NO SWX EXP" + CR_LF
                 + "FCST SWX +18 HR:    08/1900Z NO SWX EXP" + CR_LF
@@ -449,5 +448,32 @@ public class SWXAmd82TACSerializerTest {
         assertEquals(expected, result.getConvertedMessage().get());
     }
 
+    @Test
+    public void testUnclosedPolygonUnchangedSerialization() throws IOException {
+        final String expected = "SWX ADVISORY" + CR_LF
+                + "STATUS:             TEST" + CR_LF
+                + "DTG:                20161108/0000Z" + CR_LF
+                + "SWXC:               DONLON" + CR_LF
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF
+                + "ADVISORY NR:        2016/2" + CR_LF
+                + "NR RPLC:            2016/1" + CR_LF
+                + "OBS SWX:            08/0100Z N80 W150 - N70 E075 - N60 E015 - N01 W075 - N80 W160" + CR_LF
+                + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF
+                + "FCST SWX +12 HR:    08/1300Z NO SWX EXP" + CR_LF
+                + "FCST SWX +18 HR:    08/1900Z NO SWX EXP" + CR_LF
+                + "FCST SWX +24 HR:    09/0100Z NO SWX EXP" + CR_LF
+                + "RMK:                TEST UNCLOSED POLYGON" + CR_LF
+                + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
+
+        final SpaceWeatherAdvisoryAmd82 inputWithFractionals = loadAdvisory("spacewx-unclosed-polygon.json");
+
+        final ConversionResult<String> result = this.converter.convertMessage(
+                inputWithFractionals,
+                TACConverter.SWX_AMD82_POJO_TO_TAC,
+                new ConversionHints());
+        assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
+        assertTrue(result.getConvertedMessage().isPresent());
+        assertEquals(expected, result.getConvertedMessage().get());
+    }
 
 }

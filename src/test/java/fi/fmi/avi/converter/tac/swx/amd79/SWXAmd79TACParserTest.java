@@ -759,7 +759,7 @@ public class SWXAmd79TACParserTest {
     @Test
     public void testPrecisePolygonCoordinates2() throws Exception {
         final String input = getInput("spacewx-precise-polygon-coordinates-2.tac");
-        final List<Double> expected = Arrays.asList(-20.0, -170.4, -20.1, -130.9, -10.9, -130.1, -11.1, -170.9, -20.0, -170.0);
+        final List<Double> expected = Arrays.asList(-20.0, -170.0, -20.1, -130.9, -10.9, -130.1, -11.1, -170.9, -20.0, -170.0);
         final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertThat(result.getConversionIssues()).isEmpty();
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
@@ -774,6 +774,28 @@ public class SWXAmd79TACParserTest {
         final List<Double> expected = Arrays.asList(-20.0, -170.0, -20.0, -130.0, -10.0, -130.0, -10.0, -170.0, -20.0, -170.0);
         final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertThat(result.getConversionIssues()).isEmpty();
+        final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
+        assertThat(analysis.getRegions()).hasSize(1);
+        final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
+    }
+
+    @Test
+    public void testUnclosedPolygonCoordinates() throws Exception {
+        final String input = getInput("spacewx-unclosed-polygon.tac");
+        final List<Double> expected = Arrays.asList(-20.0, -170.0, -20.0, -130.0, -10.0, -130.0, -10.0, -170.0);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
+        assertThat(result.getConversionIssues()).isNotEmpty();
+
+        assertThat(result.getConversionIssues())
+                .hasSize(1)
+                .first()
+                .satisfies(issue -> {
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                    assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
+                    assertThat(issue.getMessage()).isEqualTo("Polygon coordinate pairs do not form a closed ring");
+                });
+
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         assertThat(analysis.getRegions()).hasSize(1);
         final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();

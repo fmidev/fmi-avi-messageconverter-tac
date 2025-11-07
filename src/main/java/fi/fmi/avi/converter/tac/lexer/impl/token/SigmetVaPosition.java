@@ -30,32 +30,30 @@ public class SigmetVaPosition extends RegexMatchingLexemeVisitor {
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(SIGMET_VA_POSITION);
-        token.setParsedValue(ParsedValueName.VOLCANO_LATITUDE, match.group(2) );
+        token.setParsedValue(ParsedValueName.VOLCANO_LATITUDE, match.group(2));
         token.setParsedValue(ParsedValueName.VOLCANO_LONGITUDE, match.group(3));
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
-            ConversionHints hints = ctx.getHints();
-            Boolean specifyZeros = hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES)&&
-                ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
+            final ConversionHints hints = ctx.getHints();
+            final boolean specifyZeros = hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES) &&
+                    ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
             if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET sigmet = (SIGMET) msg;
+                final SIGMET sigmet = (SIGMET) msg;
                 if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA.equals(sigmet.getPhenomenon().orElse(null))) {
                     if (sigmet.getVAInfo().isPresent()) {
                         if (sigmet.getVAInfo().get().getVolcano().isPresent() &&
                                 sigmet.getVAInfo().get().getVolcano().get().getVolcanoPosition().isPresent()) {
-                            List<Double> coords = sigmet.getVAInfo().get().getVolcano().get().getVolcanoPosition().get().getCoordinates();
-                            List<Lexeme> lexemes = GeometryHelper.getCoordinateString(BigDecimal.valueOf(coords.get(0)),
-                                    BigDecimal.valueOf(coords.get(1)),
-                                    true,
-                                    (s, id) -> this.createLexeme(s, id), specifyZeros);
+                            final List<Double> coords = sigmet.getVAInfo().get().getVolcano().get().getVolcanoPosition().get().getCoordinates();
+                            final List<Lexeme> lexemes = GeometryHelper.createCoordinatePairLexemes(BigDecimal.valueOf(coords.get(0)),
+                                    BigDecimal.valueOf(coords.get(1)), false, this::createLexeme, specifyZeros);
                             return Optional.of(this.createLexeme("PSN " + lexemes.get(0).getTACToken(), LexemeIdentity.SIGMET_VA_POSITION));
                         }
                     }
-                   return Optional.empty();
+                    return Optional.empty();
                 }
             }
             return Optional.empty();

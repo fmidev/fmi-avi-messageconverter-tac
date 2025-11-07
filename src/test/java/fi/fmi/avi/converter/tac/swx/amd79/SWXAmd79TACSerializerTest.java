@@ -9,17 +9,17 @@ import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.converter.tac.lexer.AviMessageTACTokenizer;
+import fi.fmi.avi.converter.tac.swx.amd82.SWXAmd82ReconstructorTest;
 import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis;
-import fi.fmi.avi.model.swx.amd79.immutable.SpaceWeatherAdvisoryAmd79Impl;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
+import fi.fmi.avi.model.swx.amd82.immutable.SpaceWeatherAdvisoryAmd82Impl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -41,35 +41,33 @@ public class SWXAmd79TACSerializerTest {
     private static final String CR_LF = CARRIAGE_RETURN.getContent() + LINE_FEED.getContent();
 
     @Autowired
-    @Qualifier("tacTokenizer")
-    private AviMessageTACTokenizer tokenizer;
-
-    @Autowired
     private AviMessageConverter converter;
 
-    private SpaceWeatherAdvisoryAmd79 msg;
+    private ObjectMapper objectMapper;
 
-    @Before
-    public void setup() throws Exception {
-        final ObjectMapper om = new ObjectMapper();
-        om.registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
-
-        final String input = getInput("spacewx-A2-3.json");
-        msg = om.readValue(input, SpaceWeatherAdvisoryAmd79Impl.class);
-    }
-
-    private String getInput(final String fileName) throws IOException {
-        try (final InputStream is = SWXAmd79ReconstructorTest.class.getResourceAsStream(fileName)) {
+    private static String getInput(final String fileName) throws IOException {
+        try (final InputStream is = SWXAmd82ReconstructorTest.class.getResourceAsStream(fileName)) {
             Objects.requireNonNull(is);
             return IOUtils.toString(is, "UTF-8");
         }
     }
 
+    private SpaceWeatherAdvisoryAmd82 loadAdvisory(final String fileName) throws IOException {
+        final String input = getInput(fileName);
+        return objectMapper.readValue(input, SpaceWeatherAdvisoryAmd82Impl.class);
+    }
+
+    @Before
+    public void setup() throws Exception {
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
+    }
+
     @Test
-    public void swxSerializerTest() {
-        final ConversionResult<String> result = this.converter.convertMessage(msg, TACConverter.SWX_AMD79_POJO_TO_TAC, new ConversionHints());
+    public void swxSerializerTest() throws IOException {
+        final SpaceWeatherAdvisoryAmd82 advisory = loadAdvisory("spacewx-A2-3.json");
+        final ConversionResult<String> result = this.converter.convertMessage(advisory, TACConverter.SWX_AMD82_POJO_TO_TAC, new ConversionHints());
         assertTrue(result.getConvertedMessage().isPresent());
-        System.out.println(result.getConvertedMessage().get());
     }
 
     @Test
@@ -114,7 +112,7 @@ public class SWXAmd79TACSerializerTest {
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E150 - W40 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E5 - W160 ABV FL340" + CR_LF//
                 + "FCST SWX +18 HR:    08/1900Z HNH HSH E17930 - W02054 ABV FL340" + CR_LF//
-                + "FCST SWX +24 HR:    09/0100Z N80 W15006 - N1 W75 - N60 E15 - N70 E75 - N80 W16024" + CR_LF//
+                + "FCST SWX +24 HR:    09/0100Z N80 W15006 - N1 W75 - N60 E15 - N70 E75 - N80 W15006" + CR_LF//
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
@@ -129,14 +127,14 @@ public class SWXAmd79TACSerializerTest {
                 + "FCST SWX +6 HR:     08/0700Z HNH HSH E150 - W040 ABV FL340" + CR_LF//
                 + "FCST SWX +12 HR:    08/1300Z HNH HSH E005 - W160 ABV FL340" + CR_LF//
                 + "FCST SWX +18 HR:    08/1900Z HNH HSH E17930 - W02054 ABV FL340" + CR_LF//
-                + "FCST SWX +24 HR:    09/0100Z N80 W15006 - N01 W075 - N60 E015 - N70 E075 - N80 W16024" + CARRIAGE_RETURN.getContent()
+                + "FCST SWX +24 HR:    09/0100Z N80 W15006 - N01 W075 - N60 E015 - N70 E075 - N80 W15006" + CARRIAGE_RETURN.getContent()
                 + LINE_FEED.getContent()//
                 + "RMK:                NIL" + CR_LF//
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
         final ConversionResult<SpaceWeatherAdvisoryAmd79> pojoResult = this.converter.convertMessage(original, TACConverter.TAC_TO_SWX_AMD79_POJO);
         for (final ConversionIssue issue : pojoResult.getConversionIssues()) {
-            System.err.println("iss:"+ issue);
+            System.err.println("iss:" + issue);
         }
         assertEquals(ConversionResult.Status.SUCCESS, pojoResult.getStatus());
         assertTrue(pojoResult.getConvertedMessage().isPresent());
@@ -145,7 +143,7 @@ public class SWXAmd79TACSerializerTest {
         assertRegionPolygonEquals(Arrays.asList(90d, 20d, 60d, 20d, 60d, -172d, 90d, -172d, 90d, 20d), analyses.get(0), 0);//
         assertRegionPolygonEquals(Arrays.asList(90d, 150d, 60d, 150d, 60d, -40d, 90d, -40d, 90d, 150d), analyses.get(1), 0);//
         assertRegionPolygonEquals(Arrays.asList(90d, 5d, 60d, 5d, 60d, -160d, 90d, -160d, 90d, 5d), analyses.get(2), 0);//
-         assertRegionPolygonEquals(Arrays.asList(80d, -150.1d, 1d, -75d, 60d, 15d, 70d, 75d, 80d, -160.4d), analyses.get(4), 0);
+        assertRegionPolygonEquals(Arrays.asList(80d, -150.1d, 1d, -75d, 60d, 15d, 70d, 75d, 80d, -150.1d), analyses.get(4), 0);
 
         final ConversionResult<String> stringResult = this.converter.convertMessage(pojoResult.getConvertedMessage().get(), TACConverter.SWX_AMD79_POJO_TO_TAC,
                 new ConversionHints());
@@ -332,8 +330,36 @@ public class SWXAmd79TACSerializerTest {
         assertEquals(expected, stringResult.getConvertedMessage().get());
     }
 
+    @Test
+    public void testUnclosedPolygonUnchangedSerialization() throws IOException {
+        final String expected = "SWX ADVISORY" + CR_LF
+                + "STATUS:             TEST" + CR_LF
+                + "DTG:                20161108/0000Z" + CR_LF
+                + "SWXC:               DONLON" + CR_LF
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF
+                + "ADVISORY NR:        2016/2" + CR_LF
+                + "NR RPLC:            2016/1" + CR_LF
+                + "OBS SWX:            08/0100Z N80 W150 - N70 E075 - N60 E015 - N01 W075 - N80 W160" + CR_LF
+                + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF
+                + "FCST SWX +12 HR:    08/1300Z NO SWX EXP" + CR_LF
+                + "FCST SWX +18 HR:    08/1900Z NO SWX EXP" + CR_LF
+                + "FCST SWX +24 HR:    09/0100Z NO SWX EXP" + CR_LF
+                + "RMK:                TEST UNCLOSED POLYGON" + CR_LF
+                + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
+
+        final SpaceWeatherAdvisoryAmd82 inputWithFractionals = loadAdvisory("spacewx-unclosed-polygon.json");
+
+        final ConversionResult<String> result = this.converter.convertMessage(
+                inputWithFractionals,
+                TACConverter.SWX_AMD82_POJO_TO_TAC,
+                new ConversionHints());
+        assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
+        assertTrue(result.getConvertedMessage().isPresent());
+        assertEquals(expected, result.getConvertedMessage().get());
+    }
+
     private void assertRegionPolygonEquals(final List<Double> expectedExteriorRingPositions, final SpaceWeatherAdvisoryAnalysis analysis,
-            final int regionIndex) {
+                                           final int regionIndex) {
         assertFalse(analysis.getRegions().isEmpty());
         final Geometry geom = analysis.getRegions().get(regionIndex).getAirSpaceVolume().get().getHorizontalProjection().get();
         assertTrue(geom instanceof PolygonGeometry);

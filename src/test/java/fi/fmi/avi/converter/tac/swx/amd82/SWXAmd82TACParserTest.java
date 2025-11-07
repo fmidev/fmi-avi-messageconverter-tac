@@ -10,6 +10,7 @@ import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.CircleByCenterPointImpl;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 import fi.fmi.avi.model.swx.amd82.*;
 import fi.fmi.avi.model.swx.amd82.immutable.AirspaceVolumeImpl;
 import fi.fmi.avi.model.swx.amd82.immutable.IssuingCenterImpl;
@@ -799,6 +800,28 @@ public class SWXAmd82TACParserTest {
                 .count()).isEqualTo(7);
 
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
+        assertThat(analysis.getRegions()).hasSize(1);
+        final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
+    }
+
+    @Test
+    public void testUnclosedPolygonCoordinates() throws Exception {
+        final String input = getInput("spacewx-unclosed-polygon.tac");
+        final List<Double> expected = Arrays.asList(-20.0, -170.0, -20.0, -130.0, -10.0, -130.0, -10.0, -170.0);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
+        assertThat(result.getConversionIssues()).isNotEmpty();
+
+        assertThat(result.getConversionIssues())
+                .hasSize(1)
+                .first()
+                .satisfies(issue -> {
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                    assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
+                    assertThat(issue.getMessage()).isEqualTo("Polygon coordinate pairs do not form a closed ring");
+                });
+
+        final fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
         assertThat(analysis.getRegions()).hasSize(1);
         final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
