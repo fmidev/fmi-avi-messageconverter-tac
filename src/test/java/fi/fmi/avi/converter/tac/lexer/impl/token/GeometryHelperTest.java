@@ -63,6 +63,16 @@ public class GeometryHelperTest {
     }
 
     @Test
+    public void testCreateCoordinatePairLexemesZeroMinutesExcluded() {
+        final List<Lexeme> lexemes = GeometryHelper.createCoordinatePairLexemes(
+                BigDecimal.valueOf(-52.00), BigDecimal.valueOf(-5.00),
+                false, lexemeCreator, false);
+
+        assertThat(lexemes).hasSize(1);
+        assertThat(lexemes.get(0).getTACToken()).isEqualTo("S52 W005");
+    }
+
+    @Test
     public void testCreateCoordinatePairLexemesWithSeparator() {
         final List<Lexeme> lexemes = GeometryHelper.createCoordinatePairLexemes(
                 BigDecimal.valueOf(52.5), BigDecimal.valueOf(5.8),

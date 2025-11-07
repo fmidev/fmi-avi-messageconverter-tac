@@ -427,7 +427,7 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                 }
             }
             if (!Winding.isClosedRing(polyBuilder.getExteriorRingPositions())) {
-                issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
+                issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.LOGICAL,
                         "Polygon coordinate pairs do not form a closed ring"));
             }
             polygonLimit = Optional.of(polyBuilder.build());
