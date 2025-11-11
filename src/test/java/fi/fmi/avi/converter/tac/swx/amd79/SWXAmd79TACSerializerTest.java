@@ -9,13 +9,11 @@ import fi.fmi.avi.converter.ConversionIssue;
 import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.converter.tac.swx.amd82.SWXAmd82ReconstructorTest;
 import fi.fmi.avi.model.Geometry;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis;
-import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
-import fi.fmi.avi.model.swx.amd82.immutable.SpaceWeatherAdvisoryAmd82Impl;
+import fi.fmi.avi.model.swx.amd79.immutable.SpaceWeatherAdvisoryAmd79Impl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,15 +44,15 @@ public class SWXAmd79TACSerializerTest {
     private ObjectMapper objectMapper;
 
     private static String getInput(final String fileName) throws IOException {
-        try (final InputStream is = SWXAmd82ReconstructorTest.class.getResourceAsStream(fileName)) {
+        try (final InputStream is = SWXAmd79ReconstructorTest.class.getResourceAsStream(fileName)) {
             Objects.requireNonNull(is);
             return IOUtils.toString(is, "UTF-8");
         }
     }
 
-    private SpaceWeatherAdvisoryAmd82 loadAdvisory(final String fileName) throws IOException {
+    private SpaceWeatherAdvisoryAmd79 loadAdvisory(final String fileName) throws IOException {
         final String input = getInput(fileName);
-        return objectMapper.readValue(input, SpaceWeatherAdvisoryAmd82Impl.class);
+        return objectMapper.readValue(input, SpaceWeatherAdvisoryAmd79Impl.class);
     }
 
     @Before
@@ -65,8 +63,8 @@ public class SWXAmd79TACSerializerTest {
 
     @Test
     public void swxSerializerTest() throws IOException {
-        final SpaceWeatherAdvisoryAmd82 advisory = loadAdvisory("spacewx-A2-3.json");
-        final ConversionResult<String> result = this.converter.convertMessage(advisory, TACConverter.SWX_AMD82_POJO_TO_TAC, new ConversionHints());
+        final SpaceWeatherAdvisoryAmd79 advisory = loadAdvisory("spacewx-A2-3.json");
+        final ConversionResult<String> result = this.converter.convertMessage(advisory, TACConverter.SWX_AMD79_POJO_TO_TAC, new ConversionHints());
         assertTrue(result.getConvertedMessage().isPresent());
     }
 
@@ -336,22 +334,22 @@ public class SWXAmd79TACSerializerTest {
                 + "STATUS:             TEST" + CR_LF
                 + "DTG:                20161108/0000Z" + CR_LF
                 + "SWXC:               DONLON" + CR_LF
-                + "SWX EFFECT:         RADIATION MOD" + CR_LF
                 + "ADVISORY NR:        2016/2" + CR_LF
                 + "NR RPLC:            2016/1" + CR_LF
+                + "SWX EFFECT:         RADIATION MOD" + CR_LF
                 + "OBS SWX:            08/0100Z N80 W150 - N70 E075 - N60 E015 - N01 W075 - N80 W160" + CR_LF
-                + "FCST SWX +6 HR:     08/0700Z HNH HSH E180 - W180 ABV FL340" + CR_LF
+                + "FCST SWX +6 HR:     08/0700Z HNH HSH E17990 - W17960 ABV FL340" + CR_LF
                 + "FCST SWX +12 HR:    08/1300Z NO SWX EXP" + CR_LF
                 + "FCST SWX +18 HR:    08/1900Z NO SWX EXP" + CR_LF
                 + "FCST SWX +24 HR:    09/0100Z NO SWX EXP" + CR_LF
                 + "RMK:                TEST UNCLOSED POLYGON" + CR_LF
                 + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
 
-        final SpaceWeatherAdvisoryAmd82 inputWithFractionals = loadAdvisory("spacewx-unclosed-polygon.json");
+        final SpaceWeatherAdvisoryAmd79 inputWithFractionals = loadAdvisory("spacewx-unclosed-polygon.json");
 
         final ConversionResult<String> result = this.converter.convertMessage(
                 inputWithFractionals,
-                TACConverter.SWX_AMD82_POJO_TO_TAC,
+                TACConverter.SWX_AMD79_POJO_TO_TAC,
                 new ConversionHints());
         assertEquals(ConversionResult.Status.SUCCESS, result.getStatus());
         assertTrue(result.getConvertedMessage().isPresent());

@@ -153,11 +153,9 @@
   },
   "permissibleUsage": "NON_OPERATIONAL",
   "permissibleUsageReason": "TEST",
-  "replaceAdvisoryNumbers": [
-    {
-      "year": 2016,
-      "serialNumber": 1
-    }
-  ],
+  "replaceAdvisoryNumber": {
+    "year": 2016,
+    "serialNumber": 1
+  },
   "reportStatus": "NORMAL"
 }
