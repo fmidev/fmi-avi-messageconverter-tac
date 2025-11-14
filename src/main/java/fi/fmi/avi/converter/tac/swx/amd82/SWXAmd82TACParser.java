@@ -60,11 +60,13 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             LexemeIdentity.NEXT_ADVISORY,
             LexemeIdentity.REMARKS_START
     };
-    private final Set<SpaceWeatherLocation> DAY_AND_NIGHTSIDE = Collections.unmodifiableSet(EnumSet.of(SpaceWeatherLocation.DAYSIDE, SpaceWeatherLocation.NIGHTSIDE));
+    private final Set<SpaceWeatherLocation> DAY_AND_NIGHTSIDE = Collections.unmodifiableSet(EnumSet.of(
+            SpaceWeatherLocation.DAYSIDE, SpaceWeatherLocation.NIGHTSIDE));
 
     private AviMessageLexer lexer;
 
-    private static Optional<PartialOrCompleteTimeInstant> createAnalysisTimeInstant(final Lexeme lexeme, @Nullable final PartialOrCompleteTimeInstant issueTime) {
+    private static Optional<PartialOrCompleteTimeInstant> createAnalysisTimeInstant(
+            final Lexeme lexeme, @Nullable final PartialOrCompleteTimeInstant issueTime) {
         final Integer day = lexeme.getParsedValue(Lexeme.ParsedValueName.DAY1, Integer.class);
         final Integer minute = lexeme.getParsedValue(Lexeme.ParsedValueName.MINUTE1, Integer.class);
         final Integer hour = lexeme.getParsedValue(Lexeme.ParsedValueName.HOUR1, Integer.class);
@@ -586,8 +588,8 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     minLongitude.ifPresent(regionBuilder::setLongitudeLimitMinimum);
                     maxLongitude.ifPresent(regionBuilder::setLongitudeLimitMaximum);
 
-                    regionBuilder.setAirSpaceVolume(AirspaceVolumeImpl.fromLocationIndicator(location, analysisTime,
-                            minLongitude.orElse(null), maxLongitude.orElse(null), verticalLimits));
+                    regionBuilder.setAirSpaceVolume(AirspaceVolumeImpl.fromLocationIndicator(location, verticalLimits, analysisTime,
+                            minLongitude.orElse(null), maxLongitude.orElse(null)));
 
                     regionList.add(regionBuilder.build());
                 } else if (noLocationIndicator[0]) {
