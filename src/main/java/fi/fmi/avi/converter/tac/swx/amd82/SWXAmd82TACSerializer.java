@@ -99,6 +99,10 @@ public class SWXAmd82TACSerializer extends AbstractTACSerializer<SpaceWeatherAdv
                     appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                 }
 
+                if (appendToken(retval, LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SpaceWeatherAdvisoryAmd82.class, intensityAndRegionContext) > 0) {
+                    appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
+                }
+
                 if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION, input, SpaceWeatherAdvisoryAmd82.class, intensityAndRegionContext) > 0) {
                     appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                 }
@@ -108,10 +112,6 @@ public class SWXAmd82TACSerializer extends AbstractTACSerializer<SpaceWeatherAdv
                 }
 
                 if (appendToken(retval, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT, input, SpaceWeatherAdvisoryAmd82.class, intensityAndRegionContext) > 0) {
-                    appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
-                }
-
-                if (appendToken(retval, LexemeIdentity.POLYGON_COORDINATE_PAIR, input, SpaceWeatherAdvisoryAmd82.class, intensityAndRegionContext) > 0) {
                     appendWhitespace(retval, MeteorologicalBulletinSpecialCharacter.SPACE);
                 }
             }

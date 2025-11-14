@@ -439,8 +439,8 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
         final LexemeIdentity[] zeroOrOne = new LexemeIdentity[]{
                 LexemeIdentity.SWX_NOT_EXPECTED,
-                LexemeIdentity.SWX_NOT_AVAILABLE,
-                LexemeIdentity.SWX_INTENSITY};
+                LexemeIdentity.SWX_NOT_AVAILABLE
+        };
         final List<ConversionIssue> issues = checkZeroOrOne(lexeme.getTailSequence(), zeroOrOne);
         if (!issues.isEmpty()) {
             conversionIssues.addAll(issues);
@@ -578,9 +578,9 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     final SpaceWeatherRegionImpl.Builder regionBuilder = SpaceWeatherRegionImpl.builder()
                             .setLocationIndicator(location);
 
-                    if (location == SpaceWeatherLocation.DAYSIDE && analysisTime == null) {
+                    if (DAY_AND_NIGHTSIDE.contains(location) && analysisTime == null) {
                         issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
-                                "Analysis instant is not available for computing DAYLIGHT_SIDE region"));
+                                "Analysis instant is not available for computing " + location.getCode() + " region"));
                     }
 
                     checkIsNotPrependedBy(issues, l, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
