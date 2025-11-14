@@ -6,9 +6,7 @@ import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.PolygonGeometry;
-import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
-import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAnalysis;
-import fi.fmi.avi.model.swx.amd82.SpaceWeatherRegion;
+import fi.fmi.avi.model.swx.amd82.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,7 @@ import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
@@ -53,10 +52,11 @@ public class SWXAmd82TACConversionTest {
         assertEquals(2016, msg.getAdvisoryNumber().getYear());
         assertEquals(1, msg.getReplaceAdvisoryNumbers().get(0).getSerialNumber());
         assertEquals(2016, msg.getReplaceAdvisoryNumbers().get(0).getYear());
-        assertEquals("RADIATION MOD", msg.getPhenomena().get(0).asCombinedCode());
+        assertEquals(Effect.RADIATION_AT_FLIGHT_LEVELS, msg.getEffect());
 
         assertEquals(5, msg.getAnalyses().size());
         assertEquals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION, msg.getAnalyses().get(0).getAnalysisType());
+        assertEquals(Intensity.MODERATE, msg.getAnalyses().get(0).getIntensityAndRegions().get(0).getIntensity());
 
         final ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_AMD82_POJO_TO_TAC, new ConversionHints());
         assertTrue(SerializeResult.getConvertedMessage().isPresent());
@@ -82,17 +82,20 @@ public class SWXAmd82TACConversionTest {
         assertEquals(2020, msg.getAdvisoryNumber().getYear());
         assertEquals(8, msg.getReplaceAdvisoryNumbers().get(0).getSerialNumber());
         assertEquals(2020, msg.getReplaceAdvisoryNumbers().get(0).getYear());
-        assertEquals("HF COM MOD", msg.getPhenomena().get(0).asCombinedCode());
+        assertEquals(Effect.HF_COMMUNICATIONS, msg.getEffect());
         assertEquals(5, msg.getAnalyses().size());
         SpaceWeatherAdvisoryAnalysis analysis = msg.getAnalyses().get(0);
         assertEquals(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION, analysis.getAnalysisType());
-        assertEquals("MNH", analysis.getRegions().get(0).getLocationIndicator().get().getCode());
-        assertEquals("MSH", analysis.getRegions().get(1).getLocationIndicator().get().getCode());
-        assertEquals("EQN", analysis.getRegions().get(2).getLocationIndicator().get().getCode());
+        final SpaceWeatherIntensityAndRegion intensityAndRegion = analysis.getIntensityAndRegions().get(0);
+        assertEquals(Intensity.MODERATE, intensityAndRegion.getIntensity());
+        final List<SpaceWeatherRegion> regions = intensityAndRegion.getRegions();
+        assertEquals("MNH", regions.get(0).getLocationIndicator().get().getCode());
+        assertEquals("MSH", regions.get(1).getLocationIndicator().get().getCode());
+        assertEquals("EQN", regions.get(2).getLocationIndicator().get().getCode());
 
         analysis = msg.getAnalyses().get(1);
-        assertTrue(analysis.getNilPhenomenonReason().isPresent());
-        assertEquals(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_INFORMATION_AVAILABLE, analysis.getNilPhenomenonReason().get());
+        assertTrue(analysis.getNilReason().isPresent());
+        assertEquals(SpaceWeatherAdvisoryAnalysis.NilReason.NO_INFORMATION_AVAILABLE, analysis.getNilReason().get());
 
         final ConversionResult<String> SerializeResult = this.converter.convertMessage(msg, TACConverter.SWX_AMD82_POJO_TO_TAC, hints);
         assertTrue(SerializeResult.getConvertedMessage().isPresent());
@@ -110,7 +113,7 @@ public class SWXAmd82TACConversionTest {
         assertEquals(adv1.getNextAdvisory().getTimeSpecifier(), adv2.getNextAdvisory().getTimeSpecifier());
         assertEquals(adv1.getNextAdvisory().getTime().get(), adv2.getNextAdvisory().getTime().get());
 
-        assertEquals(adv1.getPhenomena(), adv2.getPhenomena());
+        assertEquals(adv1.getEffect(), adv2.getEffect());
         assertEquals(adv1.getTranslatedTAC().get(), adv2.getTranslatedTAC().get());
 
         for (int i = 0; i < adv1.getAnalyses().size(); i++) {
@@ -119,12 +122,12 @@ public class SWXAmd82TACConversionTest {
 
             assertEquals(analysis1.getAnalysisType(), analysis2.getAnalysisType());
             assertEquals(analysis1.getTime(), analysis2.getTime());
-            assertEquals(analysis1.getNilPhenomenonReason(), analysis2.getNilPhenomenonReason());
-            assertEquals(analysis1.getRegions().size(), analysis2.getRegions().size());
-            if (analysis1.getRegions() != null) {
-                for (int a = 0; a < analysis1.getRegions().size(); a++) {
-                    final SpaceWeatherRegion region1 = analysis1.getRegions().get(a);
-                    final SpaceWeatherRegion region2 = analysis2.getRegions().get(a);
+            assertEquals(analysis1.getNilReason(), analysis2.getNilReason());
+            assertEquals(analysis1.getIntensityAndRegions().size(), analysis2.getIntensityAndRegions().size());
+            if (analysis1.getIntensityAndRegions() != null) {
+                for (int a = 0; a < analysis1.getIntensityAndRegions().size(); a++) {
+                    final SpaceWeatherRegion region1 = analysis1.getIntensityAndRegions().get(0).getRegions().get(a);
+                    final SpaceWeatherRegion region2 = analysis2.getIntensityAndRegions().get(0).getRegions().get(a);
 
                     assertEquals(region1.getLocationIndicator().get(), region2.getLocationIndicator().get());
 

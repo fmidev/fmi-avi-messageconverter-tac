@@ -31,9 +31,9 @@ public class SWXNotExpected extends RegexMatchingLexemeVisitor {
         @Override
         protected <T extends AviationWeatherMessageOrCollection> boolean isReconstructable(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             return SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz) && ctx.getParameter("analysisIndex", Integer.class)
-                    .flatMap(analysisIndex -> ((SpaceWeatherAdvisoryAmd82) msg).getAnalyses().get(analysisIndex).getNilPhenomenonReason())
+                    .flatMap(analysisIndex -> ((SpaceWeatherAdvisoryAmd82) msg).getAnalyses().get(analysisIndex).getNilReason())
                     .filter(nilPhenomenonReason -> nilPhenomenonReason
-                            .equals(fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_PHENOMENON_EXPECTED)).isPresent()
+                            .equals(fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAnalysis.NilReason.NO_SWX_EXPECTED)).isPresent()
                     || SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz) && ctx.getParameter("analysisIndex", Integer.class)
                     .flatMap(analysisIndex -> ((SpaceWeatherAdvisoryAmd79) msg).getAnalyses().get(analysisIndex).getNilPhenomenonReason())
                     .filter(nilPhenomenonReason -> nilPhenomenonReason

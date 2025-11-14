@@ -38,12 +38,12 @@ public class SWXAmd82BulletinTACSerializationTest {
                 + "STATUS: TEST\n" //
                 + "DTG: 20190128/1200Z\n" //
                 + "SWXC: PECASUS\n" //
-                + "SWX EFFECT: SATCOM MOD AND RADIATION SEV\n" //
+                + "SWX EFFECT: RADIATION\n" //
                 + "ADVISORY NR: 2019/1\n"//
-                + "OBS SWX: 08/1200Z HNH HSH E160 - W020 ABV FL340\n"//
-                + "FCST SWX +6 HR: 08/1800Z ABV FL370 N80 W180 - N70 W075 - N60 E015 - N70 E075 - N80 W180 \n"//
+                + "OBS SWX: 08/1200Z SEV HNH HSH E160 - W020 ABV FL340\n"//
+                + "FCST SWX +6 HR: 08/1800Z SEV N80 W180 - N70 W075 - N60 E015 - N70 E075 - N80 W180 ABV FL370 \n"//
                 + "FCST SWX +12 HR: 09/0000Z NO SWX EXP\n"//
-                + "FCST SWX +18 HR: 09/0600Z DAYSIDE\n"//
+                + "FCST SWX +18 HR: 09/0600Z SEV DAYSIDE\n"//
                 + "FCST SWX +24 HR: 09/1200Z NO SWX EXP\n"//
                 + "RMK: TEST TEST TEST TEST\n" //
                 + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" //
@@ -74,17 +74,18 @@ public class SWXAmd82BulletinTACSerializationTest {
                         + "SWX ADVISORY" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "STATUS:             TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "DTG:                20190128/1200Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "SWXC:               PECASUS" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "SWX EFFECT:         SATCOM MOD AND RADIATION SEV" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "ADVISORY NR:        2019/1" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "OBS SWX:            08/1200Z HNH HSH E160 - W020 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "FCST SWX +6 HR:     08/1800Z ABV FL370 N80 W180 - N70 W075" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "- N60 E015 - N70 E075 - N80 W180" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "FCST SWX +12 HR:    09/0000Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "FCST SWX +18 HR:    09/0600Z DAYSIDE" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "FCST SWX +24 HR:    09/1200Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "RMK:                TEST TEST TEST TEST THIS IS A TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "MESSAGE FOR TECHNICAL TEST. SEE WWW.PECASUS.ORG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
+                        + "SWXC:               PECASUS" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "SWX EFFECT:         RADIATION" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "ADVISORY NR:        2019/1" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "OBS SWX:            08/1200Z SEV HNH HSH E160 - W020" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "FCST SWX +6 HR:     08/1800Z SEV ABV FL370 N80 W180 -" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "N70 W075 - N60 E015 - N70 E075 - N80 W180" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "FCST SWX +12 HR:    09/0000Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "FCST SWX +18 HR:    09/0600Z SEV DAYSIDE" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "FCST SWX +24 HR:    09/1200Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "RMK:                TEST TEST TEST TEST THIS IS A TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
+                        + "MESSAGE FOR TECHNICAL TEST. SEE WWW.PECASUS.ORG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
                         + "NXT ADVISORY:       WILL BE ISSUED BY 20161108/0700Z=", //
                 stringResult.getConvertedMessage().get());
     }

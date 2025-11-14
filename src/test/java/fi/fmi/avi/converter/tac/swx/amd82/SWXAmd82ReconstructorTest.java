@@ -8,7 +8,9 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
+import fi.fmi.avi.converter.tac.lexer.impl.TACTokenReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.token.*;
 import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 import fi.fmi.avi.model.swx.amd82.immutable.AdvisoryNumberImpl;
@@ -28,9 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -49,6 +53,14 @@ public class SWXAmd82ReconstructorTest {
         }
     }
 
+    private List<Lexeme> getAsLexemes(final TACTokenReconstructor reconstructor) {
+        try {
+            return reconstructor.getAsLexemes(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
+        } catch (final SerializingException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
         final ObjectMapper objectMapper = new ObjectMapper();
@@ -57,7 +69,6 @@ public class SWXAmd82ReconstructorTest {
         final String input = getInput("spacewx-A2-3.json");
         msg = objectMapper.readValue(input, SpaceWeatherAdvisoryAmd82Impl.class);
         ctx = new ReconstructorContext<>(msg, new ConversionHints());
-
     }
 
     @Test
@@ -65,7 +76,7 @@ public class SWXAmd82ReconstructorTest {
         final AdvisoryNumber.Reconstructor reconstructor = new AdvisoryNumber.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         final Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
-        assertEquals("2016/2", lexeme.get().getTACToken());
+        assertThat(lexeme.map(Lexeme::getTACToken)).hasValue("2016/2");
     }
 
     @Test
@@ -73,72 +84,118 @@ public class SWXAmd82ReconstructorTest {
         final SWXCenter.Reconstructor reconstructor = new SWXCenter.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         final Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
-        assertEquals("DONLON", lexeme.get().getTACToken());
+        assertThat(lexeme.map(Lexeme::getTACToken)).hasValue("DONLON");
     }
 
     @Test
     public void spaceWeatherEffectReconstructorTest() throws Exception {
-        final SWXEffectAndIntensity.Reconstructor reconstructor = new SWXEffectAndIntensity.Reconstructor();
+        final SWXEffect.Reconstructor reconstructor = new SWXEffect.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
-        final List<Lexeme> lexeme = reconstructor.getAsLexemes(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
-        assertEquals("HF COM MOD", lexeme.get(0).getTACToken());
-        assertEquals("AND", lexeme.get(2).getTACToken());
-        assertEquals("GNSS MOD", lexeme.get(4).getTACToken());
+        final List<Lexeme> lexemes = reconstructor.getAsLexemes(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
+        assertThat(lexemes)
+                .extracting(Lexeme::getTACToken)
+                .containsExactly("HF COM");
     }
 
     @Test
-    public void spaceWeatherPresetLocationReconstructorTest() {
+    public void spaceWeatherPresetLocationReconstructorTest() throws SerializingException {
         final SWXPresetLocation.Reconstructor reconstructor = new SWXPresetLocation.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         //ctx.setHint(ConversionHints.KEY_SWX_ANALYSIS_INDEX, 0);
         ctx.setParameter("analysisIndex", 0);
-        final List<Lexeme> lexeme = reconstructor.getAsLexemes(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
-        assertEquals("HNH", lexeme.get(0).getTACToken());
-        assertEquals("HSH", lexeme.get(2).getTACToken());
-
+        ctx.setParameter("intensityAndRegionIndex", 0);
+        final List<Lexeme> lexemes = reconstructor.getAsLexemes(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
+        assertThat(lexemes)
+                .extracting(Lexeme::getTACToken)
+                .containsExactly("HNH", " ", "HSH");
     }
 
     @Test
-    public void advisoryPhenomenaReconstructorTest() throws Exception {
-        final List<Lexeme> lexList = new ArrayList<>();
-
+    public void advisoryPhenomenaReconstructorTest() {
         final SWXPhenomena.Reconstructor reconstructor = new SWXPhenomena.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
 
-        for (int i = 0; i < msg.getAnalyses().size(); i++) {
-            ctx.setParameter("analysisIndex", i);
-            final Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
+        final List<List<Lexeme>> lexemeLists = IntStream.range(0, msg.getAnalyses().size())
+                .mapToObj(i -> {
+                    ctx.setParameter("analysisIndex", i);
+                    return getAsLexemes(reconstructor);
+                })
+                .collect(Collectors.toList());
 
-            assertEquals(LexemeIdentity.ADVISORY_PHENOMENA_LABEL, lexeme.get().getIdentity());
-            lexList.add(lexeme.get());
-        }
-
-        assertEquals("OBS SWX:", lexList.get(0).getTACToken());
-        assertEquals("FCST SWX +6 HR:", lexList.get(1).getTACToken());
-        assertEquals("FCST SWX +12 HR:", lexList.get(2).getTACToken());
-        assertEquals("FCST SWX +18 HR:", lexList.get(3).getTACToken());
-        assertEquals("FCST SWX +24 HR:", lexList.get(4).getTACToken());
+        assertThat(lexemeLists)
+                .allSatisfy(lexemes -> assertThat(lexemes).hasSize(1));
+        assertThat(lexemeLists)
+                .extracting(lexemes -> lexemes.get(0))
+                .allSatisfy(lexeme -> assertThat(lexeme.getIdentity())
+                        .isEqualTo(LexemeIdentity.ADVISORY_PHENOMENA_LABEL));
+        assertThat(lexemeLists)
+                .extracting(lexemes -> lexemes.get(0).getTACToken())
+                .containsExactly(
+                        "OBS SWX:",
+                        "FCST SWX +6 HR:",
+                        "FCST SWX +12 HR:",
+                        "FCST SWX +18 HR:",
+                        "FCST SWX +24 HR:"
+                );
     }
 
     @Test
-    public void issueTimeReconstructorTest() throws Exception {
+    public void issueTimeReconstructorTest() {
         final AdvisoryPhenomenaTimeGroup.Reconstructor reconstructor = new AdvisoryPhenomenaTimeGroup.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
 
         final List<Lexeme> lexList = new ArrayList<>();
 
-        for (int i = 0; i < msg.getAnalyses().size(); i++) {
-            ctx.setParameter("analysisIndex", i);
-            final Optional<Lexeme> lexeme = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
-            assertEquals(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP, lexeme.get().getIdentity());
-            lexList.add(lexeme.get());
-        }
+        final List<List<Lexeme>> lexemeLists = IntStream.range(0, msg.getAnalyses().size())
+                .mapToObj(i -> {
+                    ctx.setParameter("analysisIndex", i);
+                    return getAsLexemes(reconstructor);
+                })
+                .collect(Collectors.toList());
 
-        assertEquals("08/0100Z", lexList.get(0).getTACToken());
-        assertEquals("08/0700Z", lexList.get(1).getTACToken());
-        assertEquals("08/1300Z", lexList.get(2).getTACToken());
-        assertEquals("08/1900Z", lexList.get(3).getTACToken());
-        assertEquals("09/0100Z", lexList.get(4).getTACToken());
+        assertThat(lexemeLists)
+                .allSatisfy(lexemes -> assertThat(lexemes).hasSize(1));
+        assertThat(lexemeLists)
+                .extracting(lexemes -> lexemes.get(0))
+                .allSatisfy(lexeme -> assertThat(lexeme.getIdentity())
+                        .isEqualTo(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP));
+        assertThat(lexemeLists)
+                .extracting(lexemes -> lexemes.get(0).getTACToken())
+                .containsExactly(
+                        "08/0100Z",
+                        "08/0700Z",
+                        "08/1300Z",
+                        "08/1900Z",
+                        "09/0100Z"
+                );
+    }
+
+    @Test
+    public void intensityReconstructorTest() {
+        final SWXIntensity.Reconstructor reconstructor = new SWXIntensity.Reconstructor();
+        reconstructor.setLexingFactory(this.lexingFactory);
+
+        final List<Lexeme> lexList = new ArrayList<>();
+
+        final List<Lexeme> lexemeLists = IntStream.range(0, msg.getAnalyses().size())
+                .mapToObj(analysisIndex -> {
+                    ctx.setParameter("analysisIndex", analysisIndex);
+                    return IntStream.range(0, msg.getAnalyses().get(analysisIndex).getIntensityAndRegions().size())
+                            .mapToObj(intensityAndRegionIndex -> {
+                                ctx.setParameter("intensityAndRegionIndex", intensityAndRegionIndex);
+                                return getAsLexemes(reconstructor).stream();
+                            });
+                })
+                .flatMap(Function.identity())
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+
+        assertThat(lexemeLists)
+                .hasSize(4)
+                .allSatisfy(lexeme -> assertThat(lexeme.getIdentity())
+                        .isEqualTo(LexemeIdentity.SWX_INTENSITY))
+                .allSatisfy(lexeme -> assertThat(lexeme.getTACToken())
+                        .isEqualTo("MOD"));
     }
 
     @Test
@@ -146,10 +203,11 @@ public class SWXAmd82ReconstructorTest {
         final ReplaceAdvisoryNumberLabel.Reconstructor reconstructor = new ReplaceAdvisoryNumberLabel.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
 
-        final Optional<Lexeme> label = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisoryAmd82.class, ctx);
+        final Lexeme label = reconstructor.getAsLexeme(msg, SpaceWeatherAdvisoryAmd82.class, ctx).orElse(null);
 
-        assertEquals("NR RPLC:", label.get().getTACToken());
-        assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL, label.get().getIdentity());
+        assertThat(label).isNotNull();
+        assertThat(label.getIdentity()).isEqualTo(LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL);
+        assertThat(label.getTACToken()).isEqualTo("NR RPLC:");
     }
 
     @Test
@@ -166,13 +224,21 @@ public class SWXAmd82ReconstructorTest {
 
         final List<Lexeme> replaceNumbers = reconstructor.getAsLexemes(advisory, SpaceWeatherAdvisoryAmd82.class, context);
 
-        assertFalse(replaceNumbers.isEmpty());
-        assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER, replaceNumbers.get(0).getIdentity());
-        assertEquals("2020/13", replaceNumbers.get(0).getTACToken());
-        assertEquals(LexemeIdentity.WHITE_SPACE, replaceNumbers.get(1).getIdentity());
-        assertEquals(" ", replaceNumbers.get(1).getTACToken());
-        assertEquals(LexemeIdentity.REPLACE_ADVISORY_NUMBER, replaceNumbers.get(2).getIdentity());
-        assertEquals("2020/14", replaceNumbers.get(2).getTACToken());
+        assertThat(replaceNumbers).hasSize(3);
+        assertThat(replaceNumbers)
+                .extracting(Lexeme::getIdentity)
+                .containsExactly(
+                        LexemeIdentity.REPLACE_ADVISORY_NUMBER,
+                        LexemeIdentity.WHITE_SPACE,
+                        LexemeIdentity.REPLACE_ADVISORY_NUMBER
+                );
+        assertThat(replaceNumbers)
+                .extracting(Lexeme::getTACToken)
+                .containsExactly(
+                        "2020/13",
+                        " ",
+                        "2020/14"
+                );
     }
 
     @Test
@@ -185,8 +251,7 @@ public class SWXAmd82ReconstructorTest {
         final ReplaceAdvisoryNumberLabel.Reconstructor reconstructor = new ReplaceAdvisoryNumberLabel.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
 
-        final Optional<Lexeme> label = reconstructor.getAsLexeme(noReplaceNumbers, SpaceWeatherAdvisoryAmd82.class, context);
-        assertFalse(label.isPresent());
+        assertThat(reconstructor.getAsLexeme(noReplaceNumbers, SpaceWeatherAdvisoryAmd82.class, context)).isEmpty();
     }
 
 }

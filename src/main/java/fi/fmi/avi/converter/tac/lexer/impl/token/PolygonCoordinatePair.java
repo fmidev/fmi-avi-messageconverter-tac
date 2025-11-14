@@ -14,6 +14,7 @@ import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -57,60 +58,80 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
 
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
-        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(
+                final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             final ConversionHints hints = ctx.getHints();
             final boolean specifyZeros = (hints != null) && hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES) &&
                     ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));
-            final List<Lexeme> retval = new ArrayList<>();
+
             if (SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz)) {
-                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
-                if (analysisIndex.isPresent()) {
-                    final fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd82) msg).getAnalyses().get(analysisIndex.get());
-                    if (analysis.getRegions() != null && !analysis.getRegions().isEmpty()) {
-                        final fi.fmi.avi.model.swx.amd82.SpaceWeatherRegion region = analysis.getRegions().get(0);
-                        if (!region.getLocationIndicator().isPresent() && region.getAirSpaceVolume().isPresent()) {
-                            final fi.fmi.avi.model.swx.amd82.AirspaceVolume volume = region.getAirSpaceVolume().get();
-                            if (volume.getHorizontalProjection().isPresent()) {
-                                final Geometry geom = volume.getHorizontalProjection().get();
-                                retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme, false, 0, Winding.COUNTERCLOCKWISE));
-                            }
-                        }
-                    }
-                }
+                return getAsLexemes((SpaceWeatherAdvisoryAmd82) msg, ctx);
             } else if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
-                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
-                if (analysisIndex.isPresent()) {
-                    final fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd79) msg).getAnalyses().get(analysisIndex.get());
-                    if (analysis.getRegions() != null && !analysis.getRegions().isEmpty()) {
-                        final fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion region = analysis.getRegions().get(0);
-                        if (!region.getLocationIndicator().isPresent() && region.getAirSpaceVolume().isPresent()) {
-                            final fi.fmi.avi.model.swx.amd79.AirspaceVolume volume = region.getAirSpaceVolume().get();
-                            if (volume.getHorizontalProjection().isPresent()) {
-                                final Geometry geom = volume.getHorizontalProjection().get();
-                                retval.addAll(GeometryHelper.getGeoLexemes(geom, this::createLexeme, specifyZeros, 2, Winding.COUNTERCLOCKWISE));
-                            }
-                        }
-                    }
-                }
+                return getAsLexemes((SpaceWeatherAdvisoryAmd79) msg, ctx, specifyZeros);
             } else if (SIGMETAIRMET.class.isAssignableFrom(clz)) {
-                final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
-                if (analysisIndex.isPresent()) {
-                    final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMETAIRMET) msg).getAnalysisGeometries().get().get(analysisIndex.get()).getGeometry().get();
-                    createSigmetAirmetGeometries(tacOrGeoGeometry, specifyZeros, retval);
-                }
-                if (SIGMET.class.isAssignableFrom(clz)) {
-                    final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
-                    if (forecastIndex.isPresent()) {
-                        final TacOrGeoGeometry tacOrGeoGeometry = ((SIGMET) msg).getForecastGeometries().get().get(forecastIndex.get()).getGeometry().get();
-                        createSigmetAirmetGeometries(tacOrGeoGeometry, specifyZeros, retval);
-                    }
-                }
+                return getAsLexemes((SIGMETAIRMET) msg, clz, ctx, specifyZeros);
+            }
+            return Collections.emptyList();
+        }
+
+        private <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(
+                final SpaceWeatherAdvisoryAmd82 msg, final ReconstructorContext<T> ctx) throws SerializingException {
+            return msg.getAnalyses()
+                    .get(ctx.getMandatoryParameter("analysisIndex", Integer.class))
+                    .getIntensityAndRegions()
+                    .get(ctx.getMandatoryParameter("intensityAndRegionIndex", Integer.class))
+                    .getRegions()
+                    .stream()
+                    .findFirst()
+                    .filter(region -> !region.getLocationIndicator().isPresent())
+                    .flatMap(fi.fmi.avi.model.swx.amd82.SpaceWeatherRegion::getAirSpaceVolume)
+                    .flatMap(fi.fmi.avi.model.swx.amd82.AirspaceVolume::getHorizontalProjection)
+                    .map(geometry -> GeometryHelper.getGeoLexemes(geometry, this::createLexeme, false, 0, Winding.COUNTERCLOCKWISE))
+                    .orElse(Collections.emptyList());
+        }
+
+        private <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(
+                final SpaceWeatherAdvisoryAmd79 msg, final ReconstructorContext<T> ctx, final boolean specifyZeros)
+                throws SerializingException {
+            return msg.getAnalyses()
+                    .get(ctx.getMandatoryParameter("analysisIndex", Integer.class))
+                    .getRegions()
+                    .stream()
+                    .findFirst()
+                    .filter(region -> !region.getLocationIndicator().isPresent())
+                    .flatMap(fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion::getAirSpaceVolume)
+                    .flatMap(fi.fmi.avi.model.swx.amd79.AirspaceVolume::getHorizontalProjection)
+                    .map(geometry -> GeometryHelper.getGeoLexemes(geometry, this::createLexeme, specifyZeros, 2, Winding.COUNTERCLOCKWISE))
+                    .orElse(Collections.emptyList());
+        }
+
+        private <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(
+                final SIGMETAIRMET msg, final Class<T> clz, final ReconstructorContext<T> ctx, final boolean specifyZeros) {
+            final List<Lexeme> retval = new ArrayList<>();
+            final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
+            if (analysisIndex.isPresent()) {
+                final TacOrGeoGeometry tacOrGeoGeometry = msg.getAnalysisGeometries().get().get(analysisIndex.get()).getGeometry().get();
+                addSigmetAirmetGeometries(tacOrGeoGeometry, specifyZeros, retval);
+            }
+            if (SIGMET.class.isAssignableFrom(clz)) {
+                addOnlySigmetSpecificLexemes((SIGMET) msg, ctx, specifyZeros, retval);
             }
             return retval;
         }
 
-        private void createSigmetAirmetGeometries(final TacOrGeoGeometry tacOrGeoGeometry, final boolean specifyZeros, final List<Lexeme> retval) {
+        private <T extends AviationWeatherMessageOrCollection> void addOnlySigmetSpecificLexemes(
+                final SIGMET msg, final ReconstructorContext<T> ctx, final boolean specifyZeros,
+                final List<Lexeme> retval) {
+            final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
+            if (forecastIndex.isPresent()) {
+                final TacOrGeoGeometry tacOrGeoGeometry = msg.getForecastGeometries().get().get(forecastIndex.get()).getGeometry().get();
+                addSigmetAirmetGeometries(tacOrGeoGeometry, specifyZeros, retval);
+            }
+        }
+
+        private void addSigmetAirmetGeometries(
+                final TacOrGeoGeometry tacOrGeoGeometry, final boolean specifyZeros, final List<Lexeme> retval) {
             if (tacOrGeoGeometry.getGeoGeometry().isPresent() && !tacOrGeoGeometry.getTacGeometry().isPresent()) {
                 final Geometry geoGeometry = tacOrGeoGeometry.getGeoGeometry().get();
                 if (PointGeometry.class.isAssignableFrom(geoGeometry.getClass())) {

@@ -3,6 +3,7 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -42,35 +43,39 @@ public class SWXVerticalLimit extends RegexMatchingLexemeVisitor {
 
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
-            Optional<Lexeme> retval = Optional.empty();
-
-            if (SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz)) {
-                final Optional<Integer> index = ctx.getParameter("analysisIndex", Integer.class);
-                if (index.isPresent()) {
-                    final fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd82) msg).getAnalyses().get(index.get());
-                    if (analysis.getRegions() != null && !analysis.getRegions().isEmpty()) {
-                        final fi.fmi.avi.model.swx.amd82.SpaceWeatherRegion region = analysis.getRegions().get(0);
-                        if (region.getAirSpaceVolume().isPresent()) {
-                            final fi.fmi.avi.model.swx.amd82.AirspaceVolume volume = region.getAirSpaceVolume().get();
-                            retval = createLexeme(volume.getLowerLimit().orElse(null), volume.getUpperLimit().orElse(null));
-                        }
-                    }
-                }
-            } else if (SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
-                final Optional<Integer> index = ctx.getParameter("analysisIndex", Integer.class);
-                if (index.isPresent()) {
-                    final fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis analysis = ((SpaceWeatherAdvisoryAmd79) msg).getAnalyses().get(index.get());
-                    if (analysis.getRegions() != null && !analysis.getRegions().isEmpty()) {
-                        final fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion region = analysis.getRegions().get(0);
-                        if (region.getAirSpaceVolume().isPresent()) {
-                            final fi.fmi.avi.model.swx.amd79.AirspaceVolume volume = region.getAirSpaceVolume().get();
-                            retval = createLexeme(volume.getLowerLimit().orElse(null), volume.getUpperLimit().orElse(null));
-                        }
-                    }
-                }
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) throws SerializingException {
+            if (msg instanceof SpaceWeatherAdvisoryAmd82) {
+                return getAsLexeme((SpaceWeatherAdvisoryAmd82) msg, ctx);
+            } else if (msg instanceof SpaceWeatherAdvisoryAmd79) {
+                return getAsLexeme((SpaceWeatherAdvisoryAmd79) msg, ctx);
             }
-            return retval;
+            return Optional.empty();
+        }
+
+        private <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final SpaceWeatherAdvisoryAmd82 msg, final ReconstructorContext<T> ctx) throws SerializingException {
+            return msg.getAnalyses()
+                    .get(ctx.getMandatoryParameter("analysisIndex", Integer.class))
+                    .getIntensityAndRegions()
+                    .get(ctx.getMandatoryParameter("intensityAndRegionIndex", Integer.class))
+                    .getRegions()
+                    .stream()
+                    .findFirst()
+                    .flatMap(fi.fmi.avi.model.swx.amd82.SpaceWeatherRegion::getAirSpaceVolume)
+                    .flatMap(airspaceVolume -> createLexeme(
+                            airspaceVolume.getLowerLimit().orElse(null),
+                            airspaceVolume.getUpperLimit().orElse(null)));
+        }
+
+        private <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final SpaceWeatherAdvisoryAmd79 msg, final ReconstructorContext<T> ctx) throws SerializingException {
+            return msg.getAnalyses()
+                    .get(ctx.getMandatoryParameter("analysisIndex", Integer.class))
+                    .getRegions()
+                    .stream()
+                    .findFirst()
+                    .flatMap(fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion::getAirSpaceVolume)
+                    .flatMap(airspaceVolume -> createLexeme(
+                            airspaceVolume.getLowerLimit().orElse(null),
+                            airspaceVolume.getUpperLimit().orElse(null)));
         }
 
         private Optional<Lexeme> createLexeme(final @Nullable NumericMeasure lowerLimit, final @Nullable NumericMeasure upperLimit) {

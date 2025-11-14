@@ -25,6 +25,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd82> {
 
@@ -37,7 +39,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     LexemeIdentity.SWX_CENTRE_LABEL,
                     LexemeIdentity.SWX_CENTRE,
                     LexemeIdentity.SWX_EFFECT_LABEL,
-                    LexemeIdentity.SWX_EFFECT_AND_INTENSITY,
+                    LexemeIdentity.SWX_EFFECT,
                     LexemeIdentity.ADVISORY_NUMBER_LABEL,
                     LexemeIdentity.ADVISORY_NUMBER,
                     LexemeIdentity.REPLACE_ADVISORY_NUMBER_LABEL,
@@ -52,6 +54,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
     private final LexemeIdentity[] oneRequired = new LexemeIdentity[]{
             LexemeIdentity.ISSUE_TIME,
             LexemeIdentity.SWX_CENTRE,
+            LexemeIdentity.SWX_EFFECT,
             LexemeIdentity.ADVISORY_NUMBER,
             LexemeIdentity.SWX_EFFECT_LABEL,
             LexemeIdentity.NEXT_ADVISORY,
@@ -114,7 +117,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         }, notFound);
     }
 
-    private static void checkLexemeOrder(final List<ConversionIssue> issues, final Lexeme lexeme, final LexemeIdentity... prependingIdentities) {
+    private static void checkIsNotPrependedBy(final List<ConversionIssue> issues, final Lexeme lexeme, final LexemeIdentity... prependingIdentities) {
         final ConversionIssue issue = checkBeforeAnyOf(lexeme, prependingIdentities);
         if (issue != null) {
             issues.add(issue);
@@ -242,19 +245,10 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_LABEL);
 
-        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT_AND_INTENSITY, (match) -> {
-            final List<SpaceWeatherPhenomenon> phenomena = new ArrayList<>();
-            while (match != null) {
-                final SpaceWeatherPhenomenon phenomenon = SpaceWeatherPhenomenon.from(
-                        SpaceWeatherPhenomenon.Type.fromString(match.getParsedValue(Lexeme.ParsedValueName.PHENOMENON, String.class)),
-                        SpaceWeatherPhenomenon.Severity.fromString(match.getParsedValue(Lexeme.ParsedValueName.INTENSITY, String.class)));
-                phenomena.add(phenomenon);
-                match = match.findNext(LexemeIdentity.SWX_EFFECT_AND_INTENSITY);
-            }
-            //TODO: add warning if multiple effects are found
-            builder.addAllPhenomena(phenomena);
-        }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
-                "At least 1 valid space weather effect is required.")));
+        processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.SWX_EFFECT, (match) -> {
+            builder.setEffect(Effect.fromString(match.getParsedValue(Lexeme.ParsedValueName.PHENOMENON, String.class)));
+        }, () -> conversionIssues.add(new ConversionIssue(ConversionIssue.Type.MISSING_DATA,
+                "Missing space weather effect")));
 
         processLexeme(retval, firstLexeme, remainingLexemeIdentities, LexemeIdentity.ADVISORY_NUMBER_LABEL);
 
@@ -289,20 +283,18 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         });
 
         conversionIssues.addAll(checkPhenomenaLabelOrder(firstLexeme, remainingLexemeIdentities));
-        final List<LexemeSequence> analysisList = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
-        conversionIssues.addAll(checkPhenomenaLabels(analysisList));
-        final List<SpaceWeatherAdvisoryAnalysis> analyses = new ArrayList<>();
-
-        analysisList.forEach(analysisSequence -> {
-            final Lexeme analysis = analysisSequence.getFirstLexeme();
-            if (LexemeIdentity.ADVISORY_PHENOMENA_LABEL.equals(analysis.getIdentity())) {
-                final SpaceWeatherAdvisoryAnalysis processedAnalysis = processAnalysis(analysisSequence.getFirstLexeme(),
-                        builder.getIssueTime().orElse(null), conversionIssues);
-                if (processedAnalysis != null) {
-                    analyses.add(processedAnalysis);
-                }
-            }
-        });
+        final List<LexemeSequence> analysisLexemeSequences = lexed.splitBy(LexemeIdentity.ADVISORY_PHENOMENA_LABEL);
+        conversionIssues.addAll(checkPhenomenaLabels(analysisLexemeSequences));
+        final List<SpaceWeatherAdvisoryAnalysis> analyses = analysisLexemeSequences.stream()
+                .map(analysisSequence -> {
+                    final Lexeme analysis = analysisSequence.getFirstLexeme();
+                    if (LexemeIdentity.ADVISORY_PHENOMENA_LABEL.equals(analysis.getIdentity())) {
+                        return processAnalysis(analysis, builder.getIssueTime().orElse(null), conversionIssues);
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
         if (analyses.size() != 5) {
             retval.addIssue(new ConversionIssue(ConversionIssue.Severity.WARNING,
@@ -403,7 +395,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             builder.setAnalysisType(SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
         }
 
-        Lexeme analysisLexeme = lexeme.findNext(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP);
+        final Lexeme analysisLexeme = lexeme.findNext(LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP);
         if (analysisLexeme != null) {
             final Optional<PartialOrCompleteTimeInstant> analysisTime = createAnalysisTimeInstant(analysisLexeme, issueTime);
             if (analysisTime.isPresent()) {
@@ -417,20 +409,21 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             return null;
         }
 
-        analysisLexeme = lexeme.findNext(LexemeIdentity.SWX_NOT_EXPECTED);
-        if (analysisLexeme != null) {
-            builder.setNilPhenomenonReason(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_PHENOMENON_EXPECTED);
+        if (analysisLexeme.findNext(LexemeIdentity.SWX_NOT_EXPECTED) != null) {
+            builder.setNilReason(SpaceWeatherAdvisoryAnalysis.NilReason.NO_SWX_EXPECTED);
             return builder.build();
         }
-        analysisLexeme = lexeme.findNext(LexemeIdentity.SWX_NOT_AVAILABLE);
-        if (analysisLexeme != null) {
-            builder.setNilPhenomenonReason(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_INFORMATION_AVAILABLE);
+        if (analysisLexeme.findNext(LexemeIdentity.SWX_NOT_AVAILABLE) != null) {
+            builder.setNilReason(SpaceWeatherAdvisoryAnalysis.NilReason.NO_INFORMATION_AVAILABLE);
             return builder.build();
         }
 
-        final List<SpaceWeatherRegion> regionList = handleRegion(lexeme, builder.getTimeBuilder().getCompleteTime()
-                .map(ZonedDateTime::toInstant).orElse(null), issues);
-        builder.addAllRegions(regionList);
+        builder.addAllIntensityAndRegions(handleIntensityAndRegions(analysisLexeme, builder.getTimeBuilder().getCompleteTime()
+                .map(ZonedDateTime::toInstant).orElse(null), issues));
+        if (!builder.getNilReason().isPresent() && builder.getIntensityAndRegions().isEmpty()) {
+            issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.SYNTAX,
+                    "Missing intensity and regions or reason for missing analysis"));
+        }
         return builder.build();
     }
 
@@ -442,7 +435,10 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             conversionIssues.addAll(exactlyOne);
         }
 
-        final LexemeIdentity[] zeroOrOne = new LexemeIdentity[]{LexemeIdentity.SWX_NOT_EXPECTED, LexemeIdentity.SWX_NOT_AVAILABLE};
+        final LexemeIdentity[] zeroOrOne = new LexemeIdentity[]{
+                LexemeIdentity.SWX_NOT_EXPECTED,
+                LexemeIdentity.SWX_NOT_AVAILABLE,
+                LexemeIdentity.SWX_INTENSITY};
         final List<ConversionIssue> issues = checkZeroOrOne(lexeme.getTailSequence(), zeroOrOne);
         if (!issues.isEmpty()) {
             conversionIssues.addAll(issues);
@@ -451,8 +447,25 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         return conversionIssues;
     }
 
-    protected List<SpaceWeatherRegion> handleRegion(final Lexeme lexeme, @Nullable final Instant analysisTime,
-                                                    final List<ConversionIssue> issues) {
+    protected Stream<SpaceWeatherIntensityAndRegion> handleIntensityAndRegions(final Lexeme lexeme, @Nullable final Instant analysisTime, final List<ConversionIssue> issues) {
+        return lexeme.getTailSequence()
+                .splitBy(LexemeIdentity.SWX_INTENSITY)
+                .stream()
+                .<SpaceWeatherIntensityAndRegion>map(intensityAndRegionSequence -> {
+                    final Lexeme intensityLexeme = intensityAndRegionSequence.getFirstLexeme();
+                    if (intensityLexeme == null || intensityLexeme.getIdentity() != LexemeIdentity.SWX_INTENSITY) {
+                        return null;
+                    }
+                    return SpaceWeatherIntensityAndRegionImpl.builder()
+                            .setIntensity(Intensity.fromString(intensityLexeme.getParsedValue(Lexeme.ParsedValueName.INTENSITY, String.class)))
+                            .addAllRegions(handleRegions(intensityLexeme, analysisTime, issues))
+                            .build();
+                })
+                .filter(Objects::nonNull);
+    }
+
+    protected List<SpaceWeatherRegion> handleRegions(final Lexeme lexeme, @Nullable final Instant analysisTime,
+                                                     final List<ConversionIssue> issues) {
         // 1. Discover limits
         Optional<PolygonGeometry> polygonLimit = Optional.empty();
         Optional<Double> minLongitude = Optional.empty();
@@ -461,7 +474,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
         Lexeme l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
         if (l != null) {
-            checkLexemeOrder(issues, l, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
+            checkIsNotPrependedBy(issues, l, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
             checkCoordinateFormat(l, issues);
             final Double minLon = l.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Double.class);
             final Double maxLon = l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Double.class);
@@ -475,7 +488,6 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
         l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
         if (l != null) {
-            checkLexemeOrder(issues, l, LexemeIdentity.POLYGON_COORDINATE_PAIR);
             final Integer minValue = l.getParsedValue(Lexeme.ParsedValueName.MIN_VALUE, Integer.class);
             final Integer maxValue = l.getParsedValue(Lexeme.ParsedValueName.MAX_VALUE, Integer.class);
             final String unit = l.getParsedValue(Lexeme.ParsedValueName.UNIT, String.class);
@@ -498,6 +510,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
         l = lexeme.findNext(LexemeIdentity.POLYGON_COORDINATE_PAIR);
         if (l != null) {
+            checkIsNotPrependedBy(issues, l, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
             final PolygonGeometryImpl.Builder polyBuilder = PolygonGeometryImpl.builder()//
                     .setCrs(CoordinateReferenceSystemImpl.wgs84());
             while (l != null) {
@@ -527,6 +540,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
         //2. Create regions applying limits
         final List<SpaceWeatherRegion> regionList = new ArrayList<>();
 
+        l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
         if (polygonLimit.isPresent()) {
             // Explicit polygon limit provided, create a single airspace volume with no location indicator:
             if (verticalLimits.getLowerLimit().isPresent()
@@ -541,23 +555,8 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             }
             regionList.add(SpaceWeatherRegionImpl.builder()
                     .setAirSpaceVolume(AirspaceVolumeImpl.fromPolygon(polygonLimit.get(), verticalLimits)).build());
-        } else {
+        } else if (l != null) {
             // Create regions from each preset location (if any)
-            l = lexeme.findNext(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
-            if (l == null) {
-                if (minLongitude.isPresent() && maxLongitude.isPresent()) {
-                    // No latitude bands given, but polygon(s) can be created based on the given longitudes
-                    issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
-                            "Missing latitude band(s) in " + lexeme.getFirst().getTACToken()));
-                } else {
-                    // No polygon or latitude bands given and longitudes are completely or partially missing
-                    issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
-                            "Missing effect extent in " + lexeme.getFirst().getTACToken()));
-                }
-                regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(AirspaceVolumeImpl
-                                .fromBounds(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d), verticalLimits))
-                        .build());
-            }
             while (l != null) {
                 final boolean[] noLocationIndicator = {true};
                 @Nullable final SpaceWeatherLocation location =
@@ -582,7 +581,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                                 "Analysis instant is not available for computing DAYLIGHT_SIDE region"));
                     }
 
-                    checkLexemeOrder(issues, l, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
+                    checkIsNotPrependedBy(issues, l, LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT, LexemeIdentity.SWX_PHENOMENON_VERTICAL_LIMIT);
 
                     minLongitude.ifPresent(regionBuilder::setLongitudeLimitMinimum);
                     maxLongitude.ifPresent(regionBuilder::setLongitudeLimitMaximum);
@@ -597,6 +596,19 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                 }
                 l = l.findNext(LexemeIdentity.SWX_PHENOMENON_PRESET_LOCATION);
             }
+        } else {
+            if (minLongitude.isPresent() && maxLongitude.isPresent()) {
+                // No latitude bands given, but polygon(s) can be created based on the given longitudes
+                issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                        "Missing latitude band(s) in " + lexeme.getFirst().getTACToken()));
+            } else {
+                // No polygon or latitude bands given and longitudes are completely or partially missing
+                issues.add(new ConversionIssue(ConversionIssue.Severity.WARNING, ConversionIssue.Type.MISSING_DATA,
+                        "Missing effect extent in " + lexeme.getFirst().getTACToken()));
+            }
+            regionList.add(SpaceWeatherRegionImpl.builder().setAirSpaceVolume(AirspaceVolumeImpl
+                            .fromBounds(-90d, minLongitude.orElse(-180d), 90d, maxLongitude.orElse(180d), verticalLimits))
+                    .build());
         }
         regionList.subList(0, Math.max(0, regionList.size() - 1)).stream()
                 .map(region -> region.getLocationIndicator().orElse(null))

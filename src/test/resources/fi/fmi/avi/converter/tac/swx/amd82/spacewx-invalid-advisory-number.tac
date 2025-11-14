@@ -2,7 +2,7 @@ SWX ADVISORY
 STATUS:             TEST
 DTG:                20200709/1600Z
 SWXC:               ACFJ
-SWX EFFECT:         HF COM MOD
+SWX EFFECT:         HF COM
 ADVISORY NR:        2020/
 NR RPLC:            2020/24
 OBS SWX:            09/1600Z NO SWX EXP
