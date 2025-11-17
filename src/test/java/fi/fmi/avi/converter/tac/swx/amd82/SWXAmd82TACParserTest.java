@@ -7,6 +7,7 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.AviationCodeListUser;
 import fi.fmi.avi.model.CircleByCenterPoint;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.CircleByCenterPointImpl;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
@@ -348,6 +349,60 @@ public class SWXAmd82TACParserTest {
                         .setValue(370d)
                         .setUom("FL")
                         .build());
+    }
+
+    @Test
+    public void testMessageWithMultipleIntensityAndRegions() throws IOException {
+        final String input = getInput("spacewx-A7-3.tac");
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        assertThat(result.getConversionIssues()).isEmpty();
+        assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.SUCCESS);
+        assertThat(result.getConvertedMessage()).isPresent();
+        final SpaceWeatherAdvisoryAmd82 msg = result.getConvertedMessage().get();
+
+        assertThat(msg.getIssueTime().flatMap(PartialOrCompleteTimeInstant::getCompleteTime))
+                .hasValue(ZonedDateTime.parse("2020-11-08T01:00:00Z"));
+        assertThat(msg.getIssuingCenter().getName()).hasValue("DONLON");
+        assertThat(msg.getEffect()).isEqualTo(Effect.HF_COMMUNICATIONS);
+        assertThat(msg.getAdvisoryNumber()).satisfies(num -> {
+            assertThat(num.getYear()).isEqualTo(2020);
+            assertThat(num.getSerialNumber()).isEqualTo(1);
+        });
+        assertThat(msg.getAnalyses())
+                .hasSize(5)
+                .first()
+                .satisfies(analysis -> {
+                    assertThat(analysis.getTime().getCompleteTime().orElse(null))
+                            .isEqualTo(ZonedDateTime.parse("2020-11-08T01:00:00Z"));
+                    assertThat(analysis.getIntensityAndRegions())
+                            .extracting(SpaceWeatherIntensityAndRegion::getIntensity)
+                            .containsExactly(Intensity.SEVERE, Intensity.MODERATE);
+                    assertThat(analysis.getIntensityAndRegions().get(0).getRegions())
+                            .allSatisfy(region -> {
+                                assertThat(region.getLongitudeLimitMinimum()).isEmpty();
+                                assertThat(region.getLongitudeLimitMaximum()).isEmpty();
+                            })
+                            .extracting(region -> region.getLocationIndicator().orElse(null))
+                            .containsExactly(
+                                    SpaceWeatherRegion.SpaceWeatherLocation.MIDDLE_NORTHERN_HEMISPHERE,
+                                    SpaceWeatherRegion.SpaceWeatherLocation.EQUATORIAL_LATITUDES_NORTHERN_HEMISPHERE,
+                                    SpaceWeatherRegion.SpaceWeatherLocation.EQUATORIAL_LATITUDES_SOUTHERN_HEMISPHERE,
+                                    SpaceWeatherRegion.SpaceWeatherLocation.MIDDLE_LATITUDES_SOUTHERN_HEMISPHERE,
+                                    SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE
+                            );
+                    assertThat(analysis.getIntensityAndRegions().get(1).getRegions())
+                            .extracting(region -> region.getLocationIndicator().orElse(null))
+                            .containsExactly(SpaceWeatherRegion.SpaceWeatherLocation.NIGHTSIDE);
+                });
+        assertThat(msg.getAnalyses().stream().skip(1))
+                .allSatisfy(nilAnalysis -> assertThat(nilAnalysis.getNilReason())
+                        .hasValue(SpaceWeatherAdvisoryAnalysis.NilReason.NO_SWX_EXPECTED));
+        assertThat(msg.getRemarks().orElse(null)).isNotEmpty();
+        assertThat(msg.getNextAdvisory()).satisfies(next -> {
+            assertThat(next.getTimeSpecifier()).isEqualTo(NextAdvisory.Type.NEXT_ADVISORY_BY);
+            assertThat(next.getTime().flatMap(PartialOrCompleteTimeInstant::getCompleteTime)).
+                    hasValue(ZonedDateTime.parse("2020-11-08T07:00:00Z"));
+        });
     }
 
     @Test

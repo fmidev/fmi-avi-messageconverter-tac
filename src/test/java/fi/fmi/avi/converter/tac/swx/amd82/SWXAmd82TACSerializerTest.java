@@ -26,6 +26,7 @@ import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -508,5 +509,56 @@ public class SWXAmd82TACSerializerTest {
         assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.SUCCESS);
         assertThat(result.getConvertedMessage()).isPresent();
         assertThat(result.getConvertedMessage().orElse(null)).isEqualTo(expected);
+    }
+
+    @Test
+    public void testMultipleIntensityAndRegions() {
+        final String expected = "SWX ADVISORY" + CR_LF
+                + "DTG:                20201108/0100Z" + CR_LF
+                + "SWXC:               DONLON" + CR_LF
+                + "SWX EFFECT:         HF COM" + CR_LF
+                + "ADVISORY NR:        2020/1" + CR_LF
+                + "OBS SWX:            08/0100Z SEV MNH EQN EQS MSH DAYSIDE MOD NIGHTSIDE" + CR_LF
+                + "FCST SWX +6 HR:     08/0700Z NO SWX EXP" + CR_LF
+                + "FCST SWX +12 HR:    08/1300Z NO SWX EXP" + CR_LF
+                + "FCST SWX +18 HR:    08/1900Z NO SWX EXP" + CR_LF
+                + "FCST SWX +24 HR:    09/0100Z NO SWX EXP" + CR_LF
+                + "RMK:                SWX EVENT IMPACTING LOWER HF COM FREQ BAND. SEE WWW.SPACEWEATHERPROVIDER.WEB" + CR_LF
+                + "NXT ADVISORY:       WILL BE ISSUED BY 20201108/0700Z=";
+
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> pojoResult = this.converter.convertMessage(expected, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        assertThat(pojoResult.getStatus()).isEqualTo(ConversionResult.Status.SUCCESS);
+        final List<SpaceWeatherAdvisoryAnalysis> analyses = pojoResult.getConvertedMessage()
+                .map(SpaceWeatherAdvisoryAmd82::getAnalyses)
+                .orElse(Collections.emptyList());
+        assertThat(analyses).hasSize(5);
+
+        final SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
+        assertThat(analysis.getTime().getCompleteTime().orElse(null))
+                .isEqualTo(ZonedDateTime.parse("2020-11-08T01:00:00Z"));
+        assertThat(analysis.getIntensityAndRegions())
+                .extracting(SpaceWeatherIntensityAndRegion::getIntensity)
+                .containsExactly(Intensity.SEVERE, Intensity.MODERATE);
+        assertThat(analysis.getIntensityAndRegions().get(0).getRegions())
+                .allSatisfy(region -> {
+                    assertThat(region.getLongitudeLimitMinimum()).isEmpty();
+                    assertThat(region.getLongitudeLimitMaximum()).isEmpty();
+                })
+                .extracting(region -> region.getLocationIndicator().orElse(null))
+                .containsExactly(
+                        SpaceWeatherRegion.SpaceWeatherLocation.MIDDLE_NORTHERN_HEMISPHERE,
+                        SpaceWeatherRegion.SpaceWeatherLocation.EQUATORIAL_LATITUDES_NORTHERN_HEMISPHERE,
+                        SpaceWeatherRegion.SpaceWeatherLocation.EQUATORIAL_LATITUDES_SOUTHERN_HEMISPHERE,
+                        SpaceWeatherRegion.SpaceWeatherLocation.MIDDLE_LATITUDES_SOUTHERN_HEMISPHERE,
+                        SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE
+                );
+        assertThat(analysis.getIntensityAndRegions().get(1).getRegions())
+                .extracting(region -> region.getLocationIndicator().orElse(null))
+                .containsExactly(SpaceWeatherRegion.SpaceWeatherLocation.NIGHTSIDE);
+
+        final ConversionResult<String> stringResult = this.converter.convertMessage(pojoResult.getConvertedMessage().get(), TACConverter.SWX_AMD82_POJO_TO_TAC,
+                new ConversionHints());
+        assertThat(stringResult.getStatus()).isEqualTo(ConversionResult.Status.SUCCESS);
+        assertThat(stringResult.getConvertedMessage()).hasValue(expected);
     }
 }

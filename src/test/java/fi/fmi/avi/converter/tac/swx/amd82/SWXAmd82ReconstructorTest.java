@@ -26,7 +26,6 @@ import org.unitils.thirdparty.org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -144,8 +143,6 @@ public class SWXAmd82ReconstructorTest {
         final AdvisoryPhenomenaTimeGroup.Reconstructor reconstructor = new AdvisoryPhenomenaTimeGroup.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
 
-        final List<Lexeme> lexList = new ArrayList<>();
-
         final List<List<Lexeme>> lexemeLists = IntStream.range(0, msg.getAnalyses().size())
                 .mapToObj(i -> {
                     ctx.setParameter("analysisIndex", i);
@@ -175,9 +172,7 @@ public class SWXAmd82ReconstructorTest {
         final SWXIntensity.Reconstructor reconstructor = new SWXIntensity.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
 
-        final List<Lexeme> lexList = new ArrayList<>();
-
-        final List<Lexeme> lexemeLists = IntStream.range(0, msg.getAnalyses().size())
+        final List<Lexeme> allRegionLexemes = IntStream.range(0, msg.getAnalyses().size())
                 .mapToObj(analysisIndex -> {
                     ctx.setParameter("analysisIndex", analysisIndex);
                     return IntStream.range(0, msg.getAnalyses().get(analysisIndex).getIntensityAndRegions().size())
@@ -190,12 +185,12 @@ public class SWXAmd82ReconstructorTest {
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
 
-        assertThat(lexemeLists)
+        assertThat(allRegionLexemes)
                 .hasSize(4)
-                .allSatisfy(lexeme -> assertThat(lexeme.getIdentity())
-                        .isEqualTo(LexemeIdentity.SWX_INTENSITY))
-                .allSatisfy(lexeme -> assertThat(lexeme.getTACToken())
-                        .isEqualTo("MOD"));
+                .allSatisfy(lexeme -> {
+                    assertThat(lexeme.getIdentity()).isEqualTo(LexemeIdentity.SWX_INTENSITY);
+                    assertThat(lexeme.getTACToken()).isEqualTo("MOD");
+                });
     }
 
     @Test
