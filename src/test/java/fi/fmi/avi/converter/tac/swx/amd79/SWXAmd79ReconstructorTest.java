@@ -8,6 +8,7 @@ import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexingFactory;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.token.*;
 import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
@@ -85,7 +86,7 @@ public class SWXAmd79ReconstructorTest {
     }
 
     @Test
-    public void spaceWeatherPresetLocationReconstructorTest() {
+    public void spaceWeatherPresetLocationReconstructorTest() throws SerializingException {
         final SWXPresetLocation.Reconstructor reconstructor = new SWXPresetLocation.Reconstructor();
         reconstructor.setLexingFactory(this.lexingFactory);
         //ctx.setHint(ConversionHints.KEY_SWX_ANALYSIS_INDEX, 0);

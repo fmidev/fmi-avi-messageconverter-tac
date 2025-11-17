@@ -24,7 +24,7 @@ import static fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart.WX_WARNIN
 /**
  * TAC converter Lexing Spring configuration
  */
-@SuppressWarnings({ "Convert2Lambda", "Anonymous2MethodRef" })
+@SuppressWarnings({"Convert2Lambda", "Anonymous2MethodRef"})
 @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", //
         justification = "Code is cleaner this way. Lambdas are not suitable because older Spring versions are unable to handle those.")
 @Configuration
@@ -78,9 +78,9 @@ public class Lexing {
         f.addTokenCombiningRule(spaceWeatherAdvisoryVerticalLimitCombinationRule());
         f.addTokenCombiningRule(intlSigmetRdoactiveCldCombinationRule());
         f.addTokenCombiningRule(latitudeLongitudePairCombinationRule());
-        f.addTokenCombiningRule(spaceWeatherAdvisoryEffect());
-        f.addTokenCombiningRule(spaceWeatherAdvisoryEffectType());
-        f.addTokenCombiningRule(spaceWeatherAdvisoryEffectTypeHFCom());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryEffectLabelCombinationRule());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryEffectAndIntensity());
+        f.addTokenCombiningRule(spaceWeatherAdvisoryEffectHFCom());
         f.addTokenCombiningRule(spaceWeatherAdvisoryDaylightSide());
         f.addTokenCombiningRule(spaceWeatherAdvisoryPhenomenon());
         f.addTokenCombiningRule(spaceWeatherAdvisoryNextAdvisoryCombinationRules());
@@ -372,7 +372,7 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> spaceWeatherAdvisoryEffect() {
+    private List<Predicate<String>> spaceWeatherAdvisoryEffectLabelCombinationRule() {
         final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -429,24 +429,7 @@ public class Lexing {
         return retval;
     }
 
-    private List<Predicate<String>> spaceWeatherAdvisoryEffectType() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^SATCOM|GNSS|RADIATION$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^MOD|SEV$");
-            }
-        });
-        return retval;
-    }
-
-    private List<Predicate<String>> spaceWeatherAdvisoryEffectTypeHFCom() {
+    private List<Predicate<String>> spaceWeatherAdvisoryEffectHFCom() {
         final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
             @Override
@@ -458,6 +441,17 @@ public class Lexing {
             @Override
             public boolean test(final String s) {
                 return s.matches("^COM$");
+            }
+        });
+        return retval;
+    }
+
+    private List<Predicate<String>> spaceWeatherAdvisoryEffectAndIntensity() {
+        final List<Predicate<String>> retval = new ArrayList<>();
+        retval.add(new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return s.matches("^HF\\s+COM|SATCOM|GNSS|RADIATION$");
             }
         });
         retval.add(new Predicate<String>() {
@@ -813,6 +807,7 @@ public class Lexing {
         });
         return retval;
     }
+
     private List<Predicate<String>> intlSigmetEntireFirCombinationRule() {
         final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -830,6 +825,7 @@ public class Lexing {
         });
         return retval;
     }
+
     private List<Predicate<String>> intlSigmetLineCombinationRule() {
         final List<Predicate<String>> retval = new ArrayList<>();
         retval.add(new Predicate<String>() {
@@ -977,7 +973,7 @@ public class Lexing {
                 return s.matches("^([NSEW]\\d+)");
             }
         });
-            return retval;
+        return retval;
     }
 
     private List<Predicate<String>> intlSigmetOutsideLatLonCombinationRuleWithAnd() {
@@ -1002,7 +998,7 @@ public class Lexing {
             }
         });
 
-            return retval;
+        return retval;
     }
 
     private List<Predicate<String>> intlSigmetStartRule() {
@@ -1019,7 +1015,7 @@ public class Lexing {
                 return s.matches("^(SIGMET)$");
             }
         });
-       return retval;
+        return retval;
     }
 
     private List<Predicate<String>> intlAirmetStartRule() {
@@ -1036,7 +1032,7 @@ public class Lexing {
                 return s.matches("^(AIRMET)$");
             }
         });
-       return retval;
+        return retval;
     }
 
     private List<Predicate<String>> intlSigmetLevelCombinationRule1() {
@@ -1053,7 +1049,7 @@ public class Lexing {
                 return s.matches("^(ABV|BLW)$");
             }
         });
-       return retval;
+        return retval;
     }
 
     private List<Predicate<String>> intlSigmetLevelCombinationRule2() {
@@ -1070,7 +1066,7 @@ public class Lexing {
                 return s.matches("^(FL[0-9]{3}|[0-9]{4,5}FT)$");
             }
         });
-       return retval;
+        return retval;
     }
 
     private List<Predicate<String>> intlSigmetLevelCombinationRule3() {
@@ -1084,10 +1080,10 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-            return s.matches("^(FL[0-9]{3})$");
+                return s.matches("^(FL[0-9]{3})$");
             }
         });
-       return retval;
+        return retval;
     }
 
     private List<Predicate<String>> intlSigmetMovingCombinationRule() {
@@ -1108,7 +1104,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-    //                return s.matches("^(FL\\d{3}/\\d{3})|((SFC/)?(FL\\d{3}|\\d{4}M|\\d{4,5}FT))");
+//                return s.matches("^(FL\\d{3}/\\d{3})|((SFC/)?(FL\\d{3}|\\d{4}M|\\d{4,5}FT))");
                 return s.matches("^([0-9]{1,3})(KT|KMH)$");
             }
         });
@@ -1136,7 +1132,7 @@ public class Lexing {
             }
         });
         return retval;
-}
+    }
 
     private List<Predicate<String>> intlSigmetAprxCombinationRule() {
         final List<Predicate<String>> retval = new ArrayList<>();
@@ -1973,8 +1969,9 @@ public class Lexing {
             @Override
             public boolean test(final LexemeSequence sequence) {
                 final Lexeme firstLexeme = sequence.getFirstLexeme();
-                return (firstLexeme!=null)&&((firstLexeme.getTACToken().matches("(\\w{4})\\sSIGMET.*")||firstLexeme.getTACToken().equals("SIGMET")));
+                return (firstLexeme != null) && ((firstLexeme.getTACToken().matches("(\\w{4})\\sSIGMET.*") || firstLexeme.getTACToken().equals("SIGMET")));
             }
+
             @Override
             public MessageType getMessageType() {
                 return MessageType.SIGMET;
@@ -2046,7 +2043,7 @@ public class Lexing {
             @Override
             public boolean test(final LexemeSequence sequence) {
                 final Lexeme firstLexeme = sequence.getFirstLexeme();
-                return (firstLexeme!=null)&&((firstLexeme.getTACToken().matches("(\\w{4})\\sAIRMET.*")||firstLexeme.getTACToken().equals("AIRMET")));
+                return (firstLexeme != null) && ((firstLexeme.getTACToken().matches("(\\w{4})\\sAIRMET.*") || firstLexeme.getTACToken().equals("AIRMET")));
             }
 
             @Override
@@ -2118,6 +2115,7 @@ public class Lexing {
         l.teach(new SWXCenter(OccurrenceFrequency.AVERAGE));
         l.teach(new SWXCenterLabel(OccurrenceFrequency.AVERAGE));
         l.teach(new SWXEffectLabel(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXEffect(OccurrenceFrequency.AVERAGE));
         l.teach(new SWXEffectAndIntensity(OccurrenceFrequency.AVERAGE));
         l.teach(new AdvisoryNumberLabel(OccurrenceFrequency.RARE));
         l.teach(new AdvisoryNumber(OccurrenceFrequency.RARE));
@@ -2126,6 +2124,7 @@ public class Lexing {
         l.teach(new NextAdvisory(OccurrenceFrequency.RARE));
         l.teach(new NextAdvisoryLabel(OccurrenceFrequency.RARE));
         l.teach(new NoFurtherAdvisories(OccurrenceFrequency.AVERAGE));
+        l.teach(new SWXIntensity(OccurrenceFrequency.AVERAGE));
         l.teach(new SWXNotAvailable(OccurrenceFrequency.RARE));
         l.teach(new SWXNotExpected(OccurrenceFrequency.RARE));
         l.teach(new SWXPhenonmenonLongitudeLimit(OccurrenceFrequency.AVERAGE));

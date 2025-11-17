@@ -6,46 +6,49 @@
     "name": "DONLON",
     "type": "OTHER:SWXC"
   },
+  "effect": "RADIATION_AT_FLIGHT_LEVELS",
   "advisoryNumber": {
     "year": 2016,
     "serialNumber": 2
   },
-  "phenomena": [
-    "RADIATION_MOD"
-  ],
   "analyses": [
     {
       "time": {
         "completeTime": "2016-11-08T01:00:00Z"
       },
       "analysisType": "OBSERVATION",
-      "regions": [
+      "intensityAndRegions": [
         {
-          "airSpaceVolume": {
-            "horizontalProjection": {
-              "type": "Polygon",
-              "crs": {
-                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
-                "dimension": 2,
-                "axisLabels": [
-                  "Lat",
-                  "Lon"
-                ]
-              },
-              "exteriorRingPositions": [
-                80.4,
-                -160.4,
-                1.2,
-                -75.2,
-                60.3,
-                15.7,
-                70.8,
-                75.3,
-                80.4,
-                -160.4
-              ]
+          "intensity": "MODERATE",
+          "regions": [
+            {
+              "airSpaceVolume": {
+                "horizontalProjection": {
+                  "type": "Polygon",
+                  "crs": {
+                    "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                    "dimension": 2,
+                    "axisLabels": [
+                      "Lat",
+                      "Lon"
+                    ]
+                  },
+                  "exteriorRingPositions": [
+                    80.4,
+                    -160.4,
+                    1.2,
+                    -75.2,
+                    60.3,
+                    15.7,
+                    70.8,
+                    75.3,
+                    80.4,
+                    -160.4
+                  ]
+                }
+              }
             }
-          }
+          ]
         }
       ]
     },
@@ -54,69 +57,74 @@
         "completeTime": "2016-11-08T07:00:00Z"
       },
       "analysisType": "FORECAST",
-      "regions": [
+      "intensityAndRegions": [
         {
-          "airSpaceVolume": {
-            "horizontalProjection": {
-              "type": "Polygon",
-              "crs": {
-                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
-                "dimension": 2,
-                "axisLabels": [
-                  "Lat",
-                  "Lon"
-                ]
+          "intensity": "MODERATE",
+          "regions": [
+            {
+              "airSpaceVolume": {
+                "horizontalProjection": {
+                  "type": "Polygon",
+                  "crs": {
+                    "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                    "dimension": 2,
+                    "axisLabels": [
+                      "Lat",
+                      "Lon"
+                    ]
+                  },
+                  "exteriorRingPositions": [
+                    -180.0,
+                    90.0,
+                    -180.0,
+                    60.0,
+                    180.0,
+                    60.0,
+                    180.0,
+                    90.0,
+                    -180.0,
+                    90.0
+                  ]
+                },
+                "lowerLimit": {
+                  "value": 340,
+                  "uom": "FL"
+                },
+                "lowerLimitReference": "STD"
               },
-              "exteriorRingPositions": [
-                -180.0,
-                90.0,
-                -180.0,
-                60.0,
-                180.0,
-                60.0,
-                180.0,
-                90.0,
-                -180.0,
-                90.0
-              ]
+              "longitudeLimitMinimum": 179.9,
+              "longitudeLimitMaximum": -179.6,
+              "locationIndicator": "HIGH_NORTHERN_HEMISPHERE"
             },
-            "lowerLimit": {
-              "value": 340,
-              "uom": "FL"
-            },
-            "lowerLimitReference": "STD"
-          },
-          "longitudeLimitMinimum": 179.9,
-          "longitudeLimitMaximum": -179.6,
-          "locationIndicator": "HIGH_NORTHERN_HEMISPHERE"
-        },
-        {
-          "airSpaceVolume": {
-            "horizontalProjection": {
-              "type": "Polygon",
-              "crs": {
-                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
-                "dimension": 2,
-                "axisLabels": [
-                  "Lat",
-                  "Lon"
-                ]
+            {
+              "airSpaceVolume": {
+                "horizontalProjection": {
+                  "type": "Polygon",
+                  "crs": {
+                    "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                    "dimension": 2,
+                    "axisLabels": [
+                      "Lat",
+                      "Lon"
+                    ]
+                  },
+                  "exteriorRingPositions": [
+                    -180.0,
+                    -90.0,
+                    -180.0,
+                    -60.0,
+                    180.0,
+                    -60.0,
+                    180.0,
+                    -90.0,
+                    -180.0,
+                    -90.0
+                  ]
+                }
               },
-              "exteriorRingPositions": [
-                -180.0,
-                -90.0,
-                -180.0,
-                -60.0,
-                180.0,
-                -60.0,
-                180.0,
-                -90.0,
-                -180.0,
-                -90.0
-              ]
+              "locationIndicator": "HIGH_LATITUDES_SOUTHERN_HEMISPHERE"
             }
-          },
-          "locationIndicator": "HIGH_LATITUDES_SOUTHERN_HEMISPHERE"
+          ]
         }
       ]
     },
@@ -125,24 +133,24 @@
         "completeTime": "2016-11-08T13:00:00Z"
       },
       "analysisType": "FORECAST",
-      "regions": [],
-      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+      "intensityAndRegions": [],
+      "nilReason": "NO_SWX_EXPECTED"
     },
     {
       "time": {
         "completeTime": "2016-11-08T19:00:00Z"
       },
       "analysisType": "FORECAST",
-      "regions": [],
-      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+      "intensityAndRegions": [],
+      "nilReason": "NO_SWX_EXPECTED"
     },
     {
       "time": {
         "completeTime": "2016-11-09T01:00:00Z"
       },
       "analysisType": "FORECAST",
-      "regions": [],
-      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+      "intensityAndRegions": [],
+      "nilReason": "NO_SWX_EXPECTED"
     }
   ],
   "remarks": [

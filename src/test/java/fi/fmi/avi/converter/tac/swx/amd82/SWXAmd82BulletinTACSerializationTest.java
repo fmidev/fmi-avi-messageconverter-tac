@@ -22,8 +22,7 @@ import java.util.Optional;
 
 import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.CARRIAGE_RETURN;
 import static fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter.LINE_FEED;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -34,58 +33,61 @@ public class SWXAmd82BulletinTACSerializationTest {
 
     @Test
     public void testBulletinSerialization() {
-        final String tac = "SWX ADVISORY\n" //
-                + "STATUS: TEST\n" //
-                + "DTG: 20190128/1200Z\n" //
-                + "SWXC: PECASUS\n" //
-                + "SWX EFFECT: SATCOM MOD AND RADIATION SEV\n" //
-                + "ADVISORY NR: 2019/1\n"//
-                + "OBS SWX: 08/1200Z HNH HSH E160 - W020 ABV FL340\n"//
-                + "FCST SWX +6 HR: 08/1800Z ABV FL370 N80 W180 - N70 W075 - N60 E015 - N70 E075 - N80 W180 \n"//
-                + "FCST SWX +12 HR: 09/0000Z NO SWX EXP\n"//
-                + "FCST SWX +18 HR: 09/0600Z DAYSIDE\n"//
-                + "FCST SWX +24 HR: 09/1200Z NO SWX EXP\n"//
-                + "RMK: TEST TEST TEST TEST\n" //
-                + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" //
-                + "SEE WWW.PECASUS.ORG \n" //
+        final String tac = "SWX ADVISORY\n"
+                + "STATUS: TEST\n"
+                + "DTG: 20190128/1200Z\n"
+                + "SWXC: PECASUS\n"
+                + "SWX EFFECT: RADIATION\n"
+                + "ADVISORY NR: 2019/1\n"
+                + "OBS SWX: 08/1200Z SEV HNH HSH E160 - W020 ABV FL340\n"
+                + "FCST SWX +6 HR: 08/1800Z SEV N80 W180 - N70 W075 - N60 E015 - N70 E075 - N80 W180 ABV FL370\n"
+                + "FCST SWX +12 HR: 09/0000Z SEV MNH EQN EQS MSH DAYSIDE ABV FL350 MOD NIGHTSIDE ABV FL360\n"
+                + "FCST SWX +18 HR: 09/0600Z SEV DAYSIDE\n"
+                + "FCST SWX +24 HR: 09/1200Z NO SWX EXP\n"
+                + "RMK: TEST TEST TEST TEST\n"
+                + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n"
+                + "SEE WWW.PECASUS.ORG \n"
                 + "NXT ADVISORY: WILL BE ISSUED BY 20161108/0700Z=";
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(tac, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        assertTrue(result.getConversionIssues().isEmpty());
+        assertThat(result.getConversionIssues()).isEmpty();
         final Optional<SpaceWeatherAdvisoryAmd82> pojo = result.getConvertedMessage();
-        assertTrue(pojo.isPresent());
-        final SpaceWeatherAmd82Bulletin bulletin = SpaceWeatherAmd82BulletinImpl.builder()//
-                .setHeading(BulletinHeadingImpl.builder()//
-                        .setLocationIndicator("EFKL")//
-                        .setBulletinNumber(1)//
-                        .setType(BulletinHeading.Type.NORMAL)//
-                        .setGeographicalDesignator("XX")//
+        assertThat(pojo).isPresent();
+        final SpaceWeatherAmd82Bulletin bulletin = SpaceWeatherAmd82BulletinImpl.builder()
+                .setHeading(BulletinHeadingImpl.builder()
+                        .setLocationIndicator("EFKL")
+                        .setBulletinNumber(1)
+                        .setType(BulletinHeading.Type.NORMAL)
+                        .setGeographicalDesignator("XX")
                         .setDataTypeDesignatorT2(DataTypeDesignatorT2.ForecastsDataTypeDesignatorT2.FCT_SPACE_WEATHER)
-                        .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))//
-                        .build())//
-                .addMessages(pojo.get())//
+                        .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))
+                        .build())
+                .addMessages(pojo.get())
                 .build();
 
         final ConversionResult<String> stringResult = this.converter.convertMessage(bulletin, TACConverter.SWX_AMD82_BULLETIN_POJO_TO_TAC);
-        assertTrue(stringResult.getConversionIssues().isEmpty());
-        assertTrue(stringResult.getConvertedMessage().isPresent());
-        assertEquals(//
-                "FNXX01 EFKL 020500"//
-                        + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "SWX ADVISORY" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "STATUS:             TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "DTG:                20190128/1200Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()//
-                        + "SWXC:               PECASUS" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "SWX EFFECT:         SATCOM MOD AND RADIATION SEV" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "ADVISORY NR:        2019/1" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "OBS SWX:            08/1200Z HNH HSH E160 - W020 ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "FCST SWX +6 HR:     08/1800Z ABV FL370 N80 W180 - N70 W075" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "- N60 E015 - N70 E075 - N80 W180" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "FCST SWX +12 HR:    09/0000Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "FCST SWX +18 HR:    09/0600Z DAYSIDE" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "FCST SWX +24 HR:    09/1200Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "RMK:                TEST TEST TEST TEST THIS IS A TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "MESSAGE FOR TECHNICAL TEST. SEE WWW.PECASUS.ORG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent() //
-                        + "NXT ADVISORY:       WILL BE ISSUED BY 20161108/0700Z=", //
-                stringResult.getConvertedMessage().get());
+        assertThat(stringResult.getConversionIssues()).isEmpty();
+        assertThat(stringResult.getConvertedMessage()).isPresent();
+        assertThat(stringResult.getConvertedMessage().get())
+                .isEqualTo(
+                        "FNXX01 EFKL 020500"
+                                + CARRIAGE_RETURN.getContent() + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "SWX ADVISORY" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "STATUS:             TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "DTG:                20190128/1200Z" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "SWXC:               PECASUS" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "SWX EFFECT:         RADIATION" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "ADVISORY NR:        2019/1" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "OBS SWX:            08/1200Z SEV HNH HSH E160 - W020" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "ABV FL340" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "FCST SWX +6 HR:     08/1800Z SEV N80 W180 - N70 W075 -" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "N60 E015 - N70 E075 - N80 W180 ABV FL370" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "FCST SWX +12 HR:    09/0000Z SEV MNH EQN EQS MSH DAYSIDE" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "ABV FL350 MOD NIGHTSIDE ABV FL360" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "FCST SWX +18 HR:    09/0600Z SEV DAYSIDE" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "FCST SWX +24 HR:    09/1200Z NO SWX EXP" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "RMK:                TEST TEST TEST TEST THIS IS A TEST" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "MESSAGE FOR TECHNICAL TEST. SEE WWW.PECASUS.ORG" + CARRIAGE_RETURN.getContent() + LINE_FEED.getContent()
+                                + "NXT ADVISORY:       WILL BE ISSUED BY 20161108/0700Z="
+                );
     }
 }

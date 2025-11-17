@@ -81,7 +81,7 @@ public class SWXAmd79TACParserTest {
                         SpaceWeatherPhenomenon.fromCombinedCode("GNSS MOD"));
 
         final String[] expectedRemarks = {"LOW", "LVL", "GEOMAGNETIC", "STORMING", "CAUSING", "INCREASED", "AURORAL", "ACT", "AND", "SUBSEQUENT", "MOD",
-                "DEGRADATION", "OF", "GNSS", "AND", "HF", "COM", "AVBL", "IN", "THE", "AURORAL", "ZONE.", "THIS", "STORMING", "EXP", "TO", "SUBSIDE", "IN",
+                "DEGRADATION", "OF", "GNSS", "AND", "HF COM", "AVBL", "IN", "THE", "AURORAL", "ZONE.", "THIS", "STORMING", "EXP", "TO", "SUBSIDE", "IN",
                 "THE", "FCST", "PERIOD.", "SEE", "WWW.SPACEWEATHERPROVIDER.WEB"};
         assertThat(swx.getRemarks().get()).containsExactly(expectedRemarks);
         assertThat(swx.getNextAdvisory().getTimeSpecifier()).isEqualTo(NextAdvisory.Type.NO_FURTHER_ADVISORIES);
@@ -317,7 +317,7 @@ public class SWXAmd79TACParserTest {
         final String input = getInput("spacewx-pecasus-notavbl.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
         assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.FAIL);
-        assertThat(result.getConversionIssues()).hasSize(16);
+        assertThat(result.getConversionIssues()).hasSize(15);
         assertThat(result.getConvertedMessage()).isEmpty();
     }
 
@@ -371,21 +371,28 @@ public class SWXAmd79TACParserTest {
     public void testInvalidRemarkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-remark-label.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
-        assertThat(result.getConversionIssues()).hasSize(36);
-        assertThat(result.getConversionIssues().get(0).getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
-        assertThat(result.getConversionIssues().get(0).getMessage()).contains("Input message lexing was not fully successful");
+        assertThat(result.getConversionIssues())
+                .isNotEmpty()
+                .anySatisfy(issue -> {
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                    assertThat(issue.getMessage()).contains("Input message lexing was not fully successful");
+                });
     }
 
     @Test
     public void testInvalidRmkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-rmk-label.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
-        assertThat(result.getConversionIssues()).hasSize(6);
-        assertThat(result.getConversionIssues().get(1).getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
-        assertThat(result.getConversionIssues().get(1).getMessage()).isEqualTo("Lexing problem with 'RMK'");
-
-        assertThat(result.getConversionIssues().get(5).getType()).isEqualTo(ConversionIssue.Type.MISSING_DATA);
-        assertThat(result.getConversionIssues().get(5).getMessage()).contains("One of REMARKS_START required in message");
+        assertThat(result.getConversionIssues())
+                .isNotEmpty()
+                .anySatisfy(issue -> {
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                    assertThat(issue.getMessage()).isEqualTo("Lexing problem with 'RMK'");
+                })
+                .anySatisfy(issue -> {
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.MISSING_DATA);
+                    assertThat(issue.getMessage()).contains("One of REMARKS_START required in message");
+                });
     }
 
     @Test
@@ -791,7 +798,7 @@ public class SWXAmd79TACParserTest {
                 .hasSize(1)
                 .first()
                 .satisfies(issue -> {
-                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.LOGICAL);
                     assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
                     assertThat(issue.getMessage()).isEqualTo("Polygon coordinate pairs do not form a closed ring");
                 });

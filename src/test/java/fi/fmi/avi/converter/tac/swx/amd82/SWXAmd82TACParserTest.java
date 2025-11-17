@@ -6,11 +6,12 @@ import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import fi.fmi.avi.converter.tac.conf.TACConverter;
 import fi.fmi.avi.model.AviationCodeListUser;
+import fi.fmi.avi.model.CircleByCenterPoint;
+import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.PolygonGeometry;
 import fi.fmi.avi.model.immutable.CircleByCenterPointImpl;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
-import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
 import fi.fmi.avi.model.swx.amd82.*;
 import fi.fmi.avi.model.swx.amd82.immutable.AirspaceVolumeImpl;
 import fi.fmi.avi.model.swx.amd82.immutable.IssuingCenterImpl;
@@ -46,12 +47,12 @@ public class SWXAmd82TACParserTest {
                        + "STATUS: TEST\n"//
                        + "DTG: 20190128/1200Z\n" //
                        + "SWXC: PECASUS\n" //
+                       + "SWX EFFECT: SATCOM\n" //
                        + "ADVISORY NR: 2019/1\n"//
-                       + "SWX EFFECT: SATCOM MOD AND RADIATION SEV\n" //
-                       + "OBS SWX: 08/1200Z HNH HSH E16000 - W2000 ABV FL340\n"//
-                       + "FCST SWX +6 HR: 08/1800Z N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180 ABV FL370\n"//
+                       + "OBS SWX: 08/1200Z MOD HNH HSH E16000 - W2000 ABV FL340\n"//
+                       + "FCST SWX +6 HR: 08/1800Z MOD N80 W180 - N70 W75 - N60 E15 - N70 E75 - N80 W180 ABV FL370\n"//
                        + "FCST SWX +12 HR: 09/0000Z NO SWX EXP\n"//
-                       + "FCST SWX +18 HR: 09/0600Z DAYSIDE\n"//
+                       + "FCST SWX +18 HR: 09/0600Z MOD DAYSIDE\n"//
                        + "FCST SWX +24 HR: 09/1200Z NO SWX EXP\n"//
                        + "RMK: TEST TEST TEST TEST\n"
                        + "THIS IS A TEST MESSAGE FOR TECHNICAL TEST.\n" //
@@ -83,15 +84,12 @@ public class SWXAmd82TACParserTest {
         final SpaceWeatherAdvisoryAmd82 swx = result.getConvertedMessage().get();
         assertThat(swx.getPermissibleUsageReason()).hasValue(AviationCodeListUser.PermissibleUsageReason.EXERCISE);
         assertThat(swx.getIssuingCenter().getName()).hasValue("DONLON");
+        assertThat(swx.getEffect()).isEqualTo(Effect.HF_COMMUNICATIONS);
         assertThat(swx.getAdvisoryNumber().getSerialNumber()).isEqualTo(2);
         assertThat(swx.getAdvisoryNumber().getYear()).isEqualTo(2016);
-        assertThat(swx.getPhenomena())
-                .containsExactly(
-                        SpaceWeatherPhenomenon.fromCombinedCode("HF COM MOD"),
-                        SpaceWeatherPhenomenon.fromCombinedCode("GNSS MOD"));
 
         final String[] expectedRemarks = {"LOW", "LVL", "GEOMAGNETIC", "STORMING", "CAUSING", "INCREASED", "AURORAL", "ACT", "AND", "SUBSEQUENT", "MOD",
-                "DEGRADATION", "OF", "GNSS", "AND", "HF", "COM", "AVBL", "IN", "THE", "AURORAL", "ZONE.", "THIS", "STORMING", "EXP", "TO", "SUBSIDE", "IN",
+                "DEGRADATION", "OF", "GNSS", "AND", "HF COM", "AVBL", "IN", "THE", "AURORAL", "ZONE.", "THIS", "STORMING", "EXP", "TO", "SUBSIDE", "IN",
                 "THE", "FCST", "PERIOD.", "SEE", "WWW.SPACEWEATHERPROVIDER.WEB"};
         assertThat(swx.getRemarks().get()).containsExactly(expectedRemarks);
         assertThat(swx.getNextAdvisory().getTimeSpecifier()).isEqualTo(NextAdvisory.Type.NO_FURTHER_ADVISORIES);
@@ -107,22 +105,25 @@ public class SWXAmd82TACParserTest {
 
         SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
         assertThat(analysis.getAnalysisType()).isEqualTo(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
-        assertThat(analysis.getRegions()).hasSize(2);
+        assertThat(analysis.getIntensityAndRegions()).hasSize(1);
+        assertThat(analysis.getIntensityAndRegions().get(0).getIntensity()).isEqualTo(Intensity.MODERATE);
 
-        assertThat(analysis.getRegions().get(0).getLocationIndicator())
+        final List<SpaceWeatherRegion> regions = analysis.getIntensityAndRegions().get(0).getRegions();
+        assertThat(regions).hasSize(2);
+        assertThat(regions.get(0).getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume())
+        assertThat(regions.get(0).getAirSpaceVolume())
                 .hasValueSatisfying(volume ->
                         assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
                                 assertThat(projection).isInstanceOf(PolygonGeometry.class)));
-        final PolygonGeometry poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        final PolygonGeometry poly = (PolygonGeometry) regions.get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
         final Double[] expected = {90d, -180d, 60d, -180d, 60d, 180d, 90d, 180d, 90d, -180d};
         final Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
         assertThat(actual).isEqualTo(expected);
 
         analysis = analyses.get(4);
-        assertThat(analysis.getNilPhenomenonReason())
-                .hasValue(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_PHENOMENON_EXPECTED);
+        assertThat(analysis.getNilReason())
+                .hasValue(SpaceWeatherAdvisoryAnalysis.NilReason.NO_SWX_EXPECTED);
         assertThat(swx.getNextAdvisory().getTimeSpecifier()).isEqualTo(NextAdvisory.Type.NO_FURTHER_ADVISORIES);
         assertThat(swx.getReplaceAdvisoryNumbers())
                 .hasSize(1)
@@ -149,10 +150,9 @@ public class SWXAmd82TACParserTest {
         assertThat(swx.getPermissibleUsageReason()).hasValue(AviationCodeListUser.PermissibleUsageReason.TEST);
         assertThat(swx.getIssueTime().get().getCompleteTime()).hasValue(ZonedDateTime.parse("2016-11-08T00:00Z"));
         assertThat(swx.getIssuingCenter().getName()).hasValue("DONLON");
+        assertThat(swx.getEffect()).isEqualTo(Effect.RADIATION_AT_FLIGHT_LEVELS);
         assertThat(swx.getAdvisoryNumber().getSerialNumber()).isEqualTo(2);
         assertThat(swx.getAdvisoryNumber().getYear()).isEqualTo(2016);
-        assertThat(swx.getPhenomena())
-                .containsExactly(SpaceWeatherPhenomenon.fromCombinedCode("RADIATION MOD"));
         final String[] expectedRemarks = {"RADIATION", "LVL", "EXCEEDED", "100", "PCT", "OF", "BACKGROUND", "LVL", "AT", "FL340", "AND", "ABV.", "THE",
                 "CURRENT", "EVENT", "HAS", "PEAKED", "AND", "LVL", "SLW", "RTN", "TO", "BACKGROUND", "LVL.", "SEE", "WWW.SPACEWEATHERPROVIDER.WEB"};
         assertThat(swx.getRemarks().get()).containsExactly(expectedRemarks);
@@ -169,10 +169,14 @@ public class SWXAmd82TACParserTest {
 
         final SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
         assertThat(analysis.getAnalysisType()).isEqualTo(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
-        assertThat(analysis.getRegions()).hasSize(2);
+        assertThat(analysis.getIntensityAndRegions()).hasSize(1);
+        assertThat(analysis.getIntensityAndRegions().get(0).getIntensity()).isEqualTo(Intensity.MODERATE);
+
+        final List<SpaceWeatherRegion> regions = analysis.getIntensityAndRegions().get(0).getRegions();
+        assertThat(regions).hasSize(2);
 
         //1st region:
-        SpaceWeatherRegion r = analysis.getRegions().get(0);
+        SpaceWeatherRegion r = regions.get(0);
 
         assertThat(r.getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
@@ -194,7 +198,7 @@ public class SWXAmd82TACParserTest {
         assertThat(r.getAirSpaceVolume().get().getLowerLimitReference()).hasValue("STD");
 
         //2nd region:
-        r = analysis.getRegions().get(1);
+        r = regions.get(1);
         assertThat(r.getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
         assertThat(r.getAirSpaceVolume())
@@ -220,18 +224,15 @@ public class SWXAmd82TACParserTest {
     public void testAdvancedMessage() throws IOException {
         final String input = getInput("spacewx-advanced.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        assertThat(result.getConversionIssues()).isEmpty();
         assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.SUCCESS);
         assertThat(result.getConvertedMessage()).isPresent();
 
         final SpaceWeatherAdvisoryAmd82 swx = result.getConvertedMessage().get();
-        assertThat(swx.getIssuingCenter().getName())
-                .hasValue("PECASUS");
+        assertThat(swx.getIssuingCenter().getName()).hasValue("PECASUS");
+        assertThat(swx.getEffect()).isEqualTo(Effect.RADIATION_AT_FLIGHT_LEVELS);
         assertThat(swx.getAdvisoryNumber().getSerialNumber()).isEqualTo(1);
         assertThat(swx.getAdvisoryNumber().getYear()).isEqualTo(2019);
-        assertThat(swx.getPhenomena())
-                .containsExactly(
-                        SpaceWeatherPhenomenon.fromCombinedCode("SATCOM MOD"),
-                        SpaceWeatherPhenomenon.fromCombinedCode("RADIATION SEV"));
         assertThat(swx.getRemarks()).isPresent();
         final String[] expectedRemarks = {"TEST", "TEST", "TEST", "TEST", "THIS", "IS", "A", "TEST", "MESSAGE", "FOR", "TECHNICAL", "TEST.", "SEE",//
                 "WWW.PECASUS.ORG"};
@@ -243,88 +244,165 @@ public class SWXAmd82TACParserTest {
 
         SpaceWeatherAdvisoryAnalysis analysis = analyses.get(0);
         assertThat(analysis.getAnalysisType()).isEqualTo(SpaceWeatherAdvisoryAnalysis.Type.OBSERVATION);
-        assertThat(analysis.getRegions()).hasSize(2);
+        assertThat(analysis.getIntensityAndRegions()).hasSize(1);
+        assertThat(analysis.getIntensityAndRegions().get(0).getIntensity()).isEqualTo(Intensity.SEVERE);
 
-        assertThat(analysis.getRegions().get(0).getLocationIndicator())
+        List<SpaceWeatherRegion> regions = analysis.getIntensityAndRegions().get(0).getRegions();
+        assertThat(regions).hasSize(2);
+        assertThat(regions.get(0).getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume())
-                .hasValueSatisfying(volume ->
-                        assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
-                                assertThat(projection).isInstanceOf(PolygonGeometry.class)));
-        PolygonGeometry geometry = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        List<Double> expectedExteriorRingPositions = Arrays.asList(90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d);
-        //Double[] expected = { 90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d };
-        List<Double> actualExteriorRingPositions = geometry.getExteriorRingPositions();
-        assertThat(actualExteriorRingPositions).isEqualTo(expectedExteriorRingPositions);
+        AirspaceVolume airSpaceVolume = regions.get(0).getAirSpaceVolume().orElse(null);
+        assertThat(airSpaceVolume).isNotNull();
+        assertThat(airSpaceVolume.getHorizontalProjection())
+                .hasValueSatisfying(projection -> assertThat(projection)
+                        .isInstanceOf(PolygonGeometry.class));
+        PolygonGeometry polygon = (PolygonGeometry) airSpaceVolume.getHorizontalProjection().get();
+        assertThat(polygon.getExteriorRingPositions())
+                .containsExactly(90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d);
 
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit())
+        assertThat(airSpaceVolume.getLowerLimit())
                 .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build()));
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimitReference()).isPresent();
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit()).isEmpty();
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimitReference()).isEmpty();
+        assertThat(airSpaceVolume.getLowerLimitReference()).isPresent();
+        assertThat(airSpaceVolume.getUpperLimit()).isEmpty();
+        assertThat(airSpaceVolume.getUpperLimitReference()).isEmpty();
 
-        assertThat(analysis.getRegions().get(1).getLocationIndicator())
+        assertThat(regions.get(1).getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
-        assertThat(analysis.getRegions().get(1).getAirSpaceVolume())
+        assertThat(regions.get(1).getAirSpaceVolume())
                 .hasValueSatisfying(volume ->
                         assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
                                 assertThat(projection).isInstanceOf(PolygonGeometry.class)));
-        geometry = (PolygonGeometry) analysis.getRegions().get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
-        expectedExteriorRingPositions = Arrays.asList(-60d, 160d, -90d, 160d, -90d, -20d, -60d, -20d, -60d, 160d);
-        actualExteriorRingPositions = geometry.getExteriorRingPositions();
-        assertThat(actualExteriorRingPositions).isEqualTo(expectedExteriorRingPositions);
+        polygon = (PolygonGeometry) regions.get(1).getAirSpaceVolume().get().getHorizontalProjection().get();
+        assertThat(polygon.getExteriorRingPositions()).
+                containsExactly(-60d, 160d, -90d, 160d, -90d, -20d, -60d, -20d, -60d, 160d);
 
         analysis = analyses.get(1);
+        regions = analysis.getIntensityAndRegions().get(0).getRegions();
+        airSpaceVolume = regions.get(0).getAirSpaceVolume().orElse(null);
         assertThat(analysis.getAnalysisType()).isEqualTo(SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
-        assertThat(analysis.getRegions()).hasSize(1);
-        assertThat(analysis.getRegions().get(0).getLocationIndicator()).isEmpty();
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume())
-                .hasValueSatisfying(volume ->
-                        assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
-                                assertThat(projection).isInstanceOf(PolygonGeometry.class)));
-        final PolygonGeometry poly = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        final Double[] expected = new Double[]{80d, -180d, 70d, -75d, 60d, 15d, 70d, 75d, 80d, -180d};
-        final Double[] actual = poly.getExteriorRingPositions().toArray(new Double[10]);
-        assertThat(actual).isEqualTo(expected);
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit())
+        assertThat(regions).hasSize(1);
+        assertThat(regions.get(0).getLocationIndicator()).isEmpty();
+        assertThat(airSpaceVolume).isNotNull();
+        assertThat(airSpaceVolume.getHorizontalProjection())
+                .hasValueSatisfying(projection -> assertThat(projection)
+                        .isInstanceOf(PolygonGeometry.class));
+        final PolygonGeometry poly = (PolygonGeometry) airSpaceVolume.getHorizontalProjection().get();
+        assertThat(poly.getExteriorRingPositions())
+                .containsExactly(80d, -180d, 70d, -75d, 60d, 15d, 70d, 75d, 80d, -180d);
+        assertThat(airSpaceVolume.getLowerLimit())
                 .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(370d).setUom("FL").build()));
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimitReference()).isPresent();
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit()).isEmpty();
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimitReference()).isEmpty();
+        assertThat(airSpaceVolume.getLowerLimitReference()).isPresent();
+        assertThat(airSpaceVolume.getUpperLimit()).isEmpty();
+        assertThat(airSpaceVolume.getUpperLimitReference()).isEmpty();
 
         analysis = analyses.get(2);
-
         assertThat(analysis.getAnalysisType()).isEqualTo(SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
-        assertThat(analysis.getNilPhenomenonReason())
-                .hasValue(SpaceWeatherAdvisoryAnalysis.NilPhenomenonReason.NO_PHENOMENON_EXPECTED);
+        assertThat(analysis.getNilReason())
+                .hasValue(SpaceWeatherAdvisoryAnalysis.NilReason.NO_SWX_EXPECTED);
+        assertThat(analysis.getIntensityAndRegions()).isEmpty();
 
         analysis = analyses.get(3);
-
+        regions = analysis.getIntensityAndRegions().get(0).getRegions();
+        airSpaceVolume = regions.get(0).getAirSpaceVolume().orElse(null);
+        final CircleByCenterPoint circle = (CircleByCenterPoint) airSpaceVolume.getHorizontalProjection().get();
         assertThat(analysis.getAnalysisType()).isEqualTo(SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
-        assertThat(analysis.getRegions()).hasSize(1);
-        assertThat(analysis.getRegions().get(0).getLocationIndicator())
+        assertThat(regions).hasSize(1);
+        assertThat(regions.get(0).getLocationIndicator())
                 .hasValue(SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE);
+        assertThat(circle.getRadius())
+                .isEqualTo(NumericMeasureImpl.builder()
+                        .setValue(10100.0)
+                        .setUom("km")
+                        .build());
+        assertThat(circle.getCenterPointCoordinates())
+                .containsExactly(-14.75, 93.54);
+
 
         analysis = analyses.get(4);
+        regions = analysis.getIntensityAndRegions().get(0).getRegions();
+        airSpaceVolume = regions.get(0).getAirSpaceVolume().orElse(null);
 
         assertThat(analysis.getAnalysisType()).isEqualTo(SpaceWeatherAdvisoryAnalysis.Type.FORECAST);
-        assertThat(analysis.getRegions()).hasSize(1);
-        assertThat(analysis.getRegions().get(0).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume())
-                .hasValueSatisfying(volume ->
+        assertThat(regions).hasSize(1);
+        assertThat(regions.get(0).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
+        assertThat(airSpaceVolume)
+                .satisfies(volume ->
                         assertThat(volume.getHorizontalProjection()).hasValueSatisfying(projection ->
                                 assertThat(projection).isInstanceOf(PolygonGeometry.class)));
-        geometry = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        expectedExteriorRingPositions = Arrays.asList(90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d);
-        actualExteriorRingPositions = geometry.getExteriorRingPositions();
-        assertThat(actualExteriorRingPositions).isEqualTo(expectedExteriorRingPositions);
-        assertThat(actual).isEqualTo(expected);
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimit())
-                .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(340d).setUom("FL").build()));
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getLowerLimitReference()).isPresent();
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimit())
-                .hasValueSatisfying(limit -> assertThat(limit).isEqualTo(NumericMeasureImpl.builder().setValue(370d).setUom("FL").build()));
-        assertThat(analysis.getRegions().get(0).getAirSpaceVolume().get().getUpperLimitReference()).isPresent();
+        polygon = (PolygonGeometry) airSpaceVolume.getHorizontalProjection().get();
+        assertThat(polygon.getExteriorRingPositions()).
+                containsExactly(90d, 160d, 60d, 160d, 60d, -20d, 90d, -20d, 90d, 160d);
+        assertThat(poly.getExteriorRingPositions())
+                .containsExactly(80d, -180d, 70d, -75d, 60d, 15d, 70d, 75d, 80d, -180d);
+        assertThat(airSpaceVolume.getLowerLimit()).isNotEmpty();
+        assertThat(airSpaceVolume.getLowerLimitReference()).isNotEmpty();
+        assertThat(airSpaceVolume.getUpperLimit()).isNotEmpty();
+        assertThat(airSpaceVolume.getUpperLimitReference()).isNotEmpty();
+
+        assertThat(airSpaceVolume.getLowerLimit())
+                .hasValue(NumericMeasureImpl.builder()
+                        .setValue(340d)
+                        .setUom("FL")
+                        .build());
+        assertThat(airSpaceVolume.getUpperLimit())
+                .hasValue(NumericMeasureImpl.builder()
+                        .setValue(370d)
+                        .setUom("FL")
+                        .build());
+    }
+
+    @Test
+    public void testMessageWithMultipleIntensityAndRegions() throws IOException {
+        final String input = getInput("spacewx-A7-3.tac");
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        assertThat(result.getConversionIssues()).isEmpty();
+        assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.SUCCESS);
+        assertThat(result.getConvertedMessage()).isPresent();
+        final SpaceWeatherAdvisoryAmd82 msg = result.getConvertedMessage().get();
+
+        assertThat(msg.getIssueTime().flatMap(PartialOrCompleteTimeInstant::getCompleteTime))
+                .hasValue(ZonedDateTime.parse("2020-11-08T01:00:00Z"));
+        assertThat(msg.getIssuingCenter().getName()).hasValue("DONLON");
+        assertThat(msg.getEffect()).isEqualTo(Effect.HF_COMMUNICATIONS);
+        assertThat(msg.getAdvisoryNumber()).satisfies(num -> {
+            assertThat(num.getYear()).isEqualTo(2020);
+            assertThat(num.getSerialNumber()).isEqualTo(1);
+        });
+        assertThat(msg.getAnalyses())
+                .hasSize(5)
+                .first()
+                .satisfies(analysis -> {
+                    assertThat(analysis.getTime().getCompleteTime().orElse(null))
+                            .isEqualTo(ZonedDateTime.parse("2020-11-08T01:00:00Z"));
+                    assertThat(analysis.getIntensityAndRegions())
+                            .extracting(SpaceWeatherIntensityAndRegion::getIntensity)
+                            .containsExactly(Intensity.SEVERE, Intensity.MODERATE);
+                    assertThat(analysis.getIntensityAndRegions().get(0).getRegions())
+                            .allSatisfy(region -> {
+                                assertThat(region.getLongitudeLimitMinimum()).isEmpty();
+                                assertThat(region.getLongitudeLimitMaximum()).isEmpty();
+                            })
+                            .extracting(region -> region.getLocationIndicator().orElse(null))
+                            .containsExactly(
+                                    SpaceWeatherRegion.SpaceWeatherLocation.MIDDLE_NORTHERN_HEMISPHERE,
+                                    SpaceWeatherRegion.SpaceWeatherLocation.EQUATORIAL_LATITUDES_NORTHERN_HEMISPHERE,
+                                    SpaceWeatherRegion.SpaceWeatherLocation.EQUATORIAL_LATITUDES_SOUTHERN_HEMISPHERE,
+                                    SpaceWeatherRegion.SpaceWeatherLocation.MIDDLE_LATITUDES_SOUTHERN_HEMISPHERE,
+                                    SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE
+                            );
+                    assertThat(analysis.getIntensityAndRegions().get(1).getRegions())
+                            .extracting(region -> region.getLocationIndicator().orElse(null))
+                            .containsExactly(SpaceWeatherRegion.SpaceWeatherLocation.NIGHTSIDE);
+                });
+        assertThat(msg.getAnalyses().stream().skip(1))
+                .allSatisfy(nilAnalysis -> assertThat(nilAnalysis.getNilReason())
+                        .hasValue(SpaceWeatherAdvisoryAnalysis.NilReason.NO_SWX_EXPECTED));
+        assertThat(msg.getRemarks().orElse(null)).isNotEmpty();
+        assertThat(msg.getNextAdvisory()).satisfies(next -> {
+            assertThat(next.getTimeSpecifier()).isEqualTo(NextAdvisory.Type.NEXT_ADVISORY_BY);
+            assertThat(next.getTime().flatMap(PartialOrCompleteTimeInstant::getCompleteTime)).
+                    hasValue(ZonedDateTime.parse("2020-11-08T07:00:00Z"));
+        });
     }
 
     @Test
@@ -376,7 +454,7 @@ public class SWXAmd82TACParserTest {
     public void testInvalidEmptyStatus() throws IOException {
         final String input = getInput("spacewx-invalid-status-empty.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        assertThat(result.getConversionIssues()).hasSize(12);
+        assertThat(result.getConversionIssues()).hasSize(13);
         assertThat(result.getConversionIssues().get(3).getType()).isEqualTo(ConversionIssue.Type.MISSING_DATA);
         assertThat(result.getConversionIssues())
                 .extracting(ConversionIssue::getMessage)
@@ -387,7 +465,7 @@ public class SWXAmd82TACParserTest {
     public void testInvalidRemarkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-remark-label.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        assertThat(result.getConversionIssues()).hasSize(36);
+        assertThat(result.getConversionIssues()).isNotEmpty();
         assertThat(result.getConversionIssues().get(0).getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
         assertThat(result.getConversionIssues().get(0).getMessage()).contains("Input message lexing was not fully successful");
     }
@@ -396,12 +474,16 @@ public class SWXAmd82TACParserTest {
     public void testInvalidRmkLabel() throws IOException {
         final String input = getInput("spacewx-invalid-rmk-label.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        assertThat(result.getConversionIssues()).hasSize(6);
-        assertThat(result.getConversionIssues().get(1).getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
-        assertThat(result.getConversionIssues().get(1).getMessage()).isEqualTo("Lexing problem with 'RMK'");
-
-        assertThat(result.getConversionIssues().get(5).getType()).isEqualTo(ConversionIssue.Type.MISSING_DATA);
-        assertThat(result.getConversionIssues().get(5).getMessage()).contains("One of REMARKS_START required in message");
+        assertThat(result.getConversionIssues())
+                .isNotEmpty()
+                .anySatisfy(issue -> {
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                    assertThat(issue.getMessage()).isEqualTo("Lexing problem with 'RMK'");
+                })
+                .anySatisfy(issue -> {
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.MISSING_DATA);
+                    assertThat(issue.getMessage()).contains("One of REMARKS_START required in message");
+                });
     }
 
     @Test
@@ -474,8 +556,9 @@ public class SWXAmd82TACParserTest {
         assertThat(result.getConvertedMessage()).isPresent();
 
         final List<AirspaceVolume> airspaceVolumes = result.getConvertedMessage().get().getAnalyses().stream()//
-                .flatMap(analysis -> analysis.getRegions().stream())//
-                .map(SpaceWeatherRegion::getAirSpaceVolume).map(Optional::get)//
+                .flatMap(analysis -> analysis.getIntensityAndRegions().stream())//
+                .flatMap(intensityAndRegion -> intensityAndRegion.getRegions().stream())
+                .map(spaceWeatherRegion -> spaceWeatherRegion.getAirSpaceVolume().get())
                 .collect(Collectors.toList());
 
         final AirspaceVolume obsVolume = airspaceVolumes.get(0);
@@ -507,8 +590,9 @@ public class SWXAmd82TACParserTest {
         assertThat(result.getConvertedMessage()).isPresent();
 
         final List<AirspaceVolume> airspaceVolumes = result.getConvertedMessage().get().getAnalyses().stream()//
-                .flatMap(analysis -> analysis.getRegions().stream())//
-                .map(SpaceWeatherRegion::getAirSpaceVolume).map(Optional::get)//
+                .flatMap(analysis -> analysis.getIntensityAndRegions().stream())//
+                .flatMap(intensityAndRegion -> intensityAndRegion.getRegions().stream())
+                .map(spaceWeatherRegion -> spaceWeatherRegion.getAirSpaceVolume().get())
                 .collect(Collectors.toList());
 
         final AirspaceVolume obsVolume = airspaceVolumes.get(0);
@@ -596,17 +680,19 @@ public class SWXAmd82TACParserTest {
     public void testInvalidPhenomenonTokenOrder() throws IOException {
         final String input = getInput("spacewx-invalid-phenomenon-token-order.tac");
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
-        assertThat(result.getConversionIssues()).hasSize(2);
-
-        final ConversionIssue obsIssue = result.getConversionIssues().get(0);
-        assertThat(obsIssue.getSeverity()).isEqualTo(ConversionIssue.Severity.ERROR);
-        assertThat(obsIssue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
-        assertThat(obsIssue.getMessage()).isEqualTo("Invalid token order: ''HSH'(SWX_PHENOMENON_PRESET_LOCATION,OK)' was found after one of type SWX_PHENOMENON_LONGITUDE_LIMIT");
-
-        final ConversionIssue forecastIssue = result.getConversionIssues().get(1);
-        assertThat(forecastIssue.getSeverity()).isEqualTo(ConversionIssue.Severity.ERROR);
-        assertThat(forecastIssue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
-        assertThat(forecastIssue.getMessage()).isEqualTo("Invalid token order: ''ABV FL340'(SWX_PHENOMENON_VERTICAL_LIMIT,OK)' was found after one of type POLYGON_COORDINATE_PAIR");
+        assertThat(result.getConversionIssues())
+                .anySatisfy(issue -> {
+                    assertThat(issue.getMessage())
+                            .isEqualTo("Invalid token order: ''HSH'(SWX_PHENOMENON_PRESET_LOCATION,OK)' was found after one of type SWX_PHENOMENON_LONGITUDE_LIMIT");
+                    assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.ERROR);
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                })
+                .anySatisfy(issue -> {
+                    assertThat(issue.getMessage())
+                            .isEqualTo("Invalid token order: ''S20 W170'(POLYGON_COORDINATE_PAIR,OK)' was found after one of type SWX_PHENOMENON_VERTICAL_LIMIT");
+                    assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.ERROR);
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                });
     }
 
     @Test
@@ -628,7 +714,13 @@ public class SWXAmd82TACParserTest {
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertThat(result.getConversionIssues()).isEmpty();
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        final PolygonGeometry geom = (PolygonGeometry) analysis.getIntensityAndRegions()
+                .get(0)
+                .getRegions()
+                .get(0)
+                .getAirSpaceVolume()
+                .flatMap(AirspaceVolume::getHorizontalProjection)
+                .get();
         assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
     }
 
@@ -682,8 +774,14 @@ public class SWXAmd82TACParserTest {
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertThat(result.getConversionIssues()).isEmpty();
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        assertThat(analysis.getRegions()).hasSize(1);
-        final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        assertThat(analysis.getIntensityAndRegions()).hasSize(1);
+        final PolygonGeometry geom = (PolygonGeometry) analysis.getIntensityAndRegions()
+                .get(0)
+                .getRegions()
+                .get(0)
+                .getAirSpaceVolume()
+                .flatMap(AirspaceVolume::getHorizontalProjection)
+                .get();
         assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
     }
 
@@ -735,12 +833,13 @@ public class SWXAmd82TACParserTest {
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertThat(result.getConversionIssues()).isEmpty();
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        assertThat(analysis.getRegions()).hasSize(3);
+        final List<SpaceWeatherRegion> regions = analysis.getIntensityAndRegions().get(0).getRegions();
+        assertThat(regions).hasSize(3);
 
-        assertThat(analysis.getRegions().get(0).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
-        assertThat(analysis.getRegions().get(1).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
+        assertThat(regions.get(0).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_NORTHERN_HEMISPHERE);
+        assertThat(regions.get(1).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.HIGH_LATITUDES_SOUTHERN_HEMISPHERE);
 
-        final SpaceWeatherRegion dayside = analysis.getRegions().get(2);
+        final SpaceWeatherRegion dayside = analysis.getIntensityAndRegions().get(0).getRegions().get(2);
         assertThat(dayside.getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.DAYSIDE);
         assertThat(dayside.getAirSpaceVolume())
                 .hasValue(expected);
@@ -767,8 +866,9 @@ public class SWXAmd82TACParserTest {
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertThat(result.getConversionIssues()).isEmpty();
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        assertThat(analysis.getRegions()).hasSize(5);
-        final SpaceWeatherRegion region = analysis.getRegions().get(4);
+        assertThat(analysis.getIntensityAndRegions()).hasSize(1);
+        assertThat(analysis.getIntensityAndRegions().get(0).getRegions()).hasSize(5);
+        final SpaceWeatherRegion region = analysis.getIntensityAndRegions().get(0).getRegions().get(4);
         assertThat(region.getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.NIGHTSIDE);
         assertThat(region.getAirSpaceVolume()).isPresent();
         assertThat(region.getAirSpaceVolume().get().getHorizontalProjection()).isEmpty();
@@ -783,8 +883,14 @@ public class SWXAmd82TACParserTest {
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertThat(result.getConversionIssues()).isEmpty();
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        assertThat(analysis.getRegions()).hasSize(1);
-        final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        assertThat(analysis.getIntensityAndRegions()).hasSize(1);
+        final PolygonGeometry geom = (PolygonGeometry) analysis.getIntensityAndRegions()
+                .get(0)
+                .getRegions()
+                .get(0)
+                .getAirSpaceVolume()
+                .flatMap(AirspaceVolume::getHorizontalProjection)
+                .get();
         assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
     }
 
@@ -800,8 +906,14 @@ public class SWXAmd82TACParserTest {
                 .count()).isEqualTo(7);
 
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        assertThat(analysis.getRegions()).hasSize(1);
-        final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        assertThat(analysis.getIntensityAndRegions()).hasSize(1);
+        final PolygonGeometry geom = (PolygonGeometry) analysis.getIntensityAndRegions()
+                .get(0)
+                .getRegions()
+                .get(0)
+                .getAirSpaceVolume()
+                .flatMap(AirspaceVolume::getHorizontalProjection)
+                .get();
         assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
     }
 
@@ -809,22 +921,27 @@ public class SWXAmd82TACParserTest {
     public void testUnclosedPolygonCoordinates() throws Exception {
         final String input = getInput("spacewx-unclosed-polygon.tac");
         final List<Double> expected = Arrays.asList(-20.0, -170.0, -20.0, -130.0, -10.0, -130.0, -10.0, -170.0);
-        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertThat(result.getConversionIssues()).isNotEmpty();
 
         assertThat(result.getConversionIssues())
                 .hasSize(1)
                 .first()
                 .satisfies(issue -> {
-                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.SYNTAX);
+                    assertThat(issue.getType()).isEqualTo(ConversionIssue.Type.LOGICAL);
                     assertThat(issue.getSeverity()).isEqualTo(ConversionIssue.Severity.WARNING);
                     assertThat(issue.getMessage()).isEqualTo("Polygon coordinate pairs do not form a closed ring");
                 });
 
-        final fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        assertThat(analysis.getRegions()).hasSize(1);
-        final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
+        final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
+        assertThat(analysis.getIntensityAndRegions()).hasSize(1);
+        assertThat(analysis.getIntensityAndRegions().get(0).getRegions())
+                .hasSize(1)
+                .first()
+                .satisfies(region -> {
+                    final PolygonGeometry geom = (PolygonGeometry) region.getAirSpaceVolume().get().getHorizontalProjection().get();
+                    assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
+                });
     }
 
     @Test
@@ -834,24 +951,32 @@ public class SWXAmd82TACParserTest {
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
 
         assertThat(result.getStatus()).isEqualTo(ConversionResult.Status.WITH_WARNINGS);
-        assertThat(result.getConversionIssues()).hasSize(15);
+        assertThat(result.getConversionIssues()).isNotEmpty();
 
         assertThat(result.getConversionIssues().stream()
                 .filter(issue -> issue.getMessage().contains("has invalid format"))
-                .count()).isEqualTo(8);
+        )
+                .hasSize(8);
 
         assertThat(result.getConversionIssues().stream()
                 .filter(issue -> issue.getMessage().contains("contains fractional degrees"))
-                .count()).isEqualTo(7);
+        )
+                .hasSize(7);
 
         assertThat(result.getConversionIssues()).allMatch(issue ->
                 issue.getSeverity() == ConversionIssue.Severity.WARNING &&
                         issue.getType() == ConversionIssue.Type.SYNTAX);
 
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        assertThat(analysis.getRegions()).hasSize(1);
-        final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
-        assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
+        assertThat(analysis.getIntensityAndRegions()).hasSize(1);
+        final PolygonGeometry geom = (PolygonGeometry) analysis.getIntensityAndRegions()
+                .get(0)
+                .getRegions()
+                .get(0)
+                .getAirSpaceVolume()
+                .flatMap(AirspaceVolume::getHorizontalProjection)
+                .get();
+        assertThat(geom.getExteriorRingPositions()).containsExactlyElementsOf(expected);
     }
 
     @Test

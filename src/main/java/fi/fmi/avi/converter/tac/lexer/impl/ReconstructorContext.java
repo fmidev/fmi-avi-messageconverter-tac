@@ -1,13 +1,13 @@
 package fi.fmi.avi.converter.tac.lexer.impl;
 
-import static java.util.Optional.empty;
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
+import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 
 public class ReconstructorContext<T extends AviationWeatherMessageOrCollection> {
 
@@ -27,14 +27,26 @@ public class ReconstructorContext<T extends AviationWeatherMessageOrCollection> 
     }
 
     public <S> Optional<S> getParameter(final String name, final Class<S> clz) {
-        Optional<S> retval = empty();
+        return Optional.ofNullable(getNullableParameter(name, clz));
+    }
+
+    public <S> S getMandatoryParameter(final String name, final Class<S> clz) throws SerializingException {
+        final S value = getNullableParameter(name, clz);
+        if (value == null) {
+            throw new SerializingException(name + " context parameter not provided or is not of type " + clz.getName());
+        } else {
+            return value;
+        }
+    }
+
+    private <S> @Nullable S getNullableParameter(final String name, final Class<S> clz) {
         final Object value = this.parameters.get(name);
         if (value != null) {
-            if (clz.isAssignableFrom(value.getClass())) {
-                retval = Optional.of(clz.cast(value));
+            if (clz.isInstance(value)) {
+                return clz.cast(value);
             }
         }
-        return retval;
+        return null;
     }
 
     public ConversionHints getHints() {

@@ -1,7 +1,7 @@
 SWX ADVISORY
 DTG:                20200115/0100Z
 SWXC:               ACFJ
-SWX EFFECT:         HF COM MOD
+SWX EFFECT:         HF COM
 ADVISORY NR:        2020/3
 OBS SWX:            15/0016Z NO SWX EXP
 FCST SWX +6 HR:     15/0700Z NO SWX EXP
