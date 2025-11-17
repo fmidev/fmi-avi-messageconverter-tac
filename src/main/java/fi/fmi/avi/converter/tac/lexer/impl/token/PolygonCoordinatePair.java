@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
 
     public PolygonCoordinatePair(final OccurrenceFrequency prio) {
-        super("^(?<latitude>[NS]\\d+)\\s+(?<longitude>[WE]\\d+)$", prio);
+        super("^(?<latitude>[NS]\\d+)\\s*(?<longitude>[WE]\\d+)$", prio);
     }
 
     @Override
