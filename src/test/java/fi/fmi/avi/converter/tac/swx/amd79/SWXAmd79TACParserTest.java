@@ -680,6 +680,18 @@ public class SWXAmd79TACParserTest {
     }
 
     @Test
+    public void testCoordinatePairWithMixedDashes() throws Exception {
+        final String input = getInput("spacewx-coordinates-with-mixed-dashes.tac");
+        final List<Double> expected = Arrays.asList(20.0, -105.0, 20.0, 30.0, -40.0, 30.0, -40.0, -105.0, 20.0, -105.0);
+        final ConversionResult<SpaceWeatherAdvisoryAmd79> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD79_POJO);
+        assertThat(result.getConversionIssues()).isEmpty();
+        final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
+        assertThat(analysis.getRegions()).hasSize(1);
+        final PolygonGeometry geom = (PolygonGeometry) analysis.getRegions().get(0).getAirSpaceVolume().get().getHorizontalProjection().get();
+        assertThat(geom.getExteriorRingPositions()).isEqualTo(expected);
+    }
+
+    @Test
     public void testLongitudesWithoutSpacesAroundDashes() throws Exception {
         final String spacedInput = getInput("spacewx-latitude-bands.tac");
         final String spacelessInput = getInput("spacewx-latitude-bands-longitudes-spaceless.tac");
