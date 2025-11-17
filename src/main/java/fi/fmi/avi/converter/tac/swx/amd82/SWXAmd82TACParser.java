@@ -139,7 +139,9 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             return;
         }
 
-        for (final String coordinate : coordinatePair.split("[\\s\\-]+")) {
+        for (final String coordinate : coordinatePair
+                .replaceAll("([EW])", " $1")
+                .split("[\\s\\-]+")) {
             if (coordinate.isEmpty()) {
                 continue;
             }
