@@ -20,14 +20,16 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
+    private static final String DASH_PATTERN = "[-‐–—‒―−﹣－]";
+
     public SWXPhenonmenonLongitudeLimit(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
-        super("^((W|E)(\\d+)\\s?\\-?\\s?){2}$", prio);
+        super("^((W|E)(\\d+)\\s?" + DASH_PATTERN + "?\\s?){2}$", prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(LexemeIdentity.SWX_PHENOMENON_LONGITUDE_LIMIT);
-        final List<String> limits = Arrays.stream(token.getTACToken().split("-"))
+        final List<String> limits = Arrays.stream(token.getTACToken().split(DASH_PATTERN))
                 .map(String::trim)
                 .collect(Collectors.toList());
 
