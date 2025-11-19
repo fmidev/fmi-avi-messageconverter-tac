@@ -50,6 +50,8 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     LexemeIdentity.NEXT_ADVISORY
             )));
     private static final int MAX_ADVISORIES_TO_REPLACE = 4;
+    private static final Set<SpaceWeatherLocation> DAY_AND_NIGHTSIDE = Collections.unmodifiableSet(EnumSet.of(
+            SpaceWeatherLocation.DAYSIDE, SpaceWeatherLocation.NIGHTSIDE));
 
     private final LexemeIdentity[] oneRequired = new LexemeIdentity[]{
             LexemeIdentity.ISSUE_TIME,
@@ -60,9 +62,6 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
             LexemeIdentity.NEXT_ADVISORY,
             LexemeIdentity.REMARKS_START
     };
-    private final Set<SpaceWeatherLocation> DAY_AND_NIGHTSIDE = Collections.unmodifiableSet(EnumSet.of(
-            SpaceWeatherLocation.DAYSIDE, SpaceWeatherLocation.NIGHTSIDE));
-
     private AviMessageLexer lexer;
 
     private static Optional<PartialOrCompleteTimeInstant> createAnalysisTimeInstant(
