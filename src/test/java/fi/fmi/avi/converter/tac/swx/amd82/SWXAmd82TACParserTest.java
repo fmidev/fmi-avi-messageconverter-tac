@@ -800,8 +800,8 @@ public class SWXAmd82TACParserTest {
     }
 
     @Test
-    public void testCoordinatePairWithMixedDashes() throws Exception {
-        final String input = getInput("spacewx-coordinates-with-mixed-dashes.tac");
+    public void testMixedDashes() throws Exception {
+        final String input = getInput("spacewx-with-mixed-dashes.tac");
         final List<Double> expected = Arrays.asList(20.0, -105.0, 20.0, 30.0, -40.0, 30.0, -40.0, -105.0, 20.0, -105.0);
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertThat(result.getConversionIssues()).isEmpty();

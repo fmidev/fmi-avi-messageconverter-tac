@@ -7,6 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.LexingFactoryImpl;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor.OccurrenceFrequency;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.token.*;
+import fi.fmi.avi.converter.tac.lexer.impl.util.DashVariant;
 import fi.fmi.avi.model.MessageType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -400,7 +401,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^-$");
+                return s.matches("^[" + Pattern.quote(DashVariant.ALL_AS_STRING) + "]$");
             }
         });
         retval.add(new Predicate<String>() {
