@@ -9,6 +9,7 @@ import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.impl.token.SWXPhenomena;
+import fi.fmi.avi.converter.tac.lexer.impl.util.DashVariant;
 import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.immutable.CoordinateReferenceSystemImpl;
 import fi.fmi.avi.model.immutable.NumericMeasureImpl;
@@ -25,6 +26,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -140,7 +142,7 @@ public class SWXAmd82TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
 
         for (final String coordinate : coordinatePair
                 .replaceAll("([EW])", " $1")
-                .split("[\\s\\-]+")) {
+                .split("[\\s" + Pattern.quote(DashVariant.ALL_AS_STRING) + " ]+")) {
             if (coordinate.isEmpty()) {
                 continue;
             }
