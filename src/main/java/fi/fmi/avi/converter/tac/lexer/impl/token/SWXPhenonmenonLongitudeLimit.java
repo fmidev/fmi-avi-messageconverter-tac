@@ -25,7 +25,7 @@ public class SWXPhenonmenonLongitudeLimit extends RegexMatchingLexemeVisitor {
     private static final String DASH_PATTERN = "[" + Pattern.quote(DashVariant.ALL_AS_STRING) + "]";
 
     public SWXPhenonmenonLongitudeLimit(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
-        super("^((W|E)(\\d+)\\s?" + DASH_PATTERN + "?\\s?){2}$", prio);
+        super("^((W|E)(\\d+)\\s*" + DASH_PATTERN + "?\\s*){2}$", prio);
     }
 
     @Override
