@@ -31,6 +31,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v7.0.0] - 2025-11-21
+
+### Added
+
+- Added Annex 3 Amendment 82 Space Weather Advisory parsing and serialization [#194]
+
 ## [v6.0.0-beta6] - 2024-02-21
 
 ### Fixed
@@ -135,7 +141,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Previous changelog entries are available
 on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
 
-[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-5.3.0...HEAD
+[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-7.0.0...HEAD
+
+[v7.0.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-7.0.0
 
 [v6.0.0-beta6]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-6.0.0-beta6
 
@@ -199,4 +207,5 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 
 [#191]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/191
 
+[#194]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/194
 
