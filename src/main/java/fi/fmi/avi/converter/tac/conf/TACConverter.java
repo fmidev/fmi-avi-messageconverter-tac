@@ -1,23 +1,24 @@
 package fi.fmi.avi.converter.tac.conf;
 
-import fi.fmi.avi.model.sigmet.AIRMET;
-import fi.fmi.avi.model.sigmet.AIRMETBulletin;
-import fi.fmi.avi.model.sigmet.SIGMET;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-
 import fi.fmi.avi.converter.ConversionSpecification;
 import fi.fmi.avi.model.GenericAviationWeatherMessage;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.metar.METAR;
 import fi.fmi.avi.model.metar.SPECI;
 import fi.fmi.avi.model.metar.immutable.METARImpl;
+import fi.fmi.avi.model.sigmet.AIRMET;
+import fi.fmi.avi.model.sigmet.AIRMETBulletin;
+import fi.fmi.avi.model.sigmet.SIGMET;
 import fi.fmi.avi.model.sigmet.SIGMETBulletin;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
-import fi.fmi.avi.model.swx.SpaceWeatherBulletin;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAmd79Bulletin;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAmd82Bulletin;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFBulletin;
 import fi.fmi.avi.model.taf.immutable.TAFImpl;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * TAC converter Spring configuration
@@ -120,21 +121,38 @@ public class TACConverter {
     // **********************
 
     /**
-     * Pre-configured spec for ICAO Annex 3 TAC format to {@link SpaceWeatherAdvisory} POJO.
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link SpaceWeatherAdvisoryAmd82} POJO.
      */
-    public static final ConversionSpecification<String, SpaceWeatherAdvisory> TAC_TO_SWX_POJO = new ConversionSpecification<>(String.class,
-            SpaceWeatherAdvisory.class, "ICAO Annex 3 TAC", null);
+    public static final ConversionSpecification<String, SpaceWeatherAdvisoryAmd82> TAC_TO_SWX_AMD82_POJO = new ConversionSpecification<>(String.class,
+            SpaceWeatherAdvisoryAmd82.class, "ICAO Annex 3 TAC", null);
 
     /**
-     * Pre-configured spec for {@link SpaceWeatherAdvisory} to ICAO Annex 3 TAC String.
+     * Pre-configured spec for ICAO Annex 3 TAC format to {@link SpaceWeatherAdvisoryAmd79} POJO.
      */
-    public static final ConversionSpecification<SpaceWeatherAdvisory, String> SWX_POJO_TO_TAC = new ConversionSpecification<>(SpaceWeatherAdvisory.class, String.class, null, "ICAO Annex 3 TAC");
+    public static final ConversionSpecification<String, SpaceWeatherAdvisoryAmd79> TAC_TO_SWX_AMD79_POJO = new ConversionSpecification<>(String.class,
+            SpaceWeatherAdvisoryAmd79.class, "ICAO Annex 3 TAC", null);
 
     /**
-     * Pre-configured spec for {@link SpaceWeatherBulletin} POJO to WMO GTS text bulletin format.
+     * Pre-configured spec for {@link SpaceWeatherAdvisoryAmd82} to ICAO Annex 3 TAC String.
      */
-    public static final ConversionSpecification<SpaceWeatherBulletin, String> SWX_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(
-            SpaceWeatherBulletin.class, String.class, null, "WMO GTS bulletin");
+    public static final ConversionSpecification<SpaceWeatherAdvisoryAmd82, String> SWX_AMD82_POJO_TO_TAC = new ConversionSpecification<>(SpaceWeatherAdvisoryAmd82.class, String.class, null, "ICAO Annex 3 TAC");
+
+    /**
+     * Pre-configured spec for {@link SpaceWeatherAdvisoryAmd79} to ICAO Annex 3 TAC String.
+     */
+    public static final ConversionSpecification<SpaceWeatherAdvisoryAmd79, String> SWX_AMD79_POJO_TO_TAC = new ConversionSpecification<>(SpaceWeatherAdvisoryAmd79.class, String.class, null, "ICAO Annex 3 TAC");
+
+    /**
+     * Pre-configured spec for {@link SpaceWeatherAmd82Bulletin} POJO to WMO GTS text bulletin format.
+     */
+    public static final ConversionSpecification<SpaceWeatherAmd82Bulletin, String> SWX_AMD82_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(
+            SpaceWeatherAmd82Bulletin.class, String.class, null, "WMO GTS bulletin");
+
+    /**
+     * Pre-configured spec for {@link SpaceWeatherAmd79Bulletin} POJO to WMO GTS text bulletin format.
+     */
+    public static final ConversionSpecification<SpaceWeatherAmd79Bulletin, String> SWX_AMD79_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(
+            SpaceWeatherAmd79Bulletin.class, String.class, null, "WMO GTS bulletin");
 
     // **********************
     // SIGMET messages
@@ -174,7 +192,7 @@ public class TACConverter {
     public static final ConversionSpecification<AIRMET, String> AIRMET_POJO_TO_TAC = new ConversionSpecification<>(AIRMET.class,
             String.class, null, "ICAO Annex 3 TAC");
 
-            /**
+    /**
      * Pre-configured spec for {@link AIRMETBulletin} to TAC encoded TAF bulletin
      */
     public static final ConversionSpecification<AIRMETBulletin, String> AIRMET_BULLETIN_POJO_TO_TAC = new ConversionSpecification<>(AIRMETBulletin.class,

@@ -1,0 +1,161 @@
+{
+  "issueTime": {
+    "completeTime": "2016-11-08T00:00:00Z"
+  },
+  "issuingCenter": {
+    "name": "DONLON",
+    "type": "OTHER:SWXC"
+  },
+  "advisoryNumber": {
+    "year": 2016,
+    "serialNumber": 2
+  },
+  "phenomena": [
+    "RADIATION_MOD"
+  ],
+  "analyses": [
+    {
+      "time": {
+        "completeTime": "2016-11-08T01:00:00Z"
+      },
+      "analysisType": "OBSERVATION",
+      "regions": [
+        {
+          "airSpaceVolume": {
+            "horizontalProjection": {
+              "type": "Polygon",
+              "crs": {
+                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                "dimension": 2,
+                "axisLabels": [
+                  "Lat",
+                  "Lon"
+                ]
+              },
+              "exteriorRingPositions": [
+                80.0,
+                -150.0,
+                70.0,
+                75.0,
+                60.0,
+                15.0,
+                1.0,
+                -75.0,
+                80.0,
+                -160.0
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "time": {
+        "completeTime": "2016-11-08T07:00:00Z"
+      },
+      "analysisType": "FORECAST",
+      "regions": [
+        {
+          "airSpaceVolume": {
+            "horizontalProjection": {
+              "type": "Polygon",
+              "crs": {
+                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                "dimension": 2,
+                "axisLabels": [
+                  "Lat",
+                  "Lon"
+                ]
+              },
+              "exteriorRingPositions": [
+                -180.0,
+                90.0,
+                -180.0,
+                60.0,
+                180.0,
+                60.0,
+                180.0,
+                90.0,
+                -180.0,
+                90.0
+              ]
+            },
+            "lowerLimit": {
+              "value": 340,
+              "uom": "FL"
+            },
+            "lowerLimitReference": "STD"
+          },
+          "longitudeLimitMinimum": 179.9,
+          "longitudeLimitMaximum": -179.6,
+          "locationIndicator": "HIGH_NORTHERN_HEMISPHERE"
+        },
+        {
+          "airSpaceVolume": {
+            "horizontalProjection": {
+              "type": "Polygon",
+              "crs": {
+                "name": "http://www.opengis.net/def/crs/EPSG/0/4326",
+                "dimension": 2,
+                "axisLabels": [
+                  "Lat",
+                  "Lon"
+                ]
+              },
+              "exteriorRingPositions": [
+                -180.0,
+                -90.0,
+                -180.0,
+                -60.0,
+                180.0,
+                -60.0,
+                180.0,
+                -90.0,
+                -180.0,
+                -90.0
+              ]
+            }
+          },
+          "locationIndicator": "HIGH_LATITUDES_SOUTHERN_HEMISPHERE"
+        }
+      ]
+    },
+    {
+      "time": {
+        "completeTime": "2016-11-08T13:00:00Z"
+      },
+      "analysisType": "FORECAST",
+      "regions": [],
+      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+    },
+    {
+      "time": {
+        "completeTime": "2016-11-08T19:00:00Z"
+      },
+      "analysisType": "FORECAST",
+      "regions": [],
+      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+    },
+    {
+      "time": {
+        "completeTime": "2016-11-09T01:00:00Z"
+      },
+      "analysisType": "FORECAST",
+      "regions": [],
+      "nilPhenomenonReason": "NO_PHENOMENON_EXPECTED"
+    }
+  ],
+  "remarks": [
+    "TEST UNCLOSED POLYGON"
+  ],
+  "nextAdvisory": {
+    "timeSpecifier": "NO_FURTHER_ADVISORIES"
+  },
+  "permissibleUsage": "NON_OPERATIONAL",
+  "permissibleUsageReason": "TEST",
+  "replaceAdvisoryNumber": {
+    "year": 2016,
+    "serialNumber": 1
+  },
+  "reportStatus": "NORMAL"
+}

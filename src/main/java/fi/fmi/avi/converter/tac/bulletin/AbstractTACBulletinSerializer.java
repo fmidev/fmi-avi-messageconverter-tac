@@ -1,8 +1,6 @@
 package fi.fmi.avi.converter.tac.bulletin;
 
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
 import fi.fmi.avi.converter.tac.lexer.*;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
@@ -10,7 +8,8 @@ import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
 
 import java.util.List;
 
@@ -20,18 +19,6 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
      * Maximum number of characters per line (inclusive).
      */
     public static final int MAX_ROW_LENGTH = 59;
-
-    @Override
-    public ConversionResult<String> convertMessage(final T input, final ConversionHints hints) {
-        final ConversionResult<String> result = new ConversionResult<>();
-        try {
-            final LexemeSequence seq = tokenizeMessage(input, hints);
-            result.setConvertedMessage(seq.getTAC());
-        } catch (final SerializingException se) {
-            result.addIssue(new ConversionIssue(ConversionIssue.Type.OTHER, se.getMessage()));
-        }
-        return result;
-    }
 
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {
@@ -134,7 +121,8 @@ public abstract class AbstractTACBulletinSerializer<S extends AviationWeatherMes
     }
 
     private boolean isAdvisory(final S message) {
-        return SpaceWeatherAdvisory.class.isAssignableFrom(message.getClass());
+        return SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(message.getClass())
+                || SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(message.getClass());
     }
 
     private boolean isSpecialCharacterLexeme(final Lexeme lexeme, final MeteorologicalBulletinSpecialCharacter specialCharacter) {

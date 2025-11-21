@@ -1,18 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AERODROME_DESIGNATOR;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.BULLETIN_HEADING_LOCATION_INDICATOR;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.ISSUE_TIME;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.REP;
-
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -23,7 +10,16 @@ import fi.fmi.avi.model.AviationWeatherMessage;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletin;
-import fi.fmi.avi.model.swx.SpaceWeatherAdvisory;
+import fi.fmi.avi.model.swx.amd79.SpaceWeatherAdvisoryAmd79;
+import fi.fmi.avi.model.swx.amd82.SpaceWeatherAdvisoryAmd82;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.regex.Matcher;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 
 /**
  * Created by rinne on 10/02/17.
@@ -86,17 +82,13 @@ public class IssueTime extends TimeHandlingRegex {
         }
 
         private <T extends AviationWeatherMessageOrCollection> Optional<String> formatIssueTime(final PartialOrCompleteTimeInstant time, final Class<T> clz) {
-            final Optional<String> formattedIssueTime;
-            if (SpaceWeatherAdvisory.class.isAssignableFrom(clz)) {
-                formattedIssueTime = time.getCompleteTime()//
+            if (SpaceWeatherAdvisoryAmd82.class.isAssignableFrom(clz) || SpaceWeatherAdvisoryAmd79.class.isAssignableFrom(clz)) {
+                return time.getCompleteTime()//
                         .map(completeTime -> completeTime.format(DateTimeFormatter.ofPattern("yyyyMMdd/HHmm'Z'")));
             } else {
                 final String format = MeteorologicalBulletin.class.isAssignableFrom(clz) ? "%02d%02d%02d" : "%02d%02d%02dZ";
-                formattedIssueTime = Optional.of(String.format(Locale.US, format, time.getDay().orElse(-1), time.getHour().orElse(-1), time.getMinute().orElse(-1)));
+                return Optional.of(String.format(Locale.US, format, time.getDay().orElse(-1), time.getHour().orElse(-1), time.getMinute().orElse(-1)));
             }
-            return formattedIssueTime;
         }
-
     }
-
 }

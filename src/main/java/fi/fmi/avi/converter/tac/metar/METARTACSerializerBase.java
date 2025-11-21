@@ -1,13 +1,7 @@
 package fi.fmi.avi.converter.tac.metar;
 
-import java.util.Optional;
-
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.ConversionIssue;
-import fi.fmi.avi.converter.ConversionIssue.Type;
-import fi.fmi.avi.converter.ConversionResult;
 import fi.fmi.avi.converter.tac.AbstractTACSerializer;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
@@ -17,28 +11,14 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.CloudForecast;
 import fi.fmi.avi.model.Weather;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
-import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
-import fi.fmi.avi.model.metar.ObservedClouds;
-import fi.fmi.avi.model.metar.RunwayState;
-import fi.fmi.avi.model.metar.RunwayVisualRange;
-import fi.fmi.avi.model.metar.TrendForecast;
+import fi.fmi.avi.model.metar.*;
+
+import java.util.Optional;
 
 /**
  * Serializes METAR POJO to TAC format
  */
 public abstract class METARTACSerializerBase<T extends MeteorologicalTerminalAirReport> extends AbstractTACSerializer<T> {
-
-    @Override
-    public ConversionResult<String> convertMessage(final T input, final ConversionHints hints) {
-        final ConversionResult<String> result = new ConversionResult<>();
-        try {
-            final LexemeSequence seq = tokenizeMessage(input, hints);
-            result.setConvertedMessage(seq.getTAC());
-        } catch (final SerializingException se) {
-            result.addIssue(new ConversionIssue(Type.OTHER, se.getMessage()));
-        }
-        return result;
-    }
 
     @Override
     public LexemeSequence tokenizeMessage(final AviationWeatherMessageOrCollection msg) throws SerializingException {
