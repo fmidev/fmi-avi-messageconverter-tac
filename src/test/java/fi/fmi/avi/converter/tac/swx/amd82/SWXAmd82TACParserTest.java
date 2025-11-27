@@ -891,17 +891,35 @@ public class SWXAmd82TACParserTest {
     @Test
     public void testNightside() throws Exception {
         final String input = getInput("spacewx-nightside.tac");
+        final AirspaceVolume expected = AirspaceVolumeImpl.builder()
+                .setHorizontalProjection(
+                        CircleByCenterPointImpl.builder()
+                                .setCrs(CoordinateReferenceSystemImpl.wgs84())
+                                .setCenterPointCoordinates(Arrays.asList(16.65, -19.06))
+                                .setRadius(NumericMeasureImpl.builder()
+                                        .setValue(10100.0)
+                                        .setUom("km")
+                                        .build())
+                                .build()
+                ).build();
+
         final ConversionResult<SpaceWeatherAdvisoryAmd82> result = this.converter.convertMessage(input, TACConverter.TAC_TO_SWX_AMD82_POJO);
         assertThat(result.getConversionIssues()).isEmpty();
         final SpaceWeatherAdvisoryAnalysis analysis = result.getConvertedMessage().get().getAnalyses().get(0);
-        assertThat(analysis.getIntensityAndRegions()).hasSize(1);
-        assertThat(analysis.getIntensityAndRegions().get(0).getRegions()).hasSize(5);
-        final SpaceWeatherRegion region = analysis.getIntensityAndRegions().get(0).getRegions().get(4);
-        assertThat(region.getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.NIGHTSIDE);
-        assertThat(region.getAirSpaceVolume()).isPresent();
-        assertThat(region.getAirSpaceVolume().get().getHorizontalProjection()).isEmpty();
-        assertThat(region.getLongitudeLimitMinimum()).isEmpty();
-        assertThat(region.getLongitudeLimitMaximum()).isEmpty();
+        final List<SpaceWeatherRegion> regions = analysis.getIntensityAndRegions().get(0).getRegions();
+        assertThat(regions).hasSize(5);
+
+        assertThat(regions.get(0).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.MIDDLE_NORTHERN_HEMISPHERE);
+        assertThat(regions.get(1).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.EQUATORIAL_LATITUDES_NORTHERN_HEMISPHERE);
+        assertThat(regions.get(2).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.EQUATORIAL_LATITUDES_SOUTHERN_HEMISPHERE);
+        assertThat(regions.get(3).getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.MIDDLE_LATITUDES_SOUTHERN_HEMISPHERE);
+
+        final SpaceWeatherRegion nightside = analysis.getIntensityAndRegions().get(0).getRegions().get(4);
+        assertThat(nightside.getLocationIndicator()).hasValue(SpaceWeatherRegion.SpaceWeatherLocation.NIGHTSIDE);
+        assertThat(nightside.getAirSpaceVolume())
+                .hasValue(expected);
+        assertThat(nightside.getLongitudeLimitMinimum()).isEmpty();
+        assertThat(nightside.getLongitudeLimitMaximum()).isEmpty();
     }
 
     @Test
