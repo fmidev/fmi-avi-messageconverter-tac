@@ -496,8 +496,8 @@ public class SWXAmd79TACParser extends AbstractTACParser<SpaceWeatherAdvisoryAmd
                     minLongitude.ifPresent(regionBuilder::setLongitudeLimitMinimum);
                     maxLongitude.ifPresent(regionBuilder::setLongitudeLimitMaximum);
 
-                    regionBuilder.setAirSpaceVolume(AirspaceVolumeImpl.fromLocationIndicator(location, analysisTime,
-                            minLongitude.orElse(null), maxLongitude.orElse(null), verticalLimits));
+                    regionBuilder.setAirSpaceVolume(AirspaceVolumeImpl.fromLocationIndicator(location, verticalLimits, analysisTime,
+                            minLongitude.orElse(null), maxLongitude.orElse(null)));
 
                     regionList.add(regionBuilder.build());
                 } else if (noLocationIndicator[0]) {
