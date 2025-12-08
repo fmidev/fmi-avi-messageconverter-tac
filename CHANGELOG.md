@@ -31,6 +31,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v7.1.0] - 2025-12-08
+
+### Changed
+
+- Adapted to changes in fmi-avi-messageconverter which enable NIGHTSIDE to be computed when parsing a Space Weather
+  Advisory TAC [#208]
+
 ## [v7.0.0] - 2025-11-21
 
 ### Added
@@ -141,7 +148,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Previous changelog entries are available
 on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
 
-[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-7.0.0...HEAD
+[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-7.1.0...HEAD
+
+[v7.1.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-7.1.0
 
 [v7.0.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-7.0.0
 
@@ -208,4 +217,6 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 [#191]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/191
 
 [#194]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/194
+
+[#208]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/208
 
