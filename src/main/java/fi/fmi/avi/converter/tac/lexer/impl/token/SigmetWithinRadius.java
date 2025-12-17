@@ -7,10 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.util.GeometryHelper;
-import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.CircleByCenterPoint;
-import fi.fmi.avi.model.Geometry;
-import fi.fmi.avi.model.TacOrGeoGeometry;
+import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Collections;
@@ -51,7 +48,7 @@ public class SigmetWithinRadius extends RegexMatchingLexemeVisitor {
                     if (geom.getGeoGeometry().isPresent() && !geom.getTacGeometry().isPresent() && !geom.getEntireArea()) {
                         final Geometry geoGeometry = geom.getGeoGeometry().get();
                         if (geoGeometry instanceof CircleByCenterPoint) {
-                            return GeometryHelper.getGeoLexemes(geoGeometry, this::createLexeme, specifyZeros);
+                            return GeometryHelper.getGeoLexemes(geoGeometry, this::createLexeme, specifyZeros, 2, Winding.CLOCKWISE);
                         }
                     }
                 }

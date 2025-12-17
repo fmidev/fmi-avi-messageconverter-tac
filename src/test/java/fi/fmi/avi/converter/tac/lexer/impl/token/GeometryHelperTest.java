@@ -193,7 +193,7 @@ public class GeometryHelperTest {
                 .addExteriorRingPositions(52.0, 5.2)
                 .build();
 
-        final List<Lexeme> lexemes = GeometryHelper.getGeoLexemes(polygon, lexemeCreator, false);
+        final List<Lexeme> lexemes = GeometryHelper.getGeoLexemes(polygon, lexemeCreator, false, 2, Winding.CLOCKWISE);
 
         assertThat(lexemes).hasSize(13);
         assertThat(lexemes.get(0).getTACToken()).isEqualTo("N52 E00512");
@@ -211,7 +211,7 @@ public class GeometryHelperTest {
                 .addExteriorRingPositions(52.0, 5.0)
                 .build();
 
-        final List<Lexeme> lexemes = GeometryHelper.getGeoLexemes(polygon, lexemeCreator, true);
+        final List<Lexeme> lexemes = GeometryHelper.getGeoLexemes(polygon, lexemeCreator, true, 2, Winding.CLOCKWISE);
 
         assertThat(lexemes).hasSize(9);
         assertThat(lexemes.get(0).getTACToken()).isEqualTo("N5200 E00500");
@@ -226,7 +226,7 @@ public class GeometryHelperTest {
                 .setCrs(CoordinateReferenceSystemImpl.wgs84())
                 .build();
 
-        final List<Lexeme> lexemes = GeometryHelper.getGeoLexemes(point, lexemeCreator, false);
+        final List<Lexeme> lexemes = GeometryHelper.getGeoLexemes(point, lexemeCreator, false, 2, Winding.CLOCKWISE);
 
         assertThat(lexemes).hasSize(1);
         assertThat(lexemes.get(0).getTACToken()).isEqualTo("N5230 E00548");
@@ -240,7 +240,7 @@ public class GeometryHelperTest {
                 .setCrs(CoordinateReferenceSystemImpl.wgs84())
                 .build();
 
-        final List<Lexeme> lexemes = GeometryHelper.getGeoLexemes(circle, lexemeCreator, false);
+        final List<Lexeme> lexemes = GeometryHelper.getGeoLexemes(circle, lexemeCreator, false, 2, Winding.CLOCKWISE);
 
         assertThat(lexemes).hasSize(1);
         assertThat(lexemes.get(0).getTACToken()).isEqualTo("WI 30KM OF N5230 E00548");

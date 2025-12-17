@@ -6,6 +6,7 @@ import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.immutable.PointGeometryImpl;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -94,17 +95,50 @@ public class GeometryHelper {
         lexemes.add(createLexeme.apply(MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
     }
 
-    public static List<Lexeme> getGeoLexemes(final Geometry geom,
-                                             final BiFunction<String, LexemeIdentity, Lexeme> createLexeme,
-                                             final boolean specifyZeros) {
-        return getGeoLexemes(geom, createLexeme, specifyZeros, 2, Winding.CLOCKWISE);
-    }
-
+    /**
+     * Creates lexemes for a geometry with a specific winding order enforced.
+     *
+     * @param geom          the geometry
+     * @param createLexeme  function to create lexeme instances
+     * @param specifyZeros  if true, always includes minutes even when zero
+     * @param decimalPlaces number of decimal places for coordinate rounding
+     * @param winding       the winding order to enforce
+     * @return list of lexemes representing the geometry
+     */
     public static List<Lexeme> getGeoLexemes(final Geometry geom,
                                              final BiFunction<String, LexemeIdentity, Lexeme> createLexeme,
                                              final boolean specifyZeros,
                                              final int decimalPlaces,
                                              final Winding winding) {
+        return getGeoLexemesInternal(geom, createLexeme, specifyZeros, decimalPlaces, winding);
+    }
+
+    /**
+     * Creates lexemes for a geometry, preserving the original winding order.
+     * <p>
+     * Use this method when the polygon coordinates should not be reordered,
+     * for example when the input data is already in the correct order and
+     * winding detection may be unreliable (e.g., SWX polygons crossing the antimeridian).
+     * </p>
+     *
+     * @param geom          the geometry
+     * @param createLexeme  function to create lexeme instances
+     * @param specifyZeros  if true, always includes minutes even when zero
+     * @param decimalPlaces number of decimal places for coordinate rounding
+     * @return list of lexemes representing the geometry
+     */
+    public static List<Lexeme> getGeoLexemes(final Geometry geom,
+                                             final BiFunction<String, LexemeIdentity, Lexeme> createLexeme,
+                                             final boolean specifyZeros,
+                                             final int decimalPlaces) {
+        return getGeoLexemesInternal(geom, createLexeme, specifyZeros, decimalPlaces, null);
+    }
+
+    private static List<Lexeme> getGeoLexemesInternal(final Geometry geom,
+                                                      final BiFunction<String, LexemeIdentity, Lexeme> createLexeme,
+                                                      final boolean specifyZeros,
+                                                      final int decimalPlaces,
+                                                      @Nullable final Winding winding) {
         final List<Lexeme> lexemes = new ArrayList<>();
 
         int latOffset = -1;
@@ -127,7 +161,9 @@ public class GeometryHelper {
 
         if (geom instanceof PolygonGeometry) {
             // TODO Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
-            final List<Double> coords = ((PolygonGeometry) geom).getExteriorRingPositions(winding);
+            final PolygonGeometry polygon = (PolygonGeometry) geom;
+            final List<Double> coords = winding != null
+                    ? polygon.getExteriorRingPositions(winding) : polygon.getExteriorRingPositions();
             for (int coordPairIndex = 0; coordPairIndex < coords.size() - 1; coordPairIndex += 2) {
                 final int latIndex = coordPairIndex + latOffset;
                 final int lonIndex = coordPairIndex + lonOffset;

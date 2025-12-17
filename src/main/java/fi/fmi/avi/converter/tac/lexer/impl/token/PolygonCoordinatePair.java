@@ -87,7 +87,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                     .filter(region -> !region.getLocationIndicator().isPresent())
                     .flatMap(fi.fmi.avi.model.swx.amd82.SpaceWeatherRegion::getAirSpaceVolume)
                     .flatMap(fi.fmi.avi.model.swx.amd82.AirspaceVolume::getHorizontalProjection)
-                    .map(geometry -> GeometryHelper.getGeoLexemes(geometry, this::createLexeme, false, 0, Winding.COUNTERCLOCKWISE))
+                    .map(geometry -> GeometryHelper.getGeoLexemes(geometry, this::createLexeme, false, 0))
                     .orElse(Collections.emptyList());
         }
 
@@ -102,7 +102,7 @@ public class PolygonCoordinatePair extends RegexMatchingLexemeVisitor {
                     .filter(region -> !region.getLocationIndicator().isPresent())
                     .flatMap(fi.fmi.avi.model.swx.amd79.SpaceWeatherRegion::getAirSpaceVolume)
                     .flatMap(fi.fmi.avi.model.swx.amd79.AirspaceVolume::getHorizontalProjection)
-                    .map(geometry -> GeometryHelper.getGeoLexemes(geometry, this::createLexeme, specifyZeros, 2, Winding.COUNTERCLOCKWISE))
+                    .map(geometry -> GeometryHelper.getGeoLexemes(geometry, this::createLexeme, specifyZeros, 2))
                     .orElse(Collections.emptyList());
         }
 
