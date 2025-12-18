@@ -561,4 +561,38 @@ public class SWXAmd82TACSerializerTest {
         assertThat(stringResult.getStatus()).isEqualTo(ConversionResult.Status.SUCCESS);
         assertThat(stringResult.getConvertedMessage()).hasValue(expected);
     }
+
+    @Test
+    public void testPolygonCrossingAntimeridian() {
+        final String inputTac = "SWX ADVISORY" + CR_LF//
+                + "STATUS:             TEST" + CR_LF//
+                + "DTG:                20161108/0000Z" + CR_LF//
+                + "SWXC:               DONLON" + CR_LF//
+                + "SWX EFFECT:         RADIATION" + CR_LF//
+                + "ADVISORY NR:        2016/2" + CR_LF//
+                + "OBS SWX:            08/0100Z MOD N05 W155 - N20 W155 - N20 E160 - N05 E160 - N05 W155" + CR_LF//
+                + "FCST SWX +6 HR:     08/0700Z MOD N20 W155 - N20 E160 - N05 E160 - N05 W155 - N20 W155" + CR_LF//
+                + "FCST SWX +12 HR:    08/1300Z NO SWX EXP" + CR_LF//
+                + "FCST SWX +18 HR:    08/1900Z NO SWX EXP" + CR_LF//
+                + "FCST SWX +24 HR:    09/0100Z NO SWX EXP" + CR_LF//
+                + "RMK:                NIL" + CR_LF//
+                + "NXT ADVISORY:       NO FURTHER ADVISORIES=";
+
+        final ConversionResult<SpaceWeatherAdvisoryAmd82> pojo = this.converter.convertMessage(inputTac, TACConverter.TAC_TO_SWX_AMD82_POJO);
+        assertThat(pojo.getStatus()).isEqualTo(ConversionResult.Status.SUCCESS);
+
+        final List<SpaceWeatherAdvisoryAnalysis> analyses = pojo.getConvertedMessage()
+                .map(SpaceWeatherAdvisoryAmd82::getAnalyses)
+                .orElse(Collections.emptyList());
+        assertThatAnalysisRegionPositions(analyses, 0, 0, 0)
+                .containsExactly(5.0, -155.0, 20.0, -155.0, 20.0, 160.0, 5.0, 160.0, 5.0, -155.0);
+        assertThatAnalysisRegionPositions(analyses, 1, 0, 0)
+                .containsExactly(20.0, -155.0, 20.0, 160.0, 5.0, 160.0, 5.0, -155.0, 20.0, -155.0);
+
+        final ConversionResult<String> stringResult = this.converter.convertMessage(
+                pojo.getConvertedMessage().get(), TACConverter.SWX_AMD82_POJO_TO_TAC, new ConversionHints());
+        assertThat(stringResult.getStatus()).isEqualTo(ConversionResult.Status.SUCCESS);
+        assertThat(stringResult.getConvertedMessage()).hasValue(inputTac);
+    }
+
 }

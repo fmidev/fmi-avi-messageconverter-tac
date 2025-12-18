@@ -7,10 +7,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.PrioritizedLexemeVisitor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.util.GeometryHelper;
-import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
-import fi.fmi.avi.model.Geometry;
-import fi.fmi.avi.model.PolygonGeometry;
-import fi.fmi.avi.model.TacOrGeoGeometry;
+import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
@@ -54,7 +51,7 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
                         if (geometry instanceof PolygonGeometry) {
                             lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));
                             lexemes.add(this.createLexeme(MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
-                            lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l), specifyZeros));
+                            lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, this::createLexeme, specifyZeros, 2, Winding.CLOCKWISE));
                         }
                     } else {
                         // System.err.println("SIGMET_WITHIN recon has TACGeometry");
@@ -71,7 +68,7 @@ public class SigmetWithin extends PrioritizedLexemeVisitor {
                         if (geometry instanceof PolygonGeometry) {
                             lexemes.add(this.createLexeme("WI", LexemeIdentity.SIGMET_WITHIN));
                             lexemes.add(this.createLexeme(MeteorologicalBulletinSpecialCharacter.SPACE.getContent(), LexemeIdentity.WHITE_SPACE));
-                            lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, (s, l)-> this.createLexeme(s, l), specifyZeros));
+                            lexemes.addAll(GeometryHelper.getGeoLexemes(geometry, this::createLexeme, specifyZeros, 2, Winding.CLOCKWISE));
                         }
                     } else {
                         // System.err.println("SIGMET_WITHIN recon has TACGeometry");
