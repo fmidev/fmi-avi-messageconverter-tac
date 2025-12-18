@@ -96,29 +96,30 @@ public class GeometryHelper {
     }
 
     /**
-     * Creates lexemes for a geometry with a specific winding order enforced.
+     * Creates lexemes for a geometry with a specific winding order enforced. See {@link Winding} for details on
+     * limitations when enforcing a specific winding.
      *
      * @param geom          the geometry
      * @param createLexeme  function to create lexeme instances
      * @param specifyZeros  if true, always includes minutes even when zero
      * @param decimalPlaces number of decimal places for coordinate rounding
-     * @param winding       the winding order to enforce
+     * @param targetWinding the winding order to enforce
      * @return list of lexemes representing the geometry
      */
     public static List<Lexeme> getGeoLexemes(final Geometry geom,
                                              final BiFunction<String, LexemeIdentity, Lexeme> createLexeme,
                                              final boolean specifyZeros,
                                              final int decimalPlaces,
-                                             final Winding winding) {
-        return getGeoLexemesInternal(geom, createLexeme, specifyZeros, decimalPlaces, winding);
+                                             final Winding targetWinding) {
+        return getGeoLexemesInternal(geom, createLexeme, specifyZeros, decimalPlaces, targetWinding);
     }
 
     /**
      * Creates lexemes for a geometry, preserving the original winding order.
      * <p>
-     * Use this method when the polygon coordinates should not be reordered,
-     * for example when the input data is already in the correct order and
-     * winding detection may be unreliable (e.g., SWX polygons crossing the antimeridian).
+     * Use this method when the polygon coordinates should not be reordered, for example when the input data is already
+     * in the correct order and winding detection may be unreliable. See {@link Winding} for details on limitations when
+     * enforcing a specific winding.
      * </p>
      *
      * @param geom          the geometry
@@ -138,7 +139,7 @@ public class GeometryHelper {
                                                       final BiFunction<String, LexemeIdentity, Lexeme> createLexeme,
                                                       final boolean specifyZeros,
                                                       final int decimalPlaces,
-                                                      @Nullable final Winding winding) {
+                                                      @Nullable final Winding targetWinding) {
         final List<Lexeme> lexemes = new ArrayList<>();
 
         int latOffset = -1;
@@ -162,8 +163,8 @@ public class GeometryHelper {
         if (geom instanceof PolygonGeometry) {
             // TODO Add check for WGS84 lat, lon CRS, EPSG:4326 or variants of the ID?
             final PolygonGeometry polygon = (PolygonGeometry) geom;
-            final List<Double> coords = winding != null
-                    ? polygon.getExteriorRingPositions(winding) : polygon.getExteriorRingPositions();
+            final List<Double> coords = targetWinding != null
+                    ? polygon.getExteriorRingPositions(targetWinding) : polygon.getExteriorRingPositions();
             for (int coordPairIndex = 0; coordPairIndex < coords.size() - 1; coordPairIndex += 2) {
                 final int latIndex = coordPairIndex + latOffset;
                 final int lonIndex = coordPairIndex + lonOffset;
