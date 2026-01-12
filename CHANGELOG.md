@@ -31,6 +31,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v8.0.0] - 2026-01-12
+
+### Changed
+
+- Preserve the model polygon winding order in SWX serialization. This includes breaking changes to
+  `GeometryHelper` [#210]
+
 ## [v7.1.0] - 2025-12-08
 
 ### Changed
@@ -66,7 +73,6 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 - Fixed rounding in SigmetWithinRadius coordinate serialization [#190]
-
 
 ## [v6.0.0-beta3] - 2023-11-14
 
@@ -148,7 +154,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Previous changelog entries are available
 on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
 
-[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-7.1.0...HEAD
+[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-8.0.0...HEAD
+
+[v8.0.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-8.0.0
 
 [v7.1.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-7.1.0
 
@@ -219,4 +227,6 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 [#194]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/194
 
 [#208]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/208
+
+[#210]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/210
 
