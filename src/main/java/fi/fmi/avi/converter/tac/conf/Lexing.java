@@ -182,7 +182,7 @@ public class Lexing {
         retval.add(new Predicate<String>() {
             @Override
             public boolean test(final String s) {
-                return s.matches("^[0-9]*/[0-9]*[A-Z]{2}$");
+                return s.matches("^[0-9]*/[0-9]*SM$");
             }
         });
         return retval;

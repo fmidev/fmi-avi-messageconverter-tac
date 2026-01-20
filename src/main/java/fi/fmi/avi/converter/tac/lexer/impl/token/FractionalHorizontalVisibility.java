@@ -1,26 +1,34 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.HORIZONTAL_VISIBILITY;
-
-import java.util.Locale;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Status;
 import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 
+import java.util.Locale;
+import java.util.regex.Matcher;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.HORIZONTAL_VISIBILITY;
+
 /**
- * Created by rinne on 10/02/17.
+ * Token parser for fractional horizontal visibility in statute miles.
+ * <p>
+ * Examples: "1 1/2SM", "3/4SM", "2SM", "P6SM", "M1/4SM"
+ * <p>
+ * Based on <a href="https://www.weather.gov/media/directives/010_pdfs/pd01008013curr.pdf">NWS Instruction 10-813</a>:
+ * <blockquote>
+ * "The contraction SM is appended to the end of the visibility forecast group."
+ * </blockquote>
  */
 public class FractionalHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
+    static final String STATUTE_MILE_UNIT = "SM";
+
     public FractionalHorizontalVisibility(final OccurrenceFrequency prio) {
-        super("^([PM])?((([0-9]{1,3}\\s)(([1-9]{1})/([1-9]{1,2})))|([0-9]{1,3})|(([0-9]{1})/([0-9]{1,2})))(?!KT)([A-Z]{1,2})$", prio);
+        super("^([PM])?((([0-9]{1,3}\\s)(([1-9]{1})/([1-9]{1,2})))|([0-9]{1,3})|(([0-9]{1})/([0-9]{1,2})))" +
+                STATUTE_MILE_UNIT + "$", prio);
     }
 
     @Override
@@ -60,7 +68,6 @@ public class FractionalHorizontalVisibility extends RegexMatchingLexemeVisitor {
         if (modifier != null) {
             token.setParsedValue(RELATIONAL_OPERATOR, modifier);
         }
-        final String unit = match.group(12).toLowerCase(Locale.US);
-        token.setParsedValue(UNIT, unit);
+        token.setParsedValue(UNIT, STATUTE_MILE_UNIT.toLowerCase(Locale.US));
     }
 }
