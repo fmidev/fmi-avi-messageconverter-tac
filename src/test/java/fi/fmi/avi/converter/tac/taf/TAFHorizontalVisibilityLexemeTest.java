@@ -1,13 +1,10 @@
 package fi.fmi.avi.converter.tac.taf;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import fi.fmi.avi.converter.tac.conf.TACConverter;
+import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
+import fi.fmi.avi.converter.tac.lexer.Lexeme;
+import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
+import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +12,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import fi.fmi.avi.converter.tac.conf.TACConverter;
-import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACConverter.class, loader = AnnotationConfigContextLoader.class)
@@ -144,5 +141,16 @@ public class TAFHorizontalVisibilityLexemeTest {
                 .filter(l -> !l.getStatus().equals(Lexeme.Status.OK))//
                 .findFirst();
         assertFalse(firstNotOk.isPresent());
+    }
+
+    @Test
+    public void testInvalidVisibilityWithLetterOInsteadOfZero() {
+        final String tac = "TAF EFTU 230916Z 2309/2409 35004KT 8000 SCT020CB PROB30 2312/2318 400O BR BKN004=";
+        final LexemeSequence lexemeSequence = aviMessageLexer.lexMessage(tac);
+        final Optional<Lexeme> unrecognized = lexemeSequence.getLexemes().stream()//
+                .filter(l -> l.getTACToken().equals("400O"))//
+                .findFirst();
+        assertTrue("400O lexeme should be present", unrecognized.isPresent());
+        assertEquals("400O should be unrecognized", Lexeme.Status.UNRECOGNIZED, unrecognized.get().getStatus());
     }
 }

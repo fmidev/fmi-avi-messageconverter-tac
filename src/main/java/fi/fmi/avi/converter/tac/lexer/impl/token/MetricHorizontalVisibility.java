@@ -1,26 +1,11 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DIRECTION;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RELATIONAL_OPERATOR;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.UNIT;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.VALUE;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.HORIZONTAL_VISIBILITY;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.Status;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
-import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
-import fi.fmi.avi.converter.tac.lexer.impl.LexemeUtils;
-import fi.fmi.avi.converter.tac.lexer.impl.RecognizingAviMessageTokenLexer;
-import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
-import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
+import fi.fmi.avi.converter.tac.lexer.impl.*;
 import fi.fmi.avi.model.AviationCodeListUser.RelationalOperator;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.NumericMeasure;
@@ -30,6 +15,15 @@ import fi.fmi.avi.model.metar.TrendForecast;
 import fi.fmi.avi.model.taf.TAFBaseForecast;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.HORIZONTAL_VISIBILITY;
+import static fi.fmi.avi.converter.tac.lexer.impl.token.FractionalHorizontalVisibility.STATUTE_MILE_UNIT;
+
 /**
  * Token parser for horizontal visibility given in meters.
  */
@@ -38,7 +32,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
     public static final int MAX_STATUE_MILE_DENOMINATOR = 16;
 
     public MetricHorizontalVisibility(final OccurrenceFrequency prio) {
-        super("^([0-9]{4})([A-Z]{1,2}|NDV)?$", prio);
+        super("^([0-9]{4})([NS][EW]?|[EW]|NDV)?$", prio);
     }
 
     @Override
@@ -233,7 +227,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
 
                 if ("m".equals(visibility.getUom())) {
                     str = createMetricIntegerVisibility(visibility, operator);
-                } else if ("sm".equals(visibility.getUom())) {
+                } else if (STATUTE_MILE_UNIT.toLowerCase(Locale.US).equals(visibility.getUom())) {
                     str = createStatuteMilesVisibility(visibility, operator);
                 } else {
                     throw new SerializingException("Unknown unit of measure '" + visibility.getUom() + "' for visibility");
@@ -346,7 +340,7 @@ public class MetricHorizontalVisibility extends RegexMatchingLexemeVisitor {
                 builder.append(String.format(Locale.US, "%d", integerPart));
             }
 
-            builder.append("SM");
+            builder.append(STATUTE_MILE_UNIT);
 
             return builder.toString();
         }
