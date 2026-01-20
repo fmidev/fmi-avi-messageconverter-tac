@@ -1,0 +1,173 @@
+{
+  "reportStatus": "NORMAL",
+  "issueTime": {
+    "partialTime": "--15T17:30Z"
+  },
+  "aerodrome": {
+    "designator": "KORD"
+  },
+  "validityTime": {
+    "startTime": {
+      "partialTime": "--15T18:"
+    },
+    "endTime": {
+      "partialTime": "--16T18:"
+    }
+  },
+  "baseForecast": {
+    "surfaceWind": {
+      "meanWindDirection": {
+        "value": 270.0,
+        "uom": "deg"
+      },
+      "meanWindSpeed": {
+        "value": 10.0,
+        "uom": "[kn_i]"
+      }
+    },
+    "prevailingVisibility": {
+      "value": 2.0,
+      "uom": "sm"
+    },
+    "forecastWeather": [
+      {
+        "code": "BR",
+        "description": "Mist"
+      }
+    ],
+    "cloud": {
+      "layers": [
+        {
+          "amount": "OVC",
+          "base": {
+            "value": 1000.0,
+            "uom": "[ft_i]"
+          }
+        }
+      ]
+    }
+  },
+  "changeForecasts": [
+    {
+      "changeIndicator": "TEMPORARY_FLUCTUATIONS",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "--15T18:"
+        },
+        "endTime": {
+          "partialTime": "--15T22:"
+        }
+      },
+      "prevailingVisibility": {
+        "value": 1.5,
+        "uom": "sm"
+      },
+      "forecastWeather": [
+        {
+          "code": "BR",
+          "description": "Mist"
+        }
+      ],
+      "cloud": {
+        "layers": [
+          {
+            "amount": "BKN",
+            "base": {
+              "value": 500.0,
+              "uom": "[ft_i]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeIndicator": "BECOMING",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "--15T22:"
+        },
+        "endTime": {
+          "partialTime": "--15T24:"
+        }
+      },
+      "prevailingVisibility": {
+        "value": 0.75,
+        "uom": "sm"
+      },
+      "forecastWeather": [
+        {
+          "code": "FG",
+          "description": "Fog"
+        }
+      ],
+      "cloud": {
+        "verticalVisibility": {
+          "value": 200.0,
+          "uom": "[ft_i]"
+        }
+      }
+    },
+    {
+      "changeIndicator": "FROM",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "--16T05:00"
+        },
+        "endTime": {
+          "partialTime": "--16T18:"
+        }
+      },
+      "surfaceWind": {
+        "meanWindDirection": {
+          "value": 310.0,
+          "uom": "deg"
+        },
+        "meanWindSpeed": {
+          "value": 15.0,
+          "uom": "[kn_i]"
+        }
+      },
+      "prevailingVisibility": {
+        "value": 6.0,
+        "uom": "sm"
+      },
+      "prevailingVisibilityOperator": "ABOVE",
+      "cloud": {
+        "layers": [
+          {
+            "amount": "SKC"
+          }
+        ]
+      }
+    },
+    {
+      "changeIndicator": "PROBABILITY_30",
+      "periodOfChange": {
+        "startTime": {
+          "partialTime": "--16T12:"
+        },
+        "endTime": {
+          "partialTime": "--16T18:"
+        }
+      },
+      "prevailingVisibility": {
+        "value": 0.25,
+        "uom": "sm"
+      },
+      "prevailingVisibilityOperator": "BELOW",
+      "forecastWeather": [
+        {
+          "code": "FG",
+          "description": "Fog"
+        }
+      ],
+      "cloud": {
+        "verticalVisibility": {
+          "value": 100.0,
+          "uom": "[ft_i]"
+        }
+      }
+    }
+  ],
+  "translatedTAC": "TAF KORD 151730Z 1518/1618 27010KT 2SM BR OVC010\r\nTEMPO 1518/1522 1 1/2SM BR BKN005\r\nBECMG 1522/1524 3/4SM FG VV002\r\nFM160500 31015KT P6SM SKC\r\nPROB30 1612/1618 M1/4SM FG VV001="
+}
