@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -21,6 +22,7 @@ import java.util.regex.Pattern;
 import static fi.fmi.avi.converter.tac.lexer.impl.token.LowWindStart.LOW_WIND_START;
 import static fi.fmi.avi.converter.tac.lexer.impl.token.WXREPStart.WXREP_START;
 import static fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart.WX_WARNING_START;
+import static java.util.Objects.requireNonNull;
 
 /**
  * TAC converter Lexing Spring configuration
@@ -32,6 +34,48 @@ import static fi.fmi.avi.converter.tac.lexer.impl.token.WXWarningStart.WX_WARNIN
 public class Lexing {
 
     private static final Pattern BULLETIN_START_PATTERN = Pattern.compile("^[A-Z]{4}[0-9]{2}$");
+
+    @SafeVarargs
+    private static List<Predicate<String>> rule(final Predicate<String>... rules) {
+        return Arrays.asList(rules);
+    }
+
+    private static List<Predicate<String>> regexRule(final String... patterns) {
+        final List<Predicate<String>> rule = new ArrayList<>(patterns.length);
+        for (final String pattern : patterns) {
+            rule.add(regexMatcher(pattern));
+        }
+        return rule;
+    }
+
+    private static Predicate<String> regexMatcher(final String pattern) {
+        requireNonNull(pattern, "pattern");
+        final Pattern compiledPattern = Pattern.compile(pattern);
+        return new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return compiledPattern.matcher(s).matches();
+            }
+        };
+    }
+
+    private static List<Predicate<String>> equalityRule(final String... allExpected) {
+        final List<Predicate<String>> rule = new ArrayList<>(allExpected.length);
+        for (final String expected : allExpected) {
+            rule.add(equalityMatcher(expected));
+        }
+        return rule;
+    }
+
+    private static Predicate<String> equalityMatcher(final String expected) {
+        requireNonNull(expected, "expected");
+        return new Predicate<String>() {
+            @Override
+            public boolean test(final String s) {
+                return expected.equals(s);
+            }
+        };
+    }
 
     @Bean
     @Primary
@@ -85,13 +129,11 @@ public class Lexing {
         f.addTokenCombiningRule(spaceWeatherAdvisoryDaylightSide());
         f.addTokenCombiningRule(spaceWeatherAdvisoryPhenomenon());
         f.addTokenCombiningRule(spaceWeatherAdvisoryNextAdvisoryCombinationRules());
-        f.addTokenCombiningRule(spaceWeatherAdvisoryIssuedAtCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryIssuedByCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryNoAdvisoriesCombinationRule());
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryCombinationRules());
         f.addTokenCombiningRule(spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules());
         f.addTokenCombiningRule(intlSigmetStartRule());
-//        f.addTokenCombiningRule(intlSigmetFirNameCombinationRule());
         f.addTokenCombiningRule(intlSigmetPhenomenonFZRACombinationRule());
         f.addTokenCombiningRule(intlSigmetEntireFirCombinationRule());
 
@@ -172,1566 +214,439 @@ public class Lexing {
 
     private List<Predicate<String>> fractionalHorizontalVisibilityCombinationRule() {
         // cases like "1 1/8SM",
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[0-9]*$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[0-9]*/[0-9]*SM$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^[0-9]*$",
+                "^[0-9]*/[0-9]*SM$");
     }
 
     private List<Predicate<String>> windShearAllCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "WS".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "ALL".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "RWY".equals(s);
-            }
-        });
-        return retval;
+        return equalityRule("WS", "ALL", "RWY");
     }
 
     private List<Predicate<String>> windShearCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "WS".equals(s);
-            }
-        });
-        // Windshear token for a particular runway has changed between 16th and 19th edition of Annex 3
-        //  16th = "WS RWYnn[LRC]"
-        //  19th = "WS Rnn[LRC]"
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^R(?:WY)?[0-9]{2}[LRC]?$");
-            }
-        });
-        return retval;
+        return rule(
+                equalityMatcher("WS"),
+                // Windshear token for a particular runway has changed between 16th and 19th edition of Annex 3
+                //  16th = "WS RWYnn[LRC]"
+                //  19th = "WS Rnn[LRC]"
+                regexMatcher("^R(?:WY)?[0-9]{2}[LRC]?$"));
     }
 
     private List<Predicate<String>> probTempoCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^PROB[34]0$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "TEMPO".equals(s);
-            }
-        });
-        return retval;
+        return rule(
+                regexMatcher("^PROB[34]0$"),
+                equalityMatcher("TEMPO"));
     }
 
     private List<Predicate<String>> lowWindCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "LOW".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "WIND".equals(s);
-            }
-        });
-        return retval;
+        return equalityRule("LOW", "WIND");
     }
 
     private List<Predicate<String>> wxWarningCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "WX".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "WRNG".equals(s);
-            }
-        });
-        return retval;
+        return equalityRule("WX", "WRNG");
     }
 
     private List<Predicate<String>> sigmetValidTimeCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "VALID".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[0-9]{6}[/-][0-9]{6}$");
-            }
-        });
-        return retval;
+        return rule(
+                equalityMatcher("VALID"),
+                regexMatcher("^[0-9]{6}[/-][0-9]{6}$"));
     }
 
     private List<Predicate<String>> usSigmetValidTimeCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "VALID".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "UNTIL".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[0-9]{2}[0-9]{2}Z$");
-            }
-        });
-        return retval;
+        return rule(
+                equalityMatcher("VALID"),
+                equalityMatcher("UNTIL"),
+                regexMatcher("^[0-9]{2}[0-9]{2}Z$"));
     }
 
     private List<Predicate<String>> advisoryStartCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^SWX|VA$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "ADVISORY".equals(s);
-            }
-        });
-        return retval;
+        return rule(
+                regexMatcher("^SWX|VA$"),
+                equalityMatcher("ADVISORY"));
     }
 
     private List<Predicate<String>> advisoryFctOffsetCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^\\+[0-9]{1,2}$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("HR:$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^\\+[0-9]{1,2}$",
+                "HR:$");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryPhenomenaCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(?:OBS|FCST)$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^SWX:?$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(?:OBS|FCST)$",
+                "^SWX:?$");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryEffectLabelCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^SWX$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^EFFECT:$");
-            }
-        });
-        return retval;
+        return equalityRule("SWX", "EFFECT:");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryHorizontalLimitCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([WE])\\d{1,5}$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[" + Pattern.quote(DashVariant.ALL_AS_STRING) + "]$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([WE])\\d{1,5}$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^([WE])\\d{1,5}$",
+                "^[" + Pattern.quote(DashVariant.ALL_AS_STRING) + "]$",
+                "^([WE])\\d{1,5}$");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryVerticalLimitCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^ABV$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^FL\\d{3}$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^ABV$",
+                "^FL\\d{3}$");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryEffectHFCom() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^HF$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^COM$");
-            }
-        });
-        return retval;
+        return equalityRule("HF", "COM");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryEffectAndIntensity() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^HF\\s+COM|SATCOM|GNSS|RADIATION$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^MOD|SEV$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^HF\\s+COM|SATCOM|GNSS|RADIATION$",
+                "^MOD|SEV$");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryDaylightSide() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^DAYLIGHT$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^SIDE$");
-            }
-        });
-        return retval;
+        return equalityRule("DAYLIGHT", "SIDE");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryPhenomenon() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^FCST$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^SWX:$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^\\+\\d{1,2}$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^HR:$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^FCST$",
+                "^SWX:$",
+                "^\\+\\d{1,2}$",
+                "^HR:$");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryForecastTimeCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^FCST\\s+SWX");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^\\+[0-9]{1,2}\\s+HR:$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^FCST\\s+SWX",
+                "^\\+[0-9]{1,2}\\s+HR:$");
     }
 
     private List<Predicate<String>> advisoryNumberCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^ADVISORY$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^NR:$");
-            }
-        });
-        return retval;
+        return equalityRule("ADVISORY", "NR:");
     }
 
     private List<Predicate<String>> latitudeLongitudePairCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[NS]\\d+$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[WE]\\d+$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^[NS]\\d+$",
+                "^[WE]\\d+$");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryIssuedByCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^WILL$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^BE$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^ISSUED$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^BY$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            //TODO:
-            public boolean test(final String s) {
-                return s.matches("^[0-9]{4}[0-9]{2}[0-9]{2}/[0-9]{2}[0-9]{2}Z$");
-            }
-        });
-        return retval;
-    }
-
-    private List<Predicate<String>> spaceWeatherAdvisoryIssuedAtCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[0-9]{4}[0-9]{2}[0-9]{2}/[0-9]{2}[0-9]{2}Z$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^WILL$",
+                "^BE$",
+                "^ISSUED$",
+                "^BY$",
+                //TODO:
+                "^[0-9]{4}[0-9]{2}[0-9]{2}/[0-9]{2}[0-9]{2}Z$");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryNoAdvisoriesCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^NO$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^FURTHER$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^ADVISORIES$");
-            }
-        });
-        return retval;
+        return equalityRule("NO", "FURTHER", "ADVISORIES");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryNextAdvisoryCombinationRules() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^NXT$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^ADVISORY:$");
-            }
-        });
-        return retval;
+        return equalityRule("NXT", "ADVISORY:");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryReplaceAdvisoryWithSpaceCombinationRules() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^NR$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^RPLC$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^:$");
-            }
-        });
-        return retval;
+        return equalityRule("NR", "RPLC", ":");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryReplaceAdvisoryCombinationRules() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^NR$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^RPLC:$");
-            }
-        });
-        return retval;
+        return equalityRule("NR", "RPLC:");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryNoExpectedCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^NO$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^SWX$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^EXP$");
-            }
-        });
-        return retval;
+        return equalityRule("NO", "SWX", "EXP");
     }
 
     private List<Predicate<String>> spaceWeatherAdvisoryNotAvailableCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^NOT$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^AVBL$");
-            }
-        });
-        return retval;
+        return equalityRule("NOT", "AVBL");
     }
 
     private List<Predicate<String>> volcanicAshAdvisoryDtgCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "OBS".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "VA".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "DTG:".equals(s);
-            }
-        });
-        return retval;
+        return equalityRule("OBS", "VA", "DTG:");
     }
 
     private List<Predicate<String>> volcanicAshAdvisoryCloudForecastCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "FCST".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "VA".equals(s);
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return "CLD".equals(s);
-            }
-        });
-        return retval;
+        return equalityRule("FCST", "VA", "CLD");
     }
 
     private List<Predicate<String>> volcanicAshAdvisoryForecastTimeCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^FCST\\s+VA\\s+CLD");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^\\+[0-9]{1,2}\\s+HR:$");
-            }
-        });
-        return retval;
-    }
-
-    private List<Predicate<String>> intlSigmetFirNameCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\w*)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(FIR|UIR|FIR/UIR|CTA)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^FCST\\s+VA\\s+CLD",
+                "^\\+[0-9]{1,2}\\s+HR:$");
     }
 
     private List<Predicate<String>> intlSigmetEntireFirCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^ENTIRE$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(FIR|UIR|FIR/UIR|CTA)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^ENTIRE$",
+                "^(FIR|UIR|FIR/UIR|CTA)$");
     }
 
     private List<Predicate<String>> intlSigmetLineCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^N|NE|E|SE|S|SW|W|NW$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^OF$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^LINE$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^N|NE|E|SE|S|SW|W|NW$",
+                "^OF$",
+                "^LINE$");
     }
 
     private List<Predicate<String>> intlSigmetLineCombinationRule2() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^-$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE$",
+                "^([NS]\\d{2,4}\\s[EW]\\d{3,5})$",
+                "^-$",
+                "^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
     }
 
     private List<Predicate<String>> intlSigmetLineCombinationRule3() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^-$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$",
+                "^-$",
+                "^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
     }
 
     private List<Predicate<String>> intlSigmetLineCombinationRule4() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^-$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$",
+                "^-$",
+                "^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
     }
 
     private List<Predicate<String>> intlSigmet2LineCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})){0,2}$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^AND$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})){0,2}$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})){0,2}$",
+                "^AND$",
+                "^(N|NE|E|SE|S|SW|W|NW)\\sOF\\sLINE\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})){0,2}$");
     }
 
     private List<Predicate<String>> intlSigmetOutsideLatLonCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^N|S|E|W$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^OF$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NSEW]\\d+)");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^N|S|E|W$",
+                "^OF$",
+                "^([NSEW]\\d+)");
     }
 
     private List<Predicate<String>> intlSigmetOutsideLatLonCombinationRuleWithAnd() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NSEW])\\sOF\\s([NSEW]\\d+)$");
-            }
-        });
+        return regexRule(
+                "^([NSEW])\\sOF\\s([NSEW]\\d+)$",
+                "^AND$",
+                "^([NSEW])\\sOF\\s([NSEW]\\d+)$");
 
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^AND$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NSEW])\\sOF\\s([NSEW]\\d+)$");
-            }
-        });
-
-        return retval;
     }
 
     private List<Predicate<String>> intlSigmetStartRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[A-Z]{4}");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(SIGMET)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^[A-Z]{4}",
+                "^(SIGMET)$");
     }
 
     private List<Predicate<String>> intlAirmetStartRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[A-Z]{4}");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(AIRMET)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^[A-Z]{4}",
+                "^(AIRMET)$");
     }
 
     private List<Predicate<String>> intlSigmetLevelCombinationRule1() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("TOP");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(ABV|BLW)$");
-            }
-        });
-        return retval;
+        return rule(
+                equalityMatcher("TOP"),
+                regexMatcher("^(ABV|BLW)$"));
     }
 
     private List<Predicate<String>> intlSigmetLevelCombinationRule2() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(TOP ABV|ABV)$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(FL[0-9]{3}|[0-9]{4,5}FT)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(TOP ABV|ABV)$",
+                "^(FL[0-9]{3}|[0-9]{4,5}FT)$");
     }
 
     private List<Predicate<String>> intlSigmetLevelCombinationRule3() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(TOP ABV|TOP BLW|TOP)$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(FL[0-9]{3})$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(TOP ABV|TOP BLW|TOP)$",
+                "^(FL[0-9]{3})$");
     }
 
     private List<Predicate<String>> intlSigmetMovingCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("MOV");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-//                return s.matches("^(FL\\d{3}/\\d{3})|((SFC/)?(FL\\d{3}|\\d{4}M|\\d{4,5}FT))");
-                return s.matches("^(N|NNE|NE|ENE|E|ESE|SE|SSE|S|SSW|SW|WSW|W|WNW|NW|NNW)$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-//                return s.matches("^(FL\\d{3}/\\d{3})|((SFC/)?(FL\\d{3}|\\d{4}M|\\d{4,5}FT))");
-                return s.matches("^([0-9]{1,3})(KT|KMH)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "MOV",
+                "^(N|NNE|NE|ENE|E|ESE|SE|SSE|S|SSW|SW|WSW|W|WNW|NW|NNW)$",
+                "^([0-9]{1,3})(KT|KMH)$");
     }
 
     private List<Predicate<String>> intlSigmetObsFcstAtCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(OBS|FCST)$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("AT");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^[0-9]{4}Z$");
-            }
-        });
-        return retval;
+        return rule(
+                regexMatcher("^(OBS|FCST)$"),
+                equalityMatcher("AT"),
+                regexMatcher("^[0-9]{4}Z$"));
     }
 
     private List<Predicate<String>> intlSigmetAprxCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^APRX$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\d{2}(KM|NM))$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^WID$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^LINE$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^BTN$");
-            }
-        });
-
-        return retval;
+        return regexRule(
+                "^APRX$",
+                "^(\\d{2}(KM|NM))$",
+                "^WID$",
+                "^LINE$",
+                "^BTN$");
     }
 
     private List<Predicate<String>> intlSigmetAprxCombinationRule2() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^APRX\\s(\\d{2}(KM|NM))\\sWID\\sLINE\\sBTN$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^-$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^APRX\\s(\\d{2}(KM|NM))\\sWID\\sLINE\\sBTN$",
+                "^([NS]\\d{2,4}\\s[EW]\\d{3,5})$",
+                "^-$",
+                "^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
     }
 
     private List<Predicate<String>> intlSigmetAprxCombinationRule3() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^APRX\\s(\\d{2}(KM|NM))\\sWID\\sLINE\\sBTN\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^-$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^APRX\\s(\\d{2}(KM|NM))\\sWID\\sLINE\\sBTN\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$",
+                "^-$",
+                "^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
     }
 
     private List<Predicate<String>> intlSigmetAprxCombinationRule4() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^APRX\\s(\\d{2}(KM|NM))\\sWID\\sLINE\\sBTN\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^-$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^APRX\\s(\\d{2}(KM|NM))\\sWID\\sLINE\\sBTN\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})$",
+                "^-$",
+                "^([NS]\\d{2,4}\\s[EW]\\d{3,5})$");
     }
 
     private List<Predicate<String>> intlSigmetCancelCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^CNL$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(SIGMET|AIRMET)$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^\\w?\\d?\\d$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\d{2}\\d{2}\\d{2}/\\d{2}\\d{2}\\d{2})$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^CNL$",
+                "^(SIGMET|AIRMET)$",
+                "^\\w?\\d?\\d$",
+                "^(\\d{2}\\d{2}\\d{2}/\\d{2}\\d{2}\\d{2})$");
     }
 
     private List<Predicate<String>> intlSigmetVaCancelCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^CNL SIGMET (\\w?\\d?\\d) (\\d{2}\\d{2}\\d{2}/\\d{2}\\d{2}\\d{2})$");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("VA");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("MOV");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("TO");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^\\w*$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("FIR");
-            }
-        });
-        return retval;
+        return rule(
+                regexMatcher("^CNL SIGMET (\\w?\\d?\\d) (\\d{2}\\d{2}\\d{2}/\\d{2}\\d{2}\\d{2})$"),
+                equalityMatcher("VA"),
+                equalityMatcher("MOV"),
+                equalityMatcher("TO"),
+                regexMatcher("^\\w*$"),
+                equalityMatcher("FIR"));
     }
 
     private List<Predicate<String>> intlSigmetNoVaExpCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("NO");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("VA");
-            }
-        });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("EXP");
-            }
-        });
-
-        return retval;
+        return equalityRule("NO", "VA", "EXP");
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule1() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(ISOL|OCNL)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(TS|TSGR)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(ISOL|OCNL)$",
+                "^(TS|TSGR)$");
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule2() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("MT");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("OBSC");
-            }
-        });
-        return retval;
+        return equalityRule("MT", "OBSC");
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule3() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(ISOL|OCNL|FRQ)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(CB|TCU)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(ISOL|OCNL|FRQ)$",
+                "^(CB|TCU)$");
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule4() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("MOD");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(TURB|ICE|MTW)$");
-            }
-        });
-        return retval;
+        return rule(
+                equalityMatcher("MOD"),
+                regexMatcher("^(TURB|ICE|MTW)$"));
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule5() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(BKN|OVC)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("CLD");
-            }
-        });
-
-        return retval;
+        return rule(
+                regexMatcher("^(BKN|OVC)$"),
+                equalityMatcher("CLD"));
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule6() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(SFC)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(WIND|VIS)$");
-            }
-        });
-
-        return retval;
+        return regexRule(
+                "^(SFC)$",
+                "^(WIND|VIS)$");
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule7() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("SFC VIS");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\d{2,4}M)$");
-            }
-        });
-        return retval;
+        return rule(
+                equalityMatcher("SFC VIS"),
+                regexMatcher("^(\\d{2,4}M)$"));
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule8() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(SFC VIS\\s\\d{2,4}M)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\((BR|DS|DU|DZ|FC|FG|FU|GR|GS|HZ|PL|PO|RA|SA|SG|SN|SQ|SS|VA)\\))$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(SFC VIS\\s\\d{2,4}M)$",
+                "^(\\((BR|DS|DU|DZ|FC|FG|FU|GR|GS|HZ|PL|PO|RA|SA|SG|SN|SQ|SS|VA)\\))$");
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule9() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("SFC WIND");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\d{3}/\\d{2,3})(KT|MPS)$");
-            }
-        });
-        return retval;
+        return rule(
+                equalityMatcher("SFC WIND"),
+                regexMatcher("^(\\d{3}/\\d{2,3})(KT|MPS)$"));
     }
 
     private List<Predicate<String>> intlAirmetPhenomenonCombinationRule10() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(BKN|OVC)\\sCLD$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^((\\d{3,4})|SFC)/(ABV)?((\\d{3,4}M)|(\\d{4,5}FT))$");
-            }
-        });
-
-        return retval;
+        return regexRule(
+                "^(BKN|OVC)\\sCLD$",
+                "^((\\d{3,4})|SFC)/(ABV)?((\\d{3,4}M)|(\\d{4,5}FT))$");
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule1() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.equals("SEV");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(TURB|ICE|MTW)$");
-            }
-        });
-        return retval;
+        return rule(
+                equalityMatcher("SEV"),
+                regexMatcher("^(TURB|ICE|MTW)$"));
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule2() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(OBSC|EMBD|FRQ|SQL)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(TS|TSGR)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(OBSC|EMBD|FRQ|SQL)$",
+                "^(TS|TSGR)$");
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule3() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(HVY)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(DS|SS)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(HVY)$",
+                "^(DS|SS)$");
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule4() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(RDOACT)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(CLD)$");
-            }
-        });
-        return retval;
+        return equalityRule("RDOACT", "CLD");
     }
 
-
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule5() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(VA)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(CLD)$");
-            }
-        });
-        return retval;
+        return equalityRule("VA", "CLD");
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonCombinationRule6() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(VA)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(ERUPTION)$");
-            }
-        });
-        return retval;
+        return equalityRule("VA", "ERUPTION");
     }
 
     private List<Predicate<String>> intlSigmetRdoactiveCldCombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(WI)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\d{2})(KM|NM)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^OF$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NS])(\\d{2,4})$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([WE])(\\d{3,5})$");
-            }
-        });
-
-        return retval;
+        return regexRule(
+                "^(WI)$",
+                "^(\\d{2})(KM|NM)$",
+                "^OF$",
+                "^([NS])(\\d{2,4})$",
+                "^([WE])(\\d{3,5})$");
     }
 
     private List<Predicate<String>> intlSigmetVolcanoName1() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(MT)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\w*)$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(MT)$",
+                "^(\\w*)$");
     }
 
     private List<Predicate<String>> intlSigmetVolcanoPosition() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(PSN)$");
-            }
-        });
-
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^([NS])(\\d{2,4}) ([EW])(\\d{3,5})");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(PSN)$",
+                "^([NS])(\\d{2,4}) ([EW])(\\d{3,5})");
     }
 
     private List<Predicate<String>> intlSigmetPhenomenonFZRACombinationRule() {
-        final List<Predicate<String>> retval = new ArrayList<>();
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(SEV ICE)$");
-            }
-        });
-
-        // retval.add(new Predicate<String>() {
-        //     @Override
-        //     public boolean test(final String s) {
-        //         return s.matches("^(ICE)$");
-        //     }
-        // });
-        retval.add(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.matches("^(\\(FZRA\\))$");
-            }
-        });
-        return retval;
+        return regexRule(
+                "^(SEV ICE)$",
+                "^(\\(FZRA\\))$");
     }
 
     private RecognizingAviMessageTokenLexer metarTokenLexer() {
@@ -1961,7 +876,6 @@ public class Lexing {
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
         return l;
     }
-
 
     private RecognizingAviMessageTokenLexer intlSigmetTokenLexer() {
         final RecognizingAviMessageTokenLexer l = new RecognizingAviMessageTokenLexer();
