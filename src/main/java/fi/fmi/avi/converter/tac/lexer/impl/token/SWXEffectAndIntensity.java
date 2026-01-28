@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 
 public class SWXEffectAndIntensity extends RegexMatchingLexemeVisitor {
     public SWXEffectAndIntensity(final OccurrenceFrequency prio) {
-        super("^(?<effect>(SATCOM|HF\\sCOM|GNSS|RADIATION){1})\\s(?<intensity>(MOD|SEV){1})$", prio);
+        super("^(?<effect>(SATCOM|HF\\s+COM|GNSS|RADIATION){1})\\s+(?<intensity>(MOD|SEV){1})$", prio);
     }
 
     @Override

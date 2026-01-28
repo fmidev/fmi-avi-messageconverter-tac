@@ -22,7 +22,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_NAME;
  */
 public class SigmetVaName extends RegexMatchingLexemeVisitor {
     public SigmetVaName(final OccurrenceFrequency prio) {
-        super("^MT (.*)$", prio);
+        super("^MT\\s+(.*)$", prio);
     }
 
     @Override
@@ -36,15 +36,15 @@ public class SigmetVaName extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET sigmet = (SIGMET) msg;
+                final SIGMET sigmet = (SIGMET) msg;
                 if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA.equals(sigmet.getPhenomenon().orElse(null))) {
                     if (sigmet.getVAInfo().isPresent()) {
                         if (sigmet.getVAInfo().isPresent() && sigmet.getVAInfo().get().getVolcano().isPresent()
                                 && sigmet.getVAInfo().get().getVolcano().get().getVolcanoName().isPresent()) {
-                            String volcanoName = sigmet.getVAInfo().get().getVolcano().get().getVolcanoName().get();
-                            if (volcanoName.length() > 0) {
+                            final String volcanoName = sigmet.getVAInfo().get().getVolcano().get().getVolcanoName().get();
+                            if (!volcanoName.isEmpty()) {
                                 return Optional.of(this.createLexeme("MT " + volcanoName, LexemeIdentity.SIGMET_VA_NAME));
                             }
                         }

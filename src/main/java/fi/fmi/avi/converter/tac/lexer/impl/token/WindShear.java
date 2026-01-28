@@ -1,11 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.WIND_SHEAR;
-
-import java.util.Optional;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.SerializingException;
@@ -16,13 +10,19 @@ import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.RunwayDirection;
 import fi.fmi.avi.model.metar.MeteorologicalTerminalAirReport;
 
+import java.util.Optional;
+import java.util.regex.Matcher;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.RUNWAY;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.WIND_SHEAR;
+
 /**
  * Created by rinne on 10/02/17.
  */
 public class WindShear extends RegexMatchingLexemeVisitor {
 
     public WindShear(final OccurrenceFrequency prio) {
-        super("^WS\\s(ALL\\s)?(?:RWY|R(?:WY)?([0-9]{2}[LRC]?))$", prio);
+        super("^WS\\s+(ALL\\s+)?(?:RWY|R(?:WY)?([0-9]{2}[LRC]?))$", prio);
     }
 
     @Override

@@ -14,7 +14,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.NEXT_ADVISORY;
 
 public class NoFurtherAdvisories extends RegexMatchingLexemeVisitor {
     public NoFurtherAdvisories(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
-        super("^NO\\sFURTHER\\sADVISORIES$", prio);
+        super("^NO\\s+FURTHER\\s+ADVISORIES$", prio);
     }
 
     @Override

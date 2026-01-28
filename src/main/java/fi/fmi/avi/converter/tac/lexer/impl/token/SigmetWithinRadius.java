@@ -20,7 +20,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_WITHIN_RADIUS
 
 public class SigmetWithinRadius extends RegexMatchingLexemeVisitor {
     public SigmetWithinRadius(final OccurrenceFrequency prio) {
-        super("^WI (\\d{2})(KM|NM) OF ((N|S)(\\d{2,4})) ((W|E)(\\d{3,5}))$", prio);
+        super("^WI\\s+(\\d{2})(KM|NM)\\s+OF\\s+((N|S)(\\d{2,4}))\\s+((W|E)(\\d{3,5}))$", prio);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class SigmetWithinRadius extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+        public <T extends AviationWeatherMessageOrCollection> List<Lexeme> getAsLexemes(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             final ConversionHints hints = ctx.getHints();
             final boolean specifyZeros = hints != null && hints.containsKey(ConversionHints.KEY_COORDINATE_MINUTES) &&
                     ConversionHints.VALUE_COORDINATE_MINUTES_INCLUDE_ZERO.equals(hints.get(ConversionHints.KEY_COORDINATE_MINUTES));

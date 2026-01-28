@@ -21,7 +21,7 @@ import java.util.regex.Matcher;
 
 public class SWXVerticalLimit extends RegexMatchingLexemeVisitor {
     public SWXVerticalLimit(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
-        super("^((?<above>ABV)\\s)?(?<unit>FL)(?<lowervalue>\\d*)(-(?<uppervalue>\\d*))?$", prio);
+        super("^((?<above>ABV)\\s+)?(?<unit>FL)(?<lowervalue>\\d*)(-(?<uppervalue>\\d*))?$", prio);
     }
 
     @Override

@@ -24,7 +24,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
 public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
 
     public SigmetForecastAt(final OccurrenceFrequency prio) {
-        super("^FCST AT ([0-9]{2})([0-9]{2})Z$", prio);
+        super("^FCST\\s+AT\\s+([0-9]{2})([0-9]{2})Z$", prio);
     }
 
     @Override
@@ -44,8 +44,8 @@ public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
             }
             if (afterLMC) {
                 token.identify(LexemeIdentity.SIGMET_FCST_AT);
-                if ((match.group(1)!=null)&&(match.group(1).length()>0)&&
-                        (match.group(2)!=null)&&(match.group(1).length()>0)) {
+                if ((match.group(1)!=null)&&(!match.group(1).isEmpty())&&
+                        (match.group(2)!=null)&&(!match.group(2).isEmpty())) {
                     token.setParsedValue(HOUR1, Integer.valueOf(match.group(1)));
                     token.setParsedValue(MINUTE1, Integer.valueOf(match.group(2)));
                 }
@@ -60,11 +60,11 @@ public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
-                SIGMET sigmet = (SIGMET)msg;
+                final SIGMET sigmet = (SIGMET)msg;
                 if (forecastIndex.isPresent()) {
                     String tim="";
                     if (sigmet.getForecastGeometries().get().get(forecastIndex.get()).getTime().isPresent()) {
-                        PartialOrCompleteTimeInstant t = sigmet.getForecastGeometries().get().get(0).getTime().get();
+                        final PartialOrCompleteTimeInstant t = sigmet.getForecastGeometries().get().get(0).getTime().get();
                         tim=String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
                     return Optional.of(this.createLexeme("FCST"+tim, LexemeIdentity.OBS_OR_FORECAST));

@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 
 public class SWXNotAvailable extends RegexMatchingLexemeVisitor {
     public SWXNotAvailable(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
-        super("^NOT\\sAVBL", prio);
+        super("^NOT\\s+AVBL", prio);
     }
 
     @Override

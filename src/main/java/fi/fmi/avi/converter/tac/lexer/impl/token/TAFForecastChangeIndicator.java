@@ -1,16 +1,5 @@
 package fi.fmi.avi.converter.tac.lexer.impl.token;
 
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.DAY1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.HOUR1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.MINUTE1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.TYPE;
-import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
@@ -22,13 +11,21 @@ import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
 import fi.fmi.avi.model.taf.TAF;
 import fi.fmi.avi.model.taf.TAFChangeForecast;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
+import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR;
+
 /**
  * Token parser for TAF change forecast type indicators (TEMPO, BECMG, PROB30/40, PROB30/40 TEMPO, FM).
  */
 public class TAFForecastChangeIndicator extends TimeHandlingRegex {
 
     public TAFForecastChangeIndicator(final OccurrenceFrequency prio) {
-        super("^(TEMPO|BECMG|PROB40|PROB30|PROB30 TEMPO|PROB40 TEMPO)|(FM([0-9]{2})?([0-9]{2})([0-9]{2}))$", prio);
+        super("^(TEMPO|BECMG|PROB40|PROB30|PROB30\\s+TEMPO|PROB40\\s+TEMPO)|(FM([0-9]{2})?([0-9]{2})([0-9]{2}))$", prio);
     }
 
     @Override

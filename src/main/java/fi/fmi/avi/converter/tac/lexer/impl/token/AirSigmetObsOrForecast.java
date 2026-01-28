@@ -25,7 +25,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.*;
 public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
 
     public AirSigmetObsOrForecast(final OccurrenceFrequency prio) {
-        super("^(OBS|FCST)(\\sAT\\s([0-9]{2})([0-9]{2})Z)?$", prio);
+        super("^(OBS|FCST)(\\s+AT\\s+([0-9]{2})([0-9]{2})Z)?$", prio);
     }
 
     @Override
@@ -48,14 +48,14 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
             if (SIGMETAIRMET.class.isAssignableFrom(clz)) {
                 final SIGMETAIRMET message = (SIGMETAIRMET) msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
                     String tim = "";
                     if (message.getAnalysisGeometries().get().get(analysisIndex.get()).getTime().isPresent()) {
-                        PartialOrCompleteTimeInstant t = message.getAnalysisGeometries().get().get(0).getTime().get();
+                        final PartialOrCompleteTimeInstant t = message.getAnalysisGeometries().get().get(0).getTime().get();
                         tim = String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                     }
                     if (SigmetAnalysisType.OBSERVATION.equals(message.getAnalysisGeometries().get().get(analysisIndex.get()).getAnalysisType().orElse(null))) {
@@ -71,7 +71,7 @@ public class AirSigmetObsOrForecast extends RegexMatchingLexemeVisitor {
                     if (forecastIndex.isPresent()) {
                         String time = "";
                         if (sigmet.getForecastGeometries().get().get(forecastIndex.get()).getTime().isPresent()) {
-                            PartialOrCompleteTimeInstant t = sigmet.getForecastGeometries().get().get(0).getTime().get();
+                            final PartialOrCompleteTimeInstant t = sigmet.getForecastGeometries().get().get(0).getTime().get();
                             time = String.format(Locale.US, " AT %02d%02dZ", t.getHour().getAsInt(), t.getMinute().getAsInt());
                         }
                         return Optional.of(this.createLexeme("FCST" + time, LexemeIdentity.OBS_OR_FORECAST));

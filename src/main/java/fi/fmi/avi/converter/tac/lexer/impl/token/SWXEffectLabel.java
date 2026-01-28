@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
 
 public class SWXEffectLabel extends RegexMatchingLexemeVisitor {
     public SWXEffectLabel(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
-        super("^SWX\\sEFFECT:$", prio);
+        super("^SWX\\s+EFFECT:$", prio);
     }
 
     @Override

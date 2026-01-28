@@ -908,7 +908,7 @@ public class Lexing {
         l.teach(new SigmetEntireFir(OccurrenceFrequency.RARE));
         l.teach(new SigmetWithin(OccurrenceFrequency.RARE));
         l.teach(new SigmetLine(OccurrenceFrequency.RARE));
-        l.teach(new Sigmet2Lines(OccurrenceFrequency.RARE));
+        l.teach(new Sigmet2Lines(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetOutsideLatOrLon(OccurrenceFrequency.RARE));
         l.teach(new SigmetBetweenLatOrLon(OccurrenceFrequency.RARE));
         l.teach(new SigmetAnd(OccurrenceFrequency.RARE));
@@ -982,7 +982,7 @@ public class Lexing {
         l.teach(new SigmetEntireFir(OccurrenceFrequency.RARE));
         l.teach(new SigmetWithin(OccurrenceFrequency.RARE));
         l.teach(new SigmetLine(OccurrenceFrequency.RARE));
-        l.teach(new Sigmet2Lines(OccurrenceFrequency.RARE));
+        l.teach(new Sigmet2Lines(OccurrenceFrequency.AVERAGE));
         l.teach(new Latitude(OccurrenceFrequency.RARE));
         l.teach(new Longitude(OccurrenceFrequency.RARE));
         l.teach(new SigmetOutsideLatOrLon(OccurrenceFrequency.RARE));

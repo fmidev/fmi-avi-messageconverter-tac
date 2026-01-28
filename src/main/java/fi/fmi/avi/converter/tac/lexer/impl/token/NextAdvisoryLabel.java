@@ -13,7 +13,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.NEXT_ADVISORY_LABEL;
 
 public class NextAdvisoryLabel extends RegexMatchingLexemeVisitor {
     public NextAdvisoryLabel(final OccurrenceFrequency prio) {
-        super("^NXT\\sADVISORY\\:$", prio);
+        super("^NXT\\s+ADVISORY\\:$", prio);
     }
 
     @Override

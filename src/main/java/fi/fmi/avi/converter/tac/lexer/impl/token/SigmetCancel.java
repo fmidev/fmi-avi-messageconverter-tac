@@ -2,14 +2,13 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
 import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Locale;
@@ -24,7 +23,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_CANCEL;
 public class SigmetCancel extends RegexMatchingLexemeVisitor {
 
     public SigmetCancel(final OccurrenceFrequency prio) {
-        super("^CNL SIGMET (\\w?\\d?\\d) (\\d{2})(\\d{2})(\\d{2})/(\\d{2})(\\d{2})(\\d{2})(\\sVA\\sMOV\\sTO\\s(\\w{4})\\sFIR)?$", prio);
+        super("^CNL\\s+SIGMET\\s+(\\w?\\d?\\d)\\s+(\\d{2})(\\d{2})(\\d{2})/(\\d{2})(\\d{2})(\\d{2})(\\s+VA\\s+MOV\\s+TO\\s+(\\w{4})\\s+FIR)?$", prio);
     }
 
     @Override
@@ -46,17 +45,17 @@ public class SigmetCancel extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET sigmet = (SIGMET)msg;
+                final SIGMET sigmet = (SIGMET)msg;
                 if (sigmet.isCancelMessage()) {
-                    StringBuilder sb = new StringBuilder();
+                    final StringBuilder sb = new StringBuilder();
                     sb.append("CNL");
                     sb.append(" ");
                     sb.append("SIGMET");
                     sb.append(" ");
                     sb.append(sigmet.getCancelledReference().get().getSequenceNumber());
                     sb.append(" ");
-                    PartialOrCompleteTimeInstant start = sigmet.getCancelledReference().get().getValidityPeriod().getStartTime().get();
-                    PartialOrCompleteTimeInstant end = sigmet.getCancelledReference().get().getValidityPeriod().getEndTime().get();
+                    final PartialOrCompleteTimeInstant start = sigmet.getCancelledReference().get().getValidityPeriod().getStartTime().get();
+                    final PartialOrCompleteTimeInstant end = sigmet.getCancelledReference().get().getValidityPeriod().getEndTime().get();
 
 
                     sb.append(String.format(Locale.US, "%02d%02d%02d",
