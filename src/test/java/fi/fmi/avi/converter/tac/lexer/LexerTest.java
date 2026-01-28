@@ -1,15 +1,7 @@
 package fi.fmi.avi.converter.tac.lexer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import fi.fmi.avi.converter.ConversionHints;
+import fi.fmi.avi.converter.tac.TACTestConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +9,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.TACTestConfiguration;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Generic tests for the TAC Lexer implementation
@@ -60,23 +55,51 @@ public class LexerTest {
                 + "BECMG 0210/0212 9999 BKN010=");
 
         List<LexemeSequence> splitUp = seq.splitBy(LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR);
-        assertEquals("Incorrect number of split sequences", 6, splitUp.size());
-        assertEquals("First split-up sequence does not match", splitUp.get(0).getTAC(), "TAF EFHK 011733Z 0118/0218 VRB02KT 4000 -SN BKN003\n");
-        assertEquals("Second split-up sequence does not match", splitUp.get(1).getTAC(), "TEMPO 0118/0120 1500 SN \n");
-        assertEquals("Third split-up sequence does not match", splitUp.get(2).getTAC(), "BECMG 0120/0122 1500 BR \t\n");
-        assertEquals("Fourth split-up sequence does not match", splitUp.get(3).getTAC(), "PROB40 TEMPO 0122/0203 0700 FG\n");
-        assertEquals("Fifth split-up sequence does not match", splitUp.get(4).getTAC(), "BECMG 0204/0206 21010KT 5000 BKN005\n");
-        assertEquals("Sixth split-up sequence does not match", splitUp.get(5).getTAC(), "BECMG 0210/0212 9999 BKN010=");
+
+        assertThat(splitUp.size())
+                .as("Incorrect number of split sequences")
+                .isEqualTo(6);
+        assertThat(splitUp.get(0).getTAC())
+                .as("First split-up sequence does not match")
+                .isEqualTo("TAF EFHK 011733Z 0118/0218 VRB02KT 4000 -SN BKN003\n");
+        assertThat(splitUp.get(1).getTAC())
+                .as("Second split-up sequence does not match")
+                .isEqualTo("TEMPO 0118/0120 1500 SN \n");
+        assertThat(splitUp.get(2).getTAC())
+                .as("Third split-up sequence does not match")
+                .isEqualTo("BECMG 0120/0122 1500 BR \t\n");
+        assertThat(splitUp.get(3).getTAC())
+                .as("Fourth split-up sequence does not match")
+                .isEqualTo("PROB40 TEMPO 0122/0203 0700 FG\n");
+        assertThat(splitUp.get(4).getTAC())
+                .as("Fifth split-up sequence does not match")
+                .isEqualTo("BECMG 0204/0206 21010KT 5000 BKN005\n");
+        assertThat(splitUp.get(5).getTAC())
+                .as("Sixth split-up sequence does not match")
+                .isEqualTo("BECMG 0210/0212 9999 BKN010=");
 
         splitUp = seq.splitBy(false, LexemeIdentity.TAF_FORECAST_CHANGE_INDICATOR);
-        assertEquals("Incorrect number of split sequences", 6, splitUp.size());
-        assertEquals("First split-up sequence does not match", splitUp.get(0).trimWhiteSpace().getTAC(),
-                "TAF EFHK 011733Z 0118/0218 VRB02KT 4000 -SN BKN003\nTEMPO");
-        assertEquals("Second split-up sequence does not match", splitUp.get(1).trimWhiteSpace().getTAC(), "0118/0120 1500 SN \nBECMG");
-        assertEquals("Third split-up sequence does not match", splitUp.get(2).trimWhiteSpace().getTAC(), "0120/0122 1500 BR \t\nPROB40 TEMPO");
-        assertEquals("Fourth split-up sequence does not match", splitUp.get(3).trimWhiteSpace().getTAC(), "0122/0203 0700 FG\nBECMG");
-        assertEquals("Fifth split-up sequence does not match", splitUp.get(4).trimWhiteSpace().getTAC(), "0204/0206 21010KT 5000 BKN005\nBECMG");
-        assertEquals("Sixth split-up sequence does not match", splitUp.get(5).trimWhiteSpace().getTAC(), "0210/0212 9999 BKN010=");
+        assertThat(splitUp.size())
+                .as("Incorrect number of split sequences")
+                .isEqualTo(6);
+        assertThat(splitUp.get(0).trimWhiteSpace().getTAC())
+                .as("First split-up sequence does not match")
+                .isEqualTo("TAF EFHK 011733Z 0118/0218 VRB02KT 4000 -SN BKN003\nTEMPO");
+        assertThat(splitUp.get(1).trimWhiteSpace().getTAC())
+                .as("Second split-up sequence does not match")
+                .isEqualTo("0118/0120 1500 SN \nBECMG");
+        assertThat(splitUp.get(2).trimWhiteSpace().getTAC())
+                .as("Third split-up sequence does not match")
+                .isEqualTo("0120/0122 1500 BR \t\nPROB40 TEMPO");
+        assertThat(splitUp.get(3).trimWhiteSpace().getTAC())
+                .as("Fourth split-up sequence does not match")
+                .isEqualTo("0122/0203 0700 FG\nBECMG");
+        assertThat(splitUp.get(4).trimWhiteSpace().getTAC())
+                .as("Fifth split-up sequence does not match")
+                .isEqualTo("0204/0206 21010KT 5000 BKN005\nBECMG");
+        assertThat(splitUp.get(5).trimWhiteSpace().getTAC())
+                .as("Sixth split-up sequence does not match")
+                .isEqualTo("0210/0212 9999 BKN010=");
 
     }
 
@@ -89,9 +112,9 @@ public class LexerTest {
                 + "BECMG 0204/0206 21010KT 5000 BKN005\n" //
                 + "BECMG 0210/0212 9999 BKN010=";
         final LexemeSequence seq = lexer.lexMessage(original);
-        assertEquals(58, seq.getLexemes().size());
+        assertThat(58).isEqualTo(seq.getLexemes().size());
         final String back2tac = seq.getTAC();
-        assertEquals(original, back2tac);
+        assertThat(original).isEqualTo(back2tac);
     }
 
     @Test
@@ -108,12 +131,33 @@ public class LexerTest {
         while (!l.getTACToken().equals("BKN003")) {
             l = l.getNext();
         }
-        assertFalse(l.hasNext());
-        assertNull(l.getNext());
+        assertThat(l.hasNext()).isFalse();
+        assertThat(l.getNext()).isNull();
 
-        assertTrue(l.hasNext(true));
-        assertNotNull(l.getNext(true));
+        assertThat(l.hasNext(true)).isTrue();
+        assertThat(l.getNext(true)).isNotNull();
+    }
 
+    @Test
+    public void testMultipleWhitespacesBetweenCombinableLexemes() {
+        final LexemeSequence result = lexer.lexMessage("SWX ADVISORY\n" //
+                + "FCST SWX +6 HR: 08/1800Z N80 W180 -\n N70\n W75=");
+        assertThat(result.getLexemes())
+                .extracting(Lexeme::getIdentity)
+                .containsExactlyInAnyOrder(
+                        LexemeIdentity.SPACE_WEATHER_ADVISORY_START,
+                        LexemeIdentity.WHITE_SPACE,
+                        LexemeIdentity.ADVISORY_PHENOMENA_LABEL,
+                        LexemeIdentity.WHITE_SPACE,
+                        LexemeIdentity.ADVISORY_PHENOMENA_TIME_GROUP,
+                        LexemeIdentity.WHITE_SPACE,
+                        LexemeIdentity.POLYGON_COORDINATE_PAIR,
+                        LexemeIdentity.WHITE_SPACE,
+                        LexemeIdentity.POLYGON_COORDINATE_PAIR_SEPARATOR,
+                        LexemeIdentity.WHITE_SPACE,
+                        LexemeIdentity.WHITE_SPACE,
+                        LexemeIdentity.POLYGON_COORDINATE_PAIR,
+                        LexemeIdentity.END_TOKEN);
     }
 
     @Test
@@ -130,7 +174,7 @@ public class LexerTest {
             le = le.getNext();
         }
 
-        if (unidentifiedLexemes.size() > 0) {
+        if (!unidentifiedLexemes.isEmpty()) {
             System.out.println("Unidentified lexemes: ");
             unidentifiedLexemes.forEach(lexeme -> System.out.println(lexeme.getTACToken()));
             fail("There were unidentified lexemes");
@@ -151,11 +195,10 @@ public class LexerTest {
             le = le.getNext();
         }
 
-        if (unidentifiedLexemes.size() > 0) {
+        if (!unidentifiedLexemes.isEmpty()) {
             System.out.println("Unidentified lexemes: ");
             unidentifiedLexemes.forEach(lexeme -> System.out.println(lexeme.getTACToken()));
             fail("There were unidentified lexemes");
         }
     }
-
 }

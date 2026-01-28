@@ -1,26 +1,13 @@
 package fi.fmi.avi.converter.tac.lexer.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.StringTokenizer;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
 import fi.fmi.avi.converter.ConversionHints;
-import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.converter.tac.lexer.LexemeSequenceBuilder;
-import fi.fmi.avi.converter.tac.lexer.LexemeVisitor;
-import fi.fmi.avi.converter.tac.lexer.LexingFactory;
+import fi.fmi.avi.converter.tac.lexer.*;
 import fi.fmi.avi.model.MessageType;
 import fi.fmi.avi.model.bulletin.MeteorologicalBulletinSpecialCharacter;
+
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Default LexingFactory implementation.
@@ -98,7 +85,7 @@ public class LexingFactoryImpl implements LexingFactory {
         if (hints != null && hints.containsKey(ConversionHints.KEY_MESSAGE_TYPE)) {
             final Lexeme artificialStartToken = this.startTokens.get(toMessageType(hints.get(ConversionHints.KEY_MESSAGE_TYPE)));
             if (artificialStartToken != null) {
-                String compoundMatch = "(?s)(\\w{4})\\s"+artificialStartToken.getTACToken()+"(.*)";
+                final String compoundMatch = "(?s)(\\w{4})\\s" + artificialStartToken.getTACToken() + "(.*)";
                 if (!input.startsWith(artificialStartToken.getTACToken() + " ") && !input.startsWith(artificialStartToken.getTACToken() + "\n") && !input.matches(compoundMatch)) {
                     result.addAsFirst(new LexemeImpl(this, MeteorologicalBulletinSpecialCharacter.SPACE));
                     result.addAsFirst(artificialStartToken);
@@ -349,6 +336,13 @@ public class LexingFactoryImpl implements LexingFactory {
             return removed;
         }
 
+        void removeTail(final LexemeImpl starting) {
+            LexemeImpl removed;
+            do {
+                removed = removeLast();
+            } while (removed != null && removed != starting);
+        }
+
         private void updateLinksToFirst() {
             final LexemeImpl first = this.head;
             LexemeImpl l = this.head;
@@ -372,7 +366,7 @@ public class LexingFactoryImpl implements LexingFactory {
         }
 
         private void constructFromTAC(final String tac) {
-            if (tac != null && tac.length() > 0) {
+            if (tac != null && !tac.isEmpty()) {
                 final StringTokenizer st = new StringTokenizer(tac, TAC_DELIMS, true);
                 int start = 0;
                 while (st.hasMoreTokens()) {
@@ -398,9 +392,9 @@ public class LexingFactoryImpl implements LexingFactory {
                             l.setEndIndex(start + l.getTACToken().length() - 1);
                             this.addAsLast(l);
                         }
-                        if (this.tail.hasPrevious()) {
+                        if (this.tail != null && this.tail.hasPrevious()) {
                             for (final List<Predicate<String>> combiningRule : this.factory.getTokenCombiningRules()) {
-                                this.combinePrevMatchingTokens(combiningRule);
+                                this.combineMatchingTail(combiningRule);
                             }
                         }
                     }
@@ -410,43 +404,41 @@ public class LexingFactoryImpl implements LexingFactory {
             this.originalTac = tac;
         }
 
-        private void combinePrevMatchingTokens(final List<Predicate<String>> toMatch) {
-            LexemeImpl l = this.tail;
-            int index = toMatch.size() - 1;
-            boolean match = false;
-            while (index >= 0 && l != null) {
-                if (!toMatch.get(index).test(l.getTACToken())) {
+        private void combineMatchingTail(final List<Predicate<String>> combinableTokenMatchers) {
+            final LexemeImpl combineStart = findCombinableTail(combinableTokenMatchers);
+            if (combineStart == null) {
+                return;
+            }
+
+            final StringBuilder contentBuilder = new StringBuilder();
+            LexemeImpl current = combineStart;
+            while (current != null) {
+                contentBuilder.append(current.getTACToken());
+                current = current.getNextImpl(true, true);
+            }
+            final String content = contentBuilder.toString();
+            final LexemeImpl combined = new LexemeImpl(this.factory, content);
+            combined.setStartIndex(combineStart.getStartIndex());
+            combined.setEndIndex(combineStart.getStartIndex() + content.length() - 1);
+
+            removeTail(combineStart);
+            addAsLast(combined);
+        }
+
+        private LexemeImpl findCombinableTail(final List<Predicate<String>> combinableTokenMatchers) {
+            LexemeImpl current = this.tail;
+            int index = combinableTokenMatchers.size() - 1;
+            while (index >= 0 && current != null) {
+                if (!combinableTokenMatchers.get(index).test(current.getTACToken())) {
                     break;
                 }
                 if (index == 0) {
-                    match = true;
+                    return current;
                 }
-                l = l.getPreviousImpl(false, false);
+                current = current.getPreviousImpl(false, false);
                 index--;
             }
-            if (match) {
-                final StringBuilder sb = new StringBuilder();
-                Lexeme firstCombined = null;
-                LexemeImpl preceedingToken = null;
-                for (int i = 0; i < toMatch.size(); i++) {
-                    firstCombined = this.removeLast();
-                    sb.insert(0, firstCombined.getTACToken()); //the last token
-                    preceedingToken = this.removeLast();
-                    if (i < toMatch.size() - 1) {
-                        sb.insert(0, preceedingToken.getTACToken()); //white-space before the last
-                    }
-                }
-                if (firstCombined != null) {
-                    if (preceedingToken != null) {
-                        this.addAsLast(preceedingToken);
-                    }
-                    final String content = sb.toString();
-                    final LexemeImpl token = new LexemeImpl(this.factory, content);
-                    token.setStartIndex(firstCombined.getStartIndex());
-                    token.setEndIndex(firstCombined.getStartIndex() + content.length() - 1);
-                    this.addAsLast(token);
-                }
-            }
+            return null;
         }
 
         private String getAsTAC() {
@@ -493,7 +485,7 @@ public class LexingFactoryImpl implements LexingFactory {
 
         @Override
         public LexemeSequenceBuilder removeLast() {
-            if (this.seq.getLexemes(true).size() > 0) {
+            if (!this.seq.getLexemes(true).isEmpty()) {
                 this.seq.removeLast();
             }
             return this;
@@ -788,9 +780,7 @@ public class LexingFactoryImpl implements LexingFactory {
         /**
          * Sets the confidence of the Lexeme identification.
          *
-         * @param percentage
-         *         between 0.0 and 1.0
-         *
+         * @param percentage between 0.0 and 1.0
          * @see #getIdentificationCertainty()
          */
 
@@ -810,8 +800,7 @@ public class LexingFactoryImpl implements LexingFactory {
         /**
          * Setting to set this Lexeme as ignored or not.
          *
-         * @param explicitlyIgnored
-         *         true if to be ignored
+         * @param explicitlyIgnored true if to be ignored
          */
         @Override
         public void setIgnored(final boolean explicitlyIgnored) {
