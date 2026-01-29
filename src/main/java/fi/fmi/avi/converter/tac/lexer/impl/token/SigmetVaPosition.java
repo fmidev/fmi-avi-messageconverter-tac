@@ -24,7 +24,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_VA_POSITION;
  */
 public class SigmetVaPosition extends RegexMatchingLexemeVisitor {
     public SigmetVaPosition(final OccurrenceFrequency prio) {
-        super("^(PSN) (N\\d{2,4}|S\\d{2,4}) (E\\d{3,5}|W\\d{3,5})$", prio);
+        super("^(PSN)\\s+(N\\d{2,4}|S\\d{2,4})\\s+(E\\d{3,5}|W\\d{3,5})$", prio);
     }
 
     @Override

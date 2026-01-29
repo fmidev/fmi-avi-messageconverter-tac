@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 
 public class ReplaceAdvisoryNumberLabel extends RegexMatchingLexemeVisitor {
     public ReplaceAdvisoryNumberLabel(final OccurrenceFrequency prio) {
-        super("^NR\\sRPLC\\s?:$", prio);
+        super("^NR\\s+RPLC\\s*:$", prio);
     }
 
     @Override

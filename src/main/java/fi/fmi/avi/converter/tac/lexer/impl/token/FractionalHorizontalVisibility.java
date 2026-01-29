@@ -27,7 +27,7 @@ public class FractionalHorizontalVisibility extends RegexMatchingLexemeVisitor {
     static final String STATUTE_MILE_UNIT = "SM";
 
     public FractionalHorizontalVisibility(final OccurrenceFrequency prio) {
-        super("^([PM])?((([0-9]{1,3}\\s)(([1-9]{1})/([1-9]{1,2})))|([0-9]{1,3})|(([0-9]{1})/([0-9]{1,2})))" +
+        super("^([PM])?((([0-9]{1,3}\\s+)(([1-9]{1})/([1-9]{1,2})))|([0-9]{1,3})|(([0-9]{1})/([0-9]{1,2})))" +
                 STATUTE_MILE_UNIT + "$", prio);
     }
 

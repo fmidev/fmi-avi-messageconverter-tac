@@ -20,7 +20,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_NO_VA_EXP;
 public class SigmetNoVaExp extends RegexMatchingLexemeVisitor {
 
     public SigmetNoVaExp(final OccurrenceFrequency prio) {
-        super("^(NO VA EXP)$", prio);
+        super("^(NO\\s+VA\\s+EXP)$", prio);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class SigmetNoVaExp extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET sigmet = (SIGMET) msg;
+                final SIGMET sigmet = (SIGMET) msg;
                 final Optional<Integer> forecastIndex = ctx.getParameter("forecastIndex", Integer.class);
                 if (forecastIndex.isPresent()) {
 

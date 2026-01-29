@@ -12,13 +12,8 @@ import fi.fmi.avi.model.sigmet.SIGMET;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
+import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.*;
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_APRX_LINE;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_LINE_WIDTH;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_LINE_WIDTH_UNIT;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_POINT1;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_POINT2;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_POINT3;
-import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_POINT4;
 
 /**
  * Created by rinne on 10/02/17.
@@ -26,7 +21,7 @@ import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.APRX_POINT4;
 public class SigmetAprx extends RegexMatchingLexemeVisitor {
 
     public SigmetAprx(final OccurrenceFrequency prio) {
-        super("^APRX\\s((\\d{2})(KM|NM))\\sWID\\sLINE\\sBTN\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5})(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5}))?(\\s-\\s([NS]\\d{2,4}\\s[EW]\\d{3,5}))?$", prio);
+        super("^APRX\\s+((\\d{2})(KM|NM))\\s+WID\\s+LINE\\s+BTN\\s+([NS]\\d{2,4}\\s+[EW]\\d{3,5})\\s+-\\s+([NS]\\d{2,4}\\s+[EW]\\d{3,5})(\\s+-\\s+([NS]\\d{2,4}\\s+[EW]\\d{3,5}))?(\\s+-\\s+([NS]\\d{2,4}\\s+[EW]\\d{3,5}))?$", prio);
     }
 
     @Override

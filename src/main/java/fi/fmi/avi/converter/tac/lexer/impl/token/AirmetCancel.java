@@ -2,8 +2,8 @@ package fi.fmi.avi.converter.tac.lexer.impl.token;
 
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
-import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName;
+import fi.fmi.avi.converter.tac.lexer.SerializingException;
 import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
@@ -23,7 +23,7 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.AIRMET_CANCEL;
 public class AirmetCancel extends RegexMatchingLexemeVisitor {
 
     public AirmetCancel(final OccurrenceFrequency prio) {
-        super("^CNL AIRMET (\\w?\\d?\\d) (\\d{2})(\\d{2})(\\d{2})/(\\d{2})(\\d{2})(\\d{2})$", prio);
+        super("^CNL\\s+AIRMET\\s+(\\w?\\d?\\d)\\s+(\\d{2})(\\d{2})(\\d{2})/(\\d{2})(\\d{2})(\\d{2})$", prio);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class AirmetCancel extends RegexMatchingLexemeVisitor {
 
 	public static class Reconstructor extends FactoryBasedReconstructor {
 
-        private String getDateString(PartialOrCompleteTimeInstant instant) {
+        private String getDateString(final PartialOrCompleteTimeInstant instant) {
             return String.format(Locale.US, "%02d%02d%02d",
                 instant.getDay().getAsInt(),
                 instant.getHour().getAsInt(),
@@ -51,17 +51,17 @@ public class AirmetCancel extends RegexMatchingLexemeVisitor {
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (AIRMET.class.isAssignableFrom(clz)) {
-                AIRMET airmet = (AIRMET)msg;
+                final AIRMET airmet = (AIRMET)msg;
                 if (airmet.isCancelMessage()) {
-                    StringBuilder sb = new StringBuilder();
+                    final StringBuilder sb = new StringBuilder();
                     sb.append("CNL");
                     sb.append(" ");
                     sb.append("AIRMET");
                     sb.append(" ");
                     sb.append(airmet.getCancelledReference().get().getSequenceNumber());
                     sb.append(" ");
-                    PartialOrCompleteTimeInstant start = airmet.getCancelledReference().get().getValidityPeriod().getStartTime().get();
-                    PartialOrCompleteTimeInstant end = airmet.getCancelledReference().get().getValidityPeriod().getEndTime().get();
+                    final PartialOrCompleteTimeInstant start = airmet.getCancelledReference().get().getValidityPeriod().getStartTime().get();
+                    final PartialOrCompleteTimeInstant end = airmet.getCancelledReference().get().getValidityPeriod().getEndTime().get();
 
 
                     sb.append(getDateString(start));

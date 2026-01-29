@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 
 import static fi.fmi.avi.converter.tac.lexer.Lexeme.ParsedValueName.PHENOMENON;
-
 import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_PHENOMENON;
 
 
@@ -22,66 +21,85 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_PHENOMENON;
  * Created by rinne on 10/02/17.
  */
 public class SigmetPhenomenon extends RegexMatchingLexemeVisitor {
-    private static final String REGEX = "(OBSC\\sTS|OBSC\\sTSGR|EMBD\\sTS|EMBD\\sTSGR|FRQ\\sTS|FRQ\\sTSGR|SQL\\sTS||SQL\\sTSGR"+
-                "|SEV\\sTURB|SEV\\sICE|SEV\\sICE\\s\\(FZRA\\)|SEV\\sMTW|HVY\\sDS|HVY\\sSS|RDOACT\\sCLD|VA\\sCLD)";
+    private static final String REGEX = "(OBSC\\s+TS|OBSC\\s+TSGR|EMBD\\s+TS|EMBD\\s+TSGR|FRQ\\s+TS|FRQ\\s+TSGR|SQL\\s+TS||SQL\\s+TSGR" +
+            "|SEV\\s+TURB|SEV\\s+ICE|SEV\\s+ICE\\s+\\(FZRA\\)|SEV\\s+MTW|HVY\\s+DS|HVY\\s+SS|RDOACT\\s+CLD|VA\\s+CLD)";
+
     public SigmetPhenomenon(final OccurrenceFrequency prio) {
-            super(REGEX, prio);
+        super(REGEX, prio);
     }
 
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
         token.identify(SIGMET_PHENOMENON);
-        String m=match.group(1);
-        if (m.equals("OBSC TS")) {
-            token.setParsedValue(PHENOMENON, "OBSC_TS");
-        } else if (m.equals("EMBD TS")) {
-            token.setParsedValue(PHENOMENON, "EMBD_TS");
-        } else if (m.equals("FRQ TS")) {
-            token.setParsedValue(PHENOMENON, "FRQ_TS");
-        } else if (m.equals("SQL TS")) {
-            token.setParsedValue(PHENOMENON, "SQL_TS");
-        } else if (m.equals("OBSC TSGR")) {
-            token.setParsedValue(PHENOMENON, "OBSC_TSGR");
-        } else if (m.equals("EMBD TSGR")) {
-            token.setParsedValue(PHENOMENON, "EMBD_TSGR");
-        } else if (m.equals("FRQ TSGR")) {
-            token.setParsedValue(PHENOMENON, "FRQ_TSGR");
-        } else if (m.equals("SQL TSGR")) {
-            token.setParsedValue(PHENOMENON, "SQL_TSGR");
-        } else if (m.equals("SEV TURB")) {
-            token.setParsedValue(PHENOMENON, "SEV_TURB");
-        } else if (m.equals("SEV ICE")) {
-            token.setParsedValue(PHENOMENON, "SEV_ICE");
-        } else if (m.equals("SEV ICE (FZRA)")) {
-            token.setParsedValue(PHENOMENON, "SEV_ICE_FZRA");
-        } else if (m.equals("SEV MTW")) {
-            token.setParsedValue(PHENOMENON, "SEV_MTW");
-        } else if (m.equals("HVY DS")) {
-            token.setParsedValue(PHENOMENON, "HVY_DS");
-        } else if (m.equals("HVY SS")) {
-            token.setParsedValue(PHENOMENON, "HVY_SS");
-        } else if (m.equals("RDOACT CLD")) {
-            token.setParsedValue(PHENOMENON, "RDOACT_CLD");
-        } else if (m.equals("VA CLD")) {
-            token.setParsedValue(PHENOMENON, "VA_CLD");
-        } else if (m.equals("TC")) {
-            token.setParsedValue(PHENOMENON, "TC");
+        final String m = match.group(1);
+        switch (m) {
+            case "OBSC TS":
+                token.setParsedValue(PHENOMENON, "OBSC_TS");
+                break;
+            case "EMBD TS":
+                token.setParsedValue(PHENOMENON, "EMBD_TS");
+                break;
+            case "FRQ TS":
+                token.setParsedValue(PHENOMENON, "FRQ_TS");
+                break;
+            case "SQL TS":
+                token.setParsedValue(PHENOMENON, "SQL_TS");
+                break;
+            case "OBSC TSGR":
+                token.setParsedValue(PHENOMENON, "OBSC_TSGR");
+                break;
+            case "EMBD TSGR":
+                token.setParsedValue(PHENOMENON, "EMBD_TSGR");
+                break;
+            case "FRQ TSGR":
+                token.setParsedValue(PHENOMENON, "FRQ_TSGR");
+                break;
+            case "SQL TSGR":
+                token.setParsedValue(PHENOMENON, "SQL_TSGR");
+                break;
+            case "SEV TURB":
+                token.setParsedValue(PHENOMENON, "SEV_TURB");
+                break;
+            case "SEV ICE":
+                token.setParsedValue(PHENOMENON, "SEV_ICE");
+                break;
+            case "SEV ICE (FZRA)":
+                token.setParsedValue(PHENOMENON, "SEV_ICE_FZRA");
+                break;
+            case "SEV MTW":
+                token.setParsedValue(PHENOMENON, "SEV_MTW");
+                break;
+            case "HVY DS":
+                token.setParsedValue(PHENOMENON, "HVY_DS");
+                break;
+            case "HVY SS":
+                token.setParsedValue(PHENOMENON, "HVY_SS");
+                break;
+            case "RDOACT CLD":
+                token.setParsedValue(PHENOMENON, "RDOACT_CLD");
+                break;
+            case "VA CLD":
+                token.setParsedValue(PHENOMENON, "VA_CLD");
+                break;
+            case "TC":
+                token.setParsedValue(PHENOMENON, "TC");
+                break;
         }
     }
 
     public static class Reconstructor extends FactoryBasedReconstructor {
 
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, Class<T> clz, final ReconstructorContext<T> ctx) {
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx) {
 
             if (SIGMET.class.isAssignableFrom(clz)) {
-                SIGMET sigmet = (SIGMET)msg;
+                final SIGMET sigmet = (SIGMET) msg;
                 if (sigmet.getPhenomenon().isPresent()) {
-                    AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon phen=sigmet.getPhenomenon().get();
-                    String text;
-                    if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE_FZRA.equals(phen)){
+                    final AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon phen = sigmet.getPhenomenon().get();
+                    final String text;
+                    if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.SEV_ICE_FZRA.equals(phen)) {
                         text = "SEV ICE (FZRA)";
-                    } else if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA.equals(phen)){
+                    } else if (AviationCodeListUser.AeronauticalSignificantWeatherPhenomenon.VA.equals(phen)) {
                         text = "VA CLD";
                     } else {
                         text = phen.getText().replaceAll("_", " ");

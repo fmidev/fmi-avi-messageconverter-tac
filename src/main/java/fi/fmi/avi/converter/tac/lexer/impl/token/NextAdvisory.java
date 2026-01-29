@@ -23,8 +23,8 @@ import static java.util.Objects.requireNonNull;
 
 public class NextAdvisory extends TimeHandlingRegex {
     public NextAdvisory(final OccurrenceFrequency prio) {
-        super("(?<type>WILL\\sBE\\sISSUED\\sBY\\s?)?((?<year>[0-9]{4})(?<month>[0-1][0-9])(?<day>[0-3][0-9])\\/"
-                + "(?<hour>[0-2][0-9])(?<minute>[0-5][0-9])Z)|(?<nofurther>NO\\sFURTHER\\sADVISORIES)", prio);
+        super("(?<type>WILL\\s+BE\\s+ISSUED\\s+BY\\s*)?((?<year>[0-9]{4})(?<month>[0-1][0-9])(?<day>[0-3][0-9])\\/"
+                + "(?<hour>[0-2][0-9])(?<minute>[0-5][0-9])Z)|(?<nofurther>NO\\s+FURTHER\\s+ADVISORIES)", prio);
     }
 
     private static Type resolveType(final Matcher matcher) {

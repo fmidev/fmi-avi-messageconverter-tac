@@ -28,7 +28,7 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
             "WSW", "W", "WNW", "NW", "NNW"};
 
     public SigmetMoving(final OccurrenceFrequency prio) {
-        super("^STNR|(MOV)\\s(N|NNE|NE|ENE|E|ESE|SE|SSE|S|SSW|SW|WSW|W|WNW|NW|NNW)\\s([0-9]{1,3})(KT|KMH)$", prio);
+        super("^STNR|(MOV)\\s+(N|NNE|NE|ENE|E|ESE|SE|SSE|S|SSW|SW|WSW|W|WNW|NW|NNW)\\s+([0-9]{1,3})(KT|KMH)$", prio);
     }
 
     @Override
@@ -56,22 +56,22 @@ public class SigmetMoving extends RegexMatchingLexemeVisitor {
                 if (analysisIndex.isPresent()) {
                     if (SIGMET.class.isAssignableFrom(clz)) {
                         final SIGMET sigmet = (SIGMET) msg;
-                        if (sigmet.getForecastGeometries().isPresent() && sigmet.getForecastGeometries().get().size() > 0) {
+                        if (sigmet.getForecastGeometries().isPresent() && !sigmet.getForecastGeometries().get().isEmpty()) {
                             return Optional.empty();
                         }
                     }
                     if (!message.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().isPresent()) {
                         return Optional.of(createLexeme("STNR", SIGMET_MOVING));
                     } else {
-                        StringBuilder sb = new StringBuilder();
+                        final StringBuilder sb = new StringBuilder();
                         sb.append("MOV");
                         sb.append(MeteorologicalBulletinSpecialCharacter.SPACE.getContent());
-                        int index = (int) (message.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().get().getValue() / 22.5);
+                        final int index = (int) (message.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingDirection().get().getValue() / 22.5);
                         if ((index >= 0) && (index < 16)) {
                             sb.append(WIND_DIRECTIONS[index]);
                         }
                         sb.append(MeteorologicalBulletinSpecialCharacter.SPACE.getContent());
-                        NumericMeasure spd = message.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingSpeed().get();
+                        final NumericMeasure spd = message.getAnalysisGeometries().get().get(analysisIndex.get()).getMovingSpeed().get();
                         sb.append(String.format(Locale.US, "%1.0f", spd.getValue()));
                         sb.append(spd.getUom());
                         return Optional.of(createLexeme(sb.toString(), SIGMET_MOVING));

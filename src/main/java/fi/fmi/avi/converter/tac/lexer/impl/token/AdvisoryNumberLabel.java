@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 
 public class AdvisoryNumberLabel extends RegexMatchingLexemeVisitor {
     public AdvisoryNumberLabel(final OccurrenceFrequency prio) {
-        super("^ADVISORY\\sNR:$", prio);
+        super("^ADVISORY\\s+NR:$", prio);
     }
 
     @Override

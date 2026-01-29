@@ -22,16 +22,34 @@ import static fi.fmi.avi.converter.tac.lexer.LexemeIdentity.SIGMET_LEVEL;
  */
 public class SigmetLevel extends RegexMatchingLexemeVisitor {
 
-    static String regex1 = "^(([0-9]{4}/)?($?[0-9]{4}M))|(([0-9]{4,5}/)?([0-9]{4,5}FT))|(([0-9]{4}M/)?(FL[0-9]{3}))|(([0-9]{4,5}FT/)?(FL[0-9]{3}))|((TOP\\s)?((ABV|BLW)\\s)?((FL[0-9]{3})|([0-9]{4,5}FT)))|((SFC/)?(FL[0-9]{3}))|((SFC/)?([0-9]{4,5}FT))|((SFC/)?([0-9]{4}M))|(FL[0-9]{3}(/[0-9]{3})?)$";
-    static String regex = "^(?<meters>(([0-9]{4}/)?($?[0-9]{4}M))||(?<feet>([0-9]{4,5}/)?([0-9]{4,5}FT)))$";
+    static String regex1 = "^(([0-9]{4}/)?($?[0-9]{4}M))|(([0-9]{4,5}/)?([0-9]{4,5}FT))|(([0-9]{4}M/)?(FL[0-9]{3}))|(([0-9]{4,5}FT/)?(FL[0-9]{3}))|((TOP\\s+)?((ABV|BLW)\\s+)?((FL[0-9]{3})|([0-9]{4,5}FT)))|((SFC/)?(FL[0-9]{3}))|((SFC/)?([0-9]{4,5}FT))|((SFC/)?([0-9]{4}M))|(FL[0-9]{3}(/[0-9]{3})?)$";
+//    static String regex = "^(?<meters>(([0-9]{4}/)?($?[0-9]{4}M))||(?<feet>([0-9]{4,5}/)?([0-9]{4,5}FT)))$";
 
     public SigmetLevel(final OccurrenceFrequency prio) {
         super(regex1, prio);
     }
 
+    private static String stringifyHeight(final NumericMeasure measure, final boolean addUnit) {
+        final StringBuilder sb = new StringBuilder();
+        if (addUnit && "FL".equals(measure.getUom())) {
+            sb.append("FL");
+        }
+        if ((measure.getValue() < 1000) && ("FL".equals(measure.getUom()))) {
+            sb.append(String.format(Locale.US, "%03.0f", measure.getValue()));
+        } else if (measure.getValue() < 10000) {
+            sb.append(String.format(Locale.US, "%04.0f", measure.getValue()));
+        } else {
+            sb.append(String.format(Locale.US, "%05.0f", measure.getValue()));
+        }
+        if (addUnit && !"FL".equals(measure.getUom())) {
+            sb.append(measure.getUom());
+        }
+        return sb.toString();
+    }
+
     @Override
     public void visitIfMatched(final Lexeme token, final Matcher match, final ConversionHints hints) {
-        String toMatch = match.group(0);
+        final String toMatch = match.group(0);
         String regex = "^(?<level>[0-9]{4})?/?(?<level2>[0-9]{4})(?<unit2>M)$";
         Matcher m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()) {
@@ -86,7 +104,7 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
             token.setParsedValue(UNIT2, m.group("unit2"));
             return;
         }
-        regex = "^(?<top>(TOP ABV|ABV|BLW|TOP))\\s(?<unit2>FL)(?<level2>[0-9]{3})$";
+        regex = "^(?<top>(TOP ABV|ABV|BLW|TOP))\\s+(?<unit2>FL)(?<level2>[0-9]{3})$";
         m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()) {
             token.identify(SIGMET_LEVEL);
@@ -96,7 +114,7 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
             token.setParsedValue(VALUE2, m.group("level2"));
             token.setParsedValue(UNIT2, m.group("unit2"));
         }
-        regex = "^(?<top>TOP ABV|ABV|BLW|TOP)\\s(?<level2>[0-9]{4,5})(?<unit2>FT)$";
+        regex = "^(?<top>TOP ABV|ABV|BLW|TOP)\\s+(?<level2>[0-9]{4,5})(?<unit2>FT)$";
         m = Pattern.compile(regex).matcher(toMatch);
         if (m.matches()) {
             token.identify(SIGMET_LEVEL);
@@ -149,25 +167,6 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
         }
     }
 
-    private static String stringifyHeight(NumericMeasure measure, boolean addUnit) {
-        StringBuilder sb = new StringBuilder();
-        if (addUnit && "FL".equals(measure.getUom())) {
-            sb.append("FL");
-        }
-        if ((measure.getValue() < 1000) && ("FL".equals(measure.getUom()))) {
-            sb.append(String.format(Locale.US, "%03.0f", measure.getValue()));
-        } else if (measure.getValue() < 10000) {
-            sb.append(String.format(Locale.US, "%04.0f", measure.getValue()));
-        } else {
-            sb.append(String.format(Locale.US, "%05.0f", measure.getValue()));
-        }
-        if (addUnit && !"FL".equals(measure.getUom())) {
-            sb.append(measure.getUom());
-        }
-        return sb.toString();
-    }
-
-
     public static class Reconstructor extends FactoryBasedReconstructor {
         @Override
         public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
@@ -176,8 +175,8 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
                 final SIGMETAIRMET message = (SIGMETAIRMET) msg;
                 final Optional<Integer> analysisIndex = ctx.getParameter("analysisIndex", Integer.class);
                 if (analysisIndex.isPresent()) {
-                    String level = getLevel(message.getAnalysisGeometries().get().get(0));
-                    if (level.length() > 0) {
+                    final String level = getLevel(message.getAnalysisGeometries().get().get(0));
+                    if (!level.isEmpty()) {
                         return Optional.of(this.createLexeme(
                                 level, LexemeIdentity.SIGMET_LEVEL));
                     }
@@ -186,13 +185,12 @@ public class SigmetLevel extends RegexMatchingLexemeVisitor {
             return Optional.empty();
         }
 
-        private String getLevel(PhenomenonGeometryWithHeight geom) {
+        private String getLevel(final PhenomenonGeometryWithHeight geom) {
             StringBuilder sb = new StringBuilder();
             NumericMeasure lowerLevel = null;
             NumericMeasure upperLevel = null;
             AviationCodeListUser.RelationalOperator lowerLimitOperator = null;
             AviationCodeListUser.RelationalOperator upperLimitOperator = null;
-            ;
             if (geom.getLowerLimit().isPresent()) {
                 lowerLevel = geom.getLowerLimit().get();
             }

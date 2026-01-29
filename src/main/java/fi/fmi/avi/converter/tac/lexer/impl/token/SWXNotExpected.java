@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 
 public class SWXNotExpected extends RegexMatchingLexemeVisitor {
     public SWXNotExpected(final PrioritizedLexemeVisitor.OccurrenceFrequency prio) {
-        super("^NO\\sSWX\\sEXP$", prio);
+        super("^NO\\s+SWX\\s+EXP$", prio);
     }
 
     @Override
