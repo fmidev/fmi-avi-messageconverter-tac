@@ -299,7 +299,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.FIR_NAME, new FIRName.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_USAGE, new SigmetUsage.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_PHENOMENON, new SigmetPhenomenon.Reconstructor());
-        s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new AirSigmetObsOrForecast.Reconstructor());
+        s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new AirmetSigmetObsOrForecast.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_FCST_AT, new SigmetForecastAt.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());
@@ -334,7 +334,7 @@ public class Serializing {
         s.addReconstructor(LexemeIdentity.FIR_NAME, new FIRName.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_USAGE, new SigmetUsage.Reconstructor());
         s.addReconstructor(LexemeIdentity.AIRMET_PHENOMENON, new AirmetPhenomenon.Reconstructor());
-        s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new AirSigmetObsOrForecast.Reconstructor());
+        s.addReconstructor(LexemeIdentity.OBS_OR_FORECAST, new AirmetSigmetObsOrForecast.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_TAC_ELEMENT, new SigmetTacElement.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_ENTIRE_AREA, new SigmetEntireFir.Reconstructor());
         s.addReconstructor(LexemeIdentity.SIGMET_INTENSITY, new SigmetIntensity.Reconstructor());

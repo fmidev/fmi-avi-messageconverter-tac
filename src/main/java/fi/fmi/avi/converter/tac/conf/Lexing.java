@@ -744,7 +744,7 @@ public class Lexing {
         l.teach(new MWODesignator(OccurrenceFrequency.RARE));
         l.teach(new EndToken(OccurrenceFrequency.RARE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
-        l.teach(new AirSigmetObsOrForecast(OccurrenceFrequency.FREQUENT));
+        l.teach(new AirmetSigmetObsOrForecast(OccurrenceFrequency.FREQUENT));
         l.teach(new FIRDesignator(OccurrenceFrequency.AVERAGE));
         l.teach(new FIRName(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetUsage(OccurrenceFrequency.RARE));
@@ -795,7 +795,7 @@ public class Lexing {
         l.teach(new MWODesignator(OccurrenceFrequency.RARE));
         l.teach(new EndToken(OccurrenceFrequency.RARE));
         l.teach(new Whitespace(OccurrenceFrequency.FREQUENT));
-        l.teach(new AirSigmetObsOrForecast(OccurrenceFrequency.FREQUENT));
+        l.teach(new AirmetSigmetObsOrForecast(OccurrenceFrequency.FREQUENT));
         l.teach(new FIRDesignator(OccurrenceFrequency.AVERAGE));
         l.teach(new FIRName(OccurrenceFrequency.AVERAGE));
         l.teach(new SigmetUsage(OccurrenceFrequency.RARE));

@@ -8,6 +8,7 @@ import fi.fmi.avi.converter.tac.lexer.impl.FactoryBasedReconstructor;
 import fi.fmi.avi.converter.tac.lexer.impl.ReconstructorContext;
 import fi.fmi.avi.converter.tac.lexer.impl.RegexMatchingLexemeVisitor;
 import fi.fmi.avi.model.AviationWeatherMessageOrCollection;
+import fi.fmi.avi.model.PhenomenonGeometry;
 import fi.fmi.avi.model.sigmet.SIGMET;
 
 import java.util.Locale;
@@ -54,16 +55,22 @@ public class SigmetForecastAt extends RegexMatchingLexemeVisitor {
 
     public static class Reconstructor extends FactoryBasedReconstructor {
 
+        protected static Optional<String> getAnalysisTimeString(final PhenomenonGeometry geometry) {
+            return geometry.getTime()
+                    .filter(time -> time.getHour().isPresent() && time.getMinute().isPresent())
+                    .map(time -> String.format(Locale.US, " AT %02d%02dZ",
+                            time.getHour().getAsInt(), time.getMinute().getAsInt()));
+        }
+
         @Override
-        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
+        public <T extends AviationWeatherMessageOrCollection> Optional<Lexeme> getAsLexeme(
+                final T msg, final Class<T> clz, final ReconstructorContext<T> ctx)
                 throws SerializingException {
             if (SIGMET.class.isAssignableFrom(clz)) {
                 final SIGMET sigmet = (SIGMET) msg;
                 final int forecastIndex = ctx.getMandatoryParameter("forecastIndex", Integer.class);
                 final String forecastTimeString = sigmet.getForecastGeometries()
-                        .flatMap(geometries -> geometries.get(forecastIndex).getTime())
-                        .filter(time -> time.getHour().isPresent() && time.getMinute().isPresent())
-                        .map(time -> String.format(Locale.US, " AT %02d%02dZ", time.getHour().getAsInt(), time.getMinute().getAsInt()))
+                        .flatMap(geometries -> getAnalysisTimeString(geometries.get(forecastIndex)))
                         .orElse("");
                 return Optional.of(this.createLexeme("FCST" + forecastTimeString, LexemeIdentity.OBS_OR_FORECAST));
             }
