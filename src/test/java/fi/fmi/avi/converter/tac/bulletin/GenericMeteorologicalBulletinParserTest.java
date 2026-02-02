@@ -1,23 +1,5 @@
 package fi.fmi.avi.converter.tac.bulletin;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
 import fi.fmi.avi.converter.AviMessageConverter;
 import fi.fmi.avi.converter.ConversionHints;
 import fi.fmi.avi.converter.ConversionResult;
@@ -27,17 +9,28 @@ import fi.fmi.avi.converter.tac.lexer.AviMessageLexer;
 import fi.fmi.avi.converter.tac.lexer.Lexeme;
 import fi.fmi.avi.converter.tac.lexer.LexemeIdentity;
 import fi.fmi.avi.converter.tac.lexer.LexemeSequence;
-import fi.fmi.avi.model.GenericAviationWeatherMessage;
-import fi.fmi.avi.model.MessageType;
-import fi.fmi.avi.model.PartialDateTime;
-import fi.fmi.avi.model.PartialOrCompleteTimeInstant;
-import fi.fmi.avi.model.PartialOrCompleteTimePeriod;
+import fi.fmi.avi.model.*;
 import fi.fmi.avi.model.bulletin.BulletinHeading;
 import fi.fmi.avi.model.bulletin.DataTypeDesignatorT1;
 import fi.fmi.avi.model.bulletin.DataTypeDesignatorT2;
 import fi.fmi.avi.model.bulletin.GenericMeteorologicalBulletin;
 import fi.fmi.avi.model.bulletin.immutable.BulletinHeadingImpl;
 import fi.fmi.avi.util.GTSExchangeFileInfo;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+
+import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TACTestConfiguration.class, loader = AnnotationConfigContextLoader.class)
@@ -103,7 +96,7 @@ public class GenericMeteorologicalBulletinParserTest {
                 .setIssueTime(PartialOrCompleteTimeInstant.createIssueTime("020500"))
                 .setType(BulletinHeading.Type.NORMAL)
                 .build();
-        final GTSExchangeFileInfo info = new GTSExchangeFileInfo.Builder().setHeading(heading)
+        final GTSExchangeFileInfo info = GTSExchangeFileInfo.builder().setHeading(heading)
                 .setFileType(GTSExchangeFileInfo.GTSExchangeFileType.TEXT)
                 .setMetadataFile(false)
                 .setPFlag(GTSExchangeFileInfo.GTSExchangePFlag.A)
@@ -111,7 +104,7 @@ public class GenericMeteorologicalBulletinParserTest {
                 .setTimeStampHour(5)
                 .setTimeStampMinute(0)
                 .build();
-        final ConversionHints hints = new ConversionHints(ConversionHints.KEY_BULLETIN_ID, info.toGTSExchangeFileName());
+        final ConversionHints hints = new ConversionHints(ConversionHints.KEY_BULLETIN_ID, info.toGTSExchangeFilename());
         final ConversionResult<GenericMeteorologicalBulletin> result = this.converter.convertMessage("FTFI33 EFPP 020500\n" //
                 + "TAF EFKE 020532Z 0206/0312 05005KT 9999 -SHRA BKN004 BECMG\n" //
                 + "0206/0208 FEW005 BKN020 TEMPO 0206/0215 4000 SHRA\n" //
@@ -130,19 +123,19 @@ public class GenericMeteorologicalBulletinParserTest {
         assertTrue(msg.getMessageType().isPresent());
         assertEquals(MessageType.TAF, msg.getMessageType().get());
         assertTrue(msg.getTranslatedBulletinID().isPresent());
-        assertEquals(info.toGTSExchangeFileName(), msg.getTranslatedBulletinID().get());
+        assertEquals(info.toGTSExchangeFilename(), msg.getTranslatedBulletinID().get());
 
         msg = bulletin.get().getMessages().get(1);
         assertTrue(msg.getMessageType().isPresent());
         assertEquals(MessageType.TAF, msg.getMessageType().get());
         assertTrue(msg.getTranslatedBulletinID().isPresent());
-        assertEquals(info.toGTSExchangeFileName(), msg.getTranslatedBulletinID().get());
+        assertEquals(info.toGTSExchangeFilename(), msg.getTranslatedBulletinID().get());
 
         msg = bulletin.get().getMessages().get(2);
         assertTrue(msg.getMessageType().isPresent());
         assertEquals(MessageType.TAF, msg.getMessageType().get());
         assertTrue(msg.getTranslatedBulletinID().isPresent());
-        assertEquals(info.toGTSExchangeFileName(), msg.getTranslatedBulletinID().get());
+        assertEquals(info.toGTSExchangeFilename(), msg.getTranslatedBulletinID().get());
 
     }
 
