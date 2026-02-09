@@ -31,6 +31,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - ...
 
+## [v8.1.0] - 2026-02-09
+
+### Fixed
+
+- Fixed horizontal visibility parsing that was in some cases too lax, allowing syntax that would result in model state
+  that could not be serialized [#211]
+- Fixed lexing issues with multiple consecutive whitespaces [#213]
+
 ## [v8.0.0] - 2026-01-12
 
 ### Changed
@@ -154,7 +162,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Previous changelog entries are available
 on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
 
-[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-8.0.0...HEAD
+[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-8.1.0...HEAD
+
+[v8.1.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-8.1.0
 
 [v8.0.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-8.0.0
 
@@ -229,4 +239,8 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 [#208]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/208
 
 [#210]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/210
+
+[#211]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/211
+
+[#213]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/213
 
