@@ -25,11 +25,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Compile with javac `-parameters` flag to enable parameter name retention for use with Spring Framework.
+- ...
 
 ### Security
 
 - ...
+
+## [v8.1.1] - 2026-09-03
+
+### Fixed
+
+- Compile with javac `-parameters` flag to enable parameter name retention for use with Spring Framework. [#217]
 
 ## [v8.1.0] - 2026-02-09
 
@@ -162,7 +168,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Previous changelog entries are available
 on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac/releases) in a more freeform format.
 
-[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-8.1.0...HEAD
+[Unreleased]: https://github.com/fmidev/fmi-avi-messageconverter-tac/compare/fmi-avi-messageconverter-tac-8.1.1...HEAD
+
+[v8.1.1]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-8.1.1
 
 [v8.1.0]: https://github.com/fmidev/fmi-avi-messageconverter-tac/releases/tag/fmi-avi-messageconverter-tac-8.1.0
 
@@ -244,3 +252,4 @@ on [GitHub releases page](https://github.com/fmidev/fmi-avi-messageconverter-tac
 
 [#213]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/213
 
+[#217]: https://github.com/fmidev/fmi-avi-messageconverter-tac/pull/217
