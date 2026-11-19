@@ -13,7 +13,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- ...
+- Update the core converter dependency to include the +FC weather code.
 
 ### Deprecated
 
